@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/authentication/Login.dart';
+import 'package:itx/authentication/Regulator.dart';
 import 'package:itx/authentication/Verification.dart';
 import 'package:itx/global/globals.dart';
 
@@ -124,7 +125,7 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
                     "Add a document to prove your are authorized to sell this product",
                 action: () {
                   Globals.switchScreens(
-                      context: context, screen: LoginScreen());
+                      context: context, screen: Regulators());
                 },
               ),
               docsType(
@@ -133,7 +134,7 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
                     "Add a docuemtnt to prove this product is eligable for sale",
                 action: () {
                   Globals.switchScreens(
-                      context: context, screen: LoginScreen());
+                      context: context, screen: Regulators());
                 },
               ),
             ],
