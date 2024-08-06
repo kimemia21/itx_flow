@@ -80,7 +80,7 @@ class _CommoditesState extends State<Commodites> {
             Align(
               alignment: Alignment.bottomCenter,
               child: GestureDetector(
-                onTap:()=>Globals.switchScreens(context: context,screen: DocumentsVericiation()),
+                onTap:()=>Globals.switchScreens(context: context,screen: DocumentsVerification()),
                 child: Container(
                   alignment: Alignment.center,
                   width: MediaQuery.of(context).size.width * 0.8,
