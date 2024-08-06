@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/authentication/Commodites.dart';
 import 'package:itx/authentication/Login.dart';
 import 'package:itx/global/globals.dart';
 
@@ -48,7 +49,7 @@ class _VerificationState extends State<Verification> {
               ),
               OtpTextField(
                 numberOfFields: 5,
-                borderColor: Color(0xFF512DA8),
+                borderColor: Colors.black,
                 //set to true to show as box or false to show as dash
                 showFieldAsBox: true,
                 //runs when a code is typed in
@@ -57,21 +58,25 @@ class _VerificationState extends State<Verification> {
                 },
                 //runs when every textfield is filled
                 onSubmit: (String verificationCode) {
-                  showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text("Verification Code"),
-                          content: Text('Code entered is $verificationCode'),
-                        );
-                      });
+                  _updateProgress();
+                  Future.delayed(Duration(seconds: 2)).then((value) =>
+                      Globals.switchScreens(
+                          context: context, screen: Commodites()));
+                  // showDialog(
+                  //     context: context,
+                  //     builder: (context) {
+                  //       return AlertDialog(
+                  //         title: Text("Verification Code"),
+                  //         content: Text('Code entered is $verificationCode'),
+                  //       );
+                  //     });
                 }, // end onSubmit
               ),
               SizedBox(
                 height: 10,
               ),
               GestureDetector(
-                onTap:_updateProgress,
+                onTap: _updateProgress,
                 child: Container(
                   alignment: Alignment.center,
                   width: MediaQuery.of(context).size.width * 0.8,
@@ -97,8 +102,7 @@ class _VerificationState extends State<Verification> {
                 height: 10,
               ),
               Container(
-                width: MediaQuery.of(context).size.width*0.8,
-
+                width: MediaQuery.of(context).size.width * 0.8,
                 child: TweenAnimationBuilder<double>(
                   tween: Tween<double>(begin: 0.0, end: _progress),
                   duration: Duration(seconds: 2),
@@ -124,7 +128,6 @@ class _VerificationState extends State<Verification> {
                 ),
               ),
               SizedBox(height: 20),
-        
             ],
           ),
         ),
