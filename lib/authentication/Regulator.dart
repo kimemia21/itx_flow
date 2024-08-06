@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/authentication/Autherization.dart';
+import 'package:itx/authentication/Commodites.dart';
+import 'package:itx/global/globals.dart';
 
 class Regulators extends StatefulWidget {
   const Regulators({super.key});
@@ -30,6 +33,10 @@ class _RegulatorsState extends State<Regulators> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+            onPressed: () =>
+                Globals.switchScreens(context: context, screen: Commodites()),
+            icon: Icon(Icons.arrow_back)),
         title: Text('Upload your documents'),
       ),
       body: Padding(
@@ -89,12 +96,34 @@ class _RegulatorsState extends State<Regulators> {
             Expanded(
               child: ListView(
                 children: [
-                  _buildUploadedDocument('04/30/2023'),
-                  _buildUploadedDocument('02/22/2022'),
-                  _buildUploadedDocument('01/14/2024'),
+                  _buildUploadedDocument(_expiryDateController.text),
+                  _buildUploadedDocument(_expiryDateController.text),
+                  _buildUploadedDocument(_expiryDateController.text),
                 ],
               ),
             ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: GestureDetector(
+                onTap: () => Globals.switchScreens(
+                    context: context, screen: Authorization()),
+                child: Container(
+                  alignment: Alignment.center,
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  height: 50,
+                  decoration: BoxDecoration(
+                      color: Colors.green.shade800,
+                      borderRadius: BorderRadiusDirectional.circular(10)),
+                  child: Text(
+                    "Continue to trading",
+                    style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        fontSize: 20),
+                  ),
+                ),
+              ),
+            )
           ],
         ),
       ),
@@ -103,9 +132,9 @@ class _RegulatorsState extends State<Regulators> {
 
   Widget _buildUploadedDocument(String date) {
     return ListTile(
-      title: Text('Expiry date: $date', style: GoogleFonts.poppins(fontSize: 16)),
+      title:
+          Text('Expiry date: $date', style: GoogleFonts.poppins(fontSize: 16)),
       trailing: Icon(Icons.check_circle, color: Colors.green),
     );
   }
 }
-
