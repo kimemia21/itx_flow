@@ -1,8 +1,14 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/authentication/Autherization.dart';
 import 'package:itx/authentication/Commodites.dart';
 import 'package:itx/global/globals.dart';
+import 'package:image_picker/image_picker.dart';
+// import 'package:uuid/uuid.dart';
+import 'package:file_picker/file_picker.dart';
 
 class Regulators extends StatefulWidget {
   const Regulators({super.key});
@@ -28,6 +34,59 @@ class _RegulatorsState extends State<Regulators> {
       });
     }
   }
+
+
+ Future<void> uploadDocument() async {
+    // String? authUserEmail = Globals().auth.currentUser?.email;
+      String? _fileName;
+  Uint8List? _fileBytes;
+  String? _fileExtention;
+    // var uuid = Uuid().v4();
+   
+
+
+    try {
+      FilePickerResult? result =
+          await FilePicker.platform.pickFiles(type: FileType.any);
+      if (result != null && result.files.isNotEmpty) {
+        final PlatformFile file = result.files.first;
+
+        if (file.path != null) {
+          final localFile = File(file.path!);
+          final Uint8List fileBytes = await localFile.readAsBytes();
+          final fileName = result.files.first.name;
+          final fileExtension = file.extension;
+
+          print("fileExtension ${fileExtension.runtimeType}");
+          print("fileBytes ${fileBytes.runtimeType}");
+          setState(() {
+            _fileName = fileName;
+            _fileBytes = fileBytes;
+            _fileExtention = fileExtension;
+          });
+
+          if (fileBytes == null || fileExtension == null) {
+            print("File picking failed");
+            return null;
+          }
+
+          // return downloadURL;
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Please select a file to upload")),
+        );
+      }
+    } catch (e) {
+      print("got this error in uploadDocument function $e");
+    } finally {
+      // context.read<CurrentUserProvider>().changeIsLoading();
+      // setState(() {
+      //   isuploading = !isuploading;
+      // });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -67,9 +126,7 @@ class _RegulatorsState extends State<Regulators> {
                 SizedBox(width: 10),
                 IconButton(
                   icon: Icon(Icons.camera_alt),
-                  onPressed: () {
-                    // Add your action here for the camera button
-                  },
+                  onPressed:uploadDocument
                 ),
               ],
             ),
