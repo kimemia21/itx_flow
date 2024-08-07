@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:itx/Commodities.dart/Commodites.dart';
+import 'package:itx/Contracts/Contracts.dart';
+import 'package:itx/global/globals.dart';
 
 class CreateContract extends StatefulWidget {
   @override
@@ -34,7 +37,9 @@ class _CreateContractState extends State<CreateContract>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Order Form'),
+        leading: Globals.leading(context: context, screen: Contracts()),
+        title: Text('Create Contact'),
+        centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
           tabs: [

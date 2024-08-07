@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -9,6 +10,11 @@ class Globals {
     return MediaQuery.of(context).size.width * width;
   }
 
+ static Widget leading({required context,  required screen}) {
+    return IconButton(
+        onPressed:()=> switchScreens(context: context,  screen: screen),
+        icon: Icon(Icons.arrow_back));
+  }
 
   static Future<void> switchScreens(
       {required BuildContext context, required Widget screen}) {

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/Commodities.dart/AdvancedSearch.dart';
 import 'package:itx/Contracts/Create.dart';
 import 'package:itx/authentication/Authorization.dart';
+import 'package:itx/global/SidePage.dart';
 import 'package:itx/global/globals.dart';
 
 class Contracts extends StatefulWidget {
@@ -111,18 +113,35 @@ class _ContractsState extends State<Contracts> {
               Container(
                 margin: EdgeInsets.only(top: 10, bottom: 10),
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: TextField(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    labelText: 'Search commodities',
-                    prefixIcon: Icon(Icons.search),
-                    fillColor: Colors.grey[200],
-                    filled: true,
-                  ),
-                  onChanged: (text) {
-                    // You can add search functionality here if needed
-                  },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      width: Globals.AppWidth(context: context, width: 0.7),
+                      child: TextField(
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10)),
+                          labelText: 'Search commodities',
+                          prefixIcon: Icon(Icons.search),
+                          fillColor: Colors.grey[200],
+                          filled: true,
+                        ),
+                        onChanged: (text) {
+                          // You can add search functionality here if needed
+                        },
+                      ),
+                    ),
+                    TextButton(
+                        onPressed: () => Navigator.of(context).push(
+                            SlideFromSidePageRoute(
+                                widget: AdvancedSearchPage())),
+                        child: Text(
+                          "Advanced",
+                          style: GoogleFonts.poppins(
+                              color: Colors.blue, fontWeight: FontWeight.w600),
+                        ))
+                  ],
                 ),
               ),
               searchItem(
