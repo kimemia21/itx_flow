@@ -40,6 +40,7 @@ class _CommoditesState extends State<Commodites> {
               alignment: Alignment.center,
               child: Text("Add Commodities of interest",style: GoogleFonts.poppins(fontWeight: FontWeight.w600),),
             ),
+            
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: TextField(

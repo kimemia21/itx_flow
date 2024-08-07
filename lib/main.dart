@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:itx/Contracts/Contracts.dart';
 import 'package:itx/authentication/Login.dart';
 import 'package:itx/authentication/Regulator.dart';
 import 'package:itx/authentication/Verification.dart';
@@ -34,7 +35,9 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: LoginScreen());
+        home: Contracts()
+        
+        );
   }
 }
  

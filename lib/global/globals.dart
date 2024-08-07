@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-class Globals{
-    static Future<void> switchScreens(
+class Globals {
+  // final BuildContext context;
+  // Globals({required this.context});
+
+  static double AppWidth({required BuildContext context, width}) {
+    return MediaQuery.of(context).size.width * width;
+  }
+
+
+  static Future<void> switchScreens(
       {required BuildContext context, required Widget screen}) {
     try {
       return Navigator.pushReplacement(
