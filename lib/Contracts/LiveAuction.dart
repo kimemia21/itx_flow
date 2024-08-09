@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/global/globals.dart';
 import 'package:syncfusion_flutter_charts/charts.dart'; // Add this dependency in your pubspec.yaml file
 
 
@@ -73,16 +75,34 @@ class LiveAuctionScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
-            
+
+             Text('Bidding ends in: 00:07:59'),
             // Bidding Timer
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Bidding ends in: 00:07:59'),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Text('Place Bid'),
-                ),
+            
+                Container(
+                  padding: EdgeInsets.all(2),
+                  height: 40,
+                  decoration: BoxDecoration(color: Colors.grey.shade300,borderRadius: BorderRadiusDirectional.circular(10)),
+                    width: Globals.AppWidth(context: context,width: 0.3),
+                  child:Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                  Text("\$1.00"),
+                  Icon(Icons.money)],) ,),
+               
+                Container(
+                  padding: EdgeInsets.all(2),
+                  alignment: Alignment.center,
+                  height: 40,
+                  decoration: BoxDecoration(color: Colors.blue.shade300,borderRadius: BorderRadiusDirectional.circular(10)),
+                    width: Globals.AppWidth(context: context,width: 0.3),
+                  child:Text(
+                    
+                    "Place bid",style: GoogleFonts.poppins(color: Colors.white,fontWeight: FontWeight.w600),),),
+               
               ],
             ),
             SizedBox(height: 20),
