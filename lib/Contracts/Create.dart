@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/Contracts/Contracts.dart';
 import 'package:itx/Contracts/MyContracts.dart';
+import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/global/globals.dart';
 
 class CreateContract extends StatefulWidget {
@@ -37,7 +38,9 @@ class _CreateContractState extends State<CreateContract>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         leading: Globals.leading(context: context, screen: Contracts()),
         title: Text('Create Contact'),
         centerTitle: true,
@@ -101,7 +104,8 @@ class _CreateContractState extends State<CreateContract>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 GestureDetector(
-                  onTap: ()=>Globals.switchScreens(context: context,screen: Mycontracts()),
+                  onTap: () => Globals.switchScreens(
+                      context: context, screen: Mycontracts()),
                   child: Container(
                     padding: EdgeInsets.all(15),
                     decoration: BoxDecoration(
@@ -109,22 +113,36 @@ class _CreateContractState extends State<CreateContract>
                         borderRadius: BorderRadiusDirectional.circular(10)),
                     child: Text(
                       "Save Contract",
-                      style:
-                          GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16, color: Colors.black),
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                          color: Colors.black),
                     ),
                   ),
                 ),
-                Container(
-                  padding: EdgeInsets.all(15),
-                  decoration: BoxDecoration(
-                      color: Colors.green.shade700,
-                      borderRadius: BorderRadiusDirectional.circular(10)),
-                  child: Text(
-                    "Review",
-                    style:
-                        GoogleFonts.poppins(fontSize: 16, color: Colors.white),
+                GestureDetector(
+                  onTap: () {
+                    selectedCommodity!=null?
+                    Globals.switchScreens(
+                        context: context, screen: Specificorder(item:selectedCommodity! ,)):
+                         ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(
+              'Please Select a Commodity'),
+        ),
+      );
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(15),
+                    decoration: BoxDecoration(
+                        color: Colors.green.shade700,
+                        borderRadius: BorderRadiusDirectional.circular(10)),
+                    child: Text(
+                      "Review",
+                      style: GoogleFonts.poppins(
+                          fontSize: 16, color: Colors.white),
+                    ),
                   ),
                 ),
               ],

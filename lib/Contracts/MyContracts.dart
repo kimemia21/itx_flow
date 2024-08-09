@@ -21,9 +21,9 @@ class _MycontractsState extends State<Mycontracts> {
       width: MediaQuery.of(context).size.width,
       height: 60,
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.white, width: 1.5),
+        border: Border.all(color: Colors.white54, width: 1.5),
         borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
+        color: Colors.white54,
       ),
       child: ListTile(
         title: Text(
@@ -49,11 +49,13 @@ class _MycontractsState extends State<Mycontracts> {
     return Container(
       margin: EdgeInsets.only(top: 3, bottom: 3),
       width: MediaQuery.of(context).size.width,
+      
       height: 60,
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.white, width: 1.5),
+
+        border: Border.all(color: Colors.white54, width: 1.5),
         borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
+        color: Colors.white54,
       ),
       child: ListTile(
         title: Text(
@@ -75,7 +77,9 @@ class _MycontractsState extends State<Mycontracts> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         leading: Globals.leading(context: context, screen: CreateContract()),
         centerTitle: true,
         title: Text(
@@ -111,7 +115,7 @@ class _MycontractsState extends State<Mycontracts> {
               ContractInfo(
                   title: "Soybean, 100 bushels",
                   subtitle: "Dec 2023 delivery to chicago",
-                  status: "Signed"),
+                  status: "Amended"),
               Container(
                   margin: EdgeInsets.only(top: 10, bottom: 10),
                   child: Text(
@@ -119,10 +123,10 @@ class _MycontractsState extends State<Mycontracts> {
                     style: GoogleFonts.poppins(
                         fontSize: 24, fontWeight: FontWeight.w600),
                   )),
-                    DeliveryInfo(title: "Soybean, 100 bushels",  status: "2000"),
-                     DeliveryInfo(title: "Soybean, 100 bushels",  status: "300"),
-                        DeliveryInfo(title: "Soybean, 100 bushels",  status: "23000"),
-                           DeliveryInfo(title: "Soybean, 100 bushels",  status: "1000"),
+                    DeliveryInfo(title: "Soybean, 100 bushels",  status: "\$2000"),
+                     DeliveryInfo(title: "Soybean, 100 bushels",  status: "\$300"),
+                        DeliveryInfo(title: "Soybean, 100 bushels",  status: "\$23000"),
+                           DeliveryInfo(title: "Soybean, 100 bushels",  status: "\$1000"),
             ],
           ),
         ),
