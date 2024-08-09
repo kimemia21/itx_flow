@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/Contracts/LiveAuction.dart';
 import 'package:itx/global/globals.dart';
 
 class Spottrader extends StatefulWidget {
@@ -17,7 +18,7 @@ class _SpottraderState extends State<Spottrader> {
       textColor,
       buttonColor}) {
     return GestureDetector(
-      onDoubleTap: function,
+      onTap: function,
       child: Container(
         alignment: Alignment.center,
         margin: EdgeInsets.only(bottom: 10),
@@ -87,7 +88,10 @@ class _SpottraderState extends State<Spottrader> {
                       buttonColor: Colors.green),
                   spotTraderButtons(
                       title: "Buy",
-                      function: () {},
+                      function: () {
+                        Globals.switchScreens(
+                            context: context, screen: LiveAuctionScreen());
+                      },
                       textColor: Colors.black,
                       buttonColor: Colors.grey.shade300)
                 ],

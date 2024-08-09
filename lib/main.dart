@@ -4,6 +4,7 @@ import 'package:itx/Contracts/LiveAuction.dart';
 import 'package:itx/Contracts/SpotItem.dart';
 import 'package:itx/Contracts/SpotTrader.dart';
 import 'package:itx/global/AppBloc.dart';
+import 'package:itx/global/MyScafold.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
       ChangeNotifierProvider(create:(context)=>appBloc() )
     ],child:  MaterialApp(
        
-        home: Spotitem())  );
+        home: MyHomePage())  );
 
    
   }
