@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/Contracts/Contracts.dart';
 import 'package:itx/Contracts/Create.dart';
+import 'package:itx/Contracts/MyContracts.dart';
 import 'package:itx/global/globals.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -14,7 +16,7 @@ class Specificorder extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: Globals.leading(context: context, screen: CreateContract()),
+        leading: Globals.leading(context: context, screen: Mycontracts()),
         actions: [
           IconButton(
             icon: Icon(Icons.more_vert, color: Colors.black),

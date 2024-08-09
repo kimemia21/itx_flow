@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Commodities.dart/AdvancedSearch.dart';
 import 'package:itx/Contracts/Create.dart';
+import 'package:itx/Contracts/MyContracts.dart';
 import 'package:itx/authentication/Authorization.dart';
+import 'package:itx/global/MyScafold.dart';
 import 'package:itx/global/SidePage.dart';
 import 'package:itx/global/globals.dart';
+import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 
 class Contracts extends StatefulWidget {
   const Contracts({super.key});
@@ -14,6 +17,21 @@ class Contracts extends StatefulWidget {
 }
 
 class _ContractsState extends State<Contracts> {
+
+int _currentIndex = 0;
+late PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
   Widget searchItem({
     required String title,
     required String subtitle,
@@ -79,6 +97,7 @@ class _ContractsState extends State<Contracts> {
   }
 
   @override
+
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -157,3 +176,57 @@ class _ContractsState extends State<Contracts> {
     );
   }
 }
+
+
+//    Widget build(BuildContext context) {
+//     return MyScaffold(body:Container(
+//         padding: EdgeInsets.all(10),
+//         child: SingleChildScrollView(
+//           child: Column(
+//             children: [
+//               Container(
+//                 margin: EdgeInsets.only(top: 10, bottom: 10),
+//                 padding: const EdgeInsets.symmetric(vertical: 8.0),
+//                 child: Row(
+//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                   children: [
+//                     SizedBox(
+//                       width: Globals.AppWidth(context: context, width: 0.7),
+//                       child: TextField(
+//                         decoration: InputDecoration(
+//                           border: OutlineInputBorder(
+//                               borderRadius: BorderRadius.circular(10)),
+//                           labelText: 'Search commodities',
+//                           prefixIcon: Icon(Icons.search),
+//                           fillColor: Colors.grey[200],
+//                           filled: true,
+//                         ),
+//                         onChanged: (text) {
+//                           // You can add search functionality here if needed
+//                         },
+//                       ),
+//                     ),
+//                     TextButton(
+//                         onPressed: () => Navigator.of(context).push(
+//                             SlideFromSidePageRoute(
+//                                 widget: AdvancedSearchPage())),
+//                         child: Text(
+//                           "Advanced",
+//                           style: GoogleFonts.poppins(
+//                               color: Colors.blue, fontWeight: FontWeight.w600),
+//                         ))
+//                   ],
+//                 ),
+//               ),
+//               searchItem(
+//                   title: "Category", subtitle: "sub category", price: "343"),
+//               searchItem(
+//                   title: "Category", subtitle: "sub category", price: "343"),
+//               searchItem(
+//                   title: "Category", subtitle: "sub category", price: "343"),
+//             ],
+//           ),
+//         ),
+//       ),title: "Contracts");
+//   }
+// }

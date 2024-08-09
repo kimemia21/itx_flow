@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Contracts/Create.dart';
+import 'package:itx/Contracts/SpecificOrder.dart';
+import 'package:itx/global/MyScafold.dart';
 import 'package:itx/global/globals.dart';
 
 class Mycontracts extends StatefulWidget {
@@ -45,30 +47,32 @@ class _MycontractsState extends State<Mycontracts> {
   Widget DeliveryInfo(
       {required String title,
       // required String subtitle ,
+      required VoidCallback Function,
       required String status}) {
-    return Container(
-      margin: EdgeInsets.only(top: 3, bottom: 3),
-      width: MediaQuery.of(context).size.width,
-      
-      height: 60,
-      decoration: BoxDecoration(
-
-        border: Border.all(color: Colors.white54, width: 1.5),
-        borderRadius: BorderRadius.circular(10),
-        color: Colors.white54,
-      ),
-      child: ListTile(
-        title: Text(
-          title,
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    return GestureDetector(
+      onTap: Function,
+      child: Container(
+        margin: EdgeInsets.only(top: 3, bottom: 3),
+        width: MediaQuery.of(context).size.width,
+        height: 60,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.white54, width: 1.5),
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.white54,
         ),
-        // subtitle: Text(
-        //   subtitle,
-        //   style: TextStyle(fontSize: 16),
-        // ),
-        trailing: Text(
-          status,
-          style: TextStyle(fontSize: 16, color: Colors.green),
+        child: ListTile(
+          title: Text(
+            title,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          // subtitle: Text(
+          //   subtitle,
+          //   style: TextStyle(fontSize: 16),
+          // ),
+          trailing: Text(
+            status,
+            style: TextStyle(fontSize: 16, color: Colors.green),
+          ),
         ),
       ),
     );
@@ -76,7 +80,72 @@ class _MycontractsState extends State<Mycontracts> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Scaffold(body: Container(
+        padding: EdgeInsets.all(5),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                  margin: EdgeInsets.only(top: 10, bottom: 10),
+                  child: Text(
+                    "My Contracts",
+                    style: GoogleFonts.poppins(
+                        fontSize: 22, fontWeight: FontWeight.w600),
+                  )),
+              ContractInfo(
+                  title: "Soybean, 100 bushels",
+                  subtitle: "Dec 2023 delivery to chicago",
+                  status: "Signed"),
+              ContractInfo(
+                  title: "Soybean, 100 bushels",
+                  subtitle: "Dec 2023 delivery to chicago",
+                  status: "Signed"),
+              ContractInfo(
+                  title: "Soybean, 100 bushels",
+                  subtitle: "Dec 2023 delivery to chicago",
+                  status: "Signed"),
+              ContractInfo(
+                  title: "Soybean, 100 bushels",
+                  subtitle: "Dec 2023 delivery to chicago",
+                  status: "Amended"),
+              Container(
+                  margin: EdgeInsets.only(top: 10, bottom: 10),
+                  child: Text(
+                    "My Deliveries",
+                    style: GoogleFonts.poppins(
+                        fontSize: 24, fontWeight: FontWeight.w600),
+                  )),
+              DeliveryInfo(
+                  title: "Soybean, 100 bushels",
+                  status: "\$2000",
+                  Function: () => Globals.switchScreens(
+                      context: context,
+                      screen: Specificorder(item: "Soybean"))),
+              DeliveryInfo(
+                  title: "Soybean, 100 bushels",
+                  status: "\$300",
+                  Function: () => Globals.switchScreens(
+                      context: context,
+                      screen: Specificorder(item: "Soybean"))),
+              DeliveryInfo(
+                  title: "Soybean, 100 bushels",
+                  status: "\$23000",
+                  Function: () => Globals.switchScreens(
+                      context: context,
+                      screen: Specificorder(item: "Soybean"))),
+              DeliveryInfo(
+                  title: "Soybean, 100 bushels",
+                  status: "\$1000",
+                  Function: () => Globals.switchScreens(
+                      context: context,
+                      screen: Specificorder(item: "Soybean"))),
+            ],
+          ),
+        ),
+      ));
+
+    Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -123,10 +192,30 @@ class _MycontractsState extends State<Mycontracts> {
                     style: GoogleFonts.poppins(
                         fontSize: 24, fontWeight: FontWeight.w600),
                   )),
-                    DeliveryInfo(title: "Soybean, 100 bushels",  status: "\$2000"),
-                     DeliveryInfo(title: "Soybean, 100 bushels",  status: "\$300"),
-                        DeliveryInfo(title: "Soybean, 100 bushels",  status: "\$23000"),
-                           DeliveryInfo(title: "Soybean, 100 bushels",  status: "\$1000"),
+              DeliveryInfo(
+                  title: "Soybean, 100 bushels",
+                  status: "\$2000",
+                  Function: () => Globals.switchScreens(
+                      context: context,
+                      screen: Specificorder(item: "Soybean"))),
+              DeliveryInfo(
+                  title: "Soybean, 100 bushels",
+                  status: "\$300",
+                  Function: () => Globals.switchScreens(
+                      context: context,
+                      screen: Specificorder(item: "Soybean"))),
+              DeliveryInfo(
+                  title: "Soybean, 100 bushels",
+                  status: "\$23000",
+                  Function: () => Globals.switchScreens(
+                      context: context,
+                      screen: Specificorder(item: "Soybean"))),
+              DeliveryInfo(
+                  title: "Soybean, 100 bushels",
+                  status: "\$1000",
+                  Function: () => Globals.switchScreens(
+                      context: context,
+                      screen: Specificorder(item: "Soybean"))),
             ],
           ),
         ),
