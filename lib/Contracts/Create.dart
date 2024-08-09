@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/Contracts/Contracts.dart';
+import 'package:itx/Contracts/MyContracts.dart';
 import 'package:itx/global/globals.dart';
 
 class CreateContract extends StatefulWidget {
@@ -99,15 +100,20 @@ class _CreateContractState extends State<CreateContract>
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  padding: EdgeInsets.all(15),
-                  decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadiusDirectional.circular(10)),
-                  child: Text(
-                    "Save Review",
-                    style:
-                        GoogleFonts.poppins(fontSize: 16, color: Colors.black),
+                GestureDetector(
+                  onTap: ()=>Globals.switchScreens(context: context,screen: Mycontracts()),
+                  child: Container(
+                    padding: EdgeInsets.all(15),
+                    decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadiusDirectional.circular(10)),
+                    child: Text(
+                      "Save Contract",
+                      style:
+                          GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16, color: Colors.black),
+                    ),
                   ),
                 ),
                 Container(

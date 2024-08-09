@@ -16,76 +16,74 @@ class _AdvancedSearchPageState extends State<AdvancedSearchPage> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width * 0.7;
-    return Container(
-      width: width,
-      child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(Icons.close),
-            onPressed: () {
-              // Close action
-            },
-          ),
-          title: Text('Advanced Search'),
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.close),
+          onPressed: () {
+            // Close action
+          },
         ),
-        body: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildTextField(
-                controller: priceController,
-                title: 'Enter Price',
-                icon: Icons.attach_money,
-              ),
-              SizedBox(height: 16),
-              buildRadioGroup(
-                title: 'Quality',
-                options: ['All', 'Premium', 'Standard'],
-                selectedOption: selectedQuality,
-                onChanged: (value) {
-                  setState(() {
-                    selectedQuality = value;
-                  });
+        title: Text('Advanced Search'),
+      ),
+      body: Container(
+        width: width,
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildTextField(
+              controller: priceController,
+              title: 'Enter Price',
+              icon: Icons.attach_money,
+            ),
+            SizedBox(height: 16),
+            buildRadioGroup(
+              title: 'Quality',
+              options: ['All', 'Premium', 'Standard'],
+              selectedOption: selectedQuality,
+              onChanged: (value) {
+                setState(() {
+                  selectedQuality = value;
+                });
+              },
+            ),
+            SizedBox(height: 16),
+            buildRadioGroup(
+              title: 'Quantity',
+              options: ['All', 'Large', 'Medium'],
+              selectedOption: selectedQuantity,
+              onChanged: (value) {
+                setState(() {
+                  selectedQuantity = value;
+                });
+              },
+            ),
+            SizedBox(height: 16),
+            buildDatePicker(
+              title: 'Delivery Time',
+              selectedDate: selectedDate,
+              onDateSelected: (date) {
+                setState(() {
+                  selectedDate = date;
+                });
+              },
+            ),
+            SizedBox(height: 32),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  // Apply filters action
                 },
-              ),
-              SizedBox(height: 16),
-              buildRadioGroup(
-                title: 'Quantity',
-                options: ['All', 'Large', 'Medium'],
-                selectedOption: selectedQuantity,
-                onChanged: (value) {
-                  setState(() {
-                    selectedQuantity = value;
-                  });
-                },
-              ),
-              SizedBox(height: 16),
-              buildDatePicker(
-                title: 'Delivery Time',
-                selectedDate: selectedDate,
-                onDateSelected: (date) {
-                  setState(() {
-                    selectedDate = date;
-                  });
-                },
-              ),
-              SizedBox(height: 32),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Apply filters action
-                  },
-                  child: Text('Apply filters'),
-                  style: ElevatedButton.styleFrom(
-                    // primary: Colors.green,
-                    // onPrimary: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  ),
+                child: Text('Apply filters'),
+                style: ElevatedButton.styleFrom(
+                  // primary: Colors.green,
+                  // onPrimary: Colors.white,
+                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
