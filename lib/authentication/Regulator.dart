@@ -94,7 +94,7 @@ class _RegulatorsState extends State<Regulators> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () =>
-                Globals.switchScreens(context: context, screen: Commodites()),
+                Globals.switchScreens(context: context, screen: Commodites(scrollController: ScrollController(),)),
             icon: Icon(Icons.arrow_back)),
         title: Text('Upload your documents'),
       ),

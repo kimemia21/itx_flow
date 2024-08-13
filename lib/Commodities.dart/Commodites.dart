@@ -3,9 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/authentication/Documents.dart';
 import 'package:itx/authentication/Verification.dart';
 import 'package:itx/global/globals.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class Commodites extends StatefulWidget {
-  const Commodites({super.key});
+  final ScrollController? scrollController;
+  const Commodites({required this.scrollController});
 
   @override
   State<Commodites> createState() => _CommoditesState();
@@ -24,31 +26,39 @@ class _CommoditesState extends State<Commodites> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         leading: IconButton(
             onPressed: () {
-              Globals.switchScreens(context: context, screen: Verification());
+              PersistentNavBarNavigator.pushNewScreenWithRouteSettings(
+                context,
+                withNavBar: false,
+                screen: Verification(context: context),
+                settings: const RouteSettings(name: "/verification"),
+              );
+              // Globals.switchScreens(
+
+              //     context: context, screen: Verification(context: context));
             },
             icon: Icon(Icons.arrow_back)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-
           children: [
             Container(
               margin: EdgeInsets.only(bottom: 10),
               alignment: Alignment.center,
-              child: Text("Add Commodities of interest",style: GoogleFonts.poppins(fontWeight: FontWeight.w600),),
+              child: Text(
+                "Add Commodities of interest",
+                style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+              ),
             ),
-            
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: TextField(
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
-                
-                    borderRadius: BorderRadius.circular(10)
-                  ),
+                      borderRadius: BorderRadius.circular(10)),
                   labelText: 'Search commodities',
                   prefixIcon: Icon(Icons.search),
                   fillColor: Colors.grey[200],
@@ -81,7 +91,20 @@ class _CommoditesState extends State<Commodites> {
             Align(
               alignment: Alignment.bottomCenter,
               child: GestureDetector(
-                onTap:()=>Globals.switchScreens(context: context,screen: DocumentsVerification()),
+                onTap: () {
+                  PersistentNavBarNavigator.pushNewScreenWithRouteSettings(
+                    context,
+                    settings: const RouteSettings(name: "/home"),
+                    screen: const DocumentsVerification(),
+                    // pageTransitionAnimation:
+                    //     PageTransitionAnimation.scaleRotate,
+                  );
+                },
+
+                //  Globals.switchScreens(
+                //     context: context,
+                //     screen: DocumentsVerification()),
+
                 child: Container(
                   alignment: Alignment.center,
                   width: MediaQuery.of(context).size.width * 0.8,
@@ -97,11 +120,9 @@ class _CommoditesState extends State<Commodites> {
                         fontSize: 20),
                   ),
                 ),
-              ), 
+              ),
             )
-
           ],
-
         ),
       ),
     );

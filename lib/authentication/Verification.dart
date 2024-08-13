@@ -4,11 +4,14 @@ import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/authentication/Login.dart';
+import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/MyScafold.dart';
 import 'package:itx/global/globals.dart';
+import 'package:provider/provider.dart';
 
 class Verification extends StatefulWidget {
-  const Verification({super.key});
+  final BuildContext context;
+  const Verification({required this.context});
 
   @override
   State<Verification> createState() => _VerificationState();
@@ -20,6 +23,16 @@ class _VerificationState extends State<Verification> {
   void _updateProgress() {
     setState(() {
       _progress = (_progress + 1).clamp(0.0, 1.0); // Increment progress
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Example of using context to update state or visibility
+      context.read<appBloc>().changeNavVisibility(visible: false);
     });
   }
 
@@ -62,7 +75,7 @@ class _VerificationState extends State<Verification> {
                   _updateProgress();
                   Future.delayed(Duration(seconds: 2)).then((value) =>
                       Globals.switchScreens(
-                          context: context, screen: MyHomePage()));
+                          context: context, screen: MyHomepage()));
                   // showDialog(
                   //     context: context,
                   //     builder: (context) {

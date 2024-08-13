@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/authentication/Verification.dart';
 import 'package:itx/global/globals.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,36 +27,39 @@ class _LoginScreenState extends State<LoginScreen> {
     _phoneController.dispose();
     super.dispose();
   }
-void _submitForm() {
-  // Check if _selectedUserType is null
-  if (_selectedUserType == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.red,
-        content: Text('Please select a user type'),
-      ),
-    );
-    return; // Exit the method if the user type is not selected
-  }
 
-  // Check if the form is valid
-  if (_formKey.currentState?.validate() ?? false) {
-    // Process the form data
-    final username = _emailController.text;
-    final email = _phoneController.text;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Username: $username\nEmail: $email\nUser Type: $_selectedUserType',
+  void _submitForm() {
+    // Check if _selectedUserType is null
+    if (_selectedUserType == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Please select a user type'),
         ),
-      ),
-    );
+      );
+      return; // Exit the method if the user type is not selected
+    }
 
-    // Navigate to the Verification screen
-    Globals.switchScreens(context: context, screen: Verification());
+    // Check if the form is valid
+    if (_formKey.currentState?.validate() ?? false) {
+      // Process the form data
+      final username = _emailController.text;
+      final email = _phoneController.text;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Username: $username\nEmail: $email\nUser Type: $_selectedUserType',
+          ),
+        ),
+      );
+
+      // Navigate to the Verification screen
+      // Globals.switchScreens(context: context, screen: Verification(context: context));
+      PersistentNavBarNavigator.pushNewScreen(context,
+          screen: Verification(context: context));
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +123,8 @@ void _submitForm() {
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Enter your email';
-                      } else if (EmailValidator.validate(value) != true) {
+                      } else if (EmailValidator.validate(value.trim()) !=
+                          true) {
                         return 'Enter  a Valid email';
                       }
                       return null;
@@ -267,6 +272,23 @@ void _submitForm() {
                     ],
                   ),
                 ),
+                SizedBox(height: 20.0),
+                GestureDetector(
+                  onTap: () {
+                    // Implement guest login action
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(top: 10),
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Continue as guest",
+                      style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700),
+                    ),
+                  ),
+                ),
                 SizedBox(height: 25.0),
                 GestureDetector(
                   onTap: _submitForm,
@@ -283,23 +305,6 @@ void _submitForm() {
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
                           fontSize: 18),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20.0),
-                GestureDetector(
-                  onTap: () {
-                    // Implement guest login action
-                  },
-                  child: Container(
-                    margin: EdgeInsets.only(top: 10),
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Continue as guest",
-                      style: GoogleFonts.poppins(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade700),
                     ),
                   ),
                 ),

@@ -1,126 +1,268 @@
 import 'package:flutter/material.dart';
 import 'package:itx/Commodities.dart/Commodites.dart';
-import 'package:itx/Contracts/Contracts.dart';
-import 'package:itx/Contracts/MyContracts.dart';
-import 'package:itx/Contracts/SpotItem.dart';
-import 'package:itx/Contracts/SpotTrader.dart';
-import 'package:itx/authentication/Regulator.dart';
-import 'package:itx/global/globals.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
+class MyHomepage extends StatefulWidget {
+  final int initialIndex;
+  final Widget? newScreen;
 
-class MyHomePage extends StatefulWidget {
+  // Add default values for the constructor parameters
+  MyHomepage({this.initialIndex = 0, this.newScreen});
+
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _MyHomepageState createState() => _MyHomepageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _currentIndex = 0;
-
-  final List<Widget> _screens = [
-
-  Commodites(),
-    ProfileScreen(),
-    Spottrader()
+class _MyHomepageState extends State<MyHomepage> {
+  late PersistentTabController _controller;
+  final List<ScrollController> _scrollControllers = [
+    ScrollController(),
+    ScrollController(),
+    ScrollController(),
+    ScrollController(),
+    ScrollController(),
   ];
+  late bool _hideNavBar;
 
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  @override
+  void initState() {
+    super.initState();
+    _controller = PersistentTabController();
+    _hideNavBar = false;
+  }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-      _navigatorKey.currentState!.pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (_, __, ___) => _screens[index],
-          transitionDuration: Duration.zero,
-          reverseTransitionDuration: Duration.zero,
+  @override
+  void dispose() {
+    for (final element in _scrollControllers) {
+      element.dispose();
+    }
+    super.dispose();
+  }
+
+  List<CustomNavBarScreen> _buildScreens() => [
+        CustomNavBarScreen(
+            routeAndNavigatorSettings: RouteAndNavigatorSettings(
+              initialRoute: "/",
+              routes: {
+                "/first": (final context) =>
+                    Commodites(scrollController: _scrollControllers.first),
+                "/second": (final context) =>
+                    Commodites(scrollController: _scrollControllers.first),
+              },
+            ),
+            screen: Commodites(scrollController: _scrollControllers.first)
+            // MainScreen(
+            //   menuScreenContext: widget.menuScreenContext,
+            //   scrollController: _scrollControllers.first,
+            //   hideStatus: _hideNavBar,
+            //   showNavBarStyles: false,
+            //   onScreenHideButtonPressed: () {
+            //     setState(() {
+            //       _hideNavBar = !_hideNavBar;
+            //     });
+            //   },
+            // ),
+            ),
+        CustomNavBarScreen(
+            screen: Commodites(scrollController: _scrollControllers.first)
+            // MainScreen(
+            //   menuScreenContext: widget.menuScreenContext,
+            //   scrollController: _scrollControllers[1],
+            //   hideStatus: _hideNavBar,
+            //   showNavBarStyles: false,
+            //   onScreenHideButtonPressed: () {
+            //     setState(() {
+            //       _hideNavBar = !_hideNavBar;
+            //     });
+            //   },
+            // ),
+            ),
+        CustomNavBarScreen(
+            screen: Commodites(scrollController: _scrollControllers.first)
+
+            //  MainScreen(
+            //   menuScreenContext: widget.menuScreenContext,
+            //   scrollController: _scrollControllers[2],
+            //   hideStatus: _hideNavBar,
+            //   showNavBarStyles: false,
+            //   onScreenHideButtonPressed: () {
+            //     setState(() {
+            //       _hideNavBar = !_hideNavBar;
+            //     });
+            //   },
+            // ),
+            ),
+        CustomNavBarScreen(
+            screen: Commodites(scrollController: _scrollControllers.first)
+
+            // MainScreen(
+            //   menuScreenContext: widget.menuScreenContext,
+            //   scrollController: _scrollControllers[3],
+            //   hideStatus: _hideNavBar,
+            //   showNavBarStyles: false,
+            //   onScreenHideButtonPressed: () {
+            //     setState(() {
+            //       _hideNavBar = !_hideNavBar;
+            //     });
+            //   },
+            // ),
+            ),
+        CustomNavBarScreen(
+            screen: Commodites(scrollController: _scrollControllers.first)),
+      ];
+
+  // List<PersistentBottomNavBarItem> is just for example here. It can be anything you want like List<YourItemWidget>
+  List<PersistentBottomNavBarItem> _navBarsItems() => [
+        PersistentBottomNavBarItem(
+          icon: const Icon(Icons.home),
+          title: "Home",
+          activeColorPrimary: Colors.blue,
+          inactiveColorPrimary: Colors.grey,
+        ),
+        PersistentBottomNavBarItem(
+          icon: const Icon(Icons.search),
+          title: "Search",
+          activeColorPrimary: Colors.teal,
+          inactiveColorPrimary: Colors.grey,
+        ),
+        PersistentBottomNavBarItem(
+          icon: const Icon(Icons.add),
+          title: "Add",
+          activeColorPrimary: Colors.deepOrange,
+          inactiveColorPrimary: Colors.grey,
+        ),
+        PersistentBottomNavBarItem(
+          icon: const Icon(Icons.settings),
+          title: "Settings",
+          activeColorPrimary: Colors.indigo,
+          inactiveColorPrimary: Colors.grey,
+        ),
+        PersistentBottomNavBarItem(
+          icon: const Icon(Icons.settings),
+          title: "Settings",
+          activeColorPrimary: Colors.indigo,
+          inactiveColorPrimary: Colors.grey,
+        ),
+      ];
+
+  @override
+  Widget build(final BuildContext context) => Scaffold(
+        // appBar: AppBar(title: const Text("Navigation Bar Demo")),
+        drawer: const Drawer(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text("This is the Drawer"),
+              ],
+            ),
+          ),
+        ),
+        body: PersistentTabView.custom(
+          context,
+          controller: _controller,
+          screens: _buildScreens(),
+          itemCount: 5,
+          isVisible: !_hideNavBar,
+          hideOnScrollSettings: HideOnScrollSettings(
+            hideNavBarOnScroll: true,
+            scrollControllers: _scrollControllers,
+          ),
+          backgroundColor: Colors.grey.shade900,
+          customWidget: CustomNavBarWidget(
+            _navBarsItems(),
+            onItemSelected: (final index) {
+              //Scroll to top
+              if (index == _controller.index) {
+                _scrollControllers[index].animateTo(0,
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.ease);
+              }
+
+              setState(() {
+                _controller.index = index; // THIS IS CRITICAL!! Don't miss it!
+              });
+            },
+            selectedIndex: _controller.index,
+          ),
         ),
       );
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Navigator(
-        key: _navigatorKey,
-        onGenerateRoute: (RouteSettings settings) {
-          return MaterialPageRoute(
-            builder: (context) => _screens[_currentIndex],
-          );
-        },
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _onItemTapped,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Trades',
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-class HomeScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ContractsScreen()),
-          );
-        },
-        child: Text('Go to Contracts'),
-      ),
-    );
-  }
-}
 
-class ProfileScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('Profile Screen'),
-    );
-  }
-}
 
-class SettingsScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('Settings Screen'),
-    );
-  }
-}
+class CustomNavBarWidget extends StatelessWidget {
+  const CustomNavBarWidget(
+    this.items, {
+    required this.selectedIndex,
+    required this.onItemSelected,
+    final Key? key,
+  }) : super(key: key);
+  final int selectedIndex;
+  // List<PersistentBottomNavBarItem> is just for example here. It can be anything you want like List<YourItemWidget>
+  final List<PersistentBottomNavBarItem> items;
+  final ValueChanged<int> onItemSelected;
 
-class ContractsScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Contracts'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text('Back to Home'),
+  Widget _buildItem(
+          final PersistentBottomNavBarItem item, final bool isSelected) =>
+      Container(
+        alignment: Alignment.center,
+        height: kBottomNavigationBarHeight,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Flexible(
+              child: IconTheme(
+                data: IconThemeData(
+                    size: 26,
+                    color: isSelected
+                        ? (item.activeColorSecondary ?? item.activeColorPrimary)
+                        : item.inactiveColorPrimary ?? item.activeColorPrimary),
+                child: isSelected ? item.icon : item.inactiveIcon ?? item.icon,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 5),
+              child: Material(
+                type: MaterialType.transparency,
+                child: FittedBox(
+                    child: Text(
+                  item.title ?? "",
+                  style: TextStyle(
+                      color: isSelected
+                          ? (item.activeColorSecondary ??
+                              item.activeColorPrimary)
+                          : item.inactiveColorPrimary,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 12),
+                )),
+              ),
+            )
+          ],
         ),
-      ),
-    );
-  }
+      );
+
+  @override
+  Widget build(final BuildContext context) => Container(
+        color: Colors.grey.shade900,
+        child: SizedBox(
+          width: double.infinity,
+          height: kBottomNavigationBarHeight,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: items.map((final item) {
+              final int index = items.indexOf(item);
+              return Flexible(
+                child: GestureDetector(
+                  onTap: () {
+                    onItemSelected(index);
+                  },
+                  child: _buildItem(item, selectedIndex == index),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      );
 }

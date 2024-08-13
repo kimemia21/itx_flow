@@ -3,7 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/authentication/Login.dart';
 import 'package:itx/authentication/Regulator.dart';
 import 'package:itx/authentication/Verification.dart';
+import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/globals.dart';
+import 'package:provider/provider.dart';
 
 class DocumentsVerification extends StatefulWidget {
   const DocumentsVerification({super.key});
@@ -13,6 +15,15 @@ class DocumentsVerification extends StatefulWidget {
 }
 
 class _DocumentsVerificationState extends State<DocumentsVerification> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Example of using context to update state or visibility
+      context.read<appBloc>().changeNavVisibility(visible: false);
+    });
+  }
+
   Widget docsType({
     required String title,
     required String subtitle,
@@ -62,7 +73,7 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
                     ),
                   ),
                   Container(
-                    width: MediaQuery.of(context).size.width*0.7,
+                    width: MediaQuery.of(context).size.width * 0.7,
                     child: Text(
                       subtitle,
                       style: TextStyle(
@@ -98,7 +109,8 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
         actions: [
           IconButton(
             onPressed: () {
-              Globals.switchScreens(context: context, screen: Verification());
+              Globals.switchScreens(
+                  context: context, screen: Verification(context: context));
             },
             icon: Icon(Icons.close),
           ),
@@ -124,8 +136,7 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
                 subtitle:
                     "Add a document to prove your are authorized to sell this product",
                 action: () {
-                  Globals.switchScreens(
-                      context: context, screen: Regulators());
+                  Globals.switchScreens(context: context, screen: Regulators());
                 },
               ),
               docsType(
@@ -133,8 +144,7 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
                 subtitle:
                     "Add a docuemtnt to prove this product is eligable for sale",
                 action: () {
-                  Globals.switchScreens(
-                      context: context, screen: Regulators());
+                  Globals.switchScreens(context: context, screen: Regulators());
                 },
               ),
             ],

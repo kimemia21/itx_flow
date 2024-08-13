@@ -16,6 +16,9 @@ class Globals {
         icon: Icon(Icons.arrow_back));
   }
 
+
+  
+
   static Future<void> switchScreens(
       {required BuildContext context, required Widget screen}) {
     try {
