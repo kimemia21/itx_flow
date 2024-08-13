@@ -50,63 +50,13 @@ class _MyHomepageState extends State<MyHomepage> {
                     Commodites(scrollController: _scrollControllers.first),
               },
             ),
-            screen: Commodites(scrollController: _scrollControllers.first)
-            // MainScreen(
-            //   menuScreenContext: widget.menuScreenContext,
-            //   scrollController: _scrollControllers.first,
-            //   hideStatus: _hideNavBar,
-            //   showNavBarStyles: false,
-            //   onScreenHideButtonPressed: () {
-            //     setState(() {
-            //       _hideNavBar = !_hideNavBar;
-            //     });
-            //   },
-            // ),
-            ),
+            screen: Commodites(scrollController: _scrollControllers.first)),
         CustomNavBarScreen(
-            screen: Commodites(scrollController: _scrollControllers.first)
-            // MainScreen(
-            //   menuScreenContext: widget.menuScreenContext,
-            //   scrollController: _scrollControllers[1],
-            //   hideStatus: _hideNavBar,
-            //   showNavBarStyles: false,
-            //   onScreenHideButtonPressed: () {
-            //     setState(() {
-            //       _hideNavBar = !_hideNavBar;
-            //     });
-            //   },
-            // ),
-            ),
+            screen: Commodites(scrollController: _scrollControllers.first)),
         CustomNavBarScreen(
-            screen: Commodites(scrollController: _scrollControllers.first)
-
-            //  MainScreen(
-            //   menuScreenContext: widget.menuScreenContext,
-            //   scrollController: _scrollControllers[2],
-            //   hideStatus: _hideNavBar,
-            //   showNavBarStyles: false,
-            //   onScreenHideButtonPressed: () {
-            //     setState(() {
-            //       _hideNavBar = !_hideNavBar;
-            //     });
-            //   },
-            // ),
-            ),
+            screen: Commodites(scrollController: _scrollControllers.first)),
         CustomNavBarScreen(
-            screen: Commodites(scrollController: _scrollControllers.first)
-
-            // MainScreen(
-            //   menuScreenContext: widget.menuScreenContext,
-            //   scrollController: _scrollControllers[3],
-            //   hideStatus: _hideNavBar,
-            //   showNavBarStyles: false,
-            //   onScreenHideButtonPressed: () {
-            //     setState(() {
-            //       _hideNavBar = !_hideNavBar;
-            //     });
-            //   },
-            // ),
-            ),
+            screen: Commodites(scrollController: _scrollControllers.first)),
         CustomNavBarScreen(
             screen: Commodites(scrollController: _scrollControllers.first)),
       ];
@@ -120,26 +70,26 @@ class _MyHomepageState extends State<MyHomepage> {
           inactiveColorPrimary: Colors.grey,
         ),
         PersistentBottomNavBarItem(
-          icon: const Icon(Icons.search),
-          title: "Search",
+          icon: const Icon(Icons.visibility),
+          title: "Watchlist",
           activeColorPrimary: Colors.teal,
           inactiveColorPrimary: Colors.grey,
         ),
         PersistentBottomNavBarItem(
-          icon: const Icon(Icons.add),
-          title: "Add",
+          icon: const Icon(Icons.bar_chart),
+          title: "Market",
           activeColorPrimary: Colors.deepOrange,
           inactiveColorPrimary: Colors.grey,
         ),
         PersistentBottomNavBarItem(
-          icon: const Icon(Icons.settings),
-          title: "Settings",
+          icon: const Icon(Icons.attach_money_outlined),
+          title: "Trades",
           activeColorPrimary: Colors.indigo,
           inactiveColorPrimary: Colors.grey,
         ),
         PersistentBottomNavBarItem(
-          icon: const Icon(Icons.settings),
-          title: "Settings",
+          icon: const Icon(Icons.person),
+          title: "Account",
           activeColorPrimary: Colors.indigo,
           inactiveColorPrimary: Colors.grey,
         ),
@@ -175,7 +125,7 @@ class _MyHomepageState extends State<MyHomepage> {
               //Scroll to top
               if (index == _controller.index) {
                 _scrollControllers[index].animateTo(0,
-                    duration: const Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 100),
                     curve: Curves.ease);
               }
 
@@ -188,8 +138,6 @@ class _MyHomepageState extends State<MyHomepage> {
         ),
       );
 }
-
-
 
 class CustomNavBarWidget extends StatelessWidget {
   const CustomNavBarWidget(
