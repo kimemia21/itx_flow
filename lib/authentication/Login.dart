@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/authentication/Verification.dart';
@@ -25,28 +26,42 @@ class _LoginScreenState extends State<LoginScreen> {
     _phoneController.dispose();
     super.dispose();
   }
-
-  void _submitForm() {
-    if (_formKey.currentState?.validate() ?? false) {
-      // Process the form data
-      final username = _emailController.text;
-      final email = _phoneController.text;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              'Username: $username\nEmail: $email\nUser Type: $_selectedUserType'),
-        ),
-      );
-      Globals.switchScreens(context: context, screen: Verification());
-    }
+void _submitForm() {
+  // Check if _selectedUserType is null
+  if (_selectedUserType == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.red,
+        content: Text('Please select a user type'),
+      ),
+    );
+    return; // Exit the method if the user type is not selected
   }
+
+  // Check if the form is valid
+  if (_formKey.currentState?.validate() ?? false) {
+    // Process the form data
+    final username = _emailController.text;
+    final email = _phoneController.text;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Username: $username\nEmail: $email\nUser Type: $_selectedUserType',
+        ),
+      ),
+    );
+
+    // Navigate to the Verification screen
+    Globals.switchScreens(context: context, screen: Verification());
+  }
+}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        padding: EdgeInsets.all(10),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
@@ -54,108 +69,120 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                    margin: EdgeInsets.only(top: 20, bottom: 10),
+                    margin: EdgeInsets.only(bottom: 20),
                     alignment: Alignment.center,
                     child: Text(
                       "Select your Role",
                       style: GoogleFonts.poppins(
-                          fontSize: 22, fontWeight: FontWeight.w700),
+                          fontSize: 24, fontWeight: FontWeight.w700),
                     )),
                 Container(
-                    margin: EdgeInsets.all(5),
+                    margin: EdgeInsets.only(bottom: 20),
                     alignment: Alignment.center,
                     child: Text(
-                      "Are You a buyer,producer or trader?",
+                      "Are You a Buyer, Producer, or Trader?",
                       style: GoogleFonts.poppins(
-                          fontSize: 22, fontWeight: FontWeight.w700),
+                          fontSize: 18, fontWeight: FontWeight.w600),
                     )),
                 Container(
-                    margin: EdgeInsets.all(5),
+                    margin: EdgeInsets.only(bottom: 25),
                     alignment: Alignment.center,
                     child: Text(
                       textAlign: TextAlign.center,
                       "We want to make sure you are getting the right experience.\n Please verify your contact information.",
-                      style: GoogleFonts.poppins(fontSize: 18),
+                      style: GoogleFonts.poppins(
+                          fontSize: 16, color: Colors.grey.shade600),
                     )),
-                SizedBox(height: 25.0),
                 Container(
                     alignment: Alignment.topLeft,
+                    margin: EdgeInsets.only(bottom: 10),
                     child: Text(
                       "Email",
                       style: GoogleFonts.poppins(
                           fontSize: 18, fontWeight: FontWeight.w600),
                     )),
-                SizedBox(height: 5.0),
                 Container(
-                  padding: EdgeInsets.all(5),
+                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                  margin: EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadiusDirectional.circular(10),
-                      color: const Color.fromARGB(255, 255, 235, 201)),
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.grey.shade200),
                   child: TextFormField(
                     controller: _emailController,
                     cursorColor: Colors.black,
                     decoration: InputDecoration(
                       border: InputBorder.none,
-
-                      // label: Text("Email"),
                       hintText: "Enter your email",
+                      hintStyle:
+                          GoogleFonts.poppins(color: Colors.grey.shade600),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Enter your email';
+                      } else if (EmailValidator.validate(value) != true) {
+                        return 'Enter  a Valid email';
                       }
                       return null;
                     },
                   ),
                 ),
-                SizedBox(height: 16.0),
                 Container(
                     alignment: Alignment.topLeft,
+                    margin: EdgeInsets.only(bottom: 10),
                     child: Text(
                       "Phone number",
                       style: GoogleFonts.poppins(
                           fontSize: 18, fontWeight: FontWeight.w600),
                     )),
                 Container(
-                  padding: EdgeInsets.all(5),
+                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                  margin: EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadiusDirectional.circular(10),
-                      color: const Color.fromARGB(255, 255, 235, 201)),
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.grey.shade200),
                   child: TextFormField(
                     cursorColor: Colors.black,
                     controller: _phoneController,
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       hintText: "Enter your phone number",
+                      hintStyle:
+                          GoogleFonts.poppins(color: Colors.grey.shade600),
                     ),
                     validator: (value) {
+                      // final phoneRegExp = RegExp(r'^\+?[1-9]\d{1,14}$');
+                      final phoneRegExp =
+                          RegExp(r'^(\+?[1-9]\d{1,14}|0\d{1,14})$');
+
                       if (value == null || value.isEmpty) {
                         return 'Enter your phone number';
+                      }
+
+                      if (!phoneRegExp.hasMatch(value)) {
+                        return 'Enter a valid phone number';
                       }
                       return null;
                     },
                   ),
                 ),
-                SizedBox(height: 16.0),
-                // Text('User Type'),
-                SizedBox(height: 16.0),
+                SizedBox(height: 10.0),
                 Container(
+                  padding: EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadiusDirectional.circular(10),
-                      border: Border.all(
-                          width: 1, color: Color.fromARGB(255, 99, 87, 65))),
-                  width: MediaQuery.of(context).size.width,
-                  height: 50,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                        width: 1, color: Color.fromARGB(255, 99, 87, 65)),
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        padding: EdgeInsets.all(10),
+                        padding: EdgeInsets.symmetric(horizontal: 15),
                         child: Text(
                           "Buyer",
                           style: GoogleFonts.poppins(
                               color: Colors.black,
-                              fontSize: 15,
+                              fontSize: 16,
                               fontWeight: FontWeight.w600),
                         ),
                       ),
@@ -172,23 +199,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 16.0),
+                SizedBox(height: 15.0),
                 Container(
+                  padding: EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadiusDirectional.circular(10),
-                      border: Border.all(
-                          width: 1, color: Color.fromARGB(255, 99, 87, 65))),
-                  width: MediaQuery.of(context).size.width,
-                  height: 50,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                        width: 1, color: Color.fromARGB(255, 99, 87, 65)),
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        padding: EdgeInsets.all(10),
+                        padding: EdgeInsets.symmetric(horizontal: 15),
                         child: Text(
                           "Producer",
-                          style:
-                              GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                          style: GoogleFonts.poppins(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600),
                         ),
                       ),
                       Radio<String>(
@@ -204,23 +233,25 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 16.0),
+                SizedBox(height: 15.0),
                 Container(
+                  padding: EdgeInsets.symmetric(vertical: 10),
                   decoration: BoxDecoration(
-                      borderRadius: BorderRadiusDirectional.circular(10),
-                      border: Border.all(
-                          width: 1, color: Color.fromARGB(255, 99, 87, 65))),
-                  width: MediaQuery.of(context).size.width,
-                  height: 50,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                        width: 1, color: Color.fromARGB(255, 99, 87, 65)),
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        padding: EdgeInsets.all(10),
+                        padding: EdgeInsets.symmetric(horizontal: 15),
                         child: Text(
                           "Trader",
-                          style:
-                              GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                          style: GoogleFonts.poppins(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600),
                         ),
                       ),
                       Radio<String>(
@@ -236,31 +267,39 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-
-                Container(
-                    margin: EdgeInsets.all(20),
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Continue as guest",
-                      style: GoogleFonts.poppins(
-                          fontSize: 20, fontWeight: FontWeight.w600),
-                    )),
-
+                SizedBox(height: 25.0),
                 GestureDetector(
                   onTap: _submitForm,
                   child: Container(
                     alignment: Alignment.center,
                     width: MediaQuery.of(context).size.width,
-                    height: 50,
+                    padding: EdgeInsets.symmetric(vertical: 15),
                     decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadiusDirectional.circular(10)),
+                        color: Colors.green.shade700,
+                        borderRadius: BorderRadius.circular(10)),
                     child: Text(
                       "Continue",
                       style: GoogleFonts.poppins(
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
                           fontSize: 18),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20.0),
+                GestureDetector(
+                  onTap: () {
+                    // Implement guest login action
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(top: 10),
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Continue as guest",
+                      style: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade700),
                     ),
                   ),
                 ),

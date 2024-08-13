@@ -4,6 +4,7 @@ import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/authentication/Login.dart';
+import 'package:itx/global/MyScafold.dart';
 import 'package:itx/global/globals.dart';
 
 class Verification extends StatefulWidget {
@@ -61,7 +62,7 @@ class _VerificationState extends State<Verification> {
                   _updateProgress();
                   Future.delayed(Duration(seconds: 2)).then((value) =>
                       Globals.switchScreens(
-                          context: context, screen: Commodites()));
+                          context: context, screen: MyHomePage()));
                   // showDialog(
                   //     context: context,
                   //     builder: (context) {
