@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/authentication/Login.dart';
 import 'package:itx/authentication/Regulator.dart';
 import 'package:itx/authentication/Verification.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/globals.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 class DocumentsVerification extends StatefulWidget {
@@ -106,15 +108,20 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Globals.switchScreens(
-                  context: context, screen: Verification(context: context));
-            },
-            icon: Icon(Icons.close),
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     onPressed: () {
+        //       // PersistentNavBarNavigator.pushNewScreenWithRouteSettings(
+        //       //   withNavBar: true,
+        //       //   context, screen: Commodites(), settings: const RouteSettings(name: "/Commadites"),);
+        //       PersistentNavBarNavigator.pushNewScreen(context,
+        //           screen: Verification(context: context));
+        //       // Globals.switchScreens(
+        //       //     context: context, screen: Verification(context: context));
+        //     },
+        //     icon: Icon(Icons.close),
+        //   ),
+        // ],
       ),
       body: Container(
         margin: EdgeInsets.all(5),

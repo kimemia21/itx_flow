@@ -7,7 +7,7 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class Commodites extends StatefulWidget {
   final ScrollController? scrollController;
-  const Commodites({required this.scrollController});
+  const Commodites({this.scrollController});
 
   @override
   State<Commodites> createState() => _CommoditesState();
@@ -27,6 +27,7 @@ class _CommoditesState extends State<Commodites> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+
         leading: IconButton(
             onPressed: () {
               PersistentNavBarNavigator.pushNewScreenWithRouteSettings(

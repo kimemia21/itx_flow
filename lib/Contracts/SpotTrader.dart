@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Contracts/LiveAuction.dart';
+import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/global/globals.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class Spottrader extends StatefulWidget {
   const Spottrader({super.key});
@@ -40,6 +42,12 @@ class _SpottraderState extends State<Spottrader> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
+              PersistentNavBarNavigator.pushNewScreen(context,
+                  screen: Specificorder(item: "beans"));
+            },
+            icon: Icon(Icons.arrow_back)),
         backgroundColor: Colors.white,
         centerTitle: true,
         title: Text(
