@@ -3,6 +3,7 @@ import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Contracts/SpotItem.dart';
 import 'package:itx/Contracts/SpotTrader.dart';
+import 'package:itx/fromWakulima/Sales.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class MyHomepage extends StatefulWidget {
@@ -46,7 +47,7 @@ class _MyHomepageState extends State<MyHomepage> {
 
     List<Widget> _buildScreens() {
         return [
-    Commodites(scrollController: _scrollControllers.first),
+          Sales(),
           Commodites(scrollController: _scrollControllers.first),
              Commodites(scrollController: _scrollControllers.first),
             Specificorder(item: "beans"),

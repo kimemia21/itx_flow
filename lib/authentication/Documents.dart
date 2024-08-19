@@ -10,7 +10,8 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 class DocumentsVerification extends StatefulWidget {
-  const DocumentsVerification({super.key});
+
+  const DocumentsVerification();
 
   @override
   State<DocumentsVerification> createState() => _DocumentsVerificationState();
@@ -25,6 +26,7 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
       context.read<appBloc>().changeNavVisibility(visible: false);
     });
   }
+
 
   Widget docsType({
     required String title,
@@ -141,7 +143,8 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
               docsType(
                 title: "Authorization",
                 subtitle:
-                    "Add a document to prove your are authorized to sell this product",
+                    "Add a document to prove your are authorized to sell this product ${context.watch<appBloc>().userCommodities}",
+                    // ${widget.userItems.toString()}",
                 action: () {
                   Globals.switchScreens(context: context, screen: Regulators());
                 },
@@ -149,7 +152,8 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
               docsType(
                 title: "Compliance",
                 subtitle:
-                    "Add a docuemtnt to prove this product is eligable for sale",
+                    "Add a document to prove this product is eligable for sale of ${context.watch<appBloc>().userCommodities}",
+                    // ${widget.userItems.toString()}",
                 action: () {
                   Globals.switchScreens(context: context, screen: Regulators());
                 },

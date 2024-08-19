@@ -7,7 +7,6 @@ import 'package:itx/authentication/Authorization.dart';
 import 'package:itx/global/MyScafold.dart';
 import 'package:itx/global/SidePage.dart';
 import 'package:itx/global/globals.dart';
-import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 
 class Contracts extends StatefulWidget {
   const Contracts({super.key});

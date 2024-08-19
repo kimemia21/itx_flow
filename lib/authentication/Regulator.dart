@@ -6,7 +6,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/authentication/Authorization.dart';
 import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/global/globals.dart';
-import 'package:image_picker/image_picker.dart';
 // import 'package:uuid/uuid.dart';
 import 'package:file_picker/file_picker.dart';
 

@@ -1,9 +1,13 @@
+import 'package:cherry_toast/cherry_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/authentication/Documents.dart';
 import 'package:itx/authentication/Verification.dart';
+import 'package:itx/fromWakulima/contant.dart';
+import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/globals.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
 
 class Commodites extends StatefulWidget {
   final ScrollController? scrollController;
@@ -22,12 +26,13 @@ class _CommoditesState extends State<Commodites> {
     {'name': 'Soybeans', 'unit': '5,000 bu', 'isChecked': false},
   ];
 
+  List userItems = [];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-
         leading: IconButton(
             onPressed: () {
               PersistentNavBarNavigator.pushNewScreenWithRouteSettings(
@@ -75,31 +80,85 @@ class _CommoditesState extends State<Commodites> {
                 itemCount: commodities.length,
                 itemBuilder: (context, index) {
                   return ListTile(
+                    onTap: () {
+                      setState(() {
+                        bool newValue =
+                            !(commodities[index]['isChecked'] ?? false);
+                        commodities[index]['isChecked'] = newValue;
+                        if (newValue) {
+                          if (!userItems!
+                              .contains(commodities[index]['name'])) {
+                            userItems!.add(commodities[index]['name']);
+                            context.read<appBloc>().changeCommodites(userItems);
+                            print(userItems);
+                          }
+                        } else {
+                          userItems!.remove(commodities[index]['name']);
+                          context.read<appBloc>().changeCommodites(userItems);
+                        }
+                        print("User Items: $userItems");
+                      });
+                    },
                     trailing: Checkbox(
-                      value: commodities[index]['isChecked'] ?? false,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          commodities[index]['isChecked'] = value!;
-                        });
-                      },
-                    ),
+                        value: commodities[index]['isChecked'] ?? false,
+                        onChanged: (bool? value) {
+                          print(value);
+                          setState(() {
+                            commodities[index]['isChecked'] = value!;
+                            if (value) {
+                              // If checked, add to userItems if not already present
+                              if (!userItems!
+                                  .contains(commodities[index]['name'])) {
+                                userItems!.add(commodities[index]['name']);
+                                context
+                                    .read<appBloc>()
+                                    .changeCommodites(userItems);
+                              }
+                            } else {
+                              // If unchecked, remove from userItems
+                              userItems!.remove(commodities[index]['name']);
+                              context
+                                  .read<appBloc>()
+                                  .changeCommodites(userItems);
+                            }
+                            print("User Items: $userItems");
+                          });
+                        }),
                     title: Text(commodities[index]['name']!),
                     subtitle: Text(commodities[index]['unit']!),
                   );
                 },
               ),
             ),
+            Text(userItems!.isNotEmpty
+                ? context.watch<appBloc>().userCommodities.toString()
+                : "User empty"),
             Align(
               alignment: Alignment.bottomCenter,
               child: GestureDetector(
                 onTap: () {
-                  PersistentNavBarNavigator.pushNewScreenWithRouteSettings(
-                    context,
-                    settings: const RouteSettings(name: "/home"),
-                    screen: const DocumentsVerification(),
-                    // pageTransitionAnimation:
-                    //     PageTransitionAnimation.scaleRotate,
-                  );
+                  print("Current userItems: $userItems"); // Add t
+
+                  if (userItems!.isEmpty || userItems!.length < 1) {
+                    print("Showing error snackbar");
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          backgroundColor: Colors.black,
+                          content: Text(
+                            "Please select a commodity",
+                            style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600, fontSize: 16),
+                          )),
+                    );
+                  } else {
+                    PersistentNavBarNavigator.pushNewScreenWithRouteSettings(
+                      context,
+                      settings: const RouteSettings(name: "/home"),
+                      screen: DocumentsVerification(),
+                      // pageTransitionAnimation:
+                      //     PageTransitionAnimation.scaleRotate,
+                    );
+                  }
                 },
 
                 //  Globals.switchScreens(
