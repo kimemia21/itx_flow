@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/authentication/Authorization.dart';
 import 'package:itx/Commodities.dart/Commodites.dart';
+import 'package:itx/authentication/Documents.dart';
 import 'package:itx/global/globals.dart';
 // import 'package:uuid/uuid.dart';
 import 'package:file_picker/file_picker.dart';
@@ -93,7 +94,7 @@ class _RegulatorsState extends State<Regulators> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () =>
-                Globals.switchScreens(context: context, screen: Commodites(scrollController: ScrollController(),)),
+                Globals.switchScreens(context: context, screen: DocumentsVerification(),),
             icon: Icon(Icons.arrow_back)),
         title: Text('Upload your documents'),
       ),
@@ -141,21 +142,28 @@ class _RegulatorsState extends State<Regulators> {
               onTap: () => _selectDate(context),
             ),
             SizedBox(height: 30),
-            Text(
-              'Documents uploaded',
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+            Column(
+              children: [
+                Text(
+                  'Documents uploaded',
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 10),
-            Expanded(
-              child: ListView(
-                children: [
-                  _buildUploadedDocument(_expiryDateController.text),
-                  _buildUploadedDocument(_expiryDateController.text),
-                  _buildUploadedDocument(_expiryDateController.text),
-                ],
+            Visibility(
+              visible: _expiryDateController.text.isNotEmpty,
+              child: Expanded(
+                child: ListView(
+                  children: [
+                    _buildUploadedDocument(_expiryDateController.text),
+                    _buildUploadedDocument(_expiryDateController.text),
+                    _buildUploadedDocument(_expiryDateController.text),
+                  ],
+                ),
               ),
             ),
             Align(

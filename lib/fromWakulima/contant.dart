@@ -189,7 +189,8 @@ AppBar appbar(BuildContext context) {
       alignment: Alignment.center,
       margin: EdgeInsets.only(left: 10),
       child: GestureDetector(
-        onTap: () =>Globals().switchScreens(context: context,screen: MyHomePage(title: "homepage")),
+        onTap: () {},
+        // =>Globals().switchScreens(context: context,screen: MyHomePage(title: "homepage")),
         child: Text(
           "CXT",
           style: GoogleFonts.brunoAce(

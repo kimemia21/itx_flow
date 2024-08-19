@@ -7,6 +7,42 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:265728956034:android:e3b9f384f122c67de6869b",
+        "android_client_info": {
+          "package_name": "com.android.application"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "265728956034-gk73tmaaagjlmbgvn68t741ibgkcfidu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdDGh1le6yYRjaX9Y_YOuGWtVQfEp0k5Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "265728956034-gk73tmaaagjlmbgvn68t741ibgkcfidu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "265728956034-v9r3gcq6fhhfg2ukr3dboea2at7lnj3i.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.itx"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:265728956034:android:67b5471595350478e6869b",
         "android_client_info": {
           "package_name": "com.example.app"
@@ -51,9 +87,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:265728956034:android:fa23b56f24f8deaee6869b",
+        "mobilesdk_app_id": "1:265728956034:android:157e779cddfd669ce6869b",
         "android_client_info": {
-          "package_name": "com.itx.app"
+          "package_name": "com.example.itx"
         }
       },
       "oauth_client": [

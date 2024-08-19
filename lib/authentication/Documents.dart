@@ -10,7 +10,6 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 class DocumentsVerification extends StatefulWidget {
-
   const DocumentsVerification();
 
   @override
@@ -26,7 +25,6 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
       context.read<appBloc>().changeNavVisibility(visible: false);
     });
   }
-
 
   Widget docsType({
     required String title,
@@ -100,6 +98,9 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
 
   @override
   Widget build(BuildContext context) {
+    List myList = [1, 2, 34];
+    String l = myList.join(",");
+    print("this is the value of l $l");
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -143,8 +144,8 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
               docsType(
                 title: "Authorization",
                 subtitle:
-                    "Add a document to prove your are authorized to sell this product ${context.watch<appBloc>().userCommodities}",
-                    // ${widget.userItems.toString()}",
+                    "Add a document to prove your are authorized to sell this product ${context.watch<appBloc>().userCommodities.join(',')}",
+                // ${widget.userItems.toString()}",
                 action: () {
                   Globals.switchScreens(context: context, screen: Regulators());
                 },
@@ -152,8 +153,8 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
               docsType(
                 title: "Compliance",
                 subtitle:
-                    "Add a document to prove this product is eligable for sale of ${context.watch<appBloc>().userCommodities}",
-                    // ${widget.userItems.toString()}",
+                    "Add a document to prove this product is eligable for sale of ${context.watch<appBloc>().userCommodities.join(',')}",
+                // ${widget.userItems.toString()}",
                 action: () {
                   Globals.switchScreens(context: context, screen: Regulators());
                 },
