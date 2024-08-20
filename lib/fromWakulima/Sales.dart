@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -58,118 +59,127 @@ class _SalesState extends State<Sales> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        physics: ClampingScrollPhysics(),
-        child: Container(
-          width: AppWidth(context, 1),
-          margin: EdgeInsets.all(2),
-          padding: EdgeInsets.all(2),
-          child: Column(
-            children: [
-              Container(
-                margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                padding: EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.grey.shade200,
-                ),
-                width: AppWidth(context, 1),
-                height: 50,
-                child: InkWell(
-                  splashColor: Colors.grey,
-                  radius: 100,
-                  onTap: () async {
-                    await checkInternetConnection(context).then((value) {
-                      value
-                           ? PersistentNavBarNavigator.pushNewScreen(context, screen: Commodites())
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //         builder: (context) => SearchPage()))
-                          : Globals().nointernet(context: context);
-                    });
-                  },
-                  borderRadius: BorderRadius.circular(8),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Icon(Icons.search_rounded),
-                        SizedBox(width: 10),
-                        Text("Search on Cxt"),
-                      ],
+    return Scaffold(
+      appBar: AppBar(
+          leading: IconButton.filled(
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+              },
+              icon: Icon(Icons.logout))),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          physics: ClampingScrollPhysics(),
+          child: Container(
+            width: AppWidth(context, 1),
+            margin: EdgeInsets.all(2),
+            padding: EdgeInsets.all(2),
+            child: Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  padding: EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.grey.shade200,
+                  ),
+                  width: AppWidth(context, 1),
+                  height: 50,
+                  child: InkWell(
+                    splashColor: Colors.grey,
+                    radius: 100,
+                    onTap: () async {
+                      await checkInternetConnection(context).then((value) {
+                        value
+                            ? PersistentNavBarNavigator.pushNewScreen(context,
+                                screen: Commodites())
+                            // Navigator.push(
+                            //     context,
+                            //     MaterialPageRoute(
+                            //         builder: (context) => SearchPage()))
+                            : Globals().nointernet(context: context);
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          Icon(Icons.search_rounded),
+                          SizedBox(width: 10),
+                          Text("Search on Cxt"),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Container(
-                alignment: Alignment.topLeft,
-                margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: Text(
-                  "CXT Categories",
-                  style: GoogleFonts.poppins(
-                      fontSize: 20, fontWeight: FontWeight.w600),
-                ),
-              ),
-              Container(
-                width: AppWidth(context, 1),
-                height: AppHeight(context, 0.3),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.white,
-                ),
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  // physics: BouncingScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3, // Number of columns
-                    crossAxisSpacing: 2.0, // Spacing between columns
-                    mainAxisSpacing: 2.0, // Spacing between rows
+                Container(
+                  alignment: Alignment.topLeft,
+                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  child: Text(
+                    "CXT Categories",
+                    style: GoogleFonts.poppins(
+                        fontSize: 20, fontWeight: FontWeight.w600),
                   ),
-                  itemCount: Categories.length,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () async {
-                        await checkInternetConnection(context).then((value) {
-                          value
-                              ? Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Selection()))
-                              : Globals().nointernet(context: context);
-                        });
-                      },
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircleAvatar(
-                            radius: 40,
-                            backgroundColor: Colors.grey[500],
-                            backgroundImage: NetworkImage(
-                              Categories[index]["imageUrl"],
-                            ),
-                          ),
-                          Text(
-                            Categories[index]["name"],
-                            style: GoogleFonts.poppins(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
                 ),
-              ),
-              SizedBox(height: 20), // Add some space between the sections
-              Arrivals(),
-              SizedBox(height: 20), // Add some space between the sections
-              Deals(),
-            ],
+                Container(
+                  width: AppWidth(context, 1),
+                  height: AppHeight(context, 0.3),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white,
+                  ),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    // physics: BouncingScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3, // Number of columns
+                      crossAxisSpacing: 2.0, // Spacing between columns
+                      mainAxisSpacing: 2.0, // Spacing between rows
+                    ),
+                    itemCount: Categories.length,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () async {
+                          await checkInternetConnection(context).then((value) {
+                            value
+                                ? Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Selection()))
+                                : Globals().nointernet(context: context);
+                          });
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircleAvatar(
+                              radius: 40,
+                              backgroundColor: Colors.grey[500],
+                              backgroundImage: NetworkImage(
+                                Categories[index]["imageUrl"],
+                              ),
+                            ),
+                            Text(
+                              Categories[index]["name"],
+                              style: GoogleFonts.poppins(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                SizedBox(height: 20), // Add some space between the sections
+                Arrivals(),
+                SizedBox(height: 20), // Add some space between the sections
+                Deals(),
+              ],
+            ),
           ),
         ),
       ),

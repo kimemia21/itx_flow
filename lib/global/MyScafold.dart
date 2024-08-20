@@ -41,20 +41,17 @@ class _MyHomepageState extends State<MyHomepage> {
       element.dispose();
     }
     super.dispose();
-
-
   }
 
-    List<Widget> _buildScreens() {
-        return [
-          Sales(),
-          Commodites(scrollController: _scrollControllers.first),
-             Commodites(scrollController: _scrollControllers.first),
-            Specificorder(item: "beans"),
-                   Commodites(scrollController: _scrollControllers.first)
-                      
-        ];
-    }
+  List<Widget> _buildScreens() {
+    return [
+      Sales(),
+      Commodites(scrollController: _scrollControllers.first),
+      Commodites(scrollController: _scrollControllers.first),
+      Specificorder(item: "beans"),
+      Commodites(scrollController: _scrollControllers.first)
+    ];
+  }
 
   // List<CustomNavBarScreen> _buildScreens() => [
   //       CustomNavBarScreen(
@@ -115,33 +112,36 @@ class _MyHomepageState extends State<MyHomepage> {
   @override
   Widget build(BuildContext context) {
     return PersistentTabView(
-        context,
-        controller: _controller,
-        screens: _buildScreens(),
-        items: _navBarsItems(),
-        handleAndroidBackButtonPress: true, // Default is true.
-        resizeToAvoidBottomInset: true, // This needs to be true if you want to move up the screen on a non-scrollable screen when keyboard appears. Default is true.
-        stateManagement: true, // Default is true.
-        hideNavigationBarWhenKeyboardAppears: true,
-        // popBehaviorOnSelectedNavBarItemPress: PopActionScreensType.all,
-        padding: const EdgeInsets.only(top: 8),
-        backgroundColor: Colors.grey.shade200,
-        isVisible: true,
-        animationSettings: const NavBarAnimationSettings(
-            navBarItemAnimation: ItemAnimationSettings( // Navigation Bar's items animation properties.
-                duration: Duration(milliseconds: 300),
-                curve: Curves.ease,
-            ),
-            screenTransitionAnimation: ScreenTransitionAnimationSettings( // Screen transition animation on change of selected tab.
-                animateTabTransition: true,
-                duration: Duration(milliseconds: 400),
-                screenTransitionAnimationType: ScreenTransitionAnimationType.fadeIn,
-            ),
+      context,
+      controller: _controller,
+      screens: _buildScreens(),
+      items: _navBarsItems(),
+      handleAndroidBackButtonPress: true, // Default is true.
+      resizeToAvoidBottomInset:
+          true, // This needs to be true if you want to move up the screen on a non-scrollable screen when keyboard appears. Default is true.
+      stateManagement: true, // Default is true.
+      hideNavigationBarWhenKeyboardAppears: true,
+      // popBehaviorOnSelectedNavBarItemPress: PopActionScreensType.all,
+      padding: const EdgeInsets.only(top: 8),
+      backgroundColor: Colors.grey.shade200,
+      isVisible: true,
+      animationSettings: const NavBarAnimationSettings(
+        navBarItemAnimation: ItemAnimationSettings(
+          // Navigation Bar's items animation properties.
+          duration: Duration(milliseconds: 300),
+          curve: Curves.ease,
         ),
-        confineToSafeArea: true,
-        navBarHeight: kBottomNavigationBarHeight,
-        navBarStyle:NavBarStyle.style9 , // Choose the nav bar style with this property
-      );
+        screenTransitionAnimation: ScreenTransitionAnimationSettings(
+          // Screen transition animation on change of selected tab.
+          animateTabTransition: true,
+          duration: Duration(milliseconds: 400),
+          screenTransitionAnimationType: ScreenTransitionAnimationType.fadeIn,
+        ),
+      ),
+      confineToSafeArea: true,
+      navBarHeight: kBottomNavigationBarHeight,
+      navBarStyle:
+          NavBarStyle.style9, // Choose the nav bar style with this property
+    );
   }
 }
-
