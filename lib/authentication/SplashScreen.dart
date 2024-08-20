@@ -169,18 +169,18 @@ class _SplashscreenState extends State<Splashscreen>
                   print("this is the internet connection status $connection");
 
                   if (connection) {
-                    Globals()
-                        .switchScreens(context: context, screen: LoginScreen());
+                    Globals().switchScreens(
+                        context: context, screen: WakulimaLoginScreen());
                   } else {
                     Globals().nointernet(context: context);
                   }
                 },
                 child: Material(
-                  elevation: 5,
-
-                  shadowColor: Colors.grey, // This sets the color of the shadow
-                  borderRadius: BorderRadius.circular(10),
-                  child: Container(
+                    elevation: 5,
+                    shadowColor:
+                        Colors.grey, // This sets the color of the shadow
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
                       // margin: EdgeInsets.only(bottom: 10),
                       alignment: Alignment.center,
                       height: 50,
@@ -188,31 +188,14 @@ class _SplashscreenState extends State<Splashscreen>
                       decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadiusDirectional.circular(10)),
-                      child: TextButton(
-                        onPressed: () async {
-                          print("pressed");
-                          bool connection =
-                              await checkInternetConnection(context);
-
-                          print(
-                              "this is the internet connection status $connection");
-
-                          if (connection) {
-                            Globals().switchScreens(
-                                context: context, screen:WakulimaLoginScreen());
-                          } else {
-                            Globals().nointernet(context: context);
-                          }
-                        },
-                        child: Text(
-                          "Email",
-                          style: GoogleFonts.poppins(
-                              color: Colors.black54,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600),
-                        ),
-                      )),
-                ),
+                      child: Text(
+                        "Email",
+                        style: GoogleFonts.poppins(
+                            color: Colors.black54,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    )),
               ),
               SizedBox(
                 height: 20,
@@ -252,8 +235,8 @@ class _SplashscreenState extends State<Splashscreen>
                       bool connection = await checkInternetConnection(context);
 
                       if (connection) {
-                        Globals()
-                            .switchScreens(context: context, screen: WakulimaSignUp());
+                        Globals().switchScreens(
+                            context: context, screen: WakulimaSignUp());
                       } else {
                         Globals().nointernet(context: context);
                       }

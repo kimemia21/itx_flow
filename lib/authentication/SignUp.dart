@@ -34,7 +34,7 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
   TextEditingController _SignemailController = TextEditingController();
 
   TextEditingController _confirmController = TextEditingController();
-  
+
   TextEditingController _phoneNumberController = TextEditingController();
 
   bool isLoading = false;
@@ -43,6 +43,45 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
 
   AuthButtonType? buttonType;
   AuthIconType? iconType;
+
+  _handleSignup() {
+    // signup(
+    //     context: context,
+    //     email_: "bobbymbogo71@gmail.com",
+    //     password_: "1234567890");
+
+    try {
+      if (_formState.currentState!.validate()) {
+        if (_SignUpPasswordController.text != _confirmController.text) {
+          CherryToast.warning(
+            disableToastAnimation: false,
+            animationCurve: Curves.ease,
+            animationDuration: Duration(milliseconds: 200),
+            title: Text('Password Error',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+            action: Text(
+              'Make sure the password and confirm password match ',
+              style: GoogleFonts.abel(),
+            ),
+            actionHandler: () {},
+            onToastClosed: () {},
+          ).show(context);
+        } else {
+          // claudeAIsignup(
+          //   context: context,
+          //   email: _SignemailController.text.trim(),
+          // );
+
+          signup(
+              context: context,
+              email_: _SignemailController.text.trim(),
+              password_: _SignUpPasswordController.text.trim());
+        }
+      }
+    } catch (e) {
+      print("error mems $e");
+    }
+  }
 
   @override
   void dispose() {
@@ -178,7 +217,6 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
                           color: Colors.white,
                           borderRadius: BorderRadiusDirectional.circular(5)),
                       child: TextFormField(
-                      
                         keyboardType: TextInputType.number,
                         controller: _phoneNumberController,
                         cursorColor: Colors.black,
@@ -193,9 +231,7 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
                             fontSize: 12,
                             color: Colors.black,
                           ),
-                          prefixIcon: Icon(CupertinoIcons.padlock_solid,
-                              color: Colors.black54),
-                          suffixIcon:Icon(Icons.phone),
+                          prefixIcon: Icon(Icons.phone, color: Colors.black54),
                           border: InputBorder.none,
                           focusedBorder: OutlineInputBorder(
                             borderSide: BorderSide.none,
@@ -209,7 +245,7 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
 
                           // Define a basic phone number pattern
                           final RegExp phoneNumberPattern = RegExp(
-                            r'^\+?[1-9]\d{0,2}[\s\-]?\(?\d{1,4}\)?[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,9}$',
+                            r'^\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4}$',
                             caseSensitive: false,
                           );
 
@@ -334,35 +370,18 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
 
                     GestureDetector(
                       onTap: () {
-                        print("tapped");
-                        if (_formState.currentState!.validate()) {
-                          if (_SignUpPasswordController.text !=
-                              _confirmController.text) {
-                            CherryToast.warning(
-                              disableToastAnimation: false,
-                              animationCurve: Curves.ease,
-                              animationDuration: Duration(milliseconds: 200),
-                              title: Text('Password Error',
-                                  style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.bold)),
-                              action: Text(
-                                'Make sure the password and confirm password match ',
-                                style: GoogleFonts.abel(),
-                              ),
-                              actionHandler: () {},
-                              onToastClosed: () {},
-                            ).show(context);
-                          } else {
-                            claudeAIsignup(
-                                context: context,
-                                email: _SignemailController.text.trim());
-                            // signup(
-                            //     context: context,
-                            //     email_: _SignemailController.text.trim(),
-                            //     password_:
-                            //         _SignUpPasswordController.text.trim());
-                          }
-                        }
+                        print("Tappped");
+                        String testEmail = "bobbymbogo71@gmail.com";
+                        String password = "1234567890";
+                         signup(
+              context: context,
+              email_: testEmail,
+              password_: password);
+                        // claudeAIsignup(
+                        //   context: context,
+                        //   email: testEmail,
+                        // );
+                        // _handleSignup();
                       },
                       child: Container(
                         margin: EdgeInsets.only(bottom: 5),
@@ -372,97 +391,64 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
                         decoration: BoxDecoration(
                             color: Colors.green.shade500,
                             borderRadius: BorderRadiusDirectional.circular(10)),
-                        child: TextButton(
-                          onPressed: () {
-                            print("tapped");
-                            if (_formState.currentState!.validate()) {
-                              if (_SignUpPasswordController.text !=
-                                  _confirmController.text) {
-                                CherryToast.warning(
-                                  disableToastAnimation: false,
-                                  animationCurve: Curves.ease,
-                                  animationDuration:
-                                      Duration(milliseconds: 200),
-                                  title: Text('Password Error',
-                                      style: GoogleFonts.poppins(
-                                          fontWeight: FontWeight.bold)),
-                                  action: Text(
-                                    'Make sure the password and confirm password match ',
-                                    style: GoogleFonts.abel(),
-                                  ),
-                                  actionHandler: () {},
-                                  onToastClosed: () {},
-                                ).show(context);
-                              } else {
-                                signup(
-                                    context: context,
-                                    email_: _SignemailController.text.trim(),
-                                    password_:
-                                        _SignUpPasswordController.text.trim());
-                              }
-                            }
-                          },
-                          child: context.watch<CurrentUserProvider>().isLoading
-                              ? LoadingAnimationWidget.staggeredDotsWave(
-                                  color: Colors.white, size: 25)
-                              : Text(
-                                  "Sign Up",
-                                  style: GoogleFonts.abel(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                        ),
+                        child: context.watch<CurrentUserProvider>().isLoading
+                            ? LoadingAnimationWidget.staggeredDotsWave(
+                                color: Colors.white, size: 25)
+                            : Text("Continue",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                )),
                       ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(top: 15),
-                      child: GoogleAuthButton(
-                          text: "Signup with Google",
-                          onPressed: () {},
-                          themeMode: themeMode,
-                          isLoading: isLoading,
-                          style: AuthButtonStyle(
-                            width: MediaQuery.of(context).size.width * 0.8,
-                            textStyle: GoogleFonts.poppins(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.w600),
-                            buttonType: buttonType,
-                            iconType: iconType,
-                          )),
-                    ),
-                    //  Container(
-                    //   margin: EdgeInsets.only(top: 15),
-                    //   child:
+                      // Container(
+                      //   margin: EdgeInsets.only(top: 15),
+                      //   child: GoogleAuthButton(
+                      //       text: "Signup with Google",
+                      //       onPressed: () {},
+                      //       themeMode: themeMode,
+                      //       isLoading: isLoading,
+                      //       style: AuthButtonStyle(
+                      //         width: MediaQuery.of(context).size.width * 0.8,
+                      //         textStyle: GoogleFonts.poppins(
+                      //             color: Colors.black54,
+                      //             fontWeight: FontWeight.w600),
+                      //         buttonType: buttonType,
+                      //         iconType: iconType,
+                      //       )),
+                      // ),
+                      //  Container(
+                      //   margin: EdgeInsets.only(top: 15),
+                      //   child:
 
-                    //    GoogleAuthButton(
-                    //       text: "Signup with Google",
-                    //       onPressed: () {},
-                    //        themeMode: themeMode,
-                    //       isLoading: isLoading,
-                    //       style: AuthButtonStyle(
-                    //         width: MediaQuery.of(context).size.width * 0.8,
-                    //         textStyle: GoogleFonts.poppins(
-                    //             color: Colors.black54,
-                    //             fontWeight: FontWeight.w600),
-                    //         buttonType: buttonType,
-                    //         iconType: iconType,
-                    //       )),
-                    // ),
+                      //    GoogleAuthButton(
+                      //       text: "Signup with Google",
+                      //       onPressed: () {},
+                      //        themeMode: themeMode,
+                      //       isLoading: isLoading,
+                      //       style: AuthButtonStyle(
+                      //         width: MediaQuery.of(context).size.width * 0.8,
+                      //         textStyle: GoogleFonts.poppins(
+                      //             color: Colors.black54,
+                      //             fontWeight: FontWeight.w600),
+                      //         buttonType: buttonType,
+                      //         iconType: iconType,
+                      //       )),
+                      // ),
 
-                    // end of text fields
-                    // Container(
-                    //   width: MediaQuery.of(context).size.width * .25,
-                    //   alignment: Alignment.center,
-                    //   padding: EdgeInsets.all(5),
-                    //   margin: EdgeInsets.all(5),
-                    //   child: Or(
-                    //     fontSize: 8,
-                    //     dividerThickness: 0.2,
-                    //     dividerColor: Colors.black54,
-                    //   ),
-                    // ),
+                      // end of text fields
+                      // Container(
+                      //   width: MediaQuery.of(context).size.width * .25,
+                      //   alignment: Alignment.center,
+                      //   padding: EdgeInsets.all(5),
+                      //   margin: EdgeInsets.all(5),
+                      //   child: Or(
+                      //     fontSize: 8,
+                      //     dividerThickness: 0.2,
+                      //     dividerColor: Colors.black54,
+                      //   ),
+                      // ),
+                    )
                   ],
                 ),
               )),

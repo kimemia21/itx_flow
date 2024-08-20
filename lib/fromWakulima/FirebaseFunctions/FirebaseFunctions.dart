@@ -2,7 +2,6 @@
 
 import 'dart:async';
 
-
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -19,7 +18,7 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+// import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
 
 FirebaseAuth _auth = _auth;
@@ -44,64 +43,6 @@ var alertStyle = AlertStyle(
 );
 
 // error codes
-Future<void> claudeAIsignup({
-  required BuildContext context,
-  required String email,
-}) async {
-  try {
-    // Start loading
-    context.read<CurrentUserProvider>().changeIsLoading();
-    print("in");
-
-    bool connection = await checkInternetConnection(context);
-    if (connection) {
-      // Configure ActionCodeSettings
-      ActionCodeSettings actionCodeSettings = ActionCodeSettings(
-        url: 'https://console.firebase.google.com/project/gnovation-wakulima-d5bbc',
-        handleCodeInApp: true,
-        // iOSBundleId: 'com.example.ios',
-        androidPackageName: 'com.example.android',
-        androidInstallApp: true,
-        androidMinimumVersion: '12',
-      );
-
-      // Send sign-in email link
-      await FirebaseAuth.instance.sendSignInLinkToEmail(
-        email: email,
-        actionCodeSettings: actionCodeSettings,
-      );
-
-      // Save the email locally to use it later
-      await saveEmailForSignIn(email);
-
-      // Navigate to the VerifyEmail screen
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => VerifyEmail(email: email)),
-      );
-
-    } else {
-      Globals().nointernet(context: context);
-    }
-  } on FirebaseAuthException catch (e) {
-    // Handle Firebase-specific errors
-    String _error = _getErrorMessage(e.code);
-    Globals().warningsAlerts(
-        title: "Signup Error", content: _error, context: context);
-  } catch (e) {
-    print("Signup error $e");
-  } finally {
-    // Stop loading
-    context.read<CurrentUserProvider>().changeIsLoading();
-  }
-}
-
-// Function to save email locally
-Future<void> saveEmailForSignIn(String email) async {
-  // Use shared_preferences or another local storage method
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('EMAIL_FOR_SIGN_IN', email);
-}
 
 // sign in with email and  password
 Future<void> signInWithEmailAndPassword({
@@ -161,7 +102,6 @@ Future<void> signup({
     bool connection = await checkInternetConnection(context);
     if (connection) {
       UserCredential userCredential =
-    
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email_,
         password: password_,
@@ -172,6 +112,7 @@ Future<void> signup({
 
       // Send email verification if user is not null
       if (user != null) {
+        // add the user info to the database
         Globals().initUserDb();
 
         await user.sendEmailVerification();
