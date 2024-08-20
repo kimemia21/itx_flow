@@ -154,7 +154,7 @@ class _VerifyEmailState extends State<VerifyEmail>
                   IconButton(
                       onPressed: () {
                         Globals()
-                            .switchScreens(context: context, screen: SignUp());
+                            .switchScreens(context: context, screen: WakulimaSignUp());
                       },
                       icon: Icon(
                         Icons.arrow_back,

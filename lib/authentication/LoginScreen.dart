@@ -349,7 +349,7 @@ class _WakulimaLoginScreenState extends State<WakulimaLoginScreen> {
                       child: TextButton(
                         onPressed: () async {
                           Globals().switchScreens(
-                              context: context, screen: SignUp());
+                              context: context, screen: WakulimaSignUp());
                         },
                         child: Text(
                           "Sign up",

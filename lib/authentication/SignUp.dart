@@ -17,14 +17,14 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 // import 'package:or/or.dart';
 
-class SignUp extends StatefulWidget {
-  const SignUp({super.key});
+class WakulimaSignUp extends StatefulWidget {
+  const WakulimaSignUp({super.key});
 
   @override
-  State<SignUp> createState() => _SignUpState();
+  State<WakulimaSignUp> createState() => _WakulimaSignUpState();
 }
 
-class _SignUpState extends State<SignUp> {
+class _WakulimaSignUpState extends State<WakulimaSignUp> {
   GlobalKey<FormState> _formState = GlobalKey<FormState>();
 
   bool visibility = true;
@@ -34,6 +34,9 @@ class _SignUpState extends State<SignUp> {
   TextEditingController _SignemailController = TextEditingController();
 
   TextEditingController _confirmController = TextEditingController();
+  
+  TextEditingController _phoneNumberController = TextEditingController();
+
   bool isLoading = false;
   bool darkMode = false;
   ThemeMode get themeMode => darkMode ? ThemeMode.dark : ThemeMode.light;
@@ -69,8 +72,8 @@ class _SignUpState extends State<SignUp> {
                 borderRadius: BorderRadiusDirectional.all(Radius.circular(30))),
             child: IconButton(
                 onPressed: () {
-                  Globals()
-                      .switchScreens(context: context, screen: WakulimaLoginScreen());
+                  Globals().switchScreens(
+                      context: context, screen: WakulimaLoginScreen());
                 },
                 icon: Icon(
                   Icons.arrow_back,
@@ -83,10 +86,10 @@ class _SignUpState extends State<SignUp> {
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
         child: Container(
           alignment: Alignment.center,
-          width: MediaQuery.of(context).size.width * 1,
-          height: MediaQuery.of(context).size.height,
+          // width: MediaQuery.of(context).size.width * 1,
+          // height: MediaQuery.of(context).size.height,
           // padding: EdgeInsets.only(left: 20),
-          margin: EdgeInsets.all(5),
+          margin: EdgeInsets.all(1),
           decoration: BoxDecoration(
               borderRadius: BorderRadiusDirectional.only(
                   topStart: Radius.circular(40),
@@ -102,16 +105,20 @@ class _SignUpState extends State<SignUp> {
                     Container(
                       margin: EdgeInsets.only(bottom: 4),
                       child: Text(
-                        "Create an  Account",
+                        "Are you a buyer,producer or Trader?",
                         style: GoogleFonts.abel(
-                            fontSize: 30, fontWeight: FontWeight.bold),
+                            letterSpacing: 1,
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
+
                     Container(
                       margin: EdgeInsets.only(bottom: 20),
                       child: Text(
-                        "See what's going on with your business",
-                        style: GoogleFonts.abel(),
+                        textAlign: TextAlign.center,
+                        "We want to make sure you're getting the right experience .Please verify your contact information",
+                        style: GoogleFonts.abel(fontSize: 16),
                       ),
                     ),
 
@@ -120,8 +127,8 @@ class _SignUpState extends State<SignUp> {
                     Container(
                       margin: EdgeInsets.only(bottom: 5),
                       alignment: Alignment.center,
-                      height: 60,
-                      width: MediaQuery.of(context).size.width * 0.75,
+                      height: 70,
+                      width: MediaQuery.of(context).size.width * 0.8,
                       decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadiusDirectional.circular(5)),
@@ -165,8 +172,61 @@ class _SignUpState extends State<SignUp> {
                     Container(
                       margin: EdgeInsets.only(bottom: 15, top: 15),
                       alignment: Alignment.center,
-                      height: 60,
-                      width: MediaQuery.of(context).size.width * 0.75,
+                      height: 70,
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadiusDirectional.circular(5)),
+                      child: TextFormField(
+                      
+                        keyboardType: TextInputType.number,
+                        controller: _phoneNumberController,
+                        cursorColor: Colors.black,
+                        onChanged: (value) {
+                          // setState(() {
+                          //   password = value;
+                          // });
+                        },
+                        decoration: InputDecoration(
+                          labelText: "phone number",
+                          labelStyle: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.black,
+                          ),
+                          prefixIcon: Icon(CupertinoIcons.padlock_solid,
+                              color: Colors.black54),
+                          suffixIcon:Icon(Icons.phone),
+                          border: InputBorder.none,
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        validator: (value) {
+                          // Check if the value is null or empty
+                          if (value == null || value.isEmpty) {
+                            return "Phone number is required";
+                          }
+
+                          // Define a basic phone number pattern
+                          final RegExp phoneNumberPattern = RegExp(
+                            r'^\+?[1-9]\d{0,2}[\s\-]?\(?\d{1,4}\)?[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,9}$',
+                            caseSensitive: false,
+                          );
+
+                          // Check if the value matches the phone number pattern
+                          if (!phoneNumberPattern.hasMatch(value)) {
+                            return "Invalid phone number format";
+                          }
+
+                          return null;
+                        },
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 15, top: 15),
+                      alignment: Alignment.center,
+                      height: 70,
+                      width: MediaQuery.of(context).size.width * 0.8,
                       decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadiusDirectional.circular(5)),
@@ -181,7 +241,7 @@ class _SignUpState extends State<SignUp> {
                           // });
                         },
                         decoration: InputDecoration(
-                          labelText: "Password",
+                          labelText: "password",
                           labelStyle: GoogleFonts.poppins(
                             fontSize: 12,
                             color: Colors.black,
@@ -221,8 +281,8 @@ class _SignUpState extends State<SignUp> {
                         bottom: 25,
                       ),
                       alignment: Alignment.center,
-                      height: 60,
-                      width: MediaQuery.of(context).size.width * 0.75,
+                      height: 70,
+                      width: MediaQuery.of(context).size.width * 0.8,
                       decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadiusDirectional.circular(5)),
@@ -293,11 +353,14 @@ class _SignUpState extends State<SignUp> {
                               onToastClosed: () {},
                             ).show(context);
                           } else {
-                            signup(
+                            claudeAIsignup(
                                 context: context,
-                                email_: _SignemailController.text.trim(),
-                                password_:
-                                    _SignUpPasswordController.text.trim());
+                                email: _SignemailController.text.trim());
+                            // signup(
+                            //     context: context,
+                            //     email_: _SignemailController.text.trim(),
+                            //     password_:
+                            //         _SignUpPasswordController.text.trim());
                           }
                         }
                       },
@@ -305,7 +368,7 @@ class _SignUpState extends State<SignUp> {
                         margin: EdgeInsets.only(bottom: 5),
                         alignment: Alignment.center,
                         height: 40,
-                        width: MediaQuery.of(context).size.width * 0.75,
+                        width: MediaQuery.of(context).size.width * 0.8,
                         decoration: BoxDecoration(
                             color: Colors.green.shade500,
                             borderRadius: BorderRadiusDirectional.circular(10)),
@@ -361,7 +424,7 @@ class _SignUpState extends State<SignUp> {
                           themeMode: themeMode,
                           isLoading: isLoading,
                           style: AuthButtonStyle(
-                            width: MediaQuery.of(context).size.width * 0.75,
+                            width: MediaQuery.of(context).size.width * 0.8,
                             textStyle: GoogleFonts.poppins(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.w600),
@@ -379,7 +442,7 @@ class _SignUpState extends State<SignUp> {
                     //        themeMode: themeMode,
                     //       isLoading: isLoading,
                     //       style: AuthButtonStyle(
-                    //         width: MediaQuery.of(context).size.width * 0.75,
+                    //         width: MediaQuery.of(context).size.width * 0.8,
                     //         textStyle: GoogleFonts.poppins(
                     //             color: Colors.black54,
                     //             fontWeight: FontWeight.w600),

@@ -388,7 +388,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.itx.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/itx.itx/fromWakulima/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/itx";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/itx.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/itx";
 			};
 			name = Debug;
 		};
@@ -402,7 +402,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.itx.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/itx.itx/fromWakulima/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/itx";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/itx.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/itx";
 			};
 			name = Release;
 		};
@@ -416,7 +416,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.itx.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/itx.itx/fromWakulima/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/itx";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/itx.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/itx";
 			};
 			name = Profile;
 		};

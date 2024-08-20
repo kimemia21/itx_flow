@@ -253,7 +253,7 @@ class _SplashscreenState extends State<Splashscreen>
 
                       if (connection) {
                         Globals()
-                            .switchScreens(context: context, screen: SignUp());
+                            .switchScreens(context: context, screen: WakulimaSignUp());
                       } else {
                         Globals().nointernet(context: context);
                       }
@@ -276,7 +276,7 @@ class _SplashscreenState extends State<Splashscreen>
                           if (connection != null && connection) {
                             print("connection is $connection");
                             Globals().switchScreens(
-                                context: context, screen: SignUp());
+                                context: context, screen: WakulimaSignUp());
                           } else {
                             Globals().nointernet(context: context);
                           }

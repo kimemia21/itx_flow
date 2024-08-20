@@ -1,10 +1,10 @@
 # itx
 
-A new Flutter project.
+A new Flutter projec[google-services.json](android%2Fitx%2FfromWakulima%2Fgoogle-services.json)t.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+This project is a starting point fo[google-services.json](android%2Fitx%2FfromWakulima%2Fgoogle-services.json)r a Flutter application.
 
 A few resources to get you started if this is your first Flutter project:
 
