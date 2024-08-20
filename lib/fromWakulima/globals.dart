@@ -1,6 +1,5 @@
 import 'dart:async';
 
-
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,18 +8,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/fromWakulima/DocsVerification.dart';
+import 'package:itx/fromWakulima/Homepage.dart';
 import 'package:itx/fromWakulima/contant.dart';
+import 'package:itx/global/MyScafold.dart';
 
 class Globals {
   double raduis = 20.0;
 
-  FirebaseAuth auth = FirebaseAuth.instance;
+  static FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
   Future<void> initUserDb() async {
     await Globals()
         .firebaseFirestore
-        .collection("${Globals().auth.currentUser?.email}")
-        .doc(Globals().auth.currentUser?.email)
+        .collection("${Globals.auth.currentUser?.email}")
+        .doc(Globals.auth.currentUser?.email)
         .set({
       "createdOn": FieldValue.serverTimestamp(),
       "doc": "",
@@ -97,7 +99,7 @@ class Globals {
 
   Future checkDocVerified({required BuildContext context}) async {
     try {
-      String? email = Globals().auth.currentUser?.email;
+      String? email = Globals.auth.currentUser?.email;
 
       DocumentReference docRef =
           FirebaseFirestore.instance.collection("$email").doc(email);
@@ -115,11 +117,11 @@ class Globals {
 
         if (isDocVerified) {
           print("The document is verified.");
-          // switchScreens(context: context, screen: WelcomeScreen());
+          switchScreens(context: context, screen:MyHomepage());
         } else {
           print(
               "The document is not verified or 'docVerified' field is missing.");
-          // switchScreens(context: context, screen: Docsverification());
+         switchScreens(context: context, screen: Docsverification());
         }
       } else {
         print("Document does not exist.");
@@ -249,31 +251,33 @@ class Globals {
       height: AppHeight(context, 0.2),
       child: Column(
         children: [
-     Container(
-      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
-            
-            blurRadius: 5,
-            offset: Offset(0, 3), // changes position of shadow
+          Container(
+            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 2,
+
+                  blurRadius: 5,
+                  offset: Offset(0, 3), // changes position of shadow
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius:
+                  BorderRadius.circular(22), // Circular border for the image
+              child: Image.network(
+                image,
+                width: AppWidth(context, 0.35),
+                height: AppHeight(context, 0.2),
+                fit: BoxFit
+                    .contain, // Ensures the image covers the area without distortion
+              ),
+            ),
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(22), // Circular border for the image
-        child: Image.network(
-          image,
-        width: AppWidth(context, 0.35),
-      height: AppHeight(context, 0.2),
-          fit: BoxFit.contain, // Ensures the image covers the area without distortion
-        ),
-      ),
-    ),
           Container(
             width: AppWidth(context, 0.3),
             child: Text(
@@ -304,9 +308,7 @@ class Globals {
     );
   }
 
-  
-
-  Map authErrors = {
+  static Map authErrors = {
     "admin-restricted-operation":
         "This operation is restricted to administrators only.",
     "argument-error": "",

@@ -35,15 +35,12 @@ class _RegulatorsState extends State<Regulators> {
     }
   }
 
-
- Future<void> uploadDocument() async {
-    // String? authUserEmail = Globals().auth.currentUser?.email;
-      String? _fileName;
-  Uint8List? _fileBytes;
-  String? _fileExtention;
+  Future<void> uploadDocument() async {
+    // String? authUserEmail = Globals.auth.currentUser?.email;
+    String? _fileName;
+    Uint8List? _fileBytes;
+    String? _fileExtention;
     // var uuid = Uuid().v4();
-   
-
 
     try {
       FilePickerResult? result =
@@ -87,14 +84,15 @@ class _RegulatorsState extends State<Regulators> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () =>
-                Globals.switchScreens(context: context, screen: DocumentsVerification(),),
+            onPressed: () => Globals.switchScreens(
+                  context: context,
+                  screen: DocumentsVerification(),
+                ),
             icon: Icon(Icons.arrow_back)),
         title: Text('Upload your documents'),
       ),
@@ -125,9 +123,7 @@ class _RegulatorsState extends State<Regulators> {
                 ),
                 SizedBox(width: 10),
                 IconButton(
-                  icon: Icon(Icons.camera_alt),
-                  onPressed:uploadDocument
-                ),
+                    icon: Icon(Icons.camera_alt), onPressed: uploadDocument),
               ],
             ),
             SizedBox(height: 20),

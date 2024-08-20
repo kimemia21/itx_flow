@@ -40,7 +40,7 @@ class _DocsverificationState extends State<Docsverification>
   }
 
   Future<void> uploadDocument() async {
-    String? authUserEmail = Globals().auth.currentUser?.email;
+    String? authUserEmail = Globals.auth.currentUser?.email;
     // var uuid = Uuid().v4();
     context.read<CurrentUserProvider>().changeIsLoading();
 
@@ -87,7 +87,7 @@ class _DocsverificationState extends State<Docsverification>
   }
 
   Future<void> SaveDoc({required BuildContext context}) async {
-    String? authUserEmail = Globals().auth.currentUser?.email;
+    String? authUserEmail = Globals.auth.currentUser?.email;
     if (_fileBytes != null && _fileExtention != null && _fileName != null) {
       final mimeType = Globals().getMimeType(_fileExtention);
       final metaData = SettableMetadata(contentType: mimeType);
@@ -108,7 +108,7 @@ class _DocsverificationState extends State<Docsverification>
 
         await Globals()
             .firebaseFirestore
-            .collection("${Globals().auth.currentUser?.email}")
+            .collection("${Globals.auth.currentUser?.email}")
             .doc(authUserEmail)
             .update({
           "createdOn": FieldValue.serverTimestamp(),

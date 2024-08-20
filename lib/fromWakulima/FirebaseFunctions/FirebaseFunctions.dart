@@ -1,5 +1,4 @@
 //  sign in  with email and password
-
 import 'dart:async';
 
 import 'package:cherry_toast/cherry_toast.dart';
@@ -19,12 +18,11 @@ import 'package:transparent_image/transparent_image.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 // import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:shared_preferences/shared_preferences.dart';
 
 FirebaseAuth _auth = _auth;
 User? user;
 String _getErrorMessage(String errorCode) {
-  return Globals().authErrors[errorCode] ?? "an  undefined error happened";
+  return Globals.authErrors[errorCode] ?? "an  undefined error happened";
 }
 
 var alertStyle = AlertStyle(
@@ -58,12 +56,12 @@ Future<void> signInWithEmailAndPassword({
     await Future.delayed(Duration(seconds: 2));
 
     // Attempt to sign in with email and password
-    await Globals()
+    await Globals
         .auth
         .signInWithEmailAndPassword(email: email, password: password);
 
     // Check if email is verified
-    if (Globals().auth.currentUser?.emailVerified == true) {
+    if (Globals.auth.currentUser?.emailVerified == true) {
       // Navigate to home page if email is verified
       Globals().checkDocVerified(context: context);
     } else {

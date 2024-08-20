@@ -45,11 +45,6 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
   AuthIconType? iconType;
 
   _handleSignup() {
-    // signup(
-    //     context: context,
-    //     email_: "bobbymbogo71@gmail.com",
-    //     password_: "1234567890");
-
     try {
       if (_formState.currentState!.validate()) {
         if (_SignUpPasswordController.text != _confirmController.text) {
@@ -67,11 +62,6 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
             onToastClosed: () {},
           ).show(context);
         } else {
-          // claudeAIsignup(
-          //   context: context,
-          //   email: _SignemailController.text.trim(),
-          // );
-
           signup(
               context: context,
               email_: _SignemailController.text.trim(),
@@ -79,7 +69,7 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
         }
       }
     } catch (e) {
-      print("error mems $e");
+      print("_handleSignup error $e");
     }
   }
 
@@ -371,17 +361,12 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
                     GestureDetector(
                       onTap: () {
                         print("Tappped");
-                        String testEmail = "bobbymbogo71@gmail.com";
-                        String password = "1234567890";
-                         signup(
-              context: context,
-              email_: testEmail,
-              password_: password);
+
                         // claudeAIsignup(
                         //   context: context,
                         //   email: testEmail,
                         // );
-                        // _handleSignup();
+                        _handleSignup();
                       },
                       child: Container(
                         margin: EdgeInsets.only(bottom: 5),

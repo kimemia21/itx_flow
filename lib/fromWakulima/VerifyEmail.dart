@@ -1,269 +1,169 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
+
+import '../authentication/Login.dart';
+import '../authentication/LoginScreen.dart';
+import '../authentication/SignUp.dart';
+import '../fromWakulima/AppBloc.dart';
+import '../fromWakulima/FirebaseFunctions/FirebaseFunctions.dart';
+import '../fromWakulima/Homepage.dart';
+import '../fromWakulima/globals.dart';
+import '../fromWakulima/contant.dart';
 
 class VerifyEmail extends StatefulWidget {
   final String email;
 
-  const VerifyEmail({Key? key, required this.email}) : super(key: key);
+  const VerifyEmail({super.key, required this.email});
 
   @override
-  _VerifyEmailState createState() => _VerifyEmailState();
+  State<VerifyEmail> createState() => _VerifyEmailState(email: email);
 }
 
-class _VerifyEmailState extends State<VerifyEmail> {
-  final _codeController = TextEditingController();
+class _VerifyEmailState extends State<VerifyEmail>
+    with SingleTickerProviderStateMixin {
+  final String email;
+  late AnimationController _animationController;
+  late Timer timer;
+
+  _VerifyEmailState({required this.email});
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..forward();
+
+    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      Globals.auth.currentUser?.reload();
+      if (Globals.auth.currentUser?.emailVerified == true) {
+        print("----------------------authenticated-----------------------");
+        Globals().checkDocVerified(context: context);
+        timer.cancel();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    timer.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Verify Email')),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Enter the verification code sent to ${widget.email}'),
-            SizedBox(height: 20),
-            TextField(
-              controller: _codeController,
-              decoration: InputDecoration(labelText: 'Verification Code'),
-              keyboardType: TextInputType.number,
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              child: Text('Verify'),
-              onPressed: () => verifyCode(context),
-            ),
-          ],
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ScaleTransition(
+                scale: CurvedAnimation(
+                  parent: _animationController,
+                  curve: Curves.elasticOut,
+                ),
+                child: Lottie.asset(
+                  "assets/gif/AnimationOne.json",
+                  height: 150,
+                  width: 150,
+                ),
+              ),
+              const SizedBox(height: 20),
+              FadeTransition(
+                opacity: CurvedAnimation(
+                  parent: _animationController,
+                  curve: Curves.easeIn,
+                ),
+                child: Text(
+                  "Email Verification",
+                  style: GoogleFonts.poppins(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              FadeTransition(
+                opacity: CurvedAnimation(
+                  parent: _animationController,
+                  curve: const Interval(0.5, 1.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Please check your inbox at $email and click the verification link to verify your email address.",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: () => resendLink(context: context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: context.watch<CurrentUserProvider>().isLoading
+                    ? LoadingAnimationWidget.staggeredDotsWave(
+                        color: Colors.white, size: 25)
+                    : Text(
+                        "Resend Email",
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+              ),
+              const SizedBox(height: 30),
+              GestureDetector(
+                onTap: () => Globals().switchScreens(
+                    context: context, screen: WakulimaLoginScreen()),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      onPressed: () => Globals().switchScreens(
+                          context: context, screen: WakulimaSignUp()),
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: Colors.blue,
+                      ),
+                    ),
+                    Text(
+                      "Back to Signup",
+                      style: GoogleFonts.poppins(
+                        color: Colors.blue,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
   }
-
-  Future<void> verifyCode(BuildContext context) async {
-    try {
-      // Get the current user
-      User? user = FirebaseAuth.instance.currentUser;
-
-      if (user != null) {
-        // Check if the entered code matches the verification code
-        AuthCredential credential = EmailAuthProvider.credential(
-          email: widget.email,
-          password: _codeController.text, // Using the verification code as password
-        );
-
-        await user.reauthenticateWithCredential(credential);
-
-        // If reauthentication is successful, mark the email as verified
-        await user.reload();
-        user = FirebaseAuth.instance.currentUser; // Refresh user
-
-        if (user!.emailVerified) {
-          // Email verified successfully
-          Navigator.of(context).pushReplacementNamed('/home'); // Navigate to home screen
-        } else {
-          // Verification failed
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Verification failed. Please try again.')),
-          );
-        }
-      }
-    } catch (e) {
-      print('Verification error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Verification failed. Please try again.')),
-      );
-    }
-  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import 'dart:async';
-
-// import 'package:itx/authentication/Login.dart';
-// import 'package:itx/authentication/LoginScreen.dart';
-// import 'package:itx/fromWakulima/globals.dart';
-// import 'package:itx/fromWakulima/AppBloc.dart';
-// import 'package:itx/fromWakulima/FirebaseFunctions/FirebaseFunctions.dart';
-// import 'package:itx/fromWakulima/Homepage.dart';
-// import 'package:itx/fromWakulima/contant.dart';
-// import 'package:itx/fromWakulima/globals.dart';
-// import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart';
-// import 'package:loading_animation_widget/loading_animation_widget.dart';
-// import 'package:lottie/lottie.dart';
-// import 'package:provider/provider.dart';
-
-// import '../authentication/SignUp.dart';
-
-// class VerifyEmail extends StatefulWidget {
-//   final String email;
-//   const VerifyEmail({super.key, required this.email});
-
-//   @override
-//   State<VerifyEmail> createState() => _VerifyEmailState(email: email);
-// }
-
-// class _VerifyEmailState extends State<VerifyEmail>
-//     with SingleTickerProviderStateMixin {
-//   final String email;
-//   _VerifyEmailState({required this.email});
-
-//   dynamic _animationController;
-//   late Timer timer;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _animationController = AnimationController(
-//       duration: const Duration(seconds: 2),
-//       vsync: this,
-//     );
-//     _animationController.forward();
-//     timer = Timer.periodic(Duration(seconds: 1), (timer) {
-//       Globals().auth.currentUser?.reload();
-//       if (Globals().auth.currentUser?.emailVerified == true) {
-//         Globals().checkDocVerified(context: context);
-//         timer.cancel();
-//       }
-//     });
-//   }
-
-//   @override
-//   void dispose() {
-//     _animationController.dispose();
-//     super.dispose();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: Colors.white,
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: <Widget>[
-//             ScaleTransition(
-//               scale: Tween(begin: 0.8, end: 1.0).animate(
-//                 CurvedAnimation(
-//                   parent: _animationController,
-//                   curve: Curves.elasticOut,
-//                 ),
-//               ),
-//               child: Lottie.asset(
-//                 "assets/gif/AnimationOne.json", // Ensure you have this animation in your assets
-//                 height: 150,
-//                 width: 150,
-//               ),
-//             ),
-//             SizedBox(height: 20),
-//             FadeTransition(
-//               opacity: Tween(begin: 0.0, end: 1.0).animate(
-//                 CurvedAnimation(
-//                   parent: _animationController,
-//                   curve: Curves.easeIn,
-//                 ),
-//               ),
-//               child: Text(
-//                 "Email Verification",
-//                 style: GoogleFonts.poppins(
-//                   fontSize: 18,
-//                   fontWeight: FontWeight.bold,
-//                   color: Colors.black87,
-//                 ),
-//               ),
-//             ),
-//             SizedBox(height: 20),
-//             FadeTransition(
-//               opacity: Tween(begin: 0.0, end: 1.0).animate(
-//                 CurvedAnimation(
-//                   parent: _animationController,
-//                   curve: Interval(0.5, 1.0),
-//                 ),
-//               ),
-//               child: Container(
-//                 margin: EdgeInsets.all(2),
-//                 padding: const EdgeInsets.all(2),
-//                 child: Text(
-//                   "Please check $email inbox and click  wakulima verification link to verify your email address.",
-//                   textAlign: TextAlign.center,
-//                   style: GoogleFonts.poppins(
-//                     fontSize: 18,
-//                     fontWeight: FontWeight.w500,
-//                     color: Colors.black54,
-//                   ),
-//                 ),
-//               ),
-//             ),
-//             SizedBox(height: 20),
-//             ElevatedButton(
-//               onPressed: () {
-//                 resendLink(context: context);
-//                 // Add your onPressed code here
-//               },
-//               style: ElevatedButton.styleFrom(
-//                 backgroundColor: Colors.blueAccent,
-//                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-//                 shape: RoundedRectangleBorder(
-//                   borderRadius: BorderRadius.circular(30),
-//                 ),
-//               ),
-//               child: context.watch<CurrentUserProvider>().isLoading
-//                   ? LoadingAnimationWidget.staggeredDotsWave(
-//                       color: Colors.white, size: 25)
-//                   : Text(
-//                       "Resend Email",
-//                       style: GoogleFonts.poppins(
-//                         fontSize: 16,
-//                         fontWeight: FontWeight.w500,
-//                         color: Colors.white,
-//                       ),
-//                     ),
-//             ),
-//             SizedBox(
-//               height: 30,
-//             ),
-//             GestureDetector(
-//               onTap: () {
-//                 Globals()
-//                     .switchScreens(context: context, screen: WakulimaLoginScreen());
-//               },
-//               child: Row(
-//                 mainAxisAlignment: MainAxisAlignment.center,
-//                 children: [
-//                   IconButton(
-//                       onPressed: () {
-//                         Globals()
-//                             .switchScreens(context: context, screen: WakulimaSignUp());
-//                       },
-//                       icon: Icon(
-//                         Icons.arrow_back,
-//                         color: Colors.blue,
-//                       )),
-//                   Text(
-//                     "back to Signup",
-//                     style: GoogleFonts.poppins(color: Colors.blue),
-//                   )
-//                 ],
-//               ),
-//             )
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
