@@ -9,6 +9,7 @@ import 'package:itx/authentication/Verification.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:itx/fromWakulima/globals.dart';
+import 'package:itx/fromWakulima/AppBloc.dart';
 import 'package:provider/provider.dart';
 
 class DocumentsVerification extends StatefulWidget {
@@ -19,15 +20,16 @@ class DocumentsVerification extends StatefulWidget {
 }
 
 class _DocumentsVerificationState extends State<DocumentsVerification> {
-  late Future<String> role;
+  String? _role;
+
   @override
   void initState() {
     super.initState();
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   // Example of using context to update state or visibility
-    //   context.read<appBloc>().changeNavVisibility(visible: false);
-    // });
-    role=Globals.userRole(context: context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Example of using context to update state or visibility
+      context.read<CurrentUserProvider>().changeRole(context: context);
+      _role = context.watch<CurrentUserProvider>().role;
+    });
   }
 
   Widget docsType({
@@ -145,7 +147,7 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
               docsType(
                 title: "Authorization",
                 subtitle:
-                    "Add a document to prove your are authorized to sell this product ${context.watch<appBloc>().userCommodities.join(',')}",
+                    "Add a document to prove your are authorized to $_role this product ${context.watch<appBloc>().userCommodities.join(',')}",
                 // ${widget.userItems.toString()}",
                 action: () {
                   Globals.switchScreens(context: context, screen: Regulators());

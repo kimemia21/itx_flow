@@ -48,6 +48,7 @@ class Globals {
         Map<String, dynamic>? data =
             docSnapshot.data() as Map<String, dynamic>?;
         String role = data?["role"];
+        print("this is the  role $role");
         return role;
       } else {
         throw Exception('Document does not exist');
