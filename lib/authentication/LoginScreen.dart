@@ -8,7 +8,6 @@
 import 'dart:async';
 import 'dart:ui';
 
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -53,7 +52,6 @@ class _WakulimaLoginScreenState extends State<WakulimaLoginScreen> {
 
   final Connectivity _connectivity = Connectivity();
 
-
   @override
   void dispose() {
     _emailController.dispose();
@@ -84,7 +82,7 @@ class _WakulimaLoginScreenState extends State<WakulimaLoginScreen> {
                 borderRadius: BorderRadiusDirectional.all(Radius.circular(20))),
             child: IconButton(
                 onPressed: () {
-                  Globals()
+                  Globals
                       .switchScreens(context: context, screen: Splashscreen());
                 },
                 icon: Icon(
@@ -132,7 +130,6 @@ class _WakulimaLoginScreenState extends State<WakulimaLoginScreen> {
                     ),
                   ),
 
-           
                   Container(
                     margin: EdgeInsets.only(bottom: 4),
                     alignment: Alignment.center,
@@ -348,7 +345,7 @@ class _WakulimaLoginScreenState extends State<WakulimaLoginScreen> {
                           borderRadius: BorderRadiusDirectional.circular(10)),
                       child: TextButton(
                         onPressed: () async {
-                          Globals().switchScreens(
+                          Globals.switchScreens(
                               context: context, screen: WakulimaSignUp());
                         },
                         child: Text(

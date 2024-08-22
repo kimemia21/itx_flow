@@ -18,7 +18,8 @@ class Globals {
 
   static FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-  Future<void> initUserDb() async {
+  Future<void> initUserDb(
+      {required String phoneNumber, required String role}) async {
     await Globals()
         .firebaseFirestore
         .collection("${Globals.auth.currentUser?.email}")
@@ -28,7 +29,32 @@ class Globals {
       "doc": "",
       "docUrl": "",
       "docVerified": false,
+      "phoneNumber": phoneNumber,
+      "role": role
     });
+  }
+
+  static Future<String> userRole({required BuildContext context}) async {
+    try {
+      String? email = Globals.auth.currentUser?.email;
+
+      DocumentReference docRef =
+          FirebaseFirestore.instance.collection("$email").doc(email);
+
+      // Fetch the document
+      DocumentSnapshot docSnapshot = await docRef.get();
+
+      if (docSnapshot.exists) {
+        Map<String, dynamic>? data =
+            docSnapshot.data() as Map<String, dynamic>?;
+        String role = data?["role"];
+        return role;
+      } else {
+        throw Exception('Document does not exist');
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
   }
 
   Future<void> slowSwitchScreens(
@@ -61,7 +87,7 @@ class Globals {
     );
   }
 
-  Future<void> switchScreens(
+  static Future<void> switchScreens(
       {required BuildContext context, required Widget screen}) {
     try {
       return Navigator.pushReplacement(
@@ -117,11 +143,11 @@ class Globals {
 
         if (isDocVerified) {
           print("The document is verified.");
-          switchScreens(context: context, screen:MyHomepage());
+          switchScreens(context: context, screen: MyHomepage());
         } else {
           print(
               "The document is not verified or 'docVerified' field is missing.");
-         switchScreens(context: context, screen: Docsverification());
+          switchScreens(context: context, screen: Docsverification());
         }
       } else {
         print("Document does not exist.");

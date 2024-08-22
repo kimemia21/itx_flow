@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
@@ -44,7 +45,8 @@ class _VerifyEmailState extends State<VerifyEmail>
       Globals.auth.currentUser?.reload();
       if (Globals.auth.currentUser?.emailVerified == true) {
         print("----------------------authenticated-----------------------");
-        Globals().checkDocVerified(context: context);
+        // Globals().checkDocVerified(context: context);
+        Globals.switchScreens(context: context, screen: Commodites());
         timer.cancel();
       }
     });
@@ -137,13 +139,13 @@ class _VerifyEmailState extends State<VerifyEmail>
               ),
               const SizedBox(height: 30),
               GestureDetector(
-                onTap: () => Globals().switchScreens(
+                onTap: () => Globals.switchScreens(
                     context: context, screen: WakulimaLoginScreen()),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
-                      onPressed: () => Globals().switchScreens(
+                      onPressed: () => Globals.switchScreens(
                           context: context, screen: WakulimaSignUp()),
                       icon: const Icon(
                         Icons.arrow_back,

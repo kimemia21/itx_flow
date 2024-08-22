@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -20,11 +19,11 @@ class _CartpageState extends State<Cartpage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+        backgroundColor: Colors.white,
         appBar: AppBar(
           leading: IconButton(
               onPressed: () {
-                Globals().switchScreens(
+                Globals.switchScreens(
                     context: context, screen: MyHomePage(title: "homepage"));
               },
               icon: Icon(Icons.arrow_back)),
@@ -34,17 +33,22 @@ class _CartpageState extends State<Cartpage> {
             style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
           ),
         ),
-        body:cartItems.length<1?
-        Center(child: Text("Cart is empty"),):
-
-         Container(
-          height: AppHeight(context, 1),
-          width: AppWidth(context, 1),
-          child: ListView.builder(
-              itemCount: cartItems.length,
-              itemBuilder: (context, index) {
-                return cartItem(context: context, image: cartItems[index]["imageUrl"], name: cartItems[index]["name"], price:cartItems[index]["price"]);
-              }),
-        ));
+        body: cartItems.length < 1
+            ? Center(
+                child: Text("Cart is empty"),
+              )
+            : Container(
+                height: AppHeight(context, 1),
+                width: AppWidth(context, 1),
+                child: ListView.builder(
+                    itemCount: cartItems.length,
+                    itemBuilder: (context, index) {
+                      return cartItem(
+                          context: context,
+                          image: cartItems[index]["imageUrl"],
+                          name: cartItems[index]["name"],
+                          price: cartItems[index]["price"]);
+                    }),
+              ));
   }
 }

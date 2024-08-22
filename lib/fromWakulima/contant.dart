@@ -1,4 +1,3 @@
-
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -190,7 +189,7 @@ AppBar appbar(BuildContext context) {
       margin: EdgeInsets.only(left: 10),
       child: GestureDetector(
         onTap: () {},
-        // =>Globals().switchScreens(context: context,screen: MyHomePage(title: "homepage")),
+        // =>Globals.switchScreens(context: context,screen: MyHomePage(title: "homepage")),
         child: Text(
           "CXT",
           style: GoogleFonts.brunoAce(
@@ -235,10 +234,3 @@ AppBar appbar(BuildContext context) {
     ],
   );
 }
-
-
-
-
-
-
-

@@ -2,6 +2,7 @@ import 'package:itx/authentication/Login.dart';
 import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/fromWakulima/AppBloc.dart';
 import 'package:itx/fromWakulima/FirebaseFunctions/FirebaseFunctions.dart';
+import 'package:itx/fromWakulima/contant.dart';
 
 import 'package:itx/fromWakulima/globals.dart';
 import 'package:auth_buttons/auth_buttons.dart';
@@ -43,8 +44,51 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
 
   AuthButtonType? buttonType;
   AuthIconType? iconType;
+  String? _selectedUserType;
+
+  Widget _radioButton({required String text, required String value}) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.symmetric(vertical: 10),
+      width: AppWidth(context, 0.8),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            child: Text(
+              text,
+              style: GoogleFonts.poppins(
+                  color: Colors.black,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600),
+            ),
+          ),
+          Radio<String>(
+            activeColor: Colors.green.shade700,
+            value: value,
+            groupValue: _selectedUserType,
+            onChanged: (value) {
+              setState(() {
+                _selectedUserType = value;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
 
   _handleSignup() {
+    // signup(
+    //     context: context,
+    //     email_: "bobbymbogo71@gmail.com",
+    //     password_: "1234567890");
+
     try {
       if (_formState.currentState!.validate()) {
         if (_SignUpPasswordController.text != _confirmController.text) {
@@ -61,15 +105,31 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
             actionHandler: () {},
             onToastClosed: () {},
           ).show(context);
+        } else if (_selectedUserType == null) {
+          CherryToast.warning(
+            disableToastAnimation: false,
+            animationCurve: Curves.ease,
+            animationDuration: Duration(milliseconds: 200),
+            title: Text('Roler Error',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+            action: Text(
+              'Please Selected a user Role',
+              style: GoogleFonts.abel(),
+            ),
+            actionHandler: () {},
+            onToastClosed: () {},
+          ).show(context);
         } else {
           signup(
               context: context,
               email_: _SignemailController.text.trim(),
-              password_: _SignUpPasswordController.text.trim());
+              password_: _SignUpPasswordController.text.trim(),
+              phoneNumber: _phoneNumberController.text.trim(),
+              role: _selectedUserType!);
         }
       }
     } catch (e) {
-      print("_handleSignup error $e");
+      print("_handleSignup $e");
     }
   }
 
@@ -101,7 +161,7 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
                 borderRadius: BorderRadiusDirectional.all(Radius.circular(30))),
             child: IconButton(
                 onPressed: () {
-                  Globals().switchScreens(
+                  Globals.switchScreens(
                       context: context, screen: WakulimaLoginScreen());
                 },
                 icon: Icon(
@@ -249,7 +309,7 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.only(bottom: 15, top: 15),
+                      margin: EdgeInsets.only(bottom: 10, top: 10),
                       alignment: Alignment.center,
                       height: 70,
                       width: MediaQuery.of(context).size.width * 0.8,
@@ -357,6 +417,20 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
                         },
                       ),
                     ),
+                    Container(
+                      // alignment: Alignment.topLeft,
+                      margin: EdgeInsets.only(bottom: 10),
+                      child: Text(
+                        "Select your role ",
+                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+
+                    _radioButton(text: "Buyer", value: "Buyer"),
+
+                    _radioButton(text: "Producer", value: "Producer"),
+
+                    _radioButton(text: "Trader", value: "Trader"),
 
                     GestureDetector(
                       onTap: () {

@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/fromWakulima/AppBloc.dart';
 import 'package:itx/fromWakulima/VerifyEmail.dart';
 import 'package:itx/fromWakulima/globals.dart';
@@ -56,8 +57,7 @@ Future<void> signInWithEmailAndPassword({
     await Future.delayed(Duration(seconds: 2));
 
     // Attempt to sign in with email and password
-    await Globals
-        .auth
+    await Globals.auth
         .signInWithEmailAndPassword(email: email, password: password);
 
     // Check if email is verified
@@ -87,11 +87,12 @@ Future<void> signInWithEmailAndPassword({
 
 // function for creating account using email and password
 
-Future<void> signup({
-  required BuildContext context,
-  required String email_,
-  required String password_,
-}) async {
+Future<void> signup(
+    {required BuildContext context,
+    required String email_,
+    required String password_,
+    required String phoneNumber,
+    required String role}) async {
   try {
     // Start loading
     context.read<CurrentUserProvider>().changeIsLoading();
@@ -111,7 +112,7 @@ Future<void> signup({
       // Send email verification if user is not null
       if (user != null) {
         // add the user info to the database
-        Globals().initUserDb();
+        Globals().initUserDb(role: role, phoneNumber: phoneNumber);
 
         await user.sendEmailVerification();
 
@@ -228,13 +229,15 @@ class Authentication {
           final UserCredential userCredential =
               await auth.signInWithCredential(credential);
           user = userCredential.user;
-          Globals().initUserDb();
+          // Globals().initUserDb();
 
           // await user?.sendEmailVerification();
           if (user?.emailVerified == true) {
-            Globals().checkDocVerified(context: context);
+            Globals.switchScreens(context: context, screen: Commodites());
+
+            // Globals().checkDocVerified(context: context);
           } else {
-            // Globals().switchScreens(
+            // Globals.switchScreens(
             //     context: context, screen: VerifyEmail(email: "${user?.email}"));
           }
         } on FirebaseAuthException catch (e) {

@@ -33,19 +33,19 @@ class _CommoditesState extends State<Commodites> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        leading: IconButton(
-            onPressed: () {
-              PersistentNavBarNavigator.pushNewScreenWithRouteSettings(
-                context,
-                withNavBar: false,
-                screen: Verification(context: context),
-                settings: const RouteSettings(name: "/verification"),
-              );
-              // Globals.switchScreens(
+        // leading: IconButton(
+        //     onPressed: () {
+        //       PersistentNavBarNavigator.pushNewScreenWithRouteSettings(
+        //         context,
+        //         withNavBar: false,
+        //         screen: Verification(context: context),
+        //         settings: const RouteSettings(name: "/verification"),
+        //       );
+        //       // Globals.switchScreens(
 
-              //     context: context, screen: Verification(context: context));
-            },
-            icon: Icon(Icons.arrow_back)),
+        //       //     context: context, screen: Verification(context: context));
+        //     },
+        //     icon: Icon(Icons.arrow_back)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
