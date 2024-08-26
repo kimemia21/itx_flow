@@ -45,6 +45,7 @@ class CurrentUserProvider extends ChangeNotifier {
 
     notifyListeners();
   }
+  
 
   void changeIsLoading() {
     _isLoading = !_isLoading;
@@ -76,6 +77,7 @@ Future<bool> checkInternetConnection(BuildContext context) async {
   if (connectivityResult == ConnectivityResult.none) {
     // No network connection
     return false;
+
   }
 
   final url = "https://www.google.com"; // Use a reliable URL
