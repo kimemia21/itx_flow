@@ -1,103 +1,129 @@
 import 'package:flutter/material.dart';
 
-class NewContractScreen extends StatelessWidget {
+class NewContractPage extends StatefulWidget {
+  @override
+  _NewContractPageState createState() => _NewContractPageState();
+}
+
+class _NewContractPageState extends State<NewContractPage> {
+  String _contractType = 'Futures';
+  String _deliveryTime = '1 week';
+  String _selectedCommodity = 'WTI Crude Oil';
+  String _selectedCurrency = 'USD';
+  TextEditingController _quantityController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
-        children: [
-          // Left sidebar
-          Container(
-            width: 200,
-            color: Colors.grey[200],
-            child: ListView(
-              children: [
-                ListTile(title: Text('Market', style: TextStyle(fontWeight: FontWeight.bold))),
-                ListTile(leading: Icon(Icons.home), title: Text('Home')),
-                ListTile(leading: Icon(Icons.description), title: Text('Orders')),
-                ListTile(leading: Icon(Icons.bar_chart), title: Text('Positions')),
-                ListTile(leading: Icon(Icons.history), title: Text('Market')),
-                ListTile(leading: Icon(Icons.more_horiz), title: Text('More')),
-                Spacer(),
-                ListTile(leading: Icon(Icons.person), title: Text('Profile')),
-                ListTile(leading: Icon(Icons.help), title: Text('Help')),
-              ],
-            ),
-          ),
-          // Main content
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('New Contract', style: Theme.of(context).textTheme.displayMedium),
-                  SizedBox(height: 16),
-                  Text('Contract Type'),
-                  Row(
-                    children: [
-                      Radio(value: true, groupValue: true, onChanged: (v) {}),
-                      Text('Futures'),
-                      Radio(value: false, groupValue: true, onChanged: (v) {}),
-                      Text('Forwards'),
-                      Radio(value: false, groupValue: true, onChanged: (v) {}),
-                      Text('Options'),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  Text('Commodity'),
-                  ListTile(
-                    leading: Image.asset('assets/oil_icon.png', width: 40, height: 40),
-                    title: Text('WTI Crude Oil'),
-                    subtitle: Text('NYMEX Futures'),
-                  ),
-                  SizedBox(height: 16),
-                  Text('Delivery Time'),
-                  Row(
-                    children: [
-                      Radio(value: true, groupValue: true, onChanged: (v) {}),
-                      Text('1 Week'),
-                      Radio(value: false, groupValue: true, onChanged: (v) {}),
-                      Text('2 Weeks'),
-                      Radio(value: false, groupValue: true, onChanged: (v) {}),
-                      Text('3 Weeks'),
-                      Radio(value: false, groupValue: true, onChanged: (v) {}),
-                      Text('4 Weeks'),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Quantity',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  DropdownButtonFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Currency',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: [],
-                    onChanged: (v) {},
-                  ),
-                  Spacer(),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      child: Text('Create Contract'),
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                      ),
-                    ),
-                  ),
-                ],
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Text('New Contract'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Contract Type', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              _buildRadioListTile('Futures', 'Futures'),
+              _buildRadioListTile('Forwards', 'Forwards'),
+              _buildRadioListTile('Options', 'Options'),
+              SizedBox(height: 24),
+              Text('Commodity', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              _buildCommodityCard(),
+              SizedBox(height: 24),
+              Text('Delivery Time', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              _buildRadioListTile('1 week', '1 week'),
+              _buildRadioListTile('2 weeks', '2 weeks'),
+              _buildRadioListTile('3 weeks', '3 weeks'),
+              _buildRadioListTile('4 weeks', '4 weeks'),
+              SizedBox(height: 24),
+              Text('Quantity', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              TextField(
+                controller: _quantityController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Enter quantity',
+                ),
+                keyboardType: TextInputType.number,
               ),
-            ),
+              SizedBox(height: 24),
+              Text('Currency', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                value: _selectedCurrency,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                ),
+                items: ['USD', 'EUR', 'GBP', 'JPY'].map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedCurrency = newValue!;
+                  });
+                },
+              ),
+              SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  child: Text('Create Contract'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  onPressed: () {
+                    // Handle contract creation
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRadioListTile(String title, String value) {
+    return RadioListTile<String>(
+      title: Text(title),
+      value: value,
+      groupValue: title.contains('week') ? _deliveryTime : _contractType,
+      onChanged: (newValue) {
+        setState(() {
+          if (title.contains('week')) {
+            _deliveryTime = newValue!;
+          } else {
+            _contractType = newValue!;
+          }
+        });
+      },
+      activeColor: Colors.green,
+    );
+  }
+
+  Widget _buildCommodityCard() {
+    return Card(
+      child: ListTile(
+        leading: Image.asset('assets/oil_barrel.png', width: 40, height: 40),
+        title: Text('WTI Crude Oil'),
+        subtitle: Text('40.70 USD per barrel'),
+        trailing: Icon(Icons.arrow_drop_down),
+        onTap: () {
+          // Handle commodity selection
+        },
       ),
     );
   }
