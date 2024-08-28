@@ -12,12 +12,13 @@ import 'package:itx/fromWakulima/firebase_options.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/MyScafold.dart';
 import 'package:itx/global/app.dart';
+import 'package:itx/web/CreateAccount.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+void main() {
+  // WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 
@@ -33,21 +34,23 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider(create: (context) => CurrentUserProvider()),
           ChangeNotifierProvider(create: (context) => appBloc())
         ],
-            child: MaterialApp(
-                home: StreamBuilder<User?>(
-              stream: FirebaseAuth.instance.authStateChanges(),
-              builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: LoadingAnimationWidget.hexagonDots(
-                        color: Colors.green, size: 30),
-                  );
-                } else if (snapshot.hasData) {
-                  return MyHomepage();
-                } else {
-                  return Splashscreen();
-                }
-              },
-            ))));
+            child: CreateAccountScreen()
+            //     StreamBuilder<User?>(
+            //   stream: FirebaseAuth.instance.authStateChanges(),
+            //   builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
+            //     if (snapshot.connectionState == ConnectionState.waiting) {
+            //       return Center(
+            //         child: LoadingAnimationWidget.hexagonDots(
+            //             color: Colors.green, size: 30),
+            //       );
+            //     } else if (snapshot.hasData) {
+            //       return CreateAccountScreen();
+            //     } else {
+            //       return  CreateAccountScreen();
+            //     }
+            //   },
+            // )
+          )
+            );
   }
 }

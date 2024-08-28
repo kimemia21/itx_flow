@@ -41,3 +41,6 @@ app.*.map.json
 /android/itx/fromWakulima/debug
 /android/itx/fromWakulima/profile
 /android/itx/fromWakulima/release
+
+# FVM Version Cache
+.fvm/

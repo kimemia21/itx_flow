@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,10 +25,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -51,7 +45,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBdDGh1le6yYRjaX9Y_YOuGWtVQfEp0k5Q',
-    appId: '1:265728956034:android:fa23b56f24f8deaee6869b',
+    appId: '1:265728956034:android:d5bcd421bf739a97e6869b',
     messagingSenderId: '265728956034',
     projectId: 'gnovation-wakulima-d5bbc',
     storageBucket: 'gnovation-wakulima-d5bbc.appspot.com',
@@ -59,7 +53,27 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAwdgORp59Sx4uKiU-ofIS_nYpHe4D7kDA',
-    appId: '1:265728956034:ios:33f01adb955668afe6869b',
+    appId: '1:265728956034:ios:ba95ed8ede43e515e6869b',
+    messagingSenderId: '265728956034',
+    projectId: 'gnovation-wakulima-d5bbc',
+    storageBucket: 'gnovation-wakulima-d5bbc.appspot.com',
+    androidClientId: '265728956034-3bgebgfk0q6joqtmjbp8tq8eiotd3u30.apps.googleusercontent.com',
+    iosClientId: '265728956034-v9r3gcq6fhhfg2ukr3dboea2at7lnj3i.apps.googleusercontent.com',
+    iosBundleId: 'com.example.itx',
+  );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyCaVbN0DRlPWwC1V1pMUqely4eUaSUxaK8',
+    appId: '1:265728956034:web:2a0fb06ed44eb1e1e6869b',
+    messagingSenderId: '265728956034',
+    projectId: 'gnovation-wakulima-d5bbc',
+    authDomain: 'gnovation-wakulima-d5bbc.firebaseapp.com',
+    storageBucket: 'gnovation-wakulima-d5bbc.appspot.com',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyAwdgORp59Sx4uKiU-ofIS_nYpHe4D7kDA',
+    appId: '1:265728956034:ios:ba95ed8ede43e515e6869b',
     messagingSenderId: '265728956034',
     projectId: 'gnovation-wakulima-d5bbc',
     storageBucket: 'gnovation-wakulima-d5bbc.appspot.com',
