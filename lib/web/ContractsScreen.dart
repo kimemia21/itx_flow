@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:easy_sidemenu/easy_sidemenu.dart';
 import 'package:flutter/material.dart';
+import 'package:itx/web/DocumentScreen.dart';
+import 'package:itx/web/GlobalExchange.dart';
+import 'package:itx/web/MetaTrading.dart';
 import 'package:itx/web/NewContract.dart';
 
 class MyHomepageWeb extends StatelessWidget {
@@ -91,7 +94,10 @@ class _MyHomePageWebState extends State<MyHomePageWeb> {
                 tooltipContent: "This is a tooltip for Dashboard item",
               ),
               SideMenuItem(
-                title: 'Trade',
+
+
+
+                title: 'Market',
                 onTap: (index, _) {
                   sideMenu.changePage(index);
                 },
@@ -161,40 +167,26 @@ class _MyHomePageWebState extends State<MyHomePageWeb> {
               children: [
                 Container(
                   color: Colors.white,
-                  child: const Center(
-                    child: Text(
-                      'Homepage',
-                      style: TextStyle(fontSize: 35),
-                    ),
+                  child:Metatrading()
+                ),
+                Container(
+                  color: Colors.white,
+                  child:  Center(
+                    child: NewContractPage()
                   ),
                 ),
                 Container(
                   color: Colors.white,
-                  child: const Center(
-                    child: Text(
-                      'Trade',
-                      style: TextStyle(fontSize: 35),
-                    ),
-                  ),
-                ),
-                Container(
-                  color: Colors.white,
-                  child: const Center(
-                    child: Text(
-                      'Orders',
-                      style: TextStyle(fontSize: 35),
-                    ),
+                  child:  Center(
+                    child: TradeAuthorizationScreen()
                   ),
                 ),
 
                 ContractsPage(),
                 Container(
                   color: Colors.white,
-                  child: const Center(
-                    child: Text(
-                      'Profile',
-                      style: TextStyle(fontSize: 35),
-                    ),
+                  child:  Center(
+                    child: DocumentsScreen()
                   ),
                 ),
                 Container(
