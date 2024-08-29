@@ -11,7 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/fromWakulima/DocsVerification.dart';
 import 'package:itx/fromWakulima/Homepage.dart';
 import 'package:itx/fromWakulima/contant.dart';
-import 'package:itx/global/MyScafold.dart';
+import 'package:itx/global/GlobalsHomepage.dart';
 
 class Globals {
   double raduis = 20.0;
@@ -144,7 +144,7 @@ class Globals {
 
         if (isDocVerified) {
           print("The document is verified.");
-          switchScreens(context: context, screen: MyHomepage());
+          switchScreens(context: context, screen:GlobalsHomePage());
         } else {
           print(
               "The document is not verified or 'docVerified' field is missing.");

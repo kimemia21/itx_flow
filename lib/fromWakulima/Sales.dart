@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Commodities.dart/Commodites.dart';
+import 'package:itx/authentication/Login.dart';
+import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/fromWakulima/AllListing.dart';
 import 'package:itx/fromWakulima/AppBloc.dart';
 import 'package:itx/fromWakulima/Arrivals.dart';
@@ -64,6 +66,9 @@ class _SalesState extends State<Sales> {
           leading: IconButton.filled(
               onPressed: () {
                 FirebaseAuth.instance.signOut();
+              PersistentNavBarNavigator.pushNewScreen(
+                withNavBar: false,
+                context, screen: WakulimaLoginScreen());
               },
               icon: Icon(Icons.logout))),
       body: SafeArea(

@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Contracts/Contracts.dart';
 import 'package:itx/authentication/Regulator.dart';
+import 'package:itx/fromWakulima/Homepage.dart';
+import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/global/globals.dart';
+
 
 class Authorization extends StatefulWidget {
   const Authorization({super.key});
@@ -83,7 +86,7 @@ class _AuthorizationState extends State<Authorization> {
                   height: 20,
                 ),
                 GestureDetector(
-                  onTap: ()=>Globals.switchScreens(context: context,screen: Contracts()),
+                  onTap: ()=>Globals.switchScreens(context: context,screen:Contracts() ),
                   child: Container(
                     alignment: Alignment.center,
                     width: MediaQuery.of(context).size.width * 0.8,

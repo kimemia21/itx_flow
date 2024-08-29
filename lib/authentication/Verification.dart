@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/authentication/Login.dart';
 import 'package:itx/global/AppBloc.dart';
-import 'package:itx/global/MyScafold.dart';
+import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/global/globals.dart';
 import 'package:provider/provider.dart';
 

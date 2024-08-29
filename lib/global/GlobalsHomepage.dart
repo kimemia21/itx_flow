@@ -6,18 +6,18 @@ import 'package:itx/Contracts/SpotTrader.dart';
 import 'package:itx/fromWakulima/Sales.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
-class MyHomepage extends StatefulWidget {
+class GlobalsHomePage extends StatefulWidget {
   final int initialIndex;
   final Widget? newScreen;
 
   // Add default values for the constructor parameters
-  MyHomepage({this.initialIndex = 0, this.newScreen});
+  GlobalsHomePage({this.initialIndex = 0, this.newScreen});
 
   @override
-  _MyHomepageState createState() => _MyHomepageState();
+  _GlobalsHomePageState createState() => _GlobalsHomePageState();
 }
 
-class _MyHomepageState extends State<MyHomepage> {
+class _GlobalsHomePageState extends State<GlobalsHomePage> {
   late PersistentTabController _controller;
   final List<ScrollController> _scrollControllers = [
     ScrollController(),

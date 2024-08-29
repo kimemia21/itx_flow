@@ -4,7 +4,7 @@ import 'package:itx/Commodities.dart/AdvancedSearch.dart';
 import 'package:itx/Contracts/Create.dart';
 import 'package:itx/Contracts/MyContracts.dart';
 import 'package:itx/authentication/Authorization.dart';
-import 'package:itx/global/MyScafold.dart';
+import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/global/SidePage.dart';
 import 'package:itx/global/globals.dart';
 

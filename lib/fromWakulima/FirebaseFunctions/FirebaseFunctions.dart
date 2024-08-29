@@ -13,6 +13,7 @@ import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/fromWakulima/AppBloc.dart';
 import 'package:itx/fromWakulima/VerifyEmail.dart';
 import 'package:itx/fromWakulima/globals.dart';
+import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -63,7 +64,7 @@ Future<void> signInWithEmailAndPassword({
     // Check if email is verified
     if (Globals.auth.currentUser?.emailVerified == true) {
       // Navigate to home page if email is verified
-      Globals().checkDocVerified(context: context);
+      Globals.switchScreens(context: context, screen: GlobalsHomePage());
     } else {
       // Navigate to VerifyEmail screen if email is not verified
       // Globals()

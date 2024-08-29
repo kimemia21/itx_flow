@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Contracts/Create.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
-import 'package:itx/global/MyScafold.dart';
+import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/global/globals.dart';
 
 class Mycontracts extends StatefulWidget {
-  const Mycontracts({super.key});
+  const Mycontracts({Key? key}) : super(key: key);
 
   @override
   State<Mycontracts> createState() => _MycontractsState();
@@ -18,60 +18,57 @@ class _MycontractsState extends State<Mycontracts> {
     required String subtitle,
     required String status,
   }) {
-    return Container(
-      margin: EdgeInsets.only(top: 3, bottom: 3),
-      width: MediaQuery.of(context).size.width,
-      height: 60,
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.white54, width: 1.5),
-        borderRadius: BorderRadius.circular(10),
-        color: Colors.white54,
-      ),
+    return Card(
+      elevation: 2,
+      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         title: Text(
           title,
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
           subtitle,
-          style: TextStyle(fontSize: 16),
+          style: GoogleFonts.poppins(fontSize: 14),
         ),
-        trailing: Text(
-          status,
-          style: TextStyle(fontSize: 16, color: Colors.green),
+        trailing: Chip(
+          label: Text(
+            status,
+            style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+          ),
+          backgroundColor: status == "Signed" ? Colors.green : Colors.orange,
         ),
       ),
     );
   }
 
-  Widget DeliveryInfo(
-      {required String title,
-      // required String subtitle ,
-      required VoidCallback Function,
-      required String status}) {
-    return GestureDetector(
-      onTap: Function,
-      child: Container(
-        margin: EdgeInsets.only(top: 3, bottom: 3),
-        width: MediaQuery.of(context).size.width,
-        height: 60,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.white54, width: 1.5),
-          borderRadius: BorderRadius.circular(10),
-          color: Colors.white54,
-        ),
-        child: ListTile(
-          title: Text(
-            title,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          // subtitle: Text(
-          //   subtitle,
-          //   style: TextStyle(fontSize: 16),
-          // ),
-          trailing: Text(
-            status,
-            style: TextStyle(fontSize: 16, color: Colors.green),
+  Widget DeliveryInfo({
+    required String title,
+    required VoidCallback Function,
+    required String status,
+  }) {
+    return Card(
+      elevation: 2,
+      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        onTap: Function,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                status,
+                style: GoogleFonts.poppins(fontSize: 16, color: Colors.green, fontWeight: FontWeight.w600),
+              ),
+            ],
           ),
         ),
       ),
@@ -80,144 +77,91 @@ class _MycontractsState extends State<Mycontracts> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: Container(
-        padding: EdgeInsets.all(5),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                  margin: EdgeInsets.only(top: 10, bottom: 10),
-                  child: Text(
-                    "My Contracts",
-                    style: GoogleFonts.poppins(
-                        fontSize: 22, fontWeight: FontWeight.w600),
-                  )),
-              ContractInfo(
-                  title: "Soybean, 100 bushels",
-                  subtitle: "Dec 2023 delivery to chicago",
-                  status: "Signed"),
-              ContractInfo(
-                  title: "Soybean, 100 bushels",
-                  subtitle: "Dec 2023 delivery to chicago",
-                  status: "Signed"),
-              ContractInfo(
-                  title: "Soybean, 100 bushels",
-                  subtitle: "Dec 2023 delivery to chicago",
-                  status: "Signed"),
-              ContractInfo(
-                  title: "Soybean, 100 bushels",
-                  subtitle: "Dec 2023 delivery to chicago",
-                  status: "Amended"),
-              Container(
-                  margin: EdgeInsets.only(top: 10, bottom: 10),
-                  child: Text(
-                    "My Deliveries",
-                    style: GoogleFonts.poppins(
-                        fontSize: 24, fontWeight: FontWeight.w600),
-                  )),
-              DeliveryInfo(
-                  title: "Soybean, 100 bushels",
-                  status: "\$2000",
-                  Function: () => Globals.switchScreens(
-                      context: context,
-                      screen: Specificorder(item: "Soybean"))),
-              DeliveryInfo(
-                  title: "Soybean, 100 bushels",
-                  status: "\$300",
-                  Function: () => Globals.switchScreens(
-                      context: context,
-                      screen: Specificorder(item: "Soybean"))),
-              DeliveryInfo(
-                  title: "Soybean, 100 bushels",
-                  status: "\$23000",
-                  Function: () => Globals.switchScreens(
-                      context: context,
-                      screen: Specificorder(item: "Soybean"))),
-              DeliveryInfo(
-                  title: "Soybean, 100 bushels",
-                  status: "\$1000",
-                  Function: () => Globals.switchScreens(
-                      context: context,
-                      screen: Specificorder(item: "Soybean"))),
-            ],
-          ),
-        ),
-      ));
-
-    Scaffold(
-      backgroundColor: Colors.white,
+    return Scaffold(
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
+        elevation: 0,
         backgroundColor: Colors.white,
-        leading: Globals.leading(context: context, screen: CreateContract()),
-        centerTitle: true,
-        title: Text(
-          "Dashboard",
-          style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w700),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-      ),
-      body: Container(
-        padding: EdgeInsets.all(5),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                  margin: EdgeInsets.only(top: 10, bottom: 10),
-                  child: Text(
-                    "My Contracts",
-                    style: GoogleFonts.poppins(
-                        fontSize: 22, fontWeight: FontWeight.w600),
-                  )),
-              ContractInfo(
-                  title: "Soybean, 100 bushels",
-                  subtitle: "Dec 2023 delivery to chicago",
-                  status: "Signed"),
-              ContractInfo(
-                  title: "Soybean, 100 bushels",
-                  subtitle: "Dec 2023 delivery to chicago",
-                  status: "Signed"),
-              ContractInfo(
-                  title: "Soybean, 100 bushels",
-                  subtitle: "Dec 2023 delivery to chicago",
-                  status: "Signed"),
-              ContractInfo(
-                  title: "Soybean, 100 bushels",
-                  subtitle: "Dec 2023 delivery to chicago",
-                  status: "Amended"),
-              Container(
-                  margin: EdgeInsets.only(top: 10, bottom: 10),
-                  child: Text(
-                    "My Deliveries",
-                    style: GoogleFonts.poppins(
-                        fontSize: 24, fontWeight: FontWeight.w600),
-                  )),
-              DeliveryInfo(
-                  title: "Soybean, 100 bushels",
-                  status: "\$2000",
-                  Function: () => Globals.switchScreens(
-                      context: context,
-                      screen: Specificorder(item: "Soybean"))),
-              DeliveryInfo(
-                  title: "Soybean, 100 bushels",
-                  status: "\$300",
-                  Function: () => Globals.switchScreens(
-                      context: context,
-                      screen: Specificorder(item: "Soybean"))),
-              DeliveryInfo(
-                  title: "Soybean, 100 bushels",
-                  status: "\$23000",
-                  Function: () => Globals.switchScreens(
-                      context: context,
-                      screen: Specificorder(item: "Soybean"))),
-              DeliveryInfo(
-                  title: "Soybean, 100 bushels",
-                  status: "\$1000",
-                  Function: () => Globals.switchScreens(
-                      context: context,
-                      screen: Specificorder(item: "Soybean"))),
-            ],
+        title: Text(
+          "My Contracts",
+          style: GoogleFonts.poppins(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
           ),
+        ),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
+              child: Text(
+                "Active Contracts",
+                style: GoogleFonts.poppins(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+            ContractInfo(
+              title: "Soybean, 100 bushels",
+              subtitle: "Dec 2023 delivery to Chicago",
+              status: "Signed",
+            ),
+            ContractInfo(
+              title: "Corn, 200 bushels",
+              subtitle: "Nov 2023 delivery to New York",
+              status: "Signed",
+            ),
+            ContractInfo(
+              title: "Wheat, 150 bushels",
+              subtitle: "Jan 2024 delivery to Los Angeles",
+              status: "Amended",
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(16, 24, 16, 8),
+              child: Text(
+                "Upcoming Deliveries",
+                style: GoogleFonts.poppins(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+            DeliveryInfo(
+              title: "Soybean, 100 bushels",
+              status: "\$2,000",
+              Function: () => Globals.switchScreens(
+                context: context,
+                screen: Specificorder(item: "Soybean"),
+              ),
+            ),
+            DeliveryInfo(
+              title: "Corn, 200 bushels",
+              status: "\$3,000",
+              Function: () => Globals.switchScreens(
+                context: context,
+                screen: Specificorder(item: "Corn"),
+              ),
+            ),
+            DeliveryInfo(
+              title: "Wheat, 150 bushels",
+              status: "\$2,300",
+              Function: () => Globals.switchScreens(
+                context: context,
+                screen: Specificorder(item: "Wheat"),
+              ),
+            ),
+          ],
         ),
       ),
     );
