@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:itx/Commodities.dart/Commodites.dart';
+import 'package:itx/Contracts/MyContracts.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Contracts/SpotItem.dart';
 import 'package:itx/Contracts/SpotTrader.dart';
@@ -45,11 +46,14 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
 
   List<Widget> _buildScreens() {
     return [
-      Sales(),
+      // Sales(),
+      
       Commodites(scrollController: _scrollControllers.first),
       Commodites(scrollController: _scrollControllers.first),
-      Specificorder(item: "beans"),
-      Commodites(scrollController: _scrollControllers.first)
+      Commodites(scrollController: _scrollControllers.first),
+     Spottrader(),
+      Mycontracts()
+      
     ];
   }
 
