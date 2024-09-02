@@ -46,7 +46,7 @@ class _VerifyEmailState extends State<VerifyEmail>
       if (Globals.auth.currentUser?.emailVerified == true) {
         print("----------------------authenticated-----------------------");
         // Globals().checkDocVerified(context: context);
-        Globals.switchScreens(context: context, screen: Commodites());
+        Globals.switchScreens(context: context, screen: Commodities());
         timer.cancel();
       }
     });

@@ -234,7 +234,7 @@ class Authentication {
 
           // await user?.sendEmailVerification();
           if (user?.emailVerified == true) {
-            Globals.switchScreens(context: context, screen: Commodites());
+            Globals.switchScreens(context: context, screen: Commodities());
 
             // Globals().checkDocVerified(context: context);
           } else {

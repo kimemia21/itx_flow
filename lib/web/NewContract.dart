@@ -117,7 +117,7 @@ class _NewContractPageState extends State<NewContractPage> {
   Widget _buildCommodityCard() {
     return Card(
       child: ListTile(
-        leading: Image.asset('assets/oil_barrel.png', width: 40, height: 40),
+        leading: Image.network('https://responsive.fxempire.com/v7/_fxempire_/2024/03/Barrels-of-Oil-2-1.jpg?width=1201', width: 40, height: 40),
         title: Text('WTI Crude Oil'),
         subtitle: Text('40.70 USD per barrel'),
         trailing: Icon(Icons.arrow_drop_down),

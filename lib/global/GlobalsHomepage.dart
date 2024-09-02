@@ -47,10 +47,13 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
   List<Widget> _buildScreens() {
     return [
       // Sales(),
-      
-      Commodites(scrollController: _scrollControllers.first),
-      Commodites(scrollController: _scrollControllers.first),
-      Commodites(scrollController: _scrollControllers.first),
+      Commodities(),
+            Commodities(),
+                  Commodities(),
+
+      // Commodites(scrollController: _scrollControllers.first),
+      // Commodites(scrollController: _scrollControllers.first),
+      // Commodites(scrollController: _scrollControllers.first),
      Spottrader(),
       Mycontracts()
       

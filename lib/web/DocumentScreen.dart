@@ -114,8 +114,4 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 }
 
-void main() {
-  runApp(MaterialApp(
-    home: DocumentsScreen(),
-  ));
-}
+

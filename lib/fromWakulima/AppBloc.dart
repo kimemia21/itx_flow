@@ -1,5 +1,3 @@
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,7 +13,7 @@ class CurrentUserProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _internetConnected = false;
   int _cartNumber = 0;
-  String _role="";
+  String _role = "";
 
   List _list = all;
 
@@ -23,7 +21,7 @@ class CurrentUserProvider extends ChangeNotifier {
   bool get internetConnected => _internetConnected;
   List get list => _list;
   int get cartNumber => _cartNumber;
-  String? get role => _role;
+  String get role => _role;
 
   int _newMessages = 0;
 
@@ -44,7 +42,6 @@ class CurrentUserProvider extends ChangeNotifier {
 
     notifyListeners();
   }
-  
 
   void changeIsLoading() {
     _isLoading = !_isLoading;
@@ -64,9 +61,10 @@ class CurrentUserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void changeRole({required BuildContext context}) async {
+  Future changeRole({required BuildContext context}) async {
     String role = await Globals.userRole(context: context);
     _role = role;
+    print("========$_role===============");
     notifyListeners();
   }
 }
@@ -76,7 +74,6 @@ Future<bool> checkInternetConnection(BuildContext context) async {
   if (connectivityResult == ConnectivityResult.none) {
     // No network connection
     return false;
-
   }
 
   final url = "https://www.google.com"; // Use a reliable URL

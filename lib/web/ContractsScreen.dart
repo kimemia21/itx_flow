@@ -46,6 +46,7 @@ class _MyHomePageWebState extends State<MyHomePageWeb> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(widget.title),
         centerTitle: true,
       ),
@@ -178,7 +179,7 @@ class _MyHomePageWebState extends State<MyHomePageWeb> {
                 Container(
                   color: Colors.white,
                   child:  Center(
-                    child: TradeAuthorizationScreen()
+                    child: NewContractPage()
                   ),
                 ),
 

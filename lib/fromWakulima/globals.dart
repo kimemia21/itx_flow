@@ -35,6 +35,9 @@ class Globals {
   }
 
   static Future<String> userRole({required BuildContext context}) async {
+    String functionName = StackTrace.current.toString().split('\n')[0];
+  print("Function called: $functionName");
+    print("called");
     try {
       String? email = Globals.auth.currentUser?.email;
 
@@ -144,7 +147,7 @@ class Globals {
 
         if (isDocVerified) {
           print("The document is verified.");
-          switchScreens(context: context, screen:GlobalsHomePage());
+          switchScreens(context: context, screen: GlobalsHomePage());
         } else {
           print(
               "The document is not verified or 'docVerified' field is missing.");

@@ -75,7 +75,8 @@ class _VerificationState extends State<Verification> {
                   _updateProgress();
                   Future.delayed(Duration(seconds: 2)).then((value) =>
                       Globals.switchScreens(
-                          context: context, screen: Commodites()));
+                          context: context, screen:Commodities()));
+                        
                   // showDialog(
                   //     context: context,
                   //     builder: (context) {

@@ -96,7 +96,7 @@ class _SalesState extends State<Sales> {
                       await checkInternetConnection(context).then((value) {
                         value
                             ? PersistentNavBarNavigator.pushNewScreen(context,
-                                screen: Commodites())
+                                screen: Commodities())
                             // Navigator.push(
                             //     context,
                             //     MaterialPageRoute(
