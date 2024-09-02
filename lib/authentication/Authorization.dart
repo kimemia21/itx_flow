@@ -6,7 +6,6 @@ import 'package:itx/fromWakulima/Homepage.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/global/globals.dart';
 
-
 class Authorization extends StatefulWidget {
   const Authorization({super.key});
 
@@ -45,8 +44,12 @@ class _AuthorizationState extends State<Authorization> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () =>
-                Globals.switchScreens(context: context, screen: Regulators()),
+            onPressed: () => Globals.switchScreens(
+                context: context,
+                screen: Regulators(userCommodities: [
+                  {'id': 1, 'name': 'Coffee'},
+                  {'id': 2, 'name': 'Tea'},
+                ])),
             icon: Icon(Icons.arrow_back)),
         centerTitle: true,
         title: Text("Trading Authorization"),
@@ -86,7 +89,8 @@ class _AuthorizationState extends State<Authorization> {
                   height: 20,
                 ),
                 GestureDetector(
-                  onTap: ()=>Globals.switchScreens(context: context,screen:Contracts() ),
+                  onTap: () => Globals.switchScreens(
+                      context: context, screen: Contracts()),
                   child: Container(
                     alignment: Alignment.center,
                     width: MediaQuery.of(context).size.width * 0.8,

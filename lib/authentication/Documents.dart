@@ -140,7 +140,11 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
                           : "Add a document to prove these products are eligible for sale: ${context.watch<appBloc>().userCommodities.join(',')}",
                       action: () {
                         Globals.switchScreens(
-                            context: context, screen: Regulators());
+                            context: context,
+                            screen: Regulators(userCommodities: [
+                              {'id': 1, 'name': 'Coffee'},
+                              {'id': 2, 'name': 'Tea'},
+                            ]));
                       },
                     ),
                   ],
