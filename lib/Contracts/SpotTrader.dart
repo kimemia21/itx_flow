@@ -45,7 +45,7 @@ class _SpottraderState extends State<Spottrader> {
         leading: IconButton(
             onPressed: () {
               PersistentNavBarNavigator.pushNewScreen(context,
-                  screen: Specificorder(item: "beans"));
+                  screen: Specificorder(item: "beans",price: "23"));
             },
             icon: Icon(Icons.arrow_back)),
         backgroundColor: Colors.white,

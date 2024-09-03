@@ -143,7 +143,7 @@ class _MycontractsState extends State<Mycontracts> {
               status: "\$2,000",
               Function: () => Globals.switchScreens(
                 context: context,
-                screen: Specificorder(item: "Soybean"),
+                screen: Specificorder(item: "Soybean",price: "2"),
               ),
             ),
             DeliveryInfo(
@@ -151,7 +151,7 @@ class _MycontractsState extends State<Mycontracts> {
               status: "\$3,000",
               Function: () => Globals.switchScreens(
                 context: context,
-                screen: Specificorder(item: "Corn"),
+                screen: Specificorder(item: "Corn",price: "1",),
               ),
             ),
             DeliveryInfo(
@@ -159,7 +159,7 @@ class _MycontractsState extends State<Mycontracts> {
               status: "\$2,300",
               Function: () => Globals.switchScreens(
                 context: context,
-                screen: Specificorder(item: "Wheat"),
+                screen: Specificorder(item: "Wheat",price: "23",),
               ),
             ),
           ],

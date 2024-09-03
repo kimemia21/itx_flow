@@ -269,7 +269,7 @@ class _ContractsState extends State<Contracts> {
         itemBuilder: (context, index) {
           final contract = _filteredContracts[index]["contract_name"];
           return GestureDetector(
-            onTap: () => Globals.switchScreens(context: context, screen: Specificorder(item: contract["product_name"])),
+            onTap: () => Globals.switchScreens(context: context, screen: Specificorder(item: contract["product_name"],   price: contract["price"],)),
             child: _buildSearchItem(
               title: contract["product_name"],
               product: contract["product_name"],

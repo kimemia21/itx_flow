@@ -8,7 +8,8 @@ import 'package:fl_chart/fl_chart.dart';
 
 class Specificorder extends StatelessWidget {
   final String item;
-  Specificorder({required this.item});
+  final String price;
+  Specificorder({required this.item, required this.price});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +42,7 @@ class Specificorder extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  '\$1.000',
+                  price,
                   style: GoogleFonts.poppins(
                     fontSize: 40,
                     fontWeight: FontWeight.w600,
@@ -115,8 +116,8 @@ class Specificorder extends StatelessWidget {
             SizedBox(height: 10),
             buildTradeOption('Buy', 'Market execution', Icons.arrow_upward),
             SizedBox(height: 10),
-            buildTradeOption('Sell', 'Market execution', Icons.arrow_downward),
-            SizedBox(height: 20),
+            // buildTradeOption('Sell', 'Market execution', Icons.arrow_downward),
+            // SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
