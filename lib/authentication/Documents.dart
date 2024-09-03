@@ -141,10 +141,7 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
                       action: () {
                         Globals.switchScreens(
                             context: context,
-                            screen: Regulators(userCommodities: [
-                              {'id': 1, 'name': 'Coffee'},
-                              {'id': 2, 'name': 'Tea'},
-                            ]));
+                            screen: Regulators());
                       },
                     ),
                   ],

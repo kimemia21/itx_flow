@@ -18,12 +18,12 @@ class _AdvancedSearchPageState extends State<AdvancedSearchPage> {
     double width = MediaQuery.of(context).size.width * 0.7;
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.close),
-          onPressed: () {
-            // Close action
-          },
-        ),
+        // leading: IconButton(
+        //   icon: Icon(Icons.close),
+        //   onPressed: () {
+        //     // Close action
+        //   },
+        // ),
         title: Text('Advanced Search'),
       ),
       body: Container(

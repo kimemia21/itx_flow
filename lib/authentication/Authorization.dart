@@ -46,10 +46,7 @@ class _AuthorizationState extends State<Authorization> {
         leading: IconButton(
             onPressed: () => Globals.switchScreens(
                 context: context,
-                screen: Regulators(userCommodities: [
-                  {'id': 1, 'name': 'Coffee'},
-                  {'id': 2, 'name': 'Tea'},
-                ])),
+                screen: Regulators()),
             icon: Icon(Icons.arrow_back)),
         centerTitle: true,
         title: Text("Trading Authorization"),

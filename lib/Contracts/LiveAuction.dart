@@ -14,19 +14,19 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with SingleTicker
   DateTime? _selectedDateTime;
   List<Map<String, dynamic>> bidsHistory = [];
   Map<String, List<Map<String, dynamic>>> itemData = {
-    'mines': [
+    'Minerals': [
       {'name': 'Gold', 'price': 1800.0, 'unit': 'oz', 'endTime': DateTime.now().add(Duration(hours: 1))},
       {'name': 'Silver', 'price': 25.0, 'unit': 'oz', 'endTime': DateTime.now().add(Duration(hours: 2))},
     ],
-    'agriculture': [
+    'Agriculture': [
       {'name': 'Rice', 'price': 0.50, 'unit': 'lbs', 'endTime': DateTime.now().add(Duration(minutes: 45))},
       {'name': 'Wheat', 'price': 700.0, 'unit': 'bushel', 'endTime': DateTime.now().add(Duration(minutes: 30))},
     ],
-    'energy': [
+    'Energy': [
       {'name': 'Crude Oil', 'price': 70.0, 'unit': 'barrel', 'endTime': DateTime.now().add(Duration(hours: 1, minutes: 30))},
       {'name': 'Natural Gas', 'price': 2.5, 'unit': 'MMBtu', 'endTime': DateTime.now().add(Duration(hours: 1, minutes: 15))},
     ],
-    'crafts': [
+    'Crafts': [
       {'name': 'Handmade Pottery', 'price': 50.0, 'unit': 'piece', 'endTime': DateTime.now().add(Duration(hours: 2))},
       {'name': 'Woven Baskets', 'price': 30.0, 'unit': 'piece', 'endTime': DateTime.now().add(Duration(minutes: 55))},
     ],
@@ -96,7 +96,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with SingleTicker
       setState(() {
         switch (_tabController.index) {
           case 0:
-            currentCategory = 'mines';
+            currentCategory = 'Minerals';
             break;
           case 1:
             currentCategory = 'agriculture';
@@ -212,7 +212,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen> with SingleTicker
             TabBar(
               controller: _tabController,
               tabs: [
-                Tab(text: 'Mines'),
+                Tab(text: 'Minerals'),
                 Tab(text: 'Agriculture'),
                 Tab(text: 'Energy'),
                 Tab(text: 'Crafts'),

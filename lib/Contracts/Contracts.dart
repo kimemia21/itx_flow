@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Commodities.dart/AdvancedSearch.dart';
 import 'package:itx/Contracts/Create.dart';
 import 'package:itx/Contracts/MyContracts.dart';
+import 'package:itx/Contracts/SpecificOrder.dart';
+import 'package:itx/Contracts/SpotItem.dart';
 import 'package:itx/authentication/Authorization.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/global/SidePage.dart';
@@ -16,30 +18,126 @@ class Contracts extends StatefulWidget {
 }
 
 class _ContractsState extends State<Contracts> {
+  int _currentIndex = 0;
+  late PageController _pageController;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
-int _currentIndex = 0;
-late PageController _pageController;
+  final List<Map<String, dynamic>> contracts = [
+    {
+      "contract_name": {
+        "product_name": "Copper",
+        "quality": "High grade",
+        "price": "2300",
+      }
+    },
+    {
+      "contract_name": {
+        "product_name": "Gold",
+        "quality": "24 Karat",
+        "price": "59000",
+      }
+    },
+    {
+      "contract_name": {
+        "product_name": "Silver",
+        "quality": "99.9% Pure",
+        "price": "2500",
+      }
+    },
+    {
+      "contract_name": {
+        "product_name": "Aluminum",
+        "quality": "Refined",
+        "price": "1800",
+      }
+    },
+    {
+      "contract_name": {
+        "product_name": "Iron",
+        "quality": "Cast",
+        "price": "600",
+      }
+    },
+    {
+      "contract_name": {
+        "product_name": "Platinum",
+        "quality": "Jewelry grade",
+        "price": "68000",
+      }
+    },
+    {
+      "contract_name": {
+        "product_name": "Nickel",
+        "quality": "Industrial",
+        "price": "1600",
+      }
+    },
+    {
+      "contract_name": {
+        "product_name": "Zinc",
+        "quality": "Pure",
+        "price": "2100",
+      }
+    },
+    {
+      "contract_name": {
+        "product_name": "Lead",
+        "quality": "Industrial",
+        "price": "1000",
+      }
+    },
+    {
+      "contract_name": {
+        "product_name": "Tin",
+        "quality": "Refined",
+        "price": "3500",
+      }
+    },
+  ];
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
+
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text.toLowerCase();
+      });
+    });
   }
 
   @override
   void dispose() {
     _pageController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
-  Widget searchItem({
+
+  List<Map<String, dynamic>> get _filteredContracts {
+    if (_searchQuery.isEmpty) {
+      return contracts;
+    } else {
+      return contracts.where((contract) {
+        final productName = contract["contract_name"]["product_name"].toString().toLowerCase();
+        final quality = contract["contract_name"]["quality"].toString().toLowerCase();
+        return productName.contains(_searchQuery) || quality.contains(_searchQuery);
+      }).toList();
+    }
+  }
+
+  Widget _buildSearchItem({
     required String title,
-    required String subtitle,
+    required String product,
+    required String quality,
     required String price,
   }) {
     double width = Globals.AppWidth(context: context, width: 1);
     return Container(
       height: 70,
-      padding: EdgeInsets.symmetric(horizontal: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      margin: const EdgeInsets.only(top: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
@@ -48,15 +146,14 @@ late PageController _pageController;
             color: Colors.grey.withOpacity(0.3),
             spreadRadius: 2,
             blurRadius: 5,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      margin: EdgeInsets.only(top: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
+          SizedBox(
             width: width / 2,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,9 +166,9 @@ late PageController _pageController;
                     fontSize: 18,
                   ),
                 ),
-                SizedBox(height: 5),
+                const SizedBox(height: 5),
                 Text(
-                  subtitle,
+                  "$product, $quality",
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: Colors.grey.shade600,
@@ -80,14 +177,12 @@ late PageController _pageController;
               ],
             ),
           ),
-          Container(
-            child: Text(
-              price,
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-                color: Colors.teal,
-              ),
+          Text(
+            price,
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: Colors.teal,
             ),
           ),
         ],
@@ -96,136 +191,94 @@ late PageController _pageController;
   }
 
   @override
-
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Globals.switchScreens(context: context, screen: CreateContract());
-
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Floating Action Button Pressed!')),
+            const SnackBar(content: Text('Floating Action Button Pressed!')),
           );
         },
-        child: Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
         backgroundColor: Colors.green.shade600,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Globals.switchScreens(
-                context: context, screen: Authorization()),
-            icon: Icon(Icons.arrow_back)),
+          onPressed: () => Globals.switchScreens(context: context, screen: const Authorization()),
+          icon: const Icon(Icons.arrow_back),
+        ),
         title: Text(
           "Contracts",
           style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
       ),
-      body: Container(
-        padding: EdgeInsets.all(10),
+      body: Padding(
+        padding: const EdgeInsets.all(10),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Container(
-                margin: EdgeInsets.only(top: 10, bottom: 10),
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    SizedBox(
-                      width: Globals.AppWidth(context: context, width: 0.7),
-                      child: TextField(
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                          labelText: 'Search commodities',
-                          prefixIcon: Icon(Icons.search),
-                          fillColor: Colors.grey[200],
-                          filled: true,
-                        ),
-                        onChanged: (text) {
-                          // You can add search functionality here if needed
-                        },
-                      ),
-                    ),
-                    TextButton(
-                        onPressed: () => Navigator.of(context).push(
-                            SlideFromSidePageRoute(
-                                widget: AdvancedSearchPage())),
-                        child: Text(
-                          "Advanced",
-                          style: GoogleFonts.poppins(
-                              color: Colors.blue, fontWeight: FontWeight.w600),
-                        ))
-                  ],
-                ),
-              ),
-              searchItem(
-                  title: "Category", subtitle: "sub category", price: "343"),
-              searchItem(
-                  title: "Category", subtitle: "sub category", price: "343"),
-              searchItem(
-                  title: "Category", subtitle: "sub category", price: "343"),
+              _buildSearchBar(context),
+              _buildContractsList(),
             ],
           ),
         ),
       ),
     );
   }
+
+  Widget _buildSearchBar(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          SizedBox(
+            width: Globals.AppWidth(context: context, width: 0.7),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                labelText: 'Search commodities',
+                prefixIcon: const Icon(Icons.search),
+                fillColor: Colors.grey[200],
+                filled: true,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).push(
+              SlideFromSidePageRoute(widget: AdvancedSearchPage()),
+            ),
+            child: Text(
+              "Advanced",
+              style: GoogleFonts.poppins(color: Colors.blue, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContractsList() {
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.7,
+      child: ListView.builder(
+        itemCount: _filteredContracts.length,
+        itemBuilder: (context, index) {
+          final contract = _filteredContracts[index]["contract_name"];
+          return GestureDetector(
+            onTap: () => Globals.switchScreens(context: context, screen: Specificorder(item: contract["product_name"])),
+            child: _buildSearchItem(
+              title: contract["product_name"],
+              product: contract["product_name"],
+              quality: contract["quality"],
+              price: contract["price"],
+            ),
+          );
+        },
+      ),
+    );
+  }
 }
-
-
-//    Widget build(BuildContext context) {
-//     return MyScaffold(body:Container(
-//         padding: EdgeInsets.all(10),
-//         child: SingleChildScrollView(
-//           child: Column(
-//             children: [
-//               Container(
-//                 margin: EdgeInsets.only(top: 10, bottom: 10),
-//                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-//                 child: Row(
-//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                   children: [
-//                     SizedBox(
-//                       width: Globals.AppWidth(context: context, width: 0.7),
-//                       child: TextField(
-//                         decoration: InputDecoration(
-//                           border: OutlineInputBorder(
-//                               borderRadius: BorderRadius.circular(10)),
-//                           labelText: 'Search commodities',
-//                           prefixIcon: Icon(Icons.search),
-//                           fillColor: Colors.grey[200],
-//                           filled: true,
-//                         ),
-//                         onChanged: (text) {
-//                           // You can add search functionality here if needed
-//                         },
-//                       ),
-//                     ),
-//                     TextButton(
-//                         onPressed: () => Navigator.of(context).push(
-//                             SlideFromSidePageRoute(
-//                                 widget: AdvancedSearchPage())),
-//                         child: Text(
-//                           "Advanced",
-//                           style: GoogleFonts.poppins(
-//                               color: Colors.blue, fontWeight: FontWeight.w600),
-//                         ))
-//                   ],
-//                 ),
-//               ),
-//               searchItem(
-//                   title: "Category", subtitle: "sub category", price: "343"),
-//               searchItem(
-//                   title: "Category", subtitle: "sub category", price: "343"),
-//               searchItem(
-//                   title: "Category", subtitle: "sub category", price: "343"),
-//             ],
-//           ),
-//         ),
-//       ),title: "Contracts");
-//   }
-// }
