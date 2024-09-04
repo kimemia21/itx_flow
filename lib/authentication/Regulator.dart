@@ -22,22 +22,22 @@ class _RegulatorsState extends State<Regulators> {
     2: 'Authority B',
   };
 
-@override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    final appBlocInstance = context.read<appBloc>();
-    final commodities = appBlocInstance?.userCommodities;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final appBlocInstance = context.read<appBloc>();
+      final commodities = appBlocInstance?.userCommodities;
 
-    if (commodities != null) {
-      for (var commodity in commodities) {
-        _initializeFormData(commodity.toString());
+      if (commodities != null) {
+        for (var commodity in commodities) {
+          _initializeFormData(commodity.toString());
+        }
+      } else {
+        print("No commodities found.");
       }
-    } else {
-      print("No commodities found.");
-    }
-  });
-}
+    });
+  }
 
   Future<void> _selectDate(
       BuildContext context, TextEditingController controller) async {
@@ -89,11 +89,13 @@ void initState() {
         data["${commodity}_proof_of_payment"] =
             commodityData["proofOfPaymentController"].text;
       });
+      print(data);
       return data;
     }
     return null;
   }
-   Future<List<String>> _initializeData() async {
+
+  Future<List<String>> _initializeData() async {
     final appBlocInstance = context.read<appBloc>();
     final commodities = appBlocInstance.userCommodities;
 
@@ -135,7 +137,7 @@ void initState() {
     }
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -200,6 +202,7 @@ void initState() {
       ),
     );
   }
+
   Widget _buildCommodityForm(String commodity) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

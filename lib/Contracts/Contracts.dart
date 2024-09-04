@@ -28,70 +28,70 @@ class _ContractsState extends State<Contracts> {
       "contract_name": {
         "product_name": "Copper",
         "quality": "High grade",
-        "price": "2300",
+        "price": 2300.00,
       }
     },
     {
       "contract_name": {
         "product_name": "Gold",
         "quality": "24 Karat",
-        "price": "59000",
+        "price": 59000.00,
       }
     },
     {
       "contract_name": {
         "product_name": "Silver",
         "quality": "99.9% Pure",
-        "price": "2500",
+        "price": 2500.00,
       }
     },
     {
       "contract_name": {
         "product_name": "Aluminum",
         "quality": "Refined",
-        "price": "1800",
+        "price": 1800.00,
       }
     },
     {
       "contract_name": {
         "product_name": "Iron",
         "quality": "Cast",
-        "price": "600",
+        "price": 600.00,
       }
     },
     {
       "contract_name": {
         "product_name": "Platinum",
         "quality": "Jewelry grade",
-        "price": "68000",
+        "price": 68000.00,
       }
     },
     {
       "contract_name": {
         "product_name": "Nickel",
         "quality": "Industrial",
-        "price": "1600",
+        "price": 1600.00,
       }
     },
     {
       "contract_name": {
         "product_name": "Zinc",
         "quality": "Pure",
-        "price": "2100",
+        "price": 2100.00,
       }
     },
     {
       "contract_name": {
         "product_name": "Lead",
         "quality": "Industrial",
-        "price": "1000",
+        "price": 1000.00,
       }
     },
     {
       "contract_name": {
         "product_name": "Tin",
         "quality": "Refined",
-        "price": "3500",
+        "price": 3500.00,
       }
     },
   ];
@@ -227,39 +227,69 @@ class _ContractsState extends State<Contracts> {
     );
   }
 
-  Widget _buildSearchBar(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          SizedBox(
-            width: Globals.AppWidth(context: context, width: 0.7),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                labelText: 'Search commodities',
-                prefixIcon: const Icon(Icons.search),
-                fillColor: Colors.grey[200],
-                filled: true,
+Widget _buildSearchBar(BuildContext context) {
+  final double screenWidth = MediaQuery.of(context).size.width;
+  
+  return Container(
+    margin: EdgeInsets.symmetric(
+      vertical: screenWidth * 0.02, // Responsive vertical margin
+      horizontal: screenWidth * 0.04, // Responsive horizontal margin
+    ),
+    padding: EdgeInsets.symmetric(
+      vertical: screenWidth * 0.02, // Responsive padding
+    ),
+    child: Row(
+      children: [
+        Expanded(
+          flex: 7, // 70% of available space
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              labelText: 'Search commodities',
+              labelStyle: GoogleFonts.poppins(fontSize: screenWidth * 0.04), // Responsive font size
+              prefixIcon: const Icon(Icons.search),
+              fillColor: Colors.grey[200],
+              filled: true,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.04, // Responsive padding
+                vertical: screenWidth * 0.03,
               ),
             ),
           ),
-          TextButton(
+        ),
+        SizedBox(width: screenWidth * 0.03), // Responsive spacing between widgets
+        Expanded(
+          flex: 3, // 30% of available space
+          child: TextButton(
             onPressed: () => Navigator.of(context).push(
               SlideFromSidePageRoute(widget: AdvancedSearchPage()),
             ),
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.blue[50],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: EdgeInsets.symmetric(
+                horizontal: screenWidth * 0.02, // Responsive padding
+                vertical: screenWidth * 0.03,
+              ),
+            ),
             child: Text(
               "Advanced",
-              style: GoogleFonts.poppins(color: Colors.blue, fontWeight: FontWeight.w600),
+              style: GoogleFonts.poppins(
+                color: Colors.blue, 
+                fontWeight: FontWeight.w600,
+                fontSize: screenWidth * 0.04, // Responsive font size
+              ),
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 
   Widget _buildContractsList() {
     return SizedBox(
@@ -269,12 +299,12 @@ class _ContractsState extends State<Contracts> {
         itemBuilder: (context, index) {
           final contract = _filteredContracts[index]["contract_name"];
           return GestureDetector(
-            onTap: () => Globals.switchScreens(context: context, screen: Specificorder(item: contract["product_name"],   price: contract["price"],)),
+            onTap: () => Globals.switchScreens(context: context, screen: Specificorder(item: contract["product_name"],price: contract["price"],quantity:contract["quality"])),
             child: _buildSearchItem(
               title: contract["product_name"],
               product: contract["product_name"],
               quality: contract["quality"],
-              price: contract["price"],
+              price: contract["price"].toString(),
             ),
           );
         },

@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Contracts/Contracts.dart';
 import 'package:itx/Contracts/Create.dart';
+import 'package:itx/Contracts/LiveAuction.dart';
 import 'package:itx/Contracts/MyContracts.dart';
+import 'package:itx/Contracts/itemLive.dart';
 import 'package:itx/global/globals.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class Specificorder extends StatelessWidget {
   final String item;
-  final String price;
-  Specificorder({required this.item, required this.price});
+  final double price;
+  final String quantity;
+  Specificorder({required this.item, required this.price, required this.quantity});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +46,7 @@ class Specificorder extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  price,
+                  price.toString(),
                   style: GoogleFonts.poppins(
                     fontSize: 40,
                     fontWeight: FontWeight.w600,
@@ -114,7 +118,25 @@ class Specificorder extends StatelessWidget {
               ),
             ),
             SizedBox(height: 10),
-            buildTradeOption('Buy', 'Market execution', Icons.arrow_upward),
+            GestureDetector(
+                onTap: () {
+                  List<Map<String, dynamic>> itemData = [
+                    {
+                      'name': item,
+                      'price': price as double,
+                      'unit': 'lbs',
+                      'endTime': DateTime.now().add(Duration(minutes: 45))
+                    },
+                  ];
+                  PersistentNavBarNavigator.pushNewScreen(
+                      withNavBar: true,
+                      context,
+                      screen: Itemlive(
+                        itemData: itemData,
+                      ));
+                },
+                child: buildTradeOption(
+                    'Buy', 'Market execution', Icons.arrow_upward)),
             SizedBox(height: 10),
             // buildTradeOption('Sell', 'Market execution', Icons.arrow_downward),
             // SizedBox(height: 20),

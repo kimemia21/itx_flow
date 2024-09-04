@@ -24,73 +24,83 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
     }
   }
 
-  Widget _buildDocsType({
-    required String title,
-    required String subtitle,
-    required VoidCallback action,
-  }) {
-    return GestureDetector(
-      onTap: action,
-      child: Container(
-        margin: const EdgeInsets.only(top: 10),
-        padding: const EdgeInsets.all(10),
-        width: double.infinity,
-        height: 100,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: const Offset(0, 3), // changes position of shadow
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              height: 60,
-              width: 60,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(10),
+
+
+Widget _buildDocsType({
+  required String title,
+  required String subtitle,
+  required VoidCallback action,
+}) {
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final maxWidth = constraints.maxWidth;
+      final isSmallScreen = maxWidth < 600; // Adjust this breakpoint as needed
+
+      return GestureDetector(
+        onTap: action,
+        child: Container(
+          margin: EdgeInsets.only(top: isSmallScreen ? 5 : 10),
+          padding: EdgeInsets.all(isSmallScreen ? 8 : 10),
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
               ),
-              child: const Icon(Icons.file_copy),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 20,
-                    ),
+            ],
+          ),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  height: isSmallScreen ? 40 : 60,
+                  width: isSmallScreen ? 40 : 60,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.7,
-                    child: Text(
-                      subtitle,
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 16,
+                  child: Icon(Icons.file_copy, size: isSmallScreen ? 20 : 24),
+                ),
+                SizedBox(width: isSmallScreen ? 8 : 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        title,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w500,
+                          fontSize: isSmallScreen ? 16 : 20,
+                        ),
                       ),
-                    ),
+                      SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: isSmallScreen ? 12 : 16,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                SizedBox(width: isSmallScreen ? 8 : 10),
+                Icon(Icons.arrow_forward, size: isSmallScreen ? 20 : 24),
+              ],
             ),
-            const Center(child: Icon(Icons.arrow_forward)),
-          ],
+          ),
         ),
-      ),
-    );
-  }
+      );
+    },
+  );
+}
 
   @override
   Widget build(BuildContext context) {

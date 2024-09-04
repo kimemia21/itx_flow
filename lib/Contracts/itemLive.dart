@@ -1,166 +1,66 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:itx/global/globals.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-class LiveAuctionScreen extends StatefulWidget {
+class Itemlive extends StatefulWidget {
+  final   List<Map<String, dynamic>> itemData;
+  const Itemlive({required this.itemData});
+
   @override
-  _LiveAuctionScreenState createState() => _LiveAuctionScreenState();
+  State<Itemlive> createState() => _ItemliveState();
 }
 
-class _LiveAuctionScreenState extends State<LiveAuctionScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-  // DateTime? _selectedDateTime;
+class _ItemliveState extends State<Itemlive> {
   List<Map<String, dynamic>> bidsHistory = [];
-  Map<String, List<Map<String, dynamic>>> itemData = {
-    'Minerals': [
-      {
-        'name': 'Gold',
-        'price': 1800.0,
-        'unit': 'oz',
-        'endTime': DateTime.now().add(Duration(hours: 1))
-      },
-      {
-        'name': 'Silver',
-        'price': 25.0,
-        'unit': 'oz',
-        'endTime': DateTime.now().add(Duration(hours: 2))
-      },
-    ],
-    'Agriculture': [
-      {
-        'name': 'Rice',
-        'price': 0.50,
-        'unit': 'lbs',
-        'endTime': DateTime.now().add(Duration(minutes: 45))
-      },
-      {
-        'name': 'Wheat',
-        'price': 700.0,
-        'unit': 'bushel',
-        'endTime': DateTime.now().add(Duration(minutes: 30))
-      },
-    ],
-    'Energy': [
-      {
-        'name': 'Crude Oil',
-        'price': 70.0,
-        'unit': 'barrel',
-        'endTime': DateTime.now().add(Duration(hours: 1, minutes: 30))
-      },
-      {
-        'name': 'Natural Gas',
-        'price': 2.5,
-        'unit': 'MMBtu',
-        'endTime': DateTime.now().add(Duration(hours: 1, minutes: 15))
-      },
-    ],
-    'Crafts': [
-      {
-        'name': 'Handmade Pottery',
-        'price': 50.0,
-        'unit': 'piece',
-        'endTime': DateTime.now().add(Duration(hours: 2))
-      },
-      {
-        'name': 'Woven Baskets',
-        'price': 30.0,
-        'unit': 'piece',
-        'endTime': DateTime.now().add(Duration(minutes: 55))
-      },
-    ],
-  };
-  String currentCategory = 'Agriculture';
+  // List<Map<String, dynamic>> itemData = [
+  //   {
+  //     'name': 'Rice',
+  //     'price': 0.50,
+  //     'unit': 'lbs',
+  //     'endTime': DateTime.now().add(Duration(minutes: 45))
+  //   },
+  // ];
   int currentItemIndex = 0;
   double highestBid = 0.0;
 
-  // Add a new variable to store the chart data
+  // Chart data
   List<ChartData> chartData = [];
 
-  // Add a variable to store the remaining time
+  // Remaining time
   late DateTime auctionEndTime;
   Duration remainingTime = Duration();
   Timer? timer;
+
+  @override
   void initState() {
     super.initState();
-    try {
-      print("init liveAction");
-      _tabController = TabController(length: 4, vsync: this);
-      _tabController.addListener(_handleTabSelection);
-
-      if (itemData.containsKey(currentCategory) &&
-          itemData[currentCategory]!.isNotEmpty) {
-        highestBid =
-            itemData[currentCategory]![currentItemIndex]['price'] as double;
-        auctionEndTime =
-            itemData[currentCategory]![currentItemIndex]['endTime'] as DateTime;
-        print("Sucess");
-        _initializeBidHistory();
-        _startTimer();
-      } else {
-        print("Error: No items available for the current category.");
-      }
-    } catch (e) {
-      print("got this error in live Action $e");
+    if (widget.itemData.isNotEmpty) {
+      highestBid = widget.itemData[currentItemIndex]['price'] as double;
+      auctionEndTime = widget.itemData[currentItemIndex]['endTime'] as DateTime;
+      _initializeBidHistory();
+      _startTimer();
+    } else {
+      print("Error: No items available.");
     }
   }
 
   void _initializeBidHistory() {
     final now = DateTime.now();
-
-    if (itemData.containsKey(currentCategory) &&
-        itemData[currentCategory]!.isNotEmpty) {
-      final initialPrice =
-          itemData[currentCategory]![currentItemIndex]['price'] as double;
-      bidsHistory.clear();
-      chartData.clear();
-      for (int i = 30; i >= 0; i--) {
-        final bidTime = now.subtract(Duration(days: i));
-        final bidAmount = initialPrice * (0.9 + 0.2 * i / 30);
-        bidsHistory.add({
-          'user': 'System',
-          'time': bidTime,
-          'amount': bidAmount,
-        });
-        chartData.add(ChartData(bidTime, bidAmount));
-      }
-      highestBid = bidsHistory.last['amount'];
-    } else {
-      print("Error: No items available to initialize bid history.");
-    }
-  }
-
-  void _handleTabSelection() {
-    if (_tabController.indexIsChanging) {
-      setState(() {
-        switch (_tabController.index) {
-          case 0:
-            currentCategory = 'Minerals';
-            break;
-          case 1:
-            currentCategory = 'Agriculture';
-            break;
-          case 2:
-            currentCategory = 'Energy';
-            break;
-          case 3:
-            currentCategory = 'Crafts';
-            break;
-        }
-        currentItemIndex = 0;
-
-        if (itemData.containsKey(currentCategory) &&
-            itemData[currentCategory]!.isNotEmpty) {
-          auctionEndTime = itemData[currentCategory]![currentItemIndex]
-              ['endTime'] as DateTime;
-          _initializeBidHistory();
-        } else {
-          print("Error: No items available for the selected category.");
-        }
+    final initialPrice = widget.itemData[currentItemIndex]['price'] as double;
+    bidsHistory.clear();
+    chartData.clear();
+    for (int i = 30; i >= 0; i--) {
+      final bidTime = now.subtract(Duration(days: i));
+      final bidAmount = initialPrice * (0.9 + 0.2 * i / 30);
+      bidsHistory.add({
+        'user': 'System',
+        'time': bidTime,
+        'amount': bidAmount,
       });
+      chartData.add(ChartData(bidTime, bidAmount));
     }
+    highestBid = bidsHistory.last['amount'];
   }
 
   void _startTimer() {
@@ -177,7 +77,6 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen>
 
   @override
   void dispose() {
-    _tabController.dispose();
     timer?.cancel();
     super.dispose();
   }
@@ -237,7 +136,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen>
                     ? () {
                         if (bidAmount > highestBid) {
                           final now = DateTime.now();
-                          this.setState(() {
+                          setState(() {
                             highestBid = bidAmount;
                             bidsHistory.add({
                               'user': 'You',
@@ -260,14 +159,14 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen>
 
   @override
   Widget build(BuildContext context) {
-    final currentItem = itemData[currentCategory]![currentItemIndex];
+    final currentItem = widget.itemData[currentItemIndex];
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text(
-          'Live Action',
+          '${widget.itemData[0]["name"]} Auction',
           style: GoogleFonts.poppins(
             fontSize: 22,
             fontWeight: FontWeight.w600,
@@ -286,34 +185,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TabBar(
-              controller: _tabController,
-              indicator: BoxDecoration(
-                color: Colors
-                    .blue.shade100, // Background color of the selected tab
-                borderRadius: BorderRadius.circular(5), // Rounded corners
-              ),
-              labelStyle: GoogleFonts.poppins(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-              unselectedLabelStyle: GoogleFonts.poppins(
-                fontSize: 12,
-                fontWeight: FontWeight.normal,
-              ),
-              labelColor: Colors.white, // Color of the text in the selected tab
-              unselectedLabelColor:
-                  Colors.black54, // Color of the text in unselected tabs
-              tabs: [
-                Tab(text: 'Minerals'),
-                Tab(text: 'Agriculture'),
-                Tab(text: 'Energy'),
-                Tab(text: 'Crafts'),
-              ],
-            ),
-
             SizedBox(height: 20),
-
             Text(
               '${currentItem['name']} - 5,000 ${currentItem['unit']}',
               style: GoogleFonts.poppins(
@@ -342,7 +214,6 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen>
               ],
             ),
             SizedBox(height: 20),
-
             Container(
               height: 200,
               child: SfCartesianChart(
@@ -357,8 +228,6 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen>
               ),
             ),
             SizedBox(height: 20),
-
-            // Place Bid Button, Timer, and Highest Bid
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -366,23 +235,21 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen>
                   onTap: () =>
                       _showPlaceBidDialog(currentItem['name'], highestBid),
                   child: Container(
-                    padding: EdgeInsets.all(2),
+                    padding: EdgeInsets.all(12),
                     alignment: Alignment.center,
                     height: 40,
                     decoration: BoxDecoration(
                       color: Colors.blue.shade300,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    width: Globals.AppWidth(context: context, width: 0.3),
+                    width: MediaQuery.of(context).size.width * 0.3,
                     child: Text(
-                      "Place bid",
+                      "Place Bid",
                       style: GoogleFonts.poppins(
                           color: Colors.white, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
-
-                // Remaining Time Display
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -398,8 +265,6 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen>
                     ),
                   ],
                 ),
-
-                // Highest Bid Display
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -420,7 +285,6 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen>
               ],
             ),
             SizedBox(height: 20),
-
             Expanded(
               child: ListView.builder(
                 itemCount: bidsHistory.length,

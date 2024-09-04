@@ -124,7 +124,7 @@ class _CreateContractState extends State<CreateContract>
                   onTap: () {
                     selectedCommodity!=null?
                     Globals.switchScreens(
-                        context: context, screen: Specificorder(item:selectedCommodity! ,price: "232",)):
+                        context: context, screen: Specificorder(item:selectedCommodity! ,price: 232.0,quantity: "100 bushels",)):
                          ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
