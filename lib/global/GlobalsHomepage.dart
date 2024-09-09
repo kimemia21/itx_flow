@@ -4,7 +4,6 @@ import 'package:itx/Contracts/MyContracts.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Contracts/SpotItem.dart';
 import 'package:itx/Contracts/SpotTrader.dart';
-import 'package:itx/fromWakulima/Sales.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class GlobalsHomePage extends StatefulWidget {
@@ -48,41 +47,14 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
     return [
       // Sales(),
       Commodities(),
-            Commodities(),
-                  Commodities(),
+      Commodities(),
+      Commodities(),
 
-      // Commodites(scrollController: _scrollControllers.first),
-      // Commodites(scrollController: _scrollControllers.first),
-      // Commodites(scrollController: _scrollControllers.first),
-     Spottrader(),
+      Spottrader(),
       Mycontracts()
-      
     ];
   }
 
-  // List<CustomNavBarScreen> _buildScreens() => [
-  //       CustomNavBarScreen(
-  //           routeAndNavigatorSettings: RouteAndNavigatorSettings(
-  //             initialRoute: "/",
-  //             routes: {
-  //               "/first": (final context) =>
-  //                   Commodites(scrollController: _scrollControllers.first),
-  //               "/second": (final context) =>
-  //                   Commodites(scrollController: _scrollControllers.first),
-  //             },
-  //           ),
-  //           screen: Commodites(scrollController: _scrollControllers.first)),
-  //       CustomNavBarScreen(
-  //           screen: Commodites(scrollController: _scrollControllers.first)),
-  //       CustomNavBarScreen(
-  //           screen: Commodites(scrollController: _scrollControllers.first)),
-  //       CustomNavBarScreen(
-  //           screen: Spottrader()),
-  //       CustomNavBarScreen(
-  //           screen: Commodites(scrollController: _scrollControllers.first)),
-  //     ];
-
-  // List<PersistentBottomNavBarItem> is just for example here. It can be anything you want like List<YourItemWidget>
   List<PersistentBottomNavBarItem> _navBarsItems() => [
         PersistentBottomNavBarItem(
           icon: const Icon(Icons.home),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Commodities.dart/AdvancedSearch.dart';
-import 'package:itx/Contracts/Create.dart';
+import 'package:itx/Contracts/CreateContract.dart';
 import 'package:itx/Contracts/MyContracts.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Contracts/SpotItem.dart';
@@ -120,9 +120,12 @@ class _ContractsState extends State<Contracts> {
       return contracts;
     } else {
       return contracts.where((contract) {
-        final productName = contract["contract_name"]["product_name"].toString().toLowerCase();
-        final quality = contract["contract_name"]["quality"].toString().toLowerCase();
-        return productName.contains(_searchQuery) || quality.contains(_searchQuery);
+        final productName =
+            contract["contract_name"]["product_name"].toString().toLowerCase();
+        final quality =
+            contract["contract_name"]["quality"].toString().toLowerCase();
+        return productName.contains(_searchQuery) ||
+            quality.contains(_searchQuery);
       }).toList();
     }
   }
@@ -133,7 +136,8 @@ class _ContractsState extends State<Contracts> {
     required String quality,
     required String price,
   }) {
-    double width = Globals.AppWidth(context: context, width: 1);
+    double width = MediaQuery.of(context).size.width * 1;
+
     return Container(
       height: 70,
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -205,7 +209,8 @@ class _ContractsState extends State<Contracts> {
       ),
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () => Globals.switchScreens(context: context, screen: const Authorization()),
+          onPressed: () => Globals.switchScreens(
+              context: context, screen: const Authorization()),
           icon: const Icon(Icons.arrow_back),
         ),
         title: Text(
@@ -227,69 +232,71 @@ class _ContractsState extends State<Contracts> {
     );
   }
 
-Widget _buildSearchBar(BuildContext context) {
-  final double screenWidth = MediaQuery.of(context).size.width;
-  
-  return Container(
-    margin: EdgeInsets.symmetric(
-      vertical: screenWidth * 0.02, // Responsive vertical margin
-      horizontal: screenWidth * 0.04, // Responsive horizontal margin
-    ),
-    padding: EdgeInsets.symmetric(
-      vertical: screenWidth * 0.02, // Responsive padding
-    ),
-    child: Row(
-      children: [
-        Expanded(
-          flex: 7, // 70% of available space
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              labelText: 'Search commodities',
-              labelStyle: GoogleFonts.poppins(fontSize: screenWidth * 0.04), // Responsive font size
-              prefixIcon: const Icon(Icons.search),
-              fillColor: Colors.grey[200],
-              filled: true,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: screenWidth * 0.04, // Responsive padding
-                vertical: screenWidth * 0.03,
-              ),
-            ),
-          ),
-        ),
-        SizedBox(width: screenWidth * 0.03), // Responsive spacing between widgets
-        Expanded(
-          flex: 3, // 30% of available space
-          child: TextButton(
-            onPressed: () => Navigator.of(context).push(
-              SlideFromSidePageRoute(widget: AdvancedSearchPage()),
-            ),
-            style: TextButton.styleFrom(
-              backgroundColor: Colors.blue[50],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              padding: EdgeInsets.symmetric(
-                horizontal: screenWidth * 0.02, // Responsive padding
-                vertical: screenWidth * 0.03,
-              ),
-            ),
-            child: Text(
-              "Advanced",
-              style: GoogleFonts.poppins(
-                color: Colors.blue, 
-                fontWeight: FontWeight.w600,
-                fontSize: screenWidth * 0.04, // Responsive font size
-              ),
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
-}
+  Widget _buildSearchBar(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
 
+    return Container(
+      margin: EdgeInsets.symmetric(
+        vertical: screenWidth * 0.02, // Responsive vertical margin
+        horizontal: screenWidth * 0.04, // Responsive horizontal margin
+      ),
+      padding: EdgeInsets.symmetric(
+        vertical: screenWidth * 0.02, // Responsive padding
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 7, // 70% of available space
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                labelText: 'Search commodities',
+                labelStyle: GoogleFonts.poppins(
+                    fontSize: screenWidth * 0.04), // Responsive font size
+                prefixIcon: const Icon(Icons.search),
+                fillColor: Colors.grey[200],
+                filled: true,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.04, // Responsive padding
+                  vertical: screenWidth * 0.03,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+              width: screenWidth * 0.03), // Responsive spacing between widgets
+          Expanded(
+            flex: 3, // 30% of available space
+            child: TextButton(
+              onPressed: () => Navigator.of(context).push(
+                SlideFromSidePageRoute(widget: AdvancedSearchPage()),
+              ),
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.blue[50],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.02, // Responsive padding
+                  vertical: screenWidth * 0.03,
+                ),
+              ),
+              child: Text(
+                "Advanced",
+                style: GoogleFonts.poppins(
+                  color: Colors.blue,
+                  fontWeight: FontWeight.w600,
+                  fontSize: screenWidth * 0.04, // Responsive font size
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildContractsList() {
     return SizedBox(
@@ -299,7 +306,12 @@ Widget _buildSearchBar(BuildContext context) {
         itemBuilder: (context, index) {
           final contract = _filteredContracts[index]["contract_name"];
           return GestureDetector(
-            onTap: () => Globals.switchScreens(context: context, screen: Specificorder(item: contract["product_name"],price: contract["price"],quantity:contract["quality"])),
+            onTap: () => Globals.switchScreens(
+                context: context,
+                screen: Specificorder(
+                    item: contract["product_name"],
+                    price: contract["price"],
+                    quantity: contract["quality"])),
             child: _buildSearchItem(
               title: contract["product_name"],
               product: contract["product_name"],

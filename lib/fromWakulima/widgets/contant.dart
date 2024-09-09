@@ -2,11 +2,10 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:itx/fromWakulima/AppBloc.dart';
-import 'package:itx/fromWakulima/CartPage.dart';
-import 'package:itx/fromWakulima/Homepage.dart';
-import 'package:itx/fromWakulima/Search.dart';
-import 'package:itx/fromWakulima/globals.dart';
+import 'package:itx/fromWakulima/widgets/CartPage.dart';
+import 'package:itx/fromWakulima/widgets/Search.dart';
+import 'package:itx/global/AppBloc.dart';
+import 'package:itx/global/globals.dart';
 import 'package:provider/provider.dart';
 import 'package:badges/badges.dart' as badges;
 

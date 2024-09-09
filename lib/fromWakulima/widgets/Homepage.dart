@@ -2,15 +2,7 @@
 
 import 'dart:async';
 
-import 'package:itx/fromWakulima/AddItem.dart';
-import 'package:itx/fromWakulima/Analyitics.dart';
-import 'package:itx/fromWakulima/AppBloc.dart';
-import 'package:itx/fromWakulima/CartPage.dart';
-import 'package:itx/fromWakulima/Offers.dart';
-import 'package:itx/fromWakulima/Profile.dart';
-import 'package:itx/fromWakulima/Sales.dart';
-import 'package:itx/fromWakulima/contant.dart';
-import 'package:itx/fromWakulima/globals.dart';
+
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,6 +11,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:itx/fromWakulima/widgets/AddItem.dart';
+import 'package:itx/fromWakulima/widgets/Analyitics.dart';
+import 'package:itx/fromWakulima/widgets/Offers.dart';
+import 'package:itx/fromWakulima/widgets/Sales.dart';
 import 'package:provider/provider.dart';
 
 class MyHomePage extends StatefulWidget {

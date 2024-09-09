@@ -1,10 +1,4 @@
-import 'package:itx/fromWakulima/AppBloc.dart';
-import 'package:itx/fromWakulima/CartPage.dart';
-import 'package:itx/fromWakulima/Homepage.dart';
-import 'package:itx/fromWakulima/Sales.dart';
-import 'package:itx/fromWakulima/Search.dart';
-import 'package:itx/fromWakulima/contant.dart';
-import 'package:itx/fromWakulima/globals.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:clippy_flutter/paralellogram.dart';
@@ -12,6 +6,10 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:itx/fromWakulima/widgets/CartPage.dart';
+import 'package:itx/fromWakulima/widgets/Search.dart';
+import 'package:itx/fromWakulima/widgets/contant.dart';
+import 'package:itx/global/AppBloc.dart';
 import 'package:provider/provider.dart';
 
 class DetailView extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:itx/fromWakulima/globals.dart';
+import 'package:itx/global/globals.dart';
 import 'package:itx/web/SetupScreen.dart';
 import 'package:itx/web/SignInWeb.dart';
 

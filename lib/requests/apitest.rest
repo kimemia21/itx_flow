@@ -1,0 +1,137 @@
+#### Commodities API
+
+# localhost:3000
+# 185.141.63.56:3067
+
+### Register
+
+POST  http://localhost:3000/api/v1/user/register
+content-type: application/json
+
+{
+    "email" : "evahnceq@live.com",
+    "password":"12345",
+    "phonenumber" : "254721374510",
+    "user_type" : 1
+}
+### Login
+
+POST  http://localhost:3000/api/v1/user/login
+content-type: application/json
+
+{
+    "email" : "evahnceq@live.com",
+    "password":"12345"
+}
+
+
+### Confrim Second Factor
+
+POST  http://localhost:3000/api/v1/user/otpc
+content-type: application/json
+
+{
+    "email" : "evahnceq@live.com",
+    "otp":"K21QK"
+}
+
+
+#### List usertypes
+GET http://localhost:3000/api/v1/user/types
+x-auth-token : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzI1ODY3NTQwLCJleHAiOjE3MjU4NzExNDB9.7C2d1MZKxM4g__ACaUKBoN9VjAgh0OTHXum6K6Z6urI
+
+
+
+#### List user companies
+GET http://localhost:3000/api/v1/user/companies/
+x-auth-token : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzI1ODY3NTQwLCJleHAiOjE3MjU4NzExNDB9.7C2d1MZKxM4g__ACaUKBoN9VjAgh0OTHXum6K6Z6urI
+
+
+#### Add user companies
+POST  http://localhost:3000/api/v1/user/companies/create
+x-auth-token : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzI1ODY3NTQwLCJleHAiOjE3MjU4NzExNDB9.7C2d1MZKxM4g__ACaUKBoN9VjAgh0OTHXum6K6Z6urI
+content-type: application/json
+
+{
+    "company_name" : "My New Company",
+    "company_address" : " Address",
+    "company_contacts" : "07213344"
+}
+
+#### List Commodities
+GET http://localhost:3000/api/v1/commodities?filter=commodityosearch&user=
+x-auth-token : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzI1ODY3NTQwLCJleHAiOjE3MjU4NzExNDB9.7C2d1MZKxM4g__ACaUKBoN9VjAgh0OTHXum6K6Z6urI
+
+
+#### List Commodities of interest
+GET http://localhost:3000/api/v1/commodities/watching?filter=&user=
+x-auth-token : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzI1ODY3NTQwLCJleHAiOjE3MjU4NzExNDB9.7C2d1MZKxM4g__ACaUKBoN9VjAgh0OTHXum6K6Z6urI
+
+
+
+#### Get Commodity
+GET http://localhost:3000/api/v1/commodities/1
+x-auth-token : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzI1ODY3NTQwLCJleHAiOjE3MjU4NzExNDB9.7C2d1MZKxM4g__ACaUKBoN9VjAgh0OTHXum6K6Z6urI
+
+
+#### Get Commodity Certificates
+GET http://localhost:3000/api/v1/commodities/1/certs
+x-auth-token : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzI1ODY3NTQwLCJleHAiOjE3MjU4NzExNDB9.7C2d1MZKxM4g__ACaUKBoN9VjAgh0OTHXum6K6Z6urI
+
+
+
+#### Get Contract types
+GET http://localhost:3000/api/v1/contracts/types
+x-auth-token : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzI1ODY3NTQwLCJleHAiOjE3MjU4NzExNDB9.7C2d1MZKxM4g__ACaUKBoN9VjAgh0OTHXum6K6Z6urI
+
+
+
+#### Get Contracts
+GET http://localhost:3000/api/v1/contracts?commodity=1&commodity_type=1&liked=0&disliked=0&bought=1&paid=0
+x-auth-token : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzI1ODY3NTQwLCJleHAiOjE3MjU4NzExNDB9.7C2d1MZKxM4g__ACaUKBoN9VjAgh0OTHXum6K6Z6urI
+
+
+#### Upload Certificates
+POST http://localhost:3000/api/v1/user/certs/upload
+x-auth-token : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzI1ODY3NTQwLCJleHAiOjE3MjU4NzExNDB9.7C2d1MZKxM4g__ACaUKBoN9VjAgh0OTHXum6K6Z6urI
+
+{
+    "certificate_type" : "",
+    "expiry" : "2025-01-02 09:09:00",
+    "payment_proof" :  "",
+    "ref" : "ref"
+}
+
+#### Create Contract
+POST http://localhost:3000/api/v1/contracts/create
+x-auth-token : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzI1ODY3NTQwLCJleHAiOjE3MjU4NzExNDB9.7C2d1MZKxM4g__ACaUKBoN9VjAgh0OTHXum6K6Z6urI
+
+{
+    "contract_type_id":  1,
+    "commodity_id": 1,
+    "quality_grade_id": "string", 
+    "delivery_date": "date",
+    "price": "decimal", 
+    "description": "string" 
+}
+
+
+#### Create Spot Trade Item
+POST http://localhost:3000/api/v1/contracts/spot
+x-auth-token : eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MywiaWF0IjoxNzI1ODY3NTQwLCJleHAiOjE3MjU4NzExNDB9.7C2d1MZKxM4g__ACaUKBoN9VjAgh0OTHXum6K6Z6urI
+
+{
+    "commodity": "string",
+    "qualityGrade": "string", 
+    "deliverySchedule": "date",
+    "price": "decimal", 
+    "description": "string" 
+}
+
+
+
+
+#### Get Commodity Suppliers
+
+
+#### Update Commodities

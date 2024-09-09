@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/fromWakulima/widgets/contant.dart';
 import 'package:itx/global/globals.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -373,7 +374,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen>
                       color: Colors.blue.shade300,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    width: Globals.AppWidth(context: context, width: 0.3),
+                    width: AppWidth(context, 0.3),
                     child: Text(
                       "Place bid",
                       style: GoogleFonts.poppins(

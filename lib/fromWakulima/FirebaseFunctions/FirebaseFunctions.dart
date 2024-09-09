@@ -10,10 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Commodities.dart/Commodites.dart';
-import 'package:itx/fromWakulima/AppBloc.dart';
-import 'package:itx/fromWakulima/VerifyEmail.dart';
-import 'package:itx/fromWakulima/globals.dart';
+import 'package:itx/fromWakulima/widgets/VerifyEmail.dart';
+import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
+import 'package:itx/global/globals.dart';
 import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -67,15 +67,14 @@ Future<void> signInWithEmailAndPassword({
       Globals.switchScreens(context: context, screen: GlobalsHomePage());
     } else {
       // Navigate to VerifyEmail screen if email is not verified
-      // Globals()
-      //     .switchScreens(context: context, screen: VerifyEmail(email: email));
+      Globals.switchScreens(context: context, screen: VerifyEmail(email: email));
     }
 
     print("Email signup is $email");
   } on FirebaseAuthException catch (e) {
     // Map FirebaseAuthException codes to user-friendly messages
     final errorMessage = _getErrorMessage(e.code);
-    Globals().warningsAlerts(
+    Globals.warningsAlerts(
         title: "Login Error", content: errorMessage, context: context);
   } catch (e) {
     print("Sign in with email and password error: $e");
@@ -129,7 +128,7 @@ Future<void> signup(
   } on FirebaseAuthException catch (e) {
     // Handle Firebase-specific errors
     String _error = _getErrorMessage(e.code);
-    Globals().warningsAlerts(
+    Globals.warningsAlerts(
         title: "Signup Error", content: _error, context: context);
   } catch (e) {
     print("Signup error $e");
@@ -151,7 +150,7 @@ Future<void> resendLink({required BuildContext context}) async {
         context: context);
   } on FirebaseAuthException catch (e) {
     String _error = _getErrorMessage(e.code);
-    Globals().warningsAlerts(
+    Globals.warningsAlerts(
         title: "Verification", content: _error, context: context);
   } catch (e) {
     print("Resend Link Error $e");

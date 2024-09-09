@@ -3,10 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:itx/fromWakulima/AppBloc.dart';
-import 'package:itx/fromWakulima/Detail_view.dart';
-import 'package:itx/fromWakulima/contant.dart';
-import 'package:itx/fromWakulima/globals.dart';
+import 'package:itx/fromWakulima/widgets/Detail_view.dart';
+import 'package:itx/fromWakulima/widgets/contant.dart';
+import 'package:itx/fromWakulima/widgets/globals.dart';
+import 'package:itx/global/AppBloc.dart';
 import 'package:provider/provider.dart';
 
 class Alllisting extends StatefulWidget {

@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:itx/authentication/Authorization.dart';
-import 'package:itx/fromWakulima/globals.dart';
 import 'package:itx/global/AppBloc.dart';
+import 'package:itx/global/globals.dart';
 import 'package:provider/provider.dart';
 
 class Regulators extends StatefulWidget {
@@ -116,7 +116,6 @@ class _RegulatorsState extends State<Regulators> {
           currentIndex++;
         });
       } else {
-        // All forms are filled, proceed to next screen
         final data = getFormData();
         if (data != null) {
           print(data);
@@ -132,7 +131,6 @@ class _RegulatorsState extends State<Regulators> {
         currentIndex++;
       });
     } else {
-      // Reached the last form, proceed to next screen
       Globals.switchScreens(context: context, screen: Authorization());
     }
   }
@@ -141,64 +139,85 @@ class _RegulatorsState extends State<Regulators> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Regulators',
-            style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-        backgroundColor: Colors.green.shade100,
+        centerTitle: true,
+        title: Text(
+          'Regulators',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontWeight: FontWeight.w600),
+        ),
+        backgroundColor: Colors.green.shade800,
       ),
-      body: FutureBuilder<List<String>>(
-        future: _initializeData(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text("No commodities available"));
-          }
+      body: Container(
+        color: Colors.white,
+        child: FutureBuilder<List<String>>(
+          future: _initializeData(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text("Error: ${snapshot.error}"));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(child: Text("No commodities available"));
+            }
 
-          final commodities = snapshot.data!;
-          final currentCommodity = commodities[currentIndex];
+            final commodities = snapshot.data!;
+            final currentCommodity = commodities[currentIndex];
 
-          return Form(
-            key: _formKey,
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Commodity: $currentCommodity',
-                      style: GoogleFonts.poppins(
-                          fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 20),
-                    _buildCommodityForm(currentCommodity),
-                    SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        ElevatedButton(
-                          onPressed: _skipForm,
-                          child: Text('Skip'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.grey,
+            return Form(
+              key: _formKey,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Commodity: $currentCommodity',
+                        style: GoogleFonts.poppins(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 20),
+                      _buildCommodityForm(currentCommodity),
+                      SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ElevatedButton(
+                            onPressed: _skipForm,
+                            child: Text('Skip',style: GoogleFonts.poppins(color: Colors.black,fontWeight: FontWeight.w600),),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey.shade400,
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 15, horizontal: 20),
+                              textStyle: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
-                        ),
-                        ElevatedButton(
-                          onPressed: _nextForm,
-                          child: Text(currentIndex == commodities.length - 1
-                              ? 'Submit'
-                              : 'Next'),
-                        ),
-                      ],
-                    ),
-                  ],
+                          ElevatedButton(
+                            onPressed: _nextForm,
+                            child: Text(currentIndex == commodities.length - 1
+                                ? 'Submit'
+                                : 'Next',style: GoogleFonts.poppins(color: Colors.white,fontWeight: FontWeight.w600),),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green.shade800,
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 15, horizontal: 20),
+                              textStyle: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -225,7 +244,10 @@ class _RegulatorsState extends State<Regulators> {
               });
             },
             decoration: InputDecoration(
-              border: OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.0),
+                borderSide: BorderSide(color: Colors.grey),
+              ),
               filled: true,
               fillColor: Colors.white,
             ),
@@ -239,9 +261,14 @@ class _RegulatorsState extends State<Regulators> {
             controller: formData[commodity]!['certificateController'],
             decoration: InputDecoration(
               hintText: 'Enter or upload certificate URL',
-              border: OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.0),
+                borderSide: BorderSide(color: Colors.grey),
+              ),
               filled: true,
               fillColor: Colors.white,
+              contentPadding:
+                  EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
             ),
             validator: (value) => value == null || value.isEmpty
                 ? 'Please enter or upload a certificate URL'
@@ -257,6 +284,10 @@ class _RegulatorsState extends State<Regulators> {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.blue,
             foregroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+            textStyle: GoogleFonts.poppins(
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
         _buildFormField(
@@ -265,31 +296,43 @@ class _RegulatorsState extends State<Regulators> {
             controller: formData[commodity]!['expiryDateController'],
             decoration: InputDecoration(
               hintText: 'Select date',
-              border: OutlineInputBorder(),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.0),
+                borderSide: BorderSide(color: Colors.grey),
+              ),
               filled: true,
               fillColor: Colors.white,
+              contentPadding:
+                  EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
               suffixIcon: Icon(Icons.calendar_today),
             ),
-            readOnly: true,
-            onTap: () => _selectDate(
-                context, formData[commodity]!['expiryDateController']),
-            validator: (value) => value == null || value.isEmpty
-                ? 'Please select an expiry date'
-                : null,
+            validator: (value) =>
+                value == null || value.isEmpty ? 'Please select a date' : null,
+            onTap: () async {
+              FocusScope.of(context).requestFocus(new FocusNode());
+              await _selectDate(context,
+                  formData[commodity]!['expiryDateController']);
+            },
           ),
         ),
+        SizedBox(height: 8),
         _buildFormField(
-          'Proof of Payment URL',
+          'Proof of Payment',
           TextFormField(
             controller: formData[commodity]!['proofOfPaymentController'],
             decoration: InputDecoration(
-              hintText: 'Enter or upload proof of payment URL',
-              border: OutlineInputBorder(),
+              hintText: 'Enter or upload proof of payment',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.0),
+                borderSide: BorderSide(color: Colors.grey),
+              ),
               filled: true,
               fillColor: Colors.white,
+              contentPadding:
+                  EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
             ),
             validator: (value) => value == null || value.isEmpty
-                ? 'Please enter or upload a proof of payment URL'
+                ? 'Please enter or upload proof of payment'
                 : null,
           ),
         ),
@@ -302,6 +345,10 @@ class _RegulatorsState extends State<Regulators> {
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.blue,
             foregroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+            textStyle: GoogleFonts.poppins(
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ],
@@ -309,17 +356,22 @@ class _RegulatorsState extends State<Regulators> {
   }
 
   Widget _buildFormField(String label, Widget field) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 8),
-        field,
-        SizedBox(height: 16),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          SizedBox(height: 8),
+          field,
+        ],
+      ),
     );
   }
 }

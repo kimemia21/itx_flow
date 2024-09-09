@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Contracts/LiveAuction.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
+import 'package:itx/fromWakulima/widgets/contant.dart';
 import 'package:itx/global/globals.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
@@ -28,7 +29,7 @@ class _SpottraderState extends State<Spottrader> {
         decoration: BoxDecoration(
             color: buttonColor,
             borderRadius: BorderRadiusDirectional.circular(10)),
-        width: Globals.AppWidth(context: context, width: 0.4),
+        width: AppWidth( context,  0.4),
         child: Text(
           title,
           style: GoogleFonts.poppins(fontSize: 20, color: textColor),

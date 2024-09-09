@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/authentication/Regulator.dart';
-import 'package:itx/fromWakulima/AppBloc.dart';
-import 'package:itx/fromWakulima/globals.dart';
 import 'package:itx/global/AppBloc.dart';
+import 'package:itx/global/globals.dart';
 import 'package:provider/provider.dart';
 
 class DocumentsVerification extends StatefulWidget {
@@ -24,83 +23,86 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
     }
   }
 
+  Widget _buildDocsType({
+    required String title,
+    required String subtitle,
+    required VoidCallback action,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final maxWidth = constraints.maxWidth;
+        final isSmallScreen = maxWidth < 600;
 
-
-Widget _buildDocsType({
-  required String title,
-  required String subtitle,
-  required VoidCallback action,
-}) {
-  return LayoutBuilder(
-    builder: (context, constraints) {
-      final maxWidth = constraints.maxWidth;
-      final isSmallScreen = maxWidth < 600; // Adjust this breakpoint as needed
-
-      return GestureDetector(
-        onTap: action,
-        child: Container(
-          margin: EdgeInsets.only(top: isSmallScreen ? 5 : 10),
-          padding: EdgeInsets.all(isSmallScreen ? 8 : 10),
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
+        return GestureDetector(
+          onTap: action,
+          child: Container(
+            margin: EdgeInsets.only(top: isSmallScreen ? 5 : 10),
+            padding: EdgeInsets.all(isSmallScreen ? 8 : 12),
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.white, Colors.grey.shade100],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            ],
-          ),
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  height: isSmallScreen ? 40 : 60,
-                  width: isSmallScreen ? 40 : 60,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(Icons.file_copy, size: isSmallScreen ? 20 : 24),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.4),
+                  spreadRadius: 2,
+                  blurRadius: 8,
+                  offset: Offset(0, 4),
                 ),
-                SizedBox(width: isSmallScreen ? 8 : 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        title,
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w500,
-                          fontSize: isSmallScreen ? 16 : 20,
-                        ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: isSmallScreen ? 12 : 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(width: isSmallScreen ? 8 : 10),
-                Icon(Icons.arrow_forward, size: isSmallScreen ? 20 : 24),
               ],
             ),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    height: isSmallScreen ? 40 : 60,
+                    width: isSmallScreen ? 40 : 60,
+                    decoration: BoxDecoration(
+                      color: Colors.blueGrey.shade100,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(Icons.file_copy, size: isSmallScreen ? 20 : 24),
+                  ),
+                  SizedBox(width: isSmallScreen ? 8 : 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          title,
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            fontSize: isSmallScreen ? 16 : 20,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: isSmallScreen ? 12 : 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: isSmallScreen ? 8 : 12),
+                  Icon(Icons.arrow_forward, size: isSmallScreen ? 20 : 24),
+                ],
+              ),
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,10 +112,13 @@ Widget _buildDocsType({
         title: Text(
           "Documents",
           style: GoogleFonts.poppins(
-            color: Colors.black,
+            color: Colors.white,
             fontWeight: FontWeight.w600,
           ),
         ),
+        backgroundColor: Colors.green.shade800,
+        elevation: 5,
+        shadowColor: Colors.greenAccent,
       ),
       body: FutureBuilder<String?>(
         future: _fetchRole(),
@@ -127,9 +132,20 @@ Widget _buildDocsType({
           } else {
             final _role = snapshot.data!;
             return Container(
-              margin: const EdgeInsets.all(5),
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
+              margin: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    spreadRadius: 3,
+                    blurRadius: 6,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
               child: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -138,8 +154,9 @@ Widget _buildDocsType({
                       child: Text(
                         "Upload Documents",
                         style: GoogleFonts.poppins(
-                          fontSize: 20,
+                          fontSize: 22,
                           fontWeight: FontWeight.w700,
+                          color: Colors.black87,
                         ),
                       ),
                     ),
@@ -150,8 +167,7 @@ Widget _buildDocsType({
                           : "Add a document to prove these products are eligible for sale: ${context.watch<appBloc>().userCommodities.join(',')}",
                       action: () {
                         Globals.switchScreens(
-                            context: context,
-                            screen: Regulators());
+                            context: context, screen: Regulators());
                       },
                     ),
                   ],

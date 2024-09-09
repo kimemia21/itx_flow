@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:itx/Contracts/Create.dart';
+import 'package:itx/Contracts/CreateContract.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/global/globals.dart';

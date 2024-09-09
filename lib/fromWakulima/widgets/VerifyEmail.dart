@@ -3,18 +3,16 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Commodities.dart/Commodites.dart';
+import 'package:itx/authentication/LoginScreen.dart';
+import 'package:itx/authentication/SignUp.dart';
+import 'package:itx/fromWakulima/FirebaseFunctions/FirebaseFunctions.dart';
+import 'package:itx/global/AppBloc.dart';
+import 'package:itx/global/GlobalsHomepage.dart';
+import 'package:itx/global/globals.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
-import '../authentication/Login.dart';
-import '../authentication/LoginScreen.dart';
-import '../authentication/SignUp.dart';
-import '../fromWakulima/AppBloc.dart';
-import '../fromWakulima/FirebaseFunctions/FirebaseFunctions.dart';
-import '../fromWakulima/Homepage.dart';
-import '../fromWakulima/globals.dart';
-import '../fromWakulima/contant.dart';
 
 class VerifyEmail extends StatefulWidget {
   final String email;
@@ -46,7 +44,7 @@ class _VerifyEmailState extends State<VerifyEmail>
       if (Globals.auth.currentUser?.emailVerified == true) {
         print("----------------------authenticated-----------------------");
         // Globals().checkDocVerified(context: context);
-        Globals.switchScreens(context: context, screen: Commodities());
+        Globals.switchScreens(context: context, screen: GlobalsHomePage());
         timer.cancel();
       }
     });

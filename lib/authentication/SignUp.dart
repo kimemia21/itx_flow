@@ -1,10 +1,7 @@
 import 'package:itx/authentication/Login.dart';
 import 'package:itx/authentication/LoginScreen.dart';
-import 'package:itx/fromWakulima/AppBloc.dart';
 import 'package:itx/fromWakulima/FirebaseFunctions/FirebaseFunctions.dart';
-import 'package:itx/fromWakulima/contant.dart';
 
-import 'package:itx/fromWakulima/globals.dart';
 import 'package:auth_buttons/auth_buttons.dart';
 import 'package:cherry_toast/cherry_toast.dart';
 
@@ -13,7 +10,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:itx/fromWakulima/globals.dart';
+import 'package:itx/fromWakulima/widgets/contant.dart';
+import 'package:itx/global/AppBloc.dart';
+import 'package:itx/global/globals.dart';
+import 'package:itx/requests/Requests.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 // import 'package:or/or.dart';
@@ -84,10 +84,7 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
   }
 
   _handleSignup() {
-    // signup(
-    //     context: context,
-    //     email_: "bobbymbogo71@gmail.com",
-    //     password_: "1234567890");
+    print("actions");
 
     try {
       if (_formState.currentState!.validate()) {
@@ -120,12 +117,14 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
             onToastClosed: () {},
           ).show(context);
         } else {
-          signup(
-              context: context,
-              email_: _SignemailController.text.trim(),
-              password_: _SignUpPasswordController.text.trim(),
+          print("good");
+          Requests.register(
+            context: context,
+              email: _SignemailController.text.trim(),
+              password: _SignUpPasswordController.text.trim(),
               phoneNumber: _phoneNumberController.text.trim(),
-              role: _selectedUserType!);
+              user_type: _selectedUserType!);
+       
         }
       }
     } catch (e) {
@@ -137,7 +136,7 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    _SignemailController.dispose();
+    _SignemailController.dispose(); 
     _SignUpPasswordController.dispose();
   }
 
@@ -436,10 +435,6 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
                       onTap: () {
                         print("Tappped");
 
-                        // claudeAIsignup(
-                        //   context: context,
-                        //   email: testEmail,
-                        // );
                         _handleSignup();
                       },
                       child: Container(
@@ -450,7 +445,7 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
                         decoration: BoxDecoration(
                             color: Colors.green.shade500,
                             borderRadius: BorderRadiusDirectional.circular(10)),
-                        child: context.watch<CurrentUserProvider>().isLoading
+                        child: context.watch<appBloc>().isLoading
                             ? LoadingAnimationWidget.staggeredDotsWave(
                                 color: Colors.white, size: 25)
                             : Text("Continue",
@@ -460,53 +455,6 @@ class _WakulimaSignUpState extends State<WakulimaSignUp> {
                                   fontSize: 18,
                                 )),
                       ),
-                      // Container(
-                      //   margin: EdgeInsets.only(top: 15),
-                      //   child: GoogleAuthButton(
-                      //       text: "Signup with Google",
-                      //       onPressed: () {},
-                      //       themeMode: themeMode,
-                      //       isLoading: isLoading,
-                      //       style: AuthButtonStyle(
-                      //         width: MediaQuery.of(context).size.width * 0.8,
-                      //         textStyle: GoogleFonts.poppins(
-                      //             color: Colors.black54,
-                      //             fontWeight: FontWeight.w600),
-                      //         buttonType: buttonType,
-                      //         iconType: iconType,
-                      //       )),
-                      // ),
-                      //  Container(
-                      //   margin: EdgeInsets.only(top: 15),
-                      //   child:
-
-                      //    GoogleAuthButton(
-                      //       text: "Signup with Google",
-                      //       onPressed: () {},
-                      //        themeMode: themeMode,
-                      //       isLoading: isLoading,
-                      //       style: AuthButtonStyle(
-                      //         width: MediaQuery.of(context).size.width * 0.8,
-                      //         textStyle: GoogleFonts.poppins(
-                      //             color: Colors.black54,
-                      //             fontWeight: FontWeight.w600),
-                      //         buttonType: buttonType,
-                      //         iconType: iconType,
-                      //       )),
-                      // ),
-
-                      // end of text fields
-                      // Container(
-                      //   width: MediaQuery.of(context).size.width * .25,
-                      //   alignment: Alignment.center,
-                      //   padding: EdgeInsets.all(5),
-                      //   margin: EdgeInsets.all(5),
-                      //   child: Or(
-                      //     fontSize: 8,
-                      //     dividerThickness: 0.2,
-                      //     dividerColor: Colors.black54,
-                      //   ),
-                      // ),
                     )
                   ],
                 ),

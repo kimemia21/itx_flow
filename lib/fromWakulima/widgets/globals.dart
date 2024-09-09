@@ -8,9 +8,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:itx/fromWakulima/DocsVerification.dart';
-import 'package:itx/fromWakulima/Homepage.dart';
-import 'package:itx/fromWakulima/contant.dart';
+import 'package:itx/fromWakulima/widgets/DocsVerification.dart';
+import 'package:itx/fromWakulima/widgets/contant.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 
 class Globals {

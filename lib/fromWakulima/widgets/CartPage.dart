@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 
 import 'package:badges/badges.dart' as badges;
 import 'package:google_fonts/google_fonts.dart';
-import 'package:itx/fromWakulima/Homepage.dart';
-import 'package:itx/fromWakulima/contant.dart';
-import 'package:itx/fromWakulima/globals.dart';
+import 'package:itx/fromWakulima/widgets/Homepage.dart';
+import 'package:itx/fromWakulima/widgets/contant.dart';
+import 'package:itx/global/globals.dart';
 import 'package:provider/provider.dart';
 
 class Cartpage extends StatefulWidget {

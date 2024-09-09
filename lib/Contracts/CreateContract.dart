@@ -6,7 +6,6 @@ import 'package:itx/Contracts/Contracts.dart';
 import 'package:itx/Contracts/MyContracts.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/global/globals.dart';
-
 class CreateContract extends StatefulWidget {
   @override
   _CreateContractState createState() => _CreateContractState();

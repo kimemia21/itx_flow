@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Contracts/Contracts.dart';
 import 'package:itx/authentication/Regulator.dart';
-import 'package:itx/fromWakulima/Homepage.dart';
-import 'package:itx/global/GlobalsHomepage.dart';
+
 import 'package:itx/global/globals.dart';
 
 class Authorization extends StatefulWidget {
@@ -44,9 +43,8 @@ class _AuthorizationState extends State<Authorization> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Globals.switchScreens(
-                context: context,
-                screen: Regulators()),
+            onPressed: () =>
+                Globals.switchScreens(context: context, screen: Regulators()),
             icon: Icon(Icons.arrow_back)),
         centerTitle: true,
         title: Text("Trading Authorization"),
@@ -76,7 +74,11 @@ class _AuthorizationState extends State<Authorization> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text("Regulator status"),
-                      TextButton(onPressed: () {}, child: Text("Continue")),
+                      TextButton(
+                          onPressed: () {
+                           Globals.switchScreens(context: context, screen:Regulators() );
+                          },
+                          child: Text("Continue")),
                     ],
                   ),
                 ),
