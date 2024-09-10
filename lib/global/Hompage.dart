@@ -8,9 +8,11 @@ class HomepageMain extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           'Commodities',
           style: GoogleFonts.poppins(
+            color: Colors.white,
             fontWeight: FontWeight.w600,
             fontSize: 24,
           ),

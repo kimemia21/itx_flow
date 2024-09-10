@@ -14,10 +14,13 @@ class appBloc extends ChangeNotifier {
   bool _navIsVisible = true;
   bool _isLoading = false;
   String _token = "";
+  String _user_type = "";
 
   get currentIndex => _currentIndex;
   get navIsVisible => _navIsVisible;
   get isLoading => _isLoading;
+  get user_type => _user_type;
+
   get token => _token;
   List _userCommodities = [];
   List get userCommodities => _userCommodities;
@@ -38,8 +41,14 @@ class appBloc extends ChangeNotifier {
     notifyListeners();
   }
 
-  void changeIsLoading( bool status) {
-    _isLoading =status;
+  void getUserType(String type) {
+    _user_type = type;
+
+    notifyListeners();
+  }
+
+  void changeIsLoading(bool status) {
+    _isLoading = status;
     print(_isLoading);
     notifyListeners();
   }
@@ -48,7 +57,6 @@ class appBloc extends ChangeNotifier {
     _token = token;
     notifyListeners();
   }
-
 }
 
 class CurrentUserProvider extends ChangeNotifier {

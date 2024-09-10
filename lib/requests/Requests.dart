@@ -204,12 +204,14 @@ class AuthRequest {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
         String token = responseBody["token"];
+        String type = responseBody["user_type"];
         print(token);
 
         if (responseBody["rsp"] == true) {
           // Update state to indicate successful login
           bloc.changeIsLoading(false);
           bloc.changeToken(token);
+          bloc.getUserType(type);
           Globals.switchScreens(context: context, screen: GlobalsHomePage());
           print("Success: ${responseBody["message"]}");
         } else {
