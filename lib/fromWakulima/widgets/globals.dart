@@ -35,7 +35,7 @@ class Globals {
 
   static Future<String> userRole({required BuildContext context}) async {
     String functionName = StackTrace.current.toString().split('\n')[0];
-  print("Function called: $functionName");
+    print("Function called: $functionName");
     print("called");
     try {
       String? email = Globals.auth.currentUser?.email;
@@ -478,8 +478,8 @@ class Globals {
     "timeout": "The operation has timed out.",
     "user-token-expired":
         "The user's credential is no longer valid. The user must sign in again.",
-    "too-many-requests":
-        "We have blocked all requests from this device due to unusual activity. Try again later.",
+    "too-many-AuthRequest":
+        "We have blocked all AuthRequest from this device due to unusual activity. Try again later.",
     "unauthorized-continue-uri":
         "The domain of the continue URL is not whitelisted.  Please whitelist the domain in the Firebase console.",
     "unsupported-first-factor":

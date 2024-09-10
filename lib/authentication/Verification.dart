@@ -1,38 +1,40 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:itx/Commodities.dart/Commodites.dart';
-import 'package:itx/authentication/Login.dart';
+import 'package:itx/authentication/SignUp.dart';
+import 'package:itx/fromWakulima/widgets/globals.dart';
 import 'package:itx/global/AppBloc.dart';
-import 'package:itx/global/GlobalsHomepage.dart';
-import 'package:itx/global/globals.dart';
+import 'package:itx/requests/Requests.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 class Verification extends StatefulWidget {
   final BuildContext context;
-  const Verification({required this.context});
+  final String email;
+  final String phoneNumber;
+  const Verification(
+      {required this.context, required this.email, required this.phoneNumber});
 
   @override
   State<Verification> createState() => _VerificationState();
 }
 
 class _VerificationState extends State<Verification> {
-  double _progress = 0.0;
+  bool _isSubmitted = false;
+  String _otpCode = '';
 
-  void _updateProgress() {
+  void _resetState() {
     setState(() {
-      _progress = (_progress + 1).clamp(0.0, 1.0); // Increment progress
+      _isSubmitted = false;
+      _otpCode = ''; // Reset OTP code
     });
   }
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Example of using context to update state or visibility
-      context.read<appBloc>().changeNavVisibility(visible: false);
+      // Any additional initialization can go here.
     });
   }
 
@@ -42,9 +44,8 @@ class _VerificationState extends State<Verification> {
       appBar: AppBar(
         automaticallyImplyLeading: true,
         leading: IconButton(
-            onPressed: () {
-              Globals.switchScreens(context: context, screen: LoginScreen());
-            },
+            onPressed: () =>
+                Globals.switchScreens(context: context, screen: MainSignup()),
             icon: Icon(Icons.arrow_back)),
       ),
       body: Container(
@@ -52,97 +53,89 @@ class _VerificationState extends State<Verification> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               Container(
-                  padding: EdgeInsets.all(10),
-                  child: Text("Enter the code that we emailed you")),
-              SizedBox(
-                height: 10,
-              ),
-              OtpTextField(
-                numberOfFields: 5,
-                borderColor: Colors.black,
-                //set to true to show as box or false to show as dash
-                showFieldAsBox: true,
-                //runs when a code is typed in
-                onCodeChanged: (String code) {
-                  //handle validation or checks here
-                },
-                //runs when every textfield is filled
-                onSubmit: (String verificationCode) {
-                  _updateProgress();
-                  Future.delayed(Duration(seconds: 2)).then((value) =>
-                      Globals.switchScreens(
-                          context: context, screen:Commodities()));
-                        
-                  // showDialog(
-                  //     context: context,
-                  //     builder: (context) {
-                  //       return AlertDialog(
-                  //         title: Text("Verification Code"),
-                  //         content: Text('Code entered is $verificationCode'),
-                  //       );
-                  //     });
-                }, // end onSubmit
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              GestureDetector(
-                onTap: _updateProgress,
-                child: Container(
-                  alignment: Alignment.center,
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  height: 50,
-                  decoration: BoxDecoration(
-                      color: Colors.green.shade800,
-                      borderRadius: BorderRadiusDirectional.circular(10)),
-                  child: Text(
-                    "Next",
+                padding: const EdgeInsets.all(10),
+                child: RichText(
+                  text: TextSpan(
+                    text: "Enter the code sent to ",
                     style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                        fontSize: 20),
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: widget.phoneNumber,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Colors.blueAccent,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              SizedBox(
-                height: 10,
+              const SizedBox(height: 10),
+              OtpTextField(
+                keyboardType: TextInputType.text,
+                numberOfFields: 5,
+                borderColor: Colors.black,
+                showFieldAsBox: true,
+                onCodeChanged: (String code) {
+                  // Allow re-editing the OTP fields.
+                  setState(() {
+                    _isSubmitted = false;
+                    _otpCode = code;
+                  });
+                },
+                onSubmit: (String verificationCode) {
+                  setState(() {
+                    _isSubmitted = true;
+                    _otpCode = verificationCode;
+                  });
+                },
               ),
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () {
+                  if (_isSubmitted) {
+                    AuthRequest.otp(
+                        context: context,
+                        email: widget.email,
+                        otp: _otpCode.toUpperCase());
+                  } else {
+                    // Do something before submission, like validation
+                  }
+                },
+                child: Container(
+                    alignment: Alignment.center,
+                    width: MediaQuery.of(context).size.width * 0.8,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade800,
+                      borderRadius: BorderRadiusDirectional.circular(10),
+                    ),
+                    child: context.watch<appBloc>().isLoading
+                        ? Text(
+                            _isSubmitted ? "Verify" : "Next",
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                              fontSize: 20,
+                            ),
+                          )
+                        : LoadingAnimationWidget.staggeredDotsWave(
+                            color: Colors.white, size: 25)),
+              ),
+              const SizedBox(height: 10),
               TextButton(
-                  onPressed: () {}, child: Text("I lost acess to my email")),
-              SizedBox(
-                height: 10,
+                onPressed: () {
+                  // Logic to handle the case where the user lost access to the email
+                },
+                child: const Text("I lost access to my email"),
               ),
-              Container(
-                width: MediaQuery.of(context).size.width * 0.8,
-                child: TweenAnimationBuilder<double>(
-                  tween: Tween<double>(begin: 0.0, end: _progress),
-                  duration: Duration(seconds: 2),
-                  builder: (context, value, child) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          '${(value * 100).toStringAsFixed(0)}%',
-                          style: TextStyle(
-                              fontSize: 24.0, fontWeight: FontWeight.bold),
-                        ),
-                        LinearProgressIndicator(
-                          value: value,
-                          minHeight: 8.0,
-                          backgroundColor: Colors.grey.shade300,
-                          color: Colors.green,
-                        ),
-                        SizedBox(height: 20),
-                      ],
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
             ],
           ),
         ),

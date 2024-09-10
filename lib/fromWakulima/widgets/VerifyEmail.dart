@@ -13,7 +13,6 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
-
 class VerifyEmail extends StatefulWidget {
   final String email;
 
@@ -138,13 +137,13 @@ class _VerifyEmailState extends State<VerifyEmail>
               const SizedBox(height: 30),
               GestureDetector(
                 onTap: () => Globals.switchScreens(
-                    context: context, screen: WakulimaLoginScreen()),
+                    context: context, screen: MainLoginScreen()),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
                       onPressed: () => Globals.switchScreens(
-                          context: context, screen: WakulimaSignUp()),
+                          context: context, screen: MainSignup()),
                       icon: const Icon(
                         Icons.arrow_back,
                         color: Colors.blue,

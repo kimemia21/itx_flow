@@ -1,464 +1,304 @@
-import 'package:itx/authentication/Login.dart';
-import 'package:itx/authentication/LoginScreen.dart';
-import 'package:itx/fromWakulima/FirebaseFunctions/FirebaseFunctions.dart';
-
-import 'package:auth_buttons/auth_buttons.dart';
-import 'package:cherry_toast/cherry_toast.dart';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:itx/fromWakulima/widgets/contant.dart';
+import 'package:itx/requests/Requests.dart';
+import 'package:provider/provider.dart';
+import 'package:cherry_toast/cherry_toast.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/globals.dart';
-import 'package:itx/requests/Requests.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:provider/provider.dart';
-// import 'package:or/or.dart';
+import 'package:itx/authentication/LoginScreen.dart';
 
-class WakulimaSignUp extends StatefulWidget {
-  const WakulimaSignUp({super.key});
+class MainSignup extends StatefulWidget {
+  const MainSignup({Key? key}) : super(key: key);
 
   @override
-  State<WakulimaSignUp> createState() => _WakulimaSignUpState();
+  State<MainSignup> createState() => _MainSignupState();
 }
 
-class _WakulimaSignUpState extends State<WakulimaSignUp> {
-  GlobalKey<FormState> _formState = GlobalKey<FormState>();
+class _MainSignupState extends State<MainSignup> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
 
-  bool visibility = true;
-  bool confirm_visibilty = true;
-  TextEditingController _SignUpPasswordController = TextEditingController();
-
-  TextEditingController _SignemailController = TextEditingController();
-
-  TextEditingController _confirmController = TextEditingController();
-
-  TextEditingController _phoneNumberController = TextEditingController();
-
-  bool isLoading = false;
-  bool darkMode = false;
-  ThemeMode get themeMode => darkMode ? ThemeMode.dark : ThemeMode.light;
-
-  AuthButtonType? buttonType;
-  AuthIconType? iconType;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
   String? _selectedUserType;
 
-  Widget _radioButton({required String text, required String value}) {
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _phoneNumberController.dispose();
+    super.dispose();
+  }
+
+  void _handleSignup() {
+    if (_formKey.currentState!.validate()) {
+      if (_passwordController.text != _confirmPasswordController.text) {
+        _showErrorToast('Password Error',
+            'Make sure the password and confirm password match');
+      } else if (_selectedUserType == null) {
+        _showErrorToast('Role Error', 'Please select a user role');
+      } else {
+        AuthRequest.register(
+          context: context,
+          email: _emailController.text,
+          password: _passwordController.text.trim(),
+          phoneNumber: _phoneNumberController.text.trim(),
+          user_type: _selectedUserType!,
+        );
+      }
+    }
+  }
+
+  void _showErrorToast(String title, String message) {
+    CherryToast.warning(
+      title:
+          Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+      description: Text(message, style: GoogleFonts.abel()),
+      animationDuration: Duration(milliseconds: 200),
+      animationCurve: Curves.easeInOut,
+    ).show(context);
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool isPassword = false,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
+  }) {
     return Container(
-      margin: EdgeInsets.only(bottom: 10),
-      padding: EdgeInsets.symmetric(vertical: 10),
-      width: AppWidth(context, 0.8),
+      margin: EdgeInsets.only(bottom: 15),
       decoration: BoxDecoration(
-        color: Colors.grey.shade200,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            child: Text(
-              text,
-              style: GoogleFonts.poppins(
-                  color: Colors.black,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600),
-            ),
-          ),
-          Radio<String>(
-            activeColor: Colors.green.shade700,
-            value: value,
-            groupValue: _selectedUserType,
-            onChanged: (value) {
-              setState(() {
-                _selectedUserType = value;
-              });
-            },
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 2,
+            offset: Offset(0, 1),
           ),
         ],
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: isPassword
+            ? (isPassword == true ? _obscurePassword : _obscureConfirmPassword)
+            : false,
+        keyboardType: isPassword ? TextInputType.visiblePassword : keyboardType,
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle:
+              GoogleFonts.poppins(fontSize: 14, color: Colors.grey[700]),
+          prefixIcon: Icon(icon, color: Colors.grey[600]),
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(
+                    isPassword == true
+                        ? (_obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility)
+                        : (_obscureConfirmPassword
+                            ? Icons.visibility_off
+                            : Icons.visibility),
+                    color: Colors.grey[600],
+                  ),
+                  onPressed: () => setState(() => isPassword == true
+                      ? _obscurePassword = !_obscurePassword
+                      : _obscureConfirmPassword = !_obscureConfirmPassword),
+                )
+              : null,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none,
+          ),
+          filled: true,
+          fillColor: Colors.white,
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return "This field is required";
+          }
+
+          if (keyboardType == TextInputType.phone) {
+            // Custom phone number validation
+            if (!RegExp(r'^[+]?[0-9]{10,13}$').hasMatch(value)) {
+              return "Please enter a valid phone number";
+            }
+          }
+
+          return null;
+        },
       ),
     );
   }
 
-  _handleSignup() {
-    print("actions");
-
-    try {
-      if (_formState.currentState!.validate()) {
-        if (_SignUpPasswordController.text != _confirmController.text) {
-          CherryToast.warning(
-            disableToastAnimation: false,
-            animationCurve: Curves.ease,
-            animationDuration: Duration(milliseconds: 200),
-            title: Text('Password Error',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
-            action: Text(
-              'Make sure the password and confirm password match ',
-              style: GoogleFonts.abel(),
-            ),
-            actionHandler: () {},
-            onToastClosed: () {},
-          ).show(context);
-        } else if (_selectedUserType == null) {
-          CherryToast.warning(
-            disableToastAnimation: false,
-            animationCurve: Curves.ease,
-            animationDuration: Duration(milliseconds: 200),
-            title: Text('Roler Error',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
-            action: Text(
-              'Please Selected a user Role',
-              style: GoogleFonts.abel(),
-            ),
-            actionHandler: () {},
-            onToastClosed: () {},
-          ).show(context);
-        } else {
-          print("good");
-          Requests.register(
-            context: context,
-              email: _SignemailController.text.trim(),
-              password: _SignUpPasswordController.text.trim(),
-              phoneNumber: _phoneNumberController.text.trim(),
-              user_type: _selectedUserType!);
-       
-        }
-      }
-    } catch (e) {
-      print("_handleSignup $e");
-    }
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    _SignemailController.dispose(); 
-    _SignUpPasswordController.dispose();
+  Widget _buildRadioButton({required String text, required String value}) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 2,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      child: RadioListTile<String>(
+        title: Text(text,
+            style:
+                GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500)),
+        value: value,
+        groupValue: _selectedUserType,
+        onChanged: (String? value) => setState(() => _selectedUserType = value),
+        activeColor: Colors.green.shade700,
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    _emailController.text = "gasepol988@rogtat.com";
+
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        backgroundColor: Colors.grey.shade100,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         centerTitle: true,
-        title: Text(
-          "Signup",
-          style: GoogleFonts.poppins(
-              color: Colors.black54, fontWeight: FontWeight.w500),
+        title: Text("Sign Up",
+            style: GoogleFonts.poppins(
+                color: Colors.black87, fontWeight: FontWeight.w600)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black87),
+          onPressed: () => Globals.switchScreens(
+              context: context, screen: MainLoginScreen()),
         ),
-        leading: Container(
-            width: 10,
-            height: 10,
-            decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadiusDirectional.all(Radius.circular(30))),
-            child: IconButton(
-                onPressed: () {
-                  Globals.switchScreens(
-                      context: context, screen: WakulimaLoginScreen());
-                },
-                icon: Icon(
-                  Icons.arrow_back,
-                  color: Colors.black,
-                ))),
       ),
-      resizeToAvoidBottomInset: true,
-      body: Container(
-        padding: EdgeInsets.all(5),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-        child: Container(
-          alignment: Alignment.center,
-          // width: MediaQuery.of(context).size.width * 1,
-          // height: MediaQuery.of(context).size.height,
-          // padding: EdgeInsets.only(left: 20),
-          margin: EdgeInsets.all(1),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadiusDirectional.only(
-                  topStart: Radius.circular(40),
-                  bottomStart: Radius.circular(40)),
-              color: Colors.grey.shade100),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(20),
           child: Form(
-              key: _formState,
-              child: SingleChildScrollView(
-                child: Column(
-                  // crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(bottom: 4),
-                      child: Text(
-                        "Are you a buyer,producer or Trader?",
-                        style: GoogleFonts.abel(
-                            letterSpacing: 1,
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-
-                    Container(
-                      margin: EdgeInsets.only(bottom: 20),
-                      child: Text(
-                        textAlign: TextAlign.center,
-                        "We want to make sure you're getting the right experience .Please verify your contact information",
-                        style: GoogleFonts.abel(fontSize: 16),
-                      ),
-                    ),
-
-                    // form textfields
-
-                    Container(
-                      margin: EdgeInsets.only(bottom: 5),
-                      alignment: Alignment.center,
-                      height: 70,
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadiusDirectional.circular(5)),
-                      child: TextFormField(
-                        keyboardType: TextInputType.name,
-                        controller: _SignemailController,
-                        cursorColor: Colors.black,
-                        onChanged: (value) {
-                          // setState(() {
-                          //   email = value;
-                          // });
-                        },
-                        decoration: InputDecoration(
-                          labelText: "Email",
-                          labelStyle: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.black,
-                          ),
-                          prefixIcon: Icon(
-                            CupertinoIcons.mail_solid,
-                            color: Colors.black54,
-                          ),
-                          border: InputBorder.none,
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Email is empty";
-                          }
-                          if (!RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$")
-                              .hasMatch(value)) {
-                            return 'Please enter a valid email';
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-
-                    Container(
-                      margin: EdgeInsets.only(bottom: 15, top: 15),
-                      alignment: Alignment.center,
-                      height: 70,
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadiusDirectional.circular(5)),
-                      child: TextFormField(
-                        keyboardType: TextInputType.number,
-                        controller: _phoneNumberController,
-                        cursorColor: Colors.black,
-                        onChanged: (value) {
-                          // setState(() {
-                          //   password = value;
-                          // });
-                        },
-                        decoration: InputDecoration(
-                          labelText: "phone number",
-                          labelStyle: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.black,
-                          ),
-                          prefixIcon: Icon(Icons.phone, color: Colors.black54),
-                          border: InputBorder.none,
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        validator: (value) {
-                          // Check if the value is null or empty
-                          if (value == null || value.isEmpty) {
-                            return "Phone number is required";
-                          }
-
-                          // Define a basic phone number pattern
-                          final RegExp phoneNumberPattern = RegExp(
-                            r'^\(?\d{3}\)?[\s\-]?\d{3}[\s\-]?\d{4}$',
-                            caseSensitive: false,
-                          );
-
-                          // Check if the value matches the phone number pattern
-                          if (!phoneNumberPattern.hasMatch(value)) {
-                            return "Invalid phone number format";
-                          }
-
-                          return null;
-                        },
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(bottom: 10, top: 10),
-                      alignment: Alignment.center,
-                      height: 70,
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadiusDirectional.circular(5)),
-                      child: TextFormField(
-                        obscureText: visibility,
-                        keyboardType: TextInputType.visiblePassword,
-                        controller: _SignUpPasswordController,
-                        cursorColor: Colors.black,
-                        onChanged: (value) {
-                          // setState(() {
-                          //   password = value;
-                          // });
-                        },
-                        decoration: InputDecoration(
-                          labelText: "password",
-                          labelStyle: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.black,
-                          ),
-                          prefixIcon: Icon(CupertinoIcons.padlock_solid,
-                              color: Colors.black54),
-                          suffixIcon: IconButton(
-                            icon: visibility
-                                ? Icon(
-                                    CupertinoIcons.eye_slash_fill,
-                                    color: Colors.black54,
-                                  )
-                                : Icon(CupertinoIcons.eye_fill,
-                                    color: Colors.black54),
-                            onPressed: () {
-                              setState(() {
-                                visibility = !visibility;
-                              });
-                            },
-                          ),
-                          border: InputBorder.none,
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Password is Empty";
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-
-                    Container(
-                      margin: EdgeInsets.only(
-                        bottom: 25,
-                      ),
-                      alignment: Alignment.center,
-                      height: 70,
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadiusDirectional.circular(5)),
-                      child: TextFormField(
-                        obscureText: confirm_visibilty,
-                        keyboardType: TextInputType.visiblePassword,
-                        controller: _confirmController,
-                        cursorColor: Colors.black,
-                        onChanged: (value) {
-                          // setState(() {
-                          //   password = value;
-                          // });
-                        },
-                        decoration: InputDecoration(
-                          labelText: "Confirm Password",
-                          labelStyle: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.black,
-                          ),
-                          prefixIcon: Icon(CupertinoIcons.padlock_solid,
-                              color: Colors.black54),
-                          suffixIcon: IconButton(
-                            icon: confirm_visibilty
-                                ? Icon(
-                                    CupertinoIcons.eye_slash_fill,
-                                    color: Colors.black54,
-                                  )
-                                : Icon(CupertinoIcons.eye_fill,
-                                    color: Colors.black54),
-                            onPressed: () {
-                              setState(() {
-                                confirm_visibilty = !confirm_visibilty;
-                              });
-                            },
-                          ),
-                          border: InputBorder.none,
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return "Confirm Password is Empty";
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                    Container(
-                      // alignment: Alignment.topLeft,
-                      margin: EdgeInsets.only(bottom: 10),
-                      child: Text(
-                        "Select your role ",
-                        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-                      ),
-                    ),
-
-                    _radioButton(text: "Buyer", value: "Buyer"),
-
-                    _radioButton(text: "Producer", value: "Producer"),
-
-                    _radioButton(text: "Trader", value: "Trader"),
-
-                    GestureDetector(
-                      onTap: () {
-                        print("Tappped");
-
-                        _handleSignup();
-                      },
-                      child: Container(
-                        margin: EdgeInsets.only(bottom: 5),
-                        alignment: Alignment.center,
-                        height: 40,
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        decoration: BoxDecoration(
-                            color: Colors.green.shade500,
-                            borderRadius: BorderRadiusDirectional.circular(10)),
-                        child: context.watch<appBloc>().isLoading
-                            ? LoadingAnimationWidget.staggeredDotsWave(
-                                color: Colors.white, size: 25)
-                            : Text("Continue",
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                )),
-                      ),
-                    )
-                  ],
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Join as a Buyer, Producer, or Trader",
+                  style: GoogleFonts.poppins(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87),
                 ),
-              )),
+                SizedBox(height: 10),
+                Text(
+                  "Please provide your information to get started.",
+                  style: GoogleFonts.poppins(
+                      fontSize: 16, color: Colors.grey[600]),
+                ),
+                SizedBox(height: 30),
+                _buildTextField(
+                  controller: _emailController,
+                  label: "Email",
+                  icon: Icons.email,
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value == null || value.isEmpty)
+                      return "Email is required";
+                    if (!RegExp(
+                            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                        .hasMatch(value)) return "Enter a valid email";
+                    return null;
+                  },
+                ),
+                _buildTextField(
+                  controller: _phoneNumberController,
+                  label: "Phone Number",
+                  icon: Icons.phone,
+                  keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value == null || value.isEmpty)
+                      return "Phone number is required";
+                    if (!RegExp(r'^\d{10}$').hasMatch(value))
+                      return "Enter a valid 10-digit phone number";
+                    return null;
+                  },
+                ),
+                _buildTextField(
+                  controller: _passwordController,
+                  label: "Password",
+                  icon: Icons.lock,
+                  isPassword: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty)
+                      return "Password is required";
+                    if (value.length < 6)
+                      return "Password must be at least 6 characters long";
+                    return null;
+                  },
+                ),
+                _buildTextField(
+                  controller: _confirmPasswordController,
+                  label: "Confirm Password",
+                  icon: Icons.lock,
+                  isPassword: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty)
+                      return "Confirm password is required";
+                    if (value != _passwordController.text)
+                      return "Passwords do not match";
+                    return null;
+                  },
+                ),
+                SizedBox(height: 20),
+                Text(
+                  "Select your role",
+                  style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87),
+                ),
+                SizedBox(height: 10),
+                _buildRadioButton(text: "Buyer", value: "Buyer"),
+                _buildRadioButton(text: "Producer", value: "Producer"),
+                _buildRadioButton(text: "Trader", value: "Trader"),
+                SizedBox(height: 30),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _handleSignup,
+                    child: context.watch<appBloc>().isLoading
+                        ? LoadingAnimationWidget.staggeredDotsWave(
+                            color: Colors.white, size: 25)
+                        : Text("Sign Up",
+                            style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green.shade500,
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

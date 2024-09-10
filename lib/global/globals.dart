@@ -18,7 +18,7 @@ import 'package:itx/global/GlobalsHomepage.dart';
 class Globals {
   // final BuildContext context;
   // Globals({required this.context});
-   double raduis = 20.0;
+  double raduis = 20.0;
 
   static FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
@@ -40,7 +40,7 @@ class Globals {
 
   static Future<String> userRole({required BuildContext context}) async {
     String functionName = StackTrace.current.toString().split('\n')[0];
-  print("Function called: $functionName");
+    print("Function called: $functionName");
     print("called");
     try {
       String? email = Globals.auth.currentUser?.email;
@@ -174,7 +174,7 @@ class Globals {
     );
   }
 
-  static  void warningsAlerts(
+  static void warningsAlerts(
       {required String title,
       required String content,
       required BuildContext context}) {
@@ -483,8 +483,8 @@ class Globals {
     "timeout": "The operation has timed out.",
     "user-token-expired":
         "The user's credential is no longer valid. The user must sign in again.",
-    "too-many-requests":
-        "We have blocked all requests from this device due to unusual activity. Try again later.",
+    "too-many-AuthRequest":
+        "We have blocked all AuthRequest from this device due to unusual activity. Try again later.",
     "unauthorized-continue-uri":
         "The domain of the continue URL is not whitelisted.  Please whitelist the domain in the Firebase console.",
     "unsupported-first-factor":
@@ -569,22 +569,9 @@ class Globals {
     }
   }
 
-
-
- static Widget leading({required context,  required screen}) {
+  static Widget leading({required context, required screen}) {
     return IconButton(
-        onPressed:()=> switchScreens(context: context,  screen: screen),
+        onPressed: () => switchScreens(context: context, screen: screen),
         icon: Icon(Icons.arrow_back));
   }
-
-
-  
-
- 
 }
-
-
-
-
-
-

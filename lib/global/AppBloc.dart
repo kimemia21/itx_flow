@@ -13,10 +13,12 @@ class appBloc extends ChangeNotifier {
   int _currentIndex = 1;
   bool _navIsVisible = true;
   bool _isLoading = false;
+  String _token = "";
 
   get currentIndex => _currentIndex;
   get navIsVisible => _navIsVisible;
   get isLoading => _isLoading;
+  get token => _token;
   List _userCommodities = [];
   List get userCommodities => _userCommodities;
 
@@ -36,10 +38,17 @@ class appBloc extends ChangeNotifier {
     notifyListeners();
   }
 
-  void changeIsLoading() {
-    _isLoading = !_isLoading;
+  void changeIsLoading( bool status) {
+    _isLoading =status;
+    print(_isLoading);
     notifyListeners();
   }
+
+  void changeToken(String token) {
+    _token = token;
+    notifyListeners();
+  }
+
 }
 
 class CurrentUserProvider extends ChangeNotifier {

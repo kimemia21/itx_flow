@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/authentication/Documents.dart';
-import 'package:itx/authentication/Regulator.dart';
-import 'package:itx/authentication/Verification.dart';
+import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/global/AppBloc.dart';
-import 'package:itx/web/DocumentScreen.dart';
+import 'package:itx/requests/HomepageRequest.dart';
+import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -17,35 +17,43 @@ class Commodities extends StatefulWidget {
 }
 
 class _CommoditiesState extends State<Commodities> {
-  final List<Map<String, dynamic>> commodities = [
-    {'name': 'Copper', 'unit': '1,000 lbs', 'isChecked': false},
-    {'name': 'Wheat', 'unit': '5,000 bu', 'isChecked': false},
-    {'name': 'Gold', 'unit': '100 oz', 'isChecked': false},
-    {'name': 'Crude Oil', 'unit': '1,000 bbl', 'isChecked': false},
-    {'name': 'Soybeans', 'unit': '5,000 bu', 'isChecked': false},
-    {'name': 'Coffee', 'unit': 'grams', 'isChecked': false},
-    {'name': 'Tea', 'unit': 'grams', 'isChecked': false},
-  ];
-
-  List<Map<String, dynamic>> filteredCommodities = [];
-  List userItems = [];
+  List<String> userItems = [];
   String searchText = '';
+  List<CommodityModel> allCommodities = [];
+  List<CommodityModel> filteredCommodities = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    filteredCommodities = commodities;
+    _loadCommodities();
   }
 
-  void _filterCommodities(String text) {
+  Future<void> _loadCommodities() async {
     setState(() {
-      searchText = text;
-      if (text.isEmpty) {
-        filteredCommodities = commodities;
+      isLoading = true;
+    });
+    try {
+      allCommodities = await CommodityService.fetchCommodities(context, "");
+      _filterCommodities();
+    } catch (e) {
+      print("Error loading commodities: $e");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void _filterCommodities() {
+    setState(() {
+      if (searchText.isEmpty) {
+        filteredCommodities = List.from(allCommodities);
       } else {
-        filteredCommodities = commodities
+        filteredCommodities = allCommodities
             .where((commodity) =>
-                commodity['name'].toLowerCase().contains(text.toLowerCase()))
+                commodity.name.toLowerCase().contains(searchText.toLowerCase()) ||
+                commodity.packagingName.toLowerCase().contains(searchText.toLowerCase()))
             .toList();
       }
     });
@@ -54,10 +62,18 @@ class _CommoditiesState extends State<Commodities> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
       appBar: AppBar(
         centerTitle: true,
         automaticallyImplyLeading: false,
+        leading: IconButton(
+          onPressed: () => PersistentNavBarNavigator.pushNewScreen(
+            withNavBar: false,
+            context,
+            screen: MainLoginScreen(),
+          ),
+          icon: Icon(color: Colors.white, Icons.arrow_back),
+        ),
         backgroundColor: Colors.green.shade800,
         title: Text(
           'Commodities of Interest',
@@ -101,99 +117,77 @@ class _CommoditiesState extends State<Commodities> {
                   filled: true,
                 ),
                 onChanged: (text) {
-                  _filterCommodities(text);
+                  setState(() {
+                    searchText = text;
+                    _filterCommodities();
+                  });
                 },
               ),
             ),
             Expanded(
-              child: filteredCommodities.isEmpty
-                  ? Center(
-                      child: Text(
-                        'No commodities available',
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.red.shade600,
-                        ),
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: filteredCommodities.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          margin: EdgeInsets.symmetric(vertical: 6.0),
-                          elevation: 2,
-                          child: ListTile(
-                            onTap: () {
-                              setState(() {
-                                bool newValue = !(filteredCommodities[index]
-                                        ['isChecked'] ??
-                                    false);
-                                filteredCommodities[index]['isChecked'] =
-                                    newValue;
-                                if (newValue) {
-                                  if (!userItems.contains(
-                                      filteredCommodities[index]['name'])) {
-                                    userItems.add(
-                                        filteredCommodities[index]['name']);
-                                    context
-                                        .read<appBloc>()
-                                        .changeCommodites(userItems);
-                                  }
-                                } else {
-                                  userItems.remove(
-                                      filteredCommodities[index]['name']);
-                                  context
-                                      .read<appBloc>()
-                                      .changeCommodites(userItems);
-                                }
-                              });
-                            },
-                            trailing: Checkbox(
-                              value: filteredCommodities[index]['isChecked'] ??
-                                  false,
-                              activeColor: Colors.green.shade800,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  filteredCommodities[index]['isChecked'] =
-                                      value!;
-                                  if (value) {
-                                    if (!userItems.contains(
-                                        filteredCommodities[index]['name'])) {
-                                      userItems.add(
-                                          filteredCommodities[index]['name']);
-                                      context
-                                          .read<appBloc>()
-                                          .changeCommodites(userItems);
-                                    }
-                                  } else {
-                                    userItems.remove(
-                                        filteredCommodities[index]['name']);
-                                    context
-                                        .read<appBloc>()
-                                        .changeCommodites(userItems);
-                                  }
-                                });
-                              },
-                            ),
-                            title: Text(
-                              filteredCommodities[index]['name']!,
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            subtitle: Text(
-                              filteredCommodities[index]['unit']!,
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w400,
-                                color: Colors.grey.shade700,
-                              ),
+              child: isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : filteredCommodities.isEmpty
+                      ? Center(
+                          child: Text(
+                            'No commodities available',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.red.shade600,
                             ),
                           ),
-                        );
-                      },
-                    ),
+                        )
+                      : ListView.builder(
+                          itemCount: filteredCommodities.length,
+                          itemBuilder: (context, index) {
+                            final commodity = filteredCommodities[index];
+                            return Card(
+                              margin: EdgeInsets.symmetric(vertical: 6.0),
+                              elevation: 2,
+                              child: ListTile(
+                                onTap: () {
+                                  setState(() {
+                                    if (userItems.contains(commodity.name)) {
+                                      userItems.remove(commodity.name);
+                                    } else {
+                                      userItems.add(commodity.name);
+                                    }
+                                    context.read<appBloc>().changeCommodites(userItems);
+                                  });
+                                },
+                                trailing: Checkbox(
+                                  value: userItems.contains(commodity.name),
+                                  activeColor: Colors.green.shade800,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      if (value!) {
+                                        userItems.add(commodity.name);
+                                      } else {
+                                        userItems.remove(commodity.name);
+                                      }
+                                      context.read<appBloc>().changeCommodites(userItems);
+                                    });
+                                  },
+                                ),
+                                title: Text(
+                                  commodity.name,
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  commodity.packagingName,
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
             ),
             Text(
               userItems.isNotEmpty

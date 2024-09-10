@@ -3,7 +3,6 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:itx/authentication/Login.dart';
 import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/authentication/SignUp.dart';
 import 'package:itx/fromWakulima/FirebaseFunctions/FirebaseFunctions.dart';
@@ -168,7 +167,7 @@ class _SplashscreenState extends State<Splashscreen>
 
                   if (connection) {
                     Globals.switchScreens(
-                        context: context, screen: WakulimaLoginScreen());
+                        context: context, screen: MainLoginScreen());
                   } else {
                     Globals().nointernet(context: context);
                   }
@@ -234,7 +233,7 @@ class _SplashscreenState extends State<Splashscreen>
 
                       if (connection) {
                         Globals.switchScreens(
-                            context: context, screen: WakulimaSignUp());
+                            context: context, screen: MainSignup());
                       } else {
                         Globals().nointernet(context: context);
                       }
@@ -257,7 +256,7 @@ class _SplashscreenState extends State<Splashscreen>
                           if (connection != null && connection) {
                             print("connection is $connection");
                             Globals.switchScreens(
-                                context: context, screen: WakulimaSignUp());
+                                context: context, screen: MainSignup());
                           } else {
                             Globals().nointernet(context: context);
                           }

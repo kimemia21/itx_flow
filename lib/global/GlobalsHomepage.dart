@@ -4,6 +4,8 @@ import 'package:itx/Contracts/MyContracts.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Contracts/SpotItem.dart';
 import 'package:itx/Contracts/SpotTrader.dart';
+import 'package:itx/Serializers/TestPage.dart';
+import 'package:itx/global/Hompage.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class GlobalsHomePage extends StatefulWidget {
@@ -46,9 +48,10 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
   List<Widget> _buildScreens() {
     return [
       // Sales(),
+// CommodityListPage(),
+      HomepageMain(),
       Commodities(),
-      Commodities(),
-      Commodities(),
+       Commodities(),
 
       Spottrader(),
       Mycontracts()
