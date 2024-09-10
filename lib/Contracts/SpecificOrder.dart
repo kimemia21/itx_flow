@@ -1,30 +1,35 @@
 import 'package:cherry_toast/resources/arrays.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:itx/Contracts/Contracts.dart';
-import 'package:itx/Contracts/CreateContract.dart';
-import 'package:itx/Contracts/LiveAuction.dart';
-import 'package:itx/Contracts/MyContracts.dart';
-import 'package:itx/Contracts/itemLive.dart';
-import 'package:itx/global/globals.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:cherry_toast/cherry_toast.dart';
+import 'package:intl/intl.dart';
 
 class Specificorder extends StatelessWidget {
   final String item;
   final double price;
   final String quantity;
-  Specificorder(
-      {required this.item, required this.price, required this.quantity});
+  // final String companyName;
+  // final String companyAddress;
+  // final String companyContacts;
+
+  Specificorder({
+    required this.item,
+    required this.price,
+    required this.quantity,
+    // required this.companyName,
+    // required this.companyAddress,
+    // required this.companyContacts,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        // leading: Globals.leading(context: context, screen: Mycontracts()),
         actions: [
           IconButton(
             icon: Icon(Icons.more_vert, color: Colors.black),
@@ -49,7 +54,7 @@ class Specificorder extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  price.toString(),
+                  '\$${price.toStringAsFixed(2)}',
                   style: GoogleFonts.poppins(
                     fontSize: 40,
                     fontWeight: FontWeight.w600,
@@ -92,7 +97,6 @@ class Specificorder extends StatelessWidget {
                         FlSpot(6, 1.8),
                       ],
                       isCurved: true,
-                      // colors: [Colors.brown],
                       dotData: FlDotData(show: false),
                       belowBarData: BarAreaData(show: false),
                     ),
@@ -122,30 +126,22 @@ class Specificorder extends StatelessWidget {
             ),
             SizedBox(height: 10),
             GestureDetector(
-                onTap: () {
-                  print("pressed");
-                  showDialog(
-                      context: context,
-                      builder: (context) => PurchaseConfirmationAlert(
-                          productName: item, amount: price));
-
-                  // List<Map<String, dynamic>> itemData = [
-                  //   {
-                  //     'name': item,
-                  //     'price': price as double,
-                  //     'unit': 'lbs',
-                  //     'endTime': DateTime.now().add(Duration(minutes: 45))
-                  //   },
-                  // ];
-                  // PersistentNavBarNavigator.pushNewScreen(
-                  //     withNavBar: true,
-                  //     context,
-                  //     screen: Itemlive(
-                  //       itemData: itemData,
-                  //     ));
-                },
-                child: buildTradeOption(
-                    'Buy', 'Market execution', Icons.arrow_upward)),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => PurchaseConfirmationAlert(
+                    productName: item,
+                    amount: price,
+                    quantity: int.parse(quantity),
+                    deliveryDate: DateTime.now().add(Duration(days: 7)),
+                    contactEmail: "support@example.com",
+                    contactPhone: "+1 (555) 123-4567",
+                  ),
+                );
+              },
+              child: buildTradeOption(
+                  'Buy', 'Market execution', Icons.arrow_upward),
+            ),
             SizedBox(height: 10),
           ],
         ),
@@ -168,22 +164,29 @@ class Specificorder extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(10),
+        color: Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 5,
+            offset: Offset(0, 3),
+          ),
+        ],
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.black),
-          SizedBox(width: 10),
+          Icon(icon, color: Colors.blue.shade700, size: 28),
+          SizedBox(width: 15),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 action,
                 style: GoogleFonts.poppins(
-                  fontSize: 16,
+                  fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black,
+                  color: Colors.blue.shade700,
                 ),
               ),
               Text(
@@ -191,7 +194,7 @@ class Specificorder extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
-                  color: Colors.black,
+                  color: Colors.blue.shade900,
                 ),
               ),
             ],
@@ -205,130 +208,171 @@ class Specificorder extends StatelessWidget {
 class PurchaseConfirmationAlert extends StatelessWidget {
   final String productName;
   final double amount;
-  // final VoidCallback onConfirm;
-  // final VoidCallback onCancel;
+  final int quantity;
+  final DateTime deliveryDate;
+  final String contactEmail;
+  final String contactPhone;
 
   const PurchaseConfirmationAlert({
     Key? key,
     required this.productName,
     required this.amount,
-    // required this.onConfirm,
-    // required this.onCancel,
+    required this.quantity,
+    required this.deliveryDate,
+    required this.contactEmail,
+    required this.contactPhone,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
       ),
-      backgroundColor: Colors.grey[50],
-      title: Text(
-        'Confirm Your Purchase',
-        style: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: Colors.blue[800],
-        ),
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      child: contentBox(context),
+    );
+  }
+
+  Widget contentBox(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        shape: BoxShape.rectangle,
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            offset: Offset(0, 10),
+            blurRadius: 10,
+          ),
+        ],
       ),
-      content: Container(
-        constraints: BoxConstraints(maxWidth: 300),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'You are about to buy:',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text(
+            'Confirm Your Purchase',
+            style: GoogleFonts.poppins(
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+              color: Colors.blue.shade800,
             ),
-            SizedBox(height: 8),
-            Text(
-              productName,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
+          ),
+          SizedBox(height: 15),
+          Text(
+            productName,
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
             ),
-            SizedBox(height: 16),
-            Text(
-              'Price: \$${amount.toStringAsFixed(2)}',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Colors.green[700],
-              ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Quantity: $quantity',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              color: Colors.grey[700],
             ),
-            SizedBox(height: 16),
-            Text(
-              'Pay before 10 days to receive an invoice to your email',
-              style: TextStyle(
-                fontSize: 14,
-                fontStyle: FontStyle.italic,
-                color: Colors.grey[600],
-              ),
+          ),
+          Text(
+            'Total: \$${(amount * quantity).toStringAsFixed(2)}',
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.green[700],
             ),
-          ],
-        ),
-      ),
-      actions: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: Text(
-                'Cancel',
-                style: TextStyle(
-                  color: Colors.red[400],
-                  fontSize: 16,
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Delivery Date: ${DateFormat('MMM dd, yyyy').format(deliveryDate)}',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              color: Colors.grey[700],
+            ),
+          ),
+          SizedBox(height: 15),
+          Divider(),
+          SizedBox(height: 15),
+          Text(
+            'Contact Information',
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Colors.blue[800],
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Email: $contactEmail',
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: Colors.grey[700],
+            ),
+          ),
+          Text(
+            'Phone: $contactPhone',
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: Colors.grey[700],
+            ),
+          ),
+          SizedBox(height: 22),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  "Cancel",
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    color: Colors.red[400],
+                  ),
                 ),
               ),
-            ),
-            ElevatedButton(
-          onPressed: () {
-            CherryToast.success(
+              ElevatedButton(
+                onPressed: () {
+                  CherryToast.success(
+                    title: Text("Purchase Confirmed"),
                     description: Text(
-                      'Paid before 10 days  to receive an invoice to your email',
+                      'You will receive an invoice via email within 10 days.',
                       style: GoogleFonts.poppins(
-
                         fontSize: 14,
-                  
                         color: Colors.grey[600],
                       ),
                     ),
                     animationType: AnimationType.fromRight,
                     animationDuration: Duration(milliseconds: 1000),
-                    autoDismiss: true)
-                .show(context);
-            Navigator.pop(context);
-          },
-          // onConfirm,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue[700],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    autoDismiss: true,
+                  ).show(context);
+                  Navigator.of(context).pop();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue[700],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                ),
+                child: Text(
+                  "Confirm Purchase",
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
           ),
-          child: Text(
-            'Yes, Buy Now',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-          ],
-        ),
-        
-      ],
+        ],
+      ),
     );
   }
 }

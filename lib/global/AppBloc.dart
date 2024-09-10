@@ -22,7 +22,7 @@ class appBloc extends ChangeNotifier {
   get user_type => _user_type;
 
   get token => _token;
-  List _userCommodities = [];
+  List<String> _userCommodities = [];
   List get userCommodities => _userCommodities;
 
   void changeCurrentIndex({required int index}) {

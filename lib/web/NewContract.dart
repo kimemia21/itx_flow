@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:itx/global/AppBloc.dart';
+import 'package:provider/provider.dart';
 
 class NewContractPage extends StatefulWidget {
   @override
@@ -14,6 +16,7 @@ class _NewContractPageState extends State<NewContractPage> {
 
   @override
   Widget build(BuildContext context) {
+    print(context.watch<appBloc>().token);
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -28,24 +31,28 @@ class _NewContractPageState extends State<NewContractPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Contract Type', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text('Contract Type',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
               _buildRadioListTile('Futures', 'Futures'),
               _buildRadioListTile('Forwards', 'Forwards'),
               _buildRadioListTile('Options', 'Options'),
               SizedBox(height: 24),
-              Text('Commodity', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text('Commodity',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
               _buildCommodityCard(),
               SizedBox(height: 24),
-              Text('Delivery Time', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text('Delivery Time',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
               _buildRadioListTile('1 week', '1 week'),
               _buildRadioListTile('2 weeks', '2 weeks'),
               _buildRadioListTile('3 weeks', '3 weeks'),
               _buildRadioListTile('4 weeks', '4 weeks'),
               SizedBox(height: 24),
-              Text('Quantity', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text('Quantity',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
               TextField(
                 controller: _quantityController,
@@ -56,7 +63,8 @@ class _NewContractPageState extends State<NewContractPage> {
                 keyboardType: TextInputType.number,
               ),
               SizedBox(height: 24),
-              Text('Currency', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text('Currency',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
               DropdownButtonFormField<String>(
                 value: _selectedCurrency,
@@ -117,7 +125,10 @@ class _NewContractPageState extends State<NewContractPage> {
   Widget _buildCommodityCard() {
     return Card(
       child: ListTile(
-        leading: Image.network('https://responsive.fxempire.com/v7/_fxempire_/2024/03/Barrels-of-Oil-2-1.jpg?width=1201', width: 40, height: 40),
+        leading: Image.network(
+            'https://responsive.fxempire.com/v7/_fxempire_/2024/03/Barrels-of-Oil-2-1.jpg?width=1201',
+            width: 40,
+            height: 40),
         title: Text('WTI Crude Oil'),
         subtitle: Text('40.70 USD per barrel'),
         trailing: Icon(Icons.arrow_drop_down),

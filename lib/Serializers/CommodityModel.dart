@@ -32,35 +32,47 @@ class CommodityModel {
   });
 
   factory CommodityModel.fromJson(Map<String, dynamic> json) {
-    print("hello");
+    // List of expected keys
+    List<String> expectedKeys = [
+      'id',
+      'name',
+      'commodity_type',
+      'description',
+      'icon_name',
+      'image_url',
+      'commodity_primary_packing_id',
+      'user_company_id',
+      'type_name',
+      'type_description',
+      'packaging_name',
+      'company_name',
+      'company_address',
+      'company_contacts'
+    ];
 
+    // Check for missing keys
+    for (String key in expectedKeys) {
+      if (!json.containsKey(key)) {
+        print("Missing key: $key");
+      }
+    }
+
+    // Return the model object, checking for each key
     return CommodityModel(
-      id: json.containsKey('id') ? json['id'] : 0,
-      name: json.containsKey('name') ? json['name'] : 'Unknown',
-      commodityType:
-          json.containsKey('commodity_type') ? json['commodity_type'] : 0,
-      description: json.containsKey('description')
-          ? json['description']
-          : 'No description available',
-      iconName: json.containsKey('icon_name') ? json['icon_name'] : '',
-      imageUrl: json.containsKey('image_url') ? json['image_url'] : '',
-      commodityPrimaryPackingId:
-          json.containsKey('commodity_primary_packing_id')
-              ? json['commodity_primary_packing_id']
-              : 0,
-      userCompanyId:
-          json.containsKey('user_company_id') ? json['user_company_id'] : 0,
-      typeName: json.containsKey('type_name') ? json['type_name'] : null,
-      typeDescription: json.containsKey('type_description')
-          ? json['type_description']
-          : null,
-      packagingName:
-          json.containsKey('packaging_name') ? json['packaging_name'] : '',
-      companyName: json.containsKey('company_name') ? json['company_name'] : '',
-      companyAddress:
-          json.containsKey('company_address') ? json['company_address'] : '',
-      companyContacts:
-          json.containsKey('company_contacts') ? json['company_contacts'] : '',
+      id: json['id'] ?? 0,
+      name: json['name'] ?? 'Unknown',
+      commodityType: json['commodity_type'] ?? 0,
+      description: json['description'] ?? 'No description available',
+      iconName: json['icon_name'] ?? '',
+      imageUrl: json['image_url'] ?? '',
+      commodityPrimaryPackingId: json['commodity_primary_packing_id'] ?? 0,
+      userCompanyId: json['user_company_id'] ?? 0,
+      typeName: json['type_name'],
+      typeDescription: json['type_description'],
+      packagingName: json['packaging_name'] ?? '',
+      companyName: json['company_name'] ?? '',
+      companyAddress: json['company_address'] ?? '',
+      companyContacts: json['company_contacts'] ?? '',
     );
   }
 }

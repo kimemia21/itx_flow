@@ -5,7 +5,9 @@ import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/Contracts/Contracts.dart';
 import 'package:itx/Contracts/MyContracts.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
+import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/globals.dart';
+import 'package:provider/provider.dart';
 class CreateContract extends StatefulWidget {
   @override
   _CreateContractState createState() => _CreateContractState();
@@ -19,7 +21,7 @@ class _CreateContractState extends State<CreateContract>
   final priceController = TextEditingController();
   final descriptionController = TextEditingController();
 
-  List<String> commodities = ['Commodity 1', 'Commodity 2', 'Commodity 3'];
+  List commodities = [];
   List<String> qualities = ['Quality 1', 'Quality 2', 'Quality 3'];
   late TabController _tabController;
 
@@ -36,6 +38,7 @@ class _CreateContractState extends State<CreateContract>
 
   @override
   Widget build(BuildContext context) {
+    commodities =context.watch<appBloc>().userCommodities;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -155,7 +158,7 @@ class _CreateContractState extends State<CreateContract>
   Widget buildDropdownButton({
     required String title,
     required String? value,
-    required List<String> items,
+    required List items,
     required ValueChanged<String?> onChanged,
   }) {
     return Column(

@@ -1,14 +1,18 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:itx/Commodities.dart/AdvancedSearch.dart';
 import 'package:itx/Contracts/CreateContract.dart';
-import 'package:itx/Contracts/MyContracts.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
-import 'package:itx/Contracts/SpotItem.dart';
+import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/authentication/Authorization.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
-import 'package:itx/global/SidePage.dart';
 import 'package:itx/global/globals.dart';
+import 'package:http/http.dart' as http;
+import 'package:itx/requests/HomepageRequest.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
 
 class Contracts extends StatefulWidget {
   const Contracts({super.key});
@@ -22,79 +26,6 @@ class _ContractsState extends State<Contracts> {
   late PageController _pageController;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-
-  final List<Map<String, dynamic>> contracts = [
-    {
-      "contract_name": {
-        "product_name": "Copper",
-        "quality": "High grade",
-        "price": 2300.00,
-      }
-    },
-    {
-      "contract_name": {
-        "product_name": "Gold",
-        "quality": "24 Karat",
-        "price": 59000.00,
-      }
-    },
-    {
-      "contract_name": {
-        "product_name": "Silver",
-        "quality": "99.9% Pure",
-        "price": 2500.00,
-      }
-    },
-    {
-      "contract_name": {
-        "product_name": "Aluminum",
-        "quality": "Refined",
-        "price": 1800.00,
-      }
-    },
-    {
-      "contract_name": {
-        "product_name": "Iron",
-        "quality": "Cast",
-        "price": 600.00,
-      }
-    },
-    {
-      "contract_name": {
-        "product_name": "Platinum",
-        "quality": "Jewelry grade",
-        "price": 68000.00,
-      }
-    },
-    {
-      "contract_name": {
-        "product_name": "Nickel",
-        "quality": "Industrial",
-        "price": 1600.00,
-      }
-    },
-    {
-      "contract_name": {
-        "product_name": "Zinc",
-        "quality": "Pure",
-        "price": 2100.00,
-      }
-    },
-    {
-      "contract_name": {
-        "product_name": "Lead",
-        "quality": "Industrial",
-        "price": 1000.00,
-      }
-    },
-    {
-      "contract_name": {
-        "product_name": "Tin",
-        "quality": "Refined",
-        "price": 3500.00,
-      }
-    },
-  ];
 
   @override
   void initState() {
@@ -115,78 +46,169 @@ class _ContractsState extends State<Contracts> {
     super.dispose();
   }
 
-  List<Map<String, dynamic>> get _filteredContracts {
-    if (_searchQuery.isEmpty) {
+  List<ContractsModel> _filterContracts(
+      List<ContractsModel> contracts, String query) {
+    if (query.isEmpty) {
       return contracts;
     } else {
       return contracts.where((contract) {
-        final productName =
-            contract["contract_name"]["product_name"].toString().toLowerCase();
-        final quality =
-            contract["contract_name"]["quality"].toString().toLowerCase();
-        return productName.contains(_searchQuery) ||
-            quality.contains(_searchQuery);
+        final productName = contract.name.toLowerCase();
+        final quality = contract.qualityGradeId.toString().toLowerCase();
+        return productName.contains(query) || quality.contains(query);
       }).toList();
     }
   }
 
   Widget _buildSearchItem({
+    required int contractId,
+    required String contractType,
     required String title,
     required String product,
-    required String quality,
-    required String price,
+    required int qualityGradeId,
+    required DateTime deliveryDate,
+    required double price,
+    required String description,
+    required String iconName,
+    required String imageUrl,
   }) {
-    double width = MediaQuery.of(context).size.width * 1;
-
     return Container(
-      height: 70,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      margin: const EdgeInsets.only(top: 10),
+      height: 120,
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.green.withOpacity(0.1),
             spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SizedBox(
-            width: width / 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: GoogleFonts.poppins(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 18,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  "$product, $quality",
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ],
+          Container(
+            width: 120,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(15),
+                bottomLeft: Radius.circular(15),
+              ),
+              image: DecorationImage(
+                image: NetworkImage(imageUrl),
+                fit: BoxFit.cover,
+              ),
             ),
           ),
-          Text(
-            price,
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-              color: Colors.teal,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        title,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 18,
+                          color: Colors.green.shade800,
+                        ),
+                      ),
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          contractType,
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.blue.shade700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    description,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.grade, size: 16, color: Colors.amber),
+                          SizedBox(width: 4),
+                          Text(
+                            "Grade: $qualityGradeId",
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Icon(Icons.calendar_today,
+                              size: 16, color: Colors.green.shade600),
+                          SizedBox(width: 4),
+                          Text(
+                            "Delivery: ${DateFormat('MMM d, y').format(deliveryDate)}",
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Contract #$contractId",
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade50,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          "\$${price.toStringAsFixed(2)}",
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: Colors.green.shade700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -201,30 +223,103 @@ class _ContractsState extends State<Contracts> {
         onPressed: () {
           Globals.switchScreens(context: context, screen: CreateContract());
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Floating Action Button Pressed!')),
+            SnackBar(
+              content: Text('Creating new contract...'),
+              backgroundColor: Colors.green.shade600,
+            ),
           );
         },
         backgroundColor: Colors.green.shade600,
         child: const Icon(Icons.add, color: Colors.white),
       ),
       appBar: AppBar(
+        automaticallyImplyLeading: true,
         leading: IconButton(
-          onPressed: () => Globals.switchScreens(
-              context: context, screen: const Authorization()),
-          icon: const Icon(Icons.arrow_back),
+          onPressed: () =>
+              Globals.switchScreens(context: context, screen: Authorization()),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
         ),
         title: Text(
           "Contracts",
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+          style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600, color: Colors.white),
         ),
+        backgroundColor: Colors.green.shade600,
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: SingleChildScrollView(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.green.shade50, Colors.white],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: [
               _buildSearchBar(context),
-              _buildContractsList(),
+              Expanded(
+                child: FutureBuilder<List<ContractsModel>>(
+                  future: CommodityService.getContracts(context),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                          child: CircularProgressIndicator(
+                              color: Colors.green.shade600));
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Error: ${snapshot.error}',
+                          style: GoogleFonts.poppins(color: Colors.red),
+                        ),
+                      );
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No contracts available',
+                          style:
+                              GoogleFonts.poppins(color: Colors.grey.shade600),
+                        ),
+                      );
+                    } else {
+                      final filteredContracts =
+                          _filterContracts(snapshot.data!, _searchQuery);
+                      return ListView.builder(
+                        itemCount: filteredContracts.length,
+                        itemBuilder: (context, index) {
+                          final contract = filteredContracts[index];
+                          return GestureDetector(
+                              onTap: () {
+                                Globals.switchScreens(
+                                  context: context,
+                                  screen:
+                                   Specificorder(
+                                    item: contract.name,
+                                    price: contract.price,
+                                    quantity:
+                                    contract.qualityGradeId.toString(),
+                                  ),
+                                );
+                              },
+                              child: _buildSearchItem(
+                                  contractId: contract.commodityId,
+                                  contractType: contract.contractType,
+                                  title: contract.name,
+                                  product: contract.name,
+                                  qualityGradeId: contract.qualityGradeId,
+                                  deliveryDate: contract.deliveryDate,
+                                  price: contract.price,
+                                  description: contract.description,
+                                  iconName: contract.iconName,
+                                  imageUrl: contract.imageUrl));
+                        },
+                      );
+                    }
+                  },
+                ),
+              ),
             ],
           ),
         ),
@@ -236,90 +331,84 @@ class _ContractsState extends State<Contracts> {
     final double screenWidth = MediaQuery.of(context).size.width;
 
     return Container(
-      margin: EdgeInsets.symmetric(
-        vertical: screenWidth * 0.02, // Responsive vertical margin
-        horizontal: screenWidth * 0.04, // Responsive horizontal margin
-      ),
+      margin: EdgeInsets.only(bottom: screenWidth * 0.04),
       padding: EdgeInsets.symmetric(
-        vertical: screenWidth * 0.02, // Responsive padding
+        vertical: screenWidth * 0.02,
+        horizontal: screenWidth * 0.04,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.green.withOpacity(0.1),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Expanded(
-            flex: 7, // 70% of available space
+            flex: 7,
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                labelText: 'Search commodities',
-                labelStyle: GoogleFonts.poppins(
-                    fontSize: screenWidth * 0.04), // Responsive font size
-                prefixIcon: const Icon(Icons.search),
-                fillColor: Colors.grey[200],
-                filled: true,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.04, // Responsive padding
-                  vertical: screenWidth * 0.03,
+                border: InputBorder.none,
+                hintText: 'Search commodities',
+                hintStyle: GoogleFonts.poppins(
+                  fontSize: screenWidth * 0.04,
+                  color: Colors.grey.shade400,
                 ),
+                prefixIcon: Icon(Icons.search, color: Colors.green.shade600),
               ),
             ),
           ),
-          SizedBox(
-              width: screenWidth * 0.03), // Responsive spacing between widgets
+          SizedBox(width: screenWidth * 0.03),
           Expanded(
-            flex: 3, // 30% of available space
-            child: TextButton(
-              onPressed: () => Navigator.of(context).push(
-                SlideFromSidePageRoute(widget: AdvancedSearchPage()),
-              ),
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.blue[50],
+            flex: 3,
+            child: ElevatedButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (context) => SingleChildScrollView(
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom),
+                      child: AdvancedSearchModal(
+                        onSearch: (searchParams) {
+                          // Implement the advanced search logic here
+                          print('Advanced search params: $searchParams');
+                          // You might want to update the state or call a method to filter the contracts based on these params
+                        },
+                      ),
+                    ),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green.shade600,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
                 padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.02, // Responsive padding
                   vertical: screenWidth * 0.03,
                 ),
               ),
               child: Text(
                 "Advanced",
                 style: GoogleFonts.poppins(
-                  color: Colors.blue,
+                  color: Colors.white,
                   fontWeight: FontWeight.w600,
-                  fontSize: screenWidth * 0.04, // Responsive font size
+                  fontSize: screenWidth * 0.035,
                 ),
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildContractsList() {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.7,
-      child: ListView.builder(
-        itemCount: _filteredContracts.length,
-        itemBuilder: (context, index) {
-          final contract = _filteredContracts[index]["contract_name"];
-          return GestureDetector(
-            onTap: () => Globals.switchScreens(
-                context: context,
-                screen: Specificorder(
-                    item: contract["product_name"],
-                    price: contract["price"],
-                    quantity: contract["quality"])),
-            child: _buildSearchItem(
-              title: contract["product_name"],
-              product: contract["product_name"],
-              quality: contract["quality"],
-              price: contract["price"].toString(),
-            ),
-          );
-        },
       ),
     );
   }
