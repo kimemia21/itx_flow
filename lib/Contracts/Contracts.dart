@@ -233,12 +233,13 @@ class _ContractsState extends State<Contracts> {
         child: const Icon(Icons.add, color: Colors.white),
       ),
       appBar: AppBar(
+        centerTitle: true,
         automaticallyImplyLeading: true,
-        leading: IconButton(
-          onPressed: () =>
-              Globals.switchScreens(context: context, screen: Authorization()),
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-        ),
+        // leading: IconButton(
+        //   onPressed: () =>
+        //       Globals.switchScreens(context: context, screen: Authorization()),
+        //   icon: const Icon(Icons.arrow_back, color: Colors.white),
+        // ),
         title: Text(
           "Contracts",
           style: GoogleFonts.poppins(
@@ -292,16 +293,19 @@ class _ContractsState extends State<Contracts> {
                           final contract = filteredContracts[index];
                           return GestureDetector(
                               onTap: () {
-                                Globals.switchScreens(
-                                  context: context,
+                                PersistentNavBarNavigator.pushNewScreen(
+                                  withNavBar: true,
+                                  context,
                                   screen:
                                    Specificorder(
                                     item: contract.name,
                                     price: contract.price,
+                                    
                                     quantity:
-                                    contract.qualityGradeId.toString(),
+                                        contract.qualityGradeId.toString(),
                                   ),
                                 );
+                               
                               },
                               child: _buildSearchItem(
                                   contractId: contract.commodityId,
@@ -356,7 +360,7 @@ class _ContractsState extends State<Contracts> {
               controller: _searchController,
               decoration: InputDecoration(
                 border: InputBorder.none,
-                hintText: 'Search commodities',
+                hintText: 'Search Contract',
                 hintStyle: GoogleFonts.poppins(
                   fontSize: screenWidth * 0.04,
                   color: Colors.grey.shade400,
@@ -390,7 +394,7 @@ class _ContractsState extends State<Contracts> {
                 );
               },
               style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green.shade600,
+                backgroundColor: Colors.green.shade600,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),

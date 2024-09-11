@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:itx/Commodities.dart/Commodites.dart';
+import 'package:itx/Contracts/Contracts.dart';
 import 'package:itx/Contracts/MyContracts.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Contracts/SpotItem.dart';
@@ -49,7 +50,8 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
     return [
       // Sales(),
 // CommodityListPage(),
-      HomepageMain(),
+      Contracts(),
+      // HomepageMain(),
       Commodities(),
        Commodities(),
 

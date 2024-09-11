@@ -73,6 +73,7 @@ dependencies:
   shared_preferences: ^2.3.2
   easy_sidemenu: ^0.6.0
   phone_number: 2.1.0
+  flutter_animate: ^4.5.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
