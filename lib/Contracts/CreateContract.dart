@@ -124,17 +124,17 @@ class _CreateContractState extends State<CreateContract>
                 ),
                 GestureDetector(
                   onTap: () {
-                    selectedCommodity!=null?
-                    Globals.switchScreens(
-                        context: context, screen: Specificorder(item:selectedCommodity! ,price: 232.0,quantity: "100 bushels",)):
-                         ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text(
-              'Please Select a Commodity'),
-        ),
-      );
-                  },
+      //               selectedCommodity!=null?
+      //               Globals.switchScreens(
+      //                   context: context, screen: Specificorder(item:selectedCommodity! ,price: 232.0,quantity: "100 bushels",)):
+      //                    ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     backgroundColor: Colors.red,
+      //     content: Text(
+      //         'Please Select a Commodity'),
+      //   ),
+      // );
+                },
                   child: Container(
                     padding: EdgeInsets.all(15),
                     decoration: BoxDecoration(

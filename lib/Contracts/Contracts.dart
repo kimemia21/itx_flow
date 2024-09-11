@@ -298,6 +298,7 @@ class _ContractsState extends State<Contracts> {
                                   context,
                                   screen:
                                    Specificorder(
+                                    companyId: contract.userCompanyId.toString(),
                                     item: contract.name,
                                     price: contract.price,
                                     

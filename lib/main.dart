@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:itx/authentication/SplashScreen.dart';
 import 'package:itx/firebase_options.dart';
 import 'package:itx/global/AppBloc.dart';
+import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/web/CreateAccount.dart';
 import 'package:provider/provider.dart';
 
@@ -21,17 +22,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      child: 
-    MaterialApp(
-      home: _getHomeScreen(),
-    ),
-      providers: [
-      ChangeNotifierProvider(create: (context)=>CurrentUserProvider()),
-        ChangeNotifierProvider(create: (context)=>appBloc())
   
-    ]);
-
+ 
+    return MultiProvider(
+        child: MaterialApp(
+          home: _getHomeScreen(),
+        ),
+        providers: [
+          ChangeNotifierProvider(create: (context) => CurrentUserProvider()),
+          ChangeNotifierProvider(create: (context) => appBloc())
+        ]);
   }
 
   Widget _getHomeScreen() {

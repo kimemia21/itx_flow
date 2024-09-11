@@ -127,7 +127,7 @@ class _SpotitemState extends State<Spotitem>
                   onTap: () {
                     selectedCommodity!=null?
                     Globals.switchScreens(
-                        context: context, screen: Specificorder(item:selectedCommodity! ,price:12,quantity:"23" ,)):
+                        context: context, screen: Specificorder(item:selectedCommodity! ,price:12,quantity:"23",companyId: "1",)):
                          ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,

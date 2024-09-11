@@ -6,8 +6,10 @@ import 'package:cherry_toast/cherry_toast.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:itx/Contracts/PurchaseConfirmationAlert.dart';
+import 'package:itx/Serializers/CompanySerializer.dart';
+import 'package:itx/requests/HomepageRequest.dart';
 
-class Specificorder extends StatelessWidget {
+class Specificorder extends StatefulWidget {
   final String item;
   final double price;
   final String quantity;
@@ -15,7 +17,7 @@ class Specificorder extends StatelessWidget {
   final String? companyAddress;
   final String? companyContacts;
   final String? companyEmail;
-  final String? companyId;
+  final String companyId;
 
   Specificorder({
     required this.item,
@@ -25,8 +27,55 @@ class Specificorder extends StatelessWidget {
     this.companyAddress,
     this.companyContacts,
     this.companyEmail,
-    this.companyId
+    required this.companyId,
   });
+
+  @override
+  _SpecificorderState createState() => _SpecificorderState();
+}
+
+class _SpecificorderState extends State<Specificorder> {
+  CompanyModel? company;
+  bool isLoading = true;
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.companyId != null) {
+    
+      fetchCompany();
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> fetchCompany() async {
+    try {
+      CompanyModel? fetchedCompany = await CommodityService.getCompany(
+        context: context,
+        id: widget.companyId!,
+      );
+
+      setState(() {
+        if (fetchedCompany != null) {
+          company = fetchedCompany;
+       
+        } else {
+          errorMessage = "Company data not available";
+        }
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage = "Error loading company data: $e";
+        isLoading = false;
+      });
+    
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +99,7 @@ class Specificorder extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                item,
+                widget.item,
                 style: GoogleFonts.poppins(
                   fontSize: 22,
                   fontWeight: FontWeight.w600,
@@ -61,7 +110,7 @@ class Specificorder extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    '\$${price.toStringAsFixed(2)}',
+                    '\$${widget.price.toStringAsFixed(2)}',
                     style: GoogleFonts.poppins(
                       fontSize: 40,
                       fontWeight: FontWeight.w600,
@@ -123,11 +172,7 @@ class Specificorder extends StatelessWidget {
                 ],
               ).animate().fadeIn(duration: 500.ms).slideX(),
               SizedBox(height: 20),
-              if (companyName != null ||
-                  companyAddress != null ||
-                  companyContacts != null ||
-                  companyEmail != null)
-                buildCompanyInfo().animate().fadeIn(duration: 500.ms).slideY(),
+              buildCompanyInfoSection(),
               SizedBox(height: 20),
               Text(
                 'Trade',
@@ -143,12 +188,16 @@ class Specificorder extends StatelessWidget {
                   showDialog(
                     context: context,
                     builder: (context) => PurchaseConfirmationAlert(
-                      productName: item,
-                      amount: price,
-                      quantity: int.parse(quantity),
+                      productName: widget.item,
+                      amount: widget.price,
+                      quantity: int.parse(widget.quantity),
                       deliveryDate: DateTime.now().add(Duration(days: 7)),
-                      contactEmail: companyEmail ?? "support@example.com",
-                      contactPhone: companyContacts ?? "+1 (555) 123-4567",
+                      contactEmail: company?.companyAddress ??
+                          widget.companyEmail ??
+                          "support@example.com",
+                      contactPhone: company?.companyContacts ??
+                          widget.companyContacts ??
+                          "+1 (555) 123-4567",
                     ),
                   );
                 },
@@ -161,6 +210,34 @@ class Specificorder extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget buildCompanyInfoSection() {
+    if (isLoading) {
+      return Center(child: CircularProgressIndicator());
+    } else if (errorMessage != null) {
+      return Text(
+        errorMessage!,
+        style: GoogleFonts.poppins(
+          fontSize: 16,
+          color: Colors.red,
+        ),
+      );
+    } else if (company != null) {
+      return buildCompanyInfo(
+        company!.companyName,
+        company!.companyAddress,
+        company!.companyContacts,
+        company!.companyAddress,
+      ).animate().fadeIn(duration: 500.ms).slideY();
+    } else {
+      return buildCompanyInfo(
+        widget.companyName,
+        widget.companyAddress,
+        widget.companyContacts,
+        widget.companyEmail,
+      ).animate().fadeIn(duration: 500.ms).slideY();
+    }
   }
 
   Widget buildTimePeriodButton(String label, bool isSelected) {
@@ -218,7 +295,8 @@ class Specificorder extends StatelessWidget {
     );
   }
 
-  Widget buildCompanyInfo() {
+  Widget buildCompanyInfo(
+      String? name, String? address, String? contacts, String? email) {
     return Container(
       padding: EdgeInsets.all(15),
       decoration: BoxDecoration(
@@ -228,31 +306,31 @@ class Specificorder extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (companyName != null)
+          if (name != null)
             Text(
-              'Company: $companyName',
+              'Company: $name',
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
             ),
-          if (companyAddress != null)
+          if (address != null)
             Text(
-              'Address: $companyAddress',
+              'Address: $address',
               style: GoogleFonts.poppins(
                 fontSize: 14,
               ),
             ),
-          if (companyContacts != null)
+          if (contacts != null)
             Text(
-              'Contacts: $companyContacts',
+              'Contacts: $contacts',
               style: GoogleFonts.poppins(
                 fontSize: 14,
               ),
             ),
-          if (companyEmail != null)
+          if (email != null)
             Text(
-              'Email: $companyEmail',
+              'Email: $email',
               style: GoogleFonts.poppins(
                 fontSize: 14,
               ),
@@ -262,5 +340,3 @@ class Specificorder extends StatelessWidget {
     );
   }
 }
-
-// PurchaseConfirmationAlert class remains unchanged

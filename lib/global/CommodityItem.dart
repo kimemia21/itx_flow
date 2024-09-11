@@ -206,6 +206,7 @@ class CommodityDetailScreen extends StatelessWidget {
               
 
               item: commodity.name,
+              companyId: commodity.userCompanyId.toString(),
               price: price,
               quantity: 10.toString(),
             ),

@@ -34,7 +34,8 @@ class CompanyModel {
     );
   }
 
-  static List<CompanyModel> fromJsonList(List<dynamic> jsonList) {
-    return jsonList.map((json) => CompanyModel.fromJson(json)).toList();
-  }
+
+  // static List<CompanyModel> fromJsonList(List<dynamic> jsonList) {
+  //   return jsonList.map((json) => CompanyModel.fromJson(json)).toList();
+  // }
 }
