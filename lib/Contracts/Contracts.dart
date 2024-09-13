@@ -7,7 +7,7 @@ import 'package:itx/Contracts/CreateContract.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/authentication/Authorization.dart';
-import 'package:itx/global/Animated.dart';
+import 'package:itx/global/AnimatedButton.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/global/globals.dart';
 import 'package:http/http.dart' as http;
@@ -71,7 +71,7 @@ class _ContractsState extends State<Contracts> {
     required String description,
     required String iconName,
     required String imageUrl,
-  }) {
+   }) {
     Map<int, dynamic> data = {
       contractId: {
         "contractId": contractId as int,
@@ -255,9 +255,14 @@ class _ContractsState extends State<Contracts> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Globals.switchScreens(context: context, screen: CreateContract());
+          PersistentNavBarNavigator.pushNewScreen(
+            withNavBar: true,
+            context,
+              screen: CreateContract());
+          // Globals.switchScreens(context: context, screen: CreateContract());
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
+              duration: Duration(seconds: 1),
               content: Text('Creating new contract...'),
               backgroundColor: Colors.green.shade600,
             ),
@@ -325,7 +330,6 @@ class _ContractsState extends State<Contracts> {
                         itemCount: filteredContracts.length,
                         itemBuilder: (context, index) {
                           final contract = filteredContracts[index];
-                 
 
                           return GestureDetector(
                               onTap: () {

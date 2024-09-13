@@ -81,6 +81,8 @@ class appBloc extends ChangeNotifier {
     return _watchList.containsKey(contractId);
   }
 }
+
+
 class CurrentUserProvider extends ChangeNotifier {
   String currentUser = "${FirebaseAuth.instance.currentUser?.email}";
   bool _isLoading = false;

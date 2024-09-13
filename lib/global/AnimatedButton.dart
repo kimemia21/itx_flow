@@ -40,28 +40,38 @@ class _LikeButtonState extends State<LikeButton>
     );
   }
 
-  @override
+
+
+  void _toggleLike(appBloc bloc) {
+    setState(() {
+      bool isLiked = bloc.watchList.containsKey(widget.contractId);
+      print(bloc.watchList);
+
+      // If already liked, remove it from the watch list
+      if (isLiked) {
+        bloc.removeFromWatchList(widget.contractId);
+      } else {
+        // If not liked, add it to the watch list
+        bloc.addToWatchList(widget.contractId, widget.data);
+      }
+
+      // Call the onLikeChanged callback with the updated value
+      widget.onLikeChanged(!isLiked);
+
+      // Trigger the animation
+      _controller.forward().then((_) {
+        _controller.reverse();
+      });
+    });
+  }
+
+
+    @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
-  void _toggleLike(appBloc bloc) {
-    bool isLiked = bloc.watchList.containsKey(widget.contractId);
-
-    if (isLiked) {
-      bloc.removeFromWatchList(widget.contractId);
-      print(bloc.watchList);
-    } else {
-      bloc.addToWatchList(widget.contractId, widget.data);
-       print(bloc.watchList);
-    }
-    widget.onLikeChanged(!isLiked);
-
-    _controller.forward().then((_) {
-      _controller.reverse();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
