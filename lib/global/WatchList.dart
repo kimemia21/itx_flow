@@ -34,6 +34,7 @@ class Watchlist extends StatelessWidget {
         child: data.isEmpty
             ? _buildEmptyState()
             : ListView.builder(
+                 physics: BouncingScrollPhysics(),
                 padding: EdgeInsets.all(16),
                 itemCount: data.length,
                 itemBuilder: (BuildContext context, int index) {
