@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -9,21 +11,25 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 
+import 'package:flutter/foundation.dart';
+
 class appBloc extends ChangeNotifier {
   int _currentIndex = 1;
   bool _navIsVisible = true;
   bool _isLoading = false;
   String _token = "";
   String _user_type = "";
+  Map<int, dynamic> _watchList = {};
 
-  get currentIndex => _currentIndex;
-  get navIsVisible => _navIsVisible;
-  get isLoading => _isLoading;
-  get user_type => _user_type;
+  int get currentIndex => _currentIndex;
+  bool get navIsVisible => _navIsVisible;
+  bool get isLoading => _isLoading;
+  String get user_type => _user_type;
+  Map<int, dynamic> get watchList => _watchList;
+  String get token => _token;
 
-  get token => _token;
   List<String> _userCommodities = [];
-  List get userCommodities => _userCommodities;
+  List<String> get userCommodities => _userCommodities;
 
   void changeCurrentIndex({required int index}) {
     _currentIndex = index;
@@ -35,15 +41,13 @@ class appBloc extends ChangeNotifier {
     notifyListeners();
   }
 
-  void changeCommodites(items) {
+  void changeCommodites(List<String> items) {
     _userCommodities = items;
-
     notifyListeners();
   }
 
   void getUserType(String type) {
     _user_type = type;
-
     notifyListeners();
   }
 
@@ -57,8 +61,26 @@ class appBloc extends ChangeNotifier {
     _token = token;
     notifyListeners();
   }
-}
 
+  void changeWatchList(Map<int, dynamic> newWatchList) {
+    _watchList = newWatchList;
+    notifyListeners();
+  }
+
+  void addToWatchList(int contractId, dynamic data) {
+    _watchList[contractId] = data;
+    notifyListeners();
+  }
+
+  void removeFromWatchList(int contractId) {
+    _watchList.remove(contractId);
+    notifyListeners();
+  }
+
+  bool isInWatchList(int contractId) {
+    return _watchList.containsKey(contractId);
+  }
+}
 class CurrentUserProvider extends ChangeNotifier {
   String currentUser = "${FirebaseAuth.instance.currentUser?.email}";
   bool _isLoading = false;

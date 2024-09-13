@@ -30,7 +30,7 @@ class AuthRequest {
         "phonenumber": phoneNumber,
         "user_type": "1",
       };
-      print(body);
+      // print(body);
 
       // Define the endpoint for registration
       final Uri url = Uri.parse("$main_url/register");

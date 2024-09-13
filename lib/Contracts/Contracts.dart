@@ -7,6 +7,7 @@ import 'package:itx/Contracts/CreateContract.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/authentication/Authorization.dart';
+import 'package:itx/global/Animated.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/global/globals.dart';
 import 'package:http/http.dart' as http;
@@ -71,6 +72,24 @@ class _ContractsState extends State<Contracts> {
     required String iconName,
     required String imageUrl,
   }) {
+    Map<int, dynamic> data = {
+      contractId: {
+        "contractId": contractId as int,
+        "contractType": contractType as String,
+        "title": contractType as String,
+        "product": product as String,
+        "qualityGradeId": qualityGradeId as int,
+        "deliveryDate": deliveryDate as DateTime,
+        "price": price as double,
+        "description": description as String,
+        "iconName": iconName as String,
+        "imageUrl": imageUrl as String,
+      }
+    };
+
+    print("THIS IS THE ID ${data[contractId]["contractId"]}");
+    print(contractId);
+
     return Container(
       height: 120,
       margin: const EdgeInsets.only(bottom: 16),
@@ -189,21 +208,36 @@ class _ContractsState extends State<Contracts> {
                           color: Colors.grey.shade600,
                         ),
                       ),
-                      Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade50,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          "\$${price.toStringAsFixed(2)}",
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            color: Colors.green.shade700,
+                      Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              "\$${price.toStringAsFixed(2)}",
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                color: Colors.green.shade700,
+                              ),
+                            ),
                           ),
-                        ),
+                          SizedBox(width: 8),
+                          LikeButton(
+                            contractId: contractId,
+                            data: data,
+                            // initialIsLiked: false,
+                            onLikeChanged: (isLiked) {
+                              // Handle like state change
+                              print(
+                                  'Contract $contractId is ${isLiked ? 'liked' : 'unliked'}');
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -291,25 +325,25 @@ class _ContractsState extends State<Contracts> {
                         itemCount: filteredContracts.length,
                         itemBuilder: (context, index) {
                           final contract = filteredContracts[index];
+                 
+
                           return GestureDetector(
                               onTap: () {
                                 PersistentNavBarNavigator.pushNewScreen(
                                   withNavBar: true,
                                   context,
-                                  screen:
-                                   Specificorder(
-                                    companyId: contract.userCompanyId.toString(),
+                                  screen: Specificorder(
+                                    companyId:
+                                        contract.userCompanyId.toString(),
                                     item: contract.name,
                                     price: contract.price,
-                                    
                                     quantity:
                                         contract.qualityGradeId.toString(),
                                   ),
                                 );
-                               
                               },
                               child: _buildSearchItem(
-                                  contractId: contract.commodityId,
+                                  contractId: contract.contractId,
                                   contractType: contract.contractType,
                                   title: contract.name,
                                   product: contract.name,
