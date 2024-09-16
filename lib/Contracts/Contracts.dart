@@ -270,23 +270,65 @@ class _ContractsState extends State<Contracts> {
         },
         backgroundColor: Colors.green.shade600,
         child: const Icon(Icons.add, color: Colors.white),
+      ), 
+      appBar:AppBar(
+  centerTitle: true,
+  automaticallyImplyLeading: true,
+  title: Text(
+    "Contracts",
+    style: GoogleFonts.poppins(
+      fontWeight: FontWeight.bold, // Bold for more emphasis
+      color: Colors.white,
+      fontSize: 20, // Increased font size for visibility
+    ),
+  ),
+  backgroundColor: Colors.green.shade600,
+  elevation: 4, // Adds shadow to make the app bar stand out
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.vertical(
+      bottom: Radius.circular(20), // Adds a curve to the bottom of the app bar
+    ),
+  ),
+  flexibleSpace: Container(
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [Colors.green.shade500, Colors.green.shade700], // Adds a gradient
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
       ),
-      appBar: AppBar(
-        centerTitle: true,
-        automaticallyImplyLeading: true,
-        // leading: IconButton(
-        //   onPressed: () =>
-        //       Globals.switchScreens(context: context, screen: Authorization()),
-        //   icon: const Icon(Icons.arrow_back, color: Colors.white),
-        // ),
-        title: Text(
-          "Contracts",
-          style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600, color: Colors.white),
-        ),
-        backgroundColor: Colors.green.shade600,
-        elevation: 0,
+    ),
+  ),
+  actions: [
+    Padding(
+      padding: const EdgeInsets.only(right: 16.0),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 18, // Adjust the size of the avatar
+            backgroundColor: Colors.white, // Avatar background color
+            child: Icon(
+              Icons.person,
+              color: Colors.green.shade600, // Icon color
+              size: 20, // Slightly larger icon
+            ),
+          ),
+          SizedBox(width: 8), // Spacing between the icon and username
+          Text(
+            "Username", // Replace with actual username
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+              fontSize: 16, // Adjust font size for username
+            ),
+          ),
+        ],
       ),
+    ),
+  ],
+)
+,
+
+
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

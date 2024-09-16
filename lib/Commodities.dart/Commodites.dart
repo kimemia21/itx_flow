@@ -5,6 +5,7 @@ import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/Serializers/CommodityModel.dart';
+import 'package:itx/requests/Requests.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -18,6 +19,7 @@ class Commodities extends StatefulWidget {
 
 class _CommoditiesState extends State<Commodities> {
   List<String> userItems = [];
+  List<int> userItemsId = [];
   String searchText = '';
   List<CommodityModel> allCommodities = [];
   List<CommodityModel> filteredCommodities = [];
@@ -52,8 +54,12 @@ class _CommoditiesState extends State<Commodities> {
       } else {
         filteredCommodities = allCommodities
             .where((commodity) =>
-                commodity.name.toLowerCase().contains(searchText.toLowerCase()) ||
-                commodity.packagingName.toLowerCase().contains(searchText.toLowerCase()))
+                commodity.name
+                    .toLowerCase()
+                    .contains(searchText.toLowerCase()) ||
+                commodity.packagingName
+                    .toLowerCase()
+                    .contains(searchText.toLowerCase()))
             .toList();
       }
     });
@@ -153,7 +159,9 @@ class _CommoditiesState extends State<Commodities> {
                                     } else {
                                       userItems.add(commodity.name);
                                     }
-                                    context.read<appBloc>().changeCommodites(userItems);
+                                    context
+                                        .read<appBloc>()
+                                        .changeCommodites(userItems);
                                   });
                                 },
                                 trailing: Checkbox(
@@ -163,10 +171,16 @@ class _CommoditiesState extends State<Commodities> {
                                     setState(() {
                                       if (value!) {
                                         userItems.add(commodity.name);
+                                        userItemsId.add(commodity.id);
+                                        print(userItemsId);
                                       } else {
                                         userItems.remove(commodity.name);
+                                        userItemsId.remove(commodity.id);
+                                        print(userItemsId);
                                       }
-                                      context.read<appBloc>().changeCommodites(userItems);
+                                      context
+                                          .read<appBloc>()
+                                          .changeCommodites(userItems);
                                     });
                                   },
                                 ),
@@ -204,6 +218,9 @@ class _CommoditiesState extends State<Commodities> {
               alignment: Alignment.bottomCenter,
               child: GestureDetector(
                 onTap: () {
+               
+
+                  print(userItems);
                   if (userItems.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -219,11 +236,12 @@ class _CommoditiesState extends State<Commodities> {
                       ),
                     );
                   } else {
-                    PersistentNavBarNavigator.pushNewScreen(
-                      withNavBar: true,
-                      context,
-                      screen: DocumentsVerification(),
-                    );
+                  String user_type = Provider.of<appBloc>(context, listen: false).user_type;
+
+                  AuthRequest.UserRoles(
+                      context: context,
+                      user_type: user_type,
+                      commodities: userItemsId);
                   }
                 },
                 child: Container(

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:itx/Commodities.dart/Commodites.dart';
+import 'package:itx/Serializers/UserTypes.dart';
 import 'package:itx/authentication/Verification.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
@@ -28,7 +30,7 @@ class AuthRequest {
         "email": email,
         "password": password,
         "phonenumber": phoneNumber,
-        "user_type": "1",
+        "user_type": int.parse(user_type),
       };
       // print(body);
 
@@ -54,8 +56,9 @@ class AuthRequest {
         if (responseBody["rsp"] == true) {
           // Registration is successful, navigate to verification screen
           print("Success: ${responseBody["message"]}");
-          bloc.changeIsLoading(false); // Stop loading after success
 
+          bloc.changeIsLoading(false); // Stop loading after success
+          bloc.getUserType(user_type);
           Globals.switchScreens(
             context: context,
             screen: Verification(
@@ -102,6 +105,95 @@ class AuthRequest {
     }
   }
 
+static Future<void> UserRoles({
+  required BuildContext context,
+  required String user_type,
+  required List<int> commodities,
+}) async {
+  final appBloc bloc = context.read<appBloc>();
+  bloc.changeIsLoading(true);  // Start loading state at the beginning
+
+  try {
+    // Prepare the request body
+    final Map<String, dynamic> body = {
+      "commodities": commodities.join(","),  // Join commodities as comma-separated string
+      "user_type_id": user_type
+    };
+    final Uri url = Uri.parse("$main_url/commodities/certs");
+
+    // Send POST request to the API
+    final http.Response response = await http.post(
+      url,
+      body: jsonEncode(body),
+      headers: {
+        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Parse the response body
+      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+      if (responseBody["rsp"] == true) {
+        // Handle success case
+        print("Success: ${responseBody["message"]}");
+        bloc.getUserType(user_type);
+      } else {
+        // Handle specific failure case when response is not successful
+        _handleError(context, "Registration Error", responseBody["message"]);
+      }
+    } else {
+      // Handle other HTTP status codes
+      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      String errorMessage = responseBody["message"] ?? "An unknown error occurred";
+      _handleError(context, "Registration Error", errorMessage);
+    }
+  } catch (e) {
+    // Handle exceptions during the request or response parsing
+    print("Error during registration: $e");
+    _handleError(context, "Registration Error", "Failed to process the request. Please try again.");
+  } finally {
+    // Ensure that loading is stopped regardless of success or failure
+    bloc.changeIsLoading(false);
+  }
+}
+
+static void _handleError(BuildContext context, String title, String content) {
+  Globals.warningsAlerts(
+    title: title,
+    content: content,
+    context: context,
+  );
+}
+
+
+  static Future<List<UserTypeModel>> getContracts(BuildContext context) async {
+    final Uri uri = Uri.parse("$main_url/types");
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      // "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+    };
+    final http.Response response = await http.get(uri, headers: headers);
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (responseData['rsp'] == true) {
+        List<dynamic> contractsJson = responseData['data'];
+        print(contractsJson);
+        List<UserTypeModel> contracts = contractsJson
+            .map((contracts) => UserTypeModel.fromJson(contracts))
+            .toList();
+
+        return contracts;
+      } else {
+        throw Exception('Failed to fetch usertypes: ${responseData['msg']}');
+      }
+    } else {
+      throw Exception('Failed to fetch commodities');
+    }
+  }
+
   // OTP verification request
   static Future<void> otp({
     required BuildContext context,
@@ -141,7 +233,7 @@ class AuthRequest {
 
           // Delay navigation for a few seconds for better UX
           Future.delayed(Duration(seconds: 3));
-          Globals.switchScreens(context: context, screen: GlobalsHomePage());
+          Globals.switchScreens(context: context, screen: Commodities());
 
           bloc.changeIsLoading(false); // Stop loading after success
         } else {
@@ -198,13 +290,13 @@ class AuthRequest {
         headers: {'Content-Type': 'application/json'},
       );
 
-      print("Response Status: ${response.statusCode}");
-
       // Handle success response (status code 200)
       if (response.statusCode == 200) {
+        print("sucesss");
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
+
         String token = responseBody["token"];
-        String type = responseBody["user_type"];
+        String type = responseBody["user_type"] ?? "seller";
         print(token);
 
         if (responseBody["rsp"] == true) {
@@ -212,6 +304,7 @@ class AuthRequest {
           bloc.changeIsLoading(false);
           bloc.changeToken(token);
           bloc.getUserType(type);
+          bloc.changeUser(email);
           Globals.switchScreens(context: context, screen: GlobalsHomePage());
           print("Success: ${responseBody["message"]}");
         } else {
@@ -222,15 +315,7 @@ class AuthRequest {
         // Handle non-200 response status codes
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
         print("Error Response: ${response.body}");
-        // if (responseBody["message"] == "OTP not yet verifed") {
-        //   Future.delayed(Duration(seconds: 2));
-        //   Globals.switchScreens(
-        //       context: context,
-        //       screen: Verification(
-        //           context: context, email: email, phoneNumber: phoneNumber));
-        // }
 
-        // Update state to indicate login failure
         bloc.changeIsLoading(false);
         Globals.warningsAlerts(
           title: "Login Error",

@@ -20,6 +20,8 @@ class appBloc extends ChangeNotifier {
   String _token = "";
   String _user_type = "";
   Map<int, dynamic> _watchList = {};
+  String _userEmail = "";
+  
 
   int get currentIndex => _currentIndex;
   bool get navIsVisible => _navIsVisible;
@@ -27,6 +29,8 @@ class appBloc extends ChangeNotifier {
   String get user_type => _user_type;
   Map<int, dynamic> get watchList => _watchList;
   String get token => _token;
+  String get userEmail => _userEmail;
+
 
   List<String> _userCommodities = [];
   List<String> get userCommodities => _userCommodities;
@@ -80,8 +84,11 @@ class appBloc extends ChangeNotifier {
   bool isInWatchList(int contractId) {
     return _watchList.containsKey(contractId);
   }
+  void changeUser(String email) {
+    _userEmail = email;
+    notifyListeners();
+  } 
 }
-
 
 class CurrentUserProvider extends ChangeNotifier {
   String currentUser = "${FirebaseAuth.instance.currentUser?.email}";
