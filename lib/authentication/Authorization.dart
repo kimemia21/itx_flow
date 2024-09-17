@@ -76,7 +76,8 @@ class _AuthorizationState extends State<Authorization> {
                       Text("Regulator status"),
                       TextButton(
                           onPressed: () {
-                           Globals.switchScreens(context: context, screen:Regulators() );
+                            Globals.switchScreens(
+                                context: context, screen: Regulators());
                           },
                           child: Text("Continue")),
                     ],
@@ -89,7 +90,10 @@ class _AuthorizationState extends State<Authorization> {
                 ),
                 GestureDetector(
                   onTap: () => Globals.switchScreens(
-                      context: context, screen: Contracts()),
+                      context: context,
+                      screen: Contracts(
+                        filtered: false,
+                      )),
                   child: Container(
                     alignment: Alignment.center,
                     width: MediaQuery.of(context).size.width * 0.8,

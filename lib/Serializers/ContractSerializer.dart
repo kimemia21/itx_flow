@@ -7,6 +7,8 @@ class ContractsModel {
   final double price;
   final String description;
   final int id;
+  final int liked;
+  final int canbid;
   final String contractType;
   final String name;
   final int commodityType;
@@ -28,8 +30,10 @@ class ContractsModel {
     required this.name,
     required this.commodityType,
     required this.iconName,
+    required this.liked,
     required this.imageUrl,
     required this.commodityPrimaryPackingId,
+    required this.canbid,
     required this.userCompanyId,
   });
 
@@ -49,6 +53,8 @@ class ContractsModel {
       commodityType: json['commodity_type'],
       iconName: json['icon_name'],
       imageUrl: json['image_url'],
+      liked: json["liked"],
+      canbid: json["can_bid"],
       commodityPrimaryPackingId: json['commodity_primary_packing_id'],
       userCompanyId: json['user_company_id'],
     );

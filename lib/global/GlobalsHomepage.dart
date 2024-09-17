@@ -52,11 +52,12 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
     return [
       // Sales(),
 // CommodityListPage(),
-      Contracts(),
-      // HomepageMain(),
-      Watchlist(),
- 
-       Commodities(),
+      Contracts(filtered: false),
+      Contracts(filtered: true),
+//      // HomepageMain(),
+      //    Watchlist(),
+
+      //  Commodities(),
 
       Spottrader(),
       Mycontracts()
@@ -76,12 +77,12 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
           activeColorPrimary: Colors.teal,
           inactiveColorPrimary: Colors.grey,
         ),
-        PersistentBottomNavBarItem(
-          icon: const Icon(Icons.bar_chart),
-          title: "Market",
-          activeColorPrimary: Colors.deepOrange,
-          inactiveColorPrimary: Colors.grey,
-        ),
+        // PersistentBottomNavBarItem(
+        //   icon: const Icon(Icons.bar_chart),
+        //   title: "Market",
+        //   activeColorPrimary: Colors.deepOrange,
+        //   inactiveColorPrimary: Colors.grey,
+        // ),
         PersistentBottomNavBarItem(
           icon: const Icon(Icons.attach_money_outlined),
           title: "Trades",

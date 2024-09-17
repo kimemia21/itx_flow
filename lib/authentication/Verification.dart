@@ -117,17 +117,19 @@ class _VerificationState extends State<Verification> {
                       borderRadius: BorderRadiusDirectional.circular(10),
                     ),
                     child: context.watch<appBloc>().isLoading
-                        ? Text(
+                        ? LoadingAnimationWidget.staggeredDotsWave(
+                            color: Colors.white, size: 25)
+                        
+                   
+                        :   Text(
                             _isSubmitted ? "Verify" : "Next",
                             style: GoogleFonts.poppins(
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
                               fontSize: 20,
                             ),
-                          )
-                        : LoadingAnimationWidget.staggeredDotsWave(
-                            color: Colors.white, size: 25)),
-              ),
+                          ),
+              ),),
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () {

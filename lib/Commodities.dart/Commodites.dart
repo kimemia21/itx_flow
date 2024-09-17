@@ -6,6 +6,7 @@ import 'package:itx/global/AppBloc.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:itx/requests/Requests.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -28,6 +29,7 @@ class _CommoditiesState extends State<Commodities> {
   @override
   void initState() {
     super.initState();
+
     _loadCommodities();
   }
 
@@ -218,8 +220,6 @@ class _CommoditiesState extends State<Commodities> {
               alignment: Alignment.bottomCenter,
               child: GestureDetector(
                 onTap: () {
-               
-
                   print(userItems);
                   if (userItems.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -236,12 +236,14 @@ class _CommoditiesState extends State<Commodities> {
                       ),
                     );
                   } else {
-                  String user_type = Provider.of<appBloc>(context, listen: false).user_type;
+                    String user_type =
+                        Provider.of<appBloc>(context, listen: false).user_type;
+                    print(userItemsId);
 
-                  AuthRequest.UserRoles(
-                      context: context,
-                      user_type: user_type,
-                      commodities: userItemsId);
+                    AuthRequest.UserCommodities(
+                        context: context,
+                        user_type: user_type,
+                        commodities: userItemsId);
                   }
                 },
                 child: Container(
@@ -260,14 +262,20 @@ class _CommoditiesState extends State<Commodities> {
                       ),
                     ],
                   ),
-                  child: Text(
-                    "Done",
-                    style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
-                  ),
+                  child: context.watch<appBloc>().isLoading
+                      ? Center(
+                          child: LoadingAnimationWidget.staggeredDotsWave(
+                          color: Colors.white,
+                          size: 20,
+                        ))
+                      : Text(
+                          "Done",
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            fontSize: 20,
+                          ),
+                        ),
                 ),
               ),
             ),

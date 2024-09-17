@@ -8,16 +8,18 @@ import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/authentication/Authorization.dart';
 import 'package:itx/global/AnimatedButton.dart';
+import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/global/globals.dart';
 import 'package:http/http.dart' as http;
 import 'package:itx/requests/HomepageRequest.dart';
+import 'package:itx/requests/Requests.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 class Contracts extends StatefulWidget {
-  const Contracts({super.key});
-
+  const Contracts({super.key, required this.filtered});
+  final bool filtered;
   @override
   State<Contracts> createState() => _ContractsState();
 }
@@ -32,7 +34,7 @@ class _ContractsState extends State<Contracts> {
   void initState() {
     super.initState();
     _pageController = PageController();
-
+    print("reinited");
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text.toLowerCase();
@@ -71,7 +73,7 @@ class _ContractsState extends State<Contracts> {
     required String description,
     required String iconName,
     required String imageUrl,
-   }) {
+  }) {
     Map<int, dynamic> data = {
       contractId: {
         "contractId": contractId as int,
@@ -235,6 +237,9 @@ class _ContractsState extends State<Contracts> {
                               // Handle like state change
                               print(
                                   'Contract $contractId is ${isLiked ? 'liked' : 'unliked'}');
+
+                              AuthRequest.likeunlike(
+                                  context, isLiked ? 1 : 0, contractId);
                             },
                           ),
                         ],
@@ -252,83 +257,86 @@ class _ContractsState extends State<Contracts> {
 
   @override
   Widget build(BuildContext context) {
+    print("${Provider.of<appBloc>(context, listen: false).token} token");
+
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          PersistentNavBarNavigator.pushNewScreen(
-            withNavBar: true,
-            context,
-              screen: CreateContract());
-          // Globals.switchScreens(context: context, screen: CreateContract());
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              duration: Duration(seconds: 1),
-              content: Text('Creating new contract...'),
+      floatingActionButton: widget.filtered
+          ? null
+          : FloatingActionButton(
+              onPressed: () {
+                PersistentNavBarNavigator.pushNewScreen(
+                    withNavBar: true, context, screen: CreateContract());
+                // Globals.switchScreens(context: context, screen: CreateContract());
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    duration: Duration(seconds: 1),
+                    content: Text('Creating new contract...'),
+                    backgroundColor: Colors.green.shade600,
+                  ),
+                );
+              },
               backgroundColor: Colors.green.shade600,
+              child: const Icon(Icons.add, color: Colors.white),
             ),
-          );
-        },
+      appBar: AppBar(
+        centerTitle: true,
+        automaticallyImplyLeading: true,
+        title: Text(
+          widget.filtered ? "Watchlist" : "Contracts",
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold, // Bold for more emphasis
+            color: Colors.white,
+            fontSize: 20, // Increased font size for visibility
+          ),
+        ),
         backgroundColor: Colors.green.shade600,
-        child: const Icon(Icons.add, color: Colors.white),
-      ), 
-      appBar:AppBar(
-  centerTitle: true,
-  automaticallyImplyLeading: true,
-  title: Text(
-    "Contracts",
-    style: GoogleFonts.poppins(
-      fontWeight: FontWeight.bold, // Bold for more emphasis
-      color: Colors.white,
-      fontSize: 20, // Increased font size for visibility
-    ),
-  ),
-  backgroundColor: Colors.green.shade600,
-  elevation: 4, // Adds shadow to make the app bar stand out
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.vertical(
-      bottom: Radius.circular(20), // Adds a curve to the bottom of the app bar
-    ),
-  ),
-  flexibleSpace: Container(
-    decoration: BoxDecoration(
-      gradient: LinearGradient(
-        colors: [Colors.green.shade500, Colors.green.shade700], // Adds a gradient
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ),
-    ),
-  ),
-  actions: [
-    Padding(
-      padding: const EdgeInsets.only(right: 16.0),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 18, // Adjust the size of the avatar
-            backgroundColor: Colors.white, // Avatar background color
-            child: Icon(
-              Icons.person,
-              color: Colors.green.shade600, // Icon color
-              size: 20, // Slightly larger icon
+        elevation: 4, // Adds shadow to make the app bar stand out
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(
+                20), // Adds a curve to the bottom of the app bar
+          ),
+        ),
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.green.shade500,
+                Colors.green.shade700
+              ], // Adds a gradient
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
             ),
           ),
-          SizedBox(width: 8), // Spacing between the icon and username
-          Text(
-            "Username", // Replace with actual username
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-              fontSize: 16, // Adjust font size for username
-            ),
-          ),
-        ],
+        ),
+        // actions: [
+        //   Padding(
+        //     padding: const EdgeInsets.only(right: 16.0),
+        //     child: Row(
+        //       children: [
+        //         CircleAvatar(
+        //           radius: 18, // Adjust the size of the avatar
+        //           backgroundColor: Colors.white, // Avatar background color
+        //           child: Icon(
+        //             Icons.person,
+        //             color: Colors.green.shade600, // Icon color
+        //             size: 20, // Slightly larger icon
+        //           ),
+        //         ),
+        //         SizedBox(width: 8), // Spacing between the icon and username
+        //         Text(
+        //           "Username", // Replace with actual username
+        //           style: GoogleFonts.poppins(
+        //             fontWeight: FontWeight.w600,
+        //             color: Colors.white,
+        //             fontSize: 16, // Adjust font size for username
+        //           ),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ],
       ),
-    ),
-  ],
-)
-,
-
-
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -344,7 +352,8 @@ class _ContractsState extends State<Contracts> {
               _buildSearchBar(context),
               Expanded(
                 child: FutureBuilder<List<ContractsModel>>(
-                  future: CommodityService.getContracts(context),
+                  future: CommodityService.getContracts(
+                      context, widget.filtered ? "this_user_liked=1" : ""),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(
@@ -366,8 +375,12 @@ class _ContractsState extends State<Contracts> {
                         ),
                       );
                     } else {
-                      final filteredContracts =
-                          _filterContracts(snapshot.data!, _searchQuery);
+                      final filteredContracts = !widget.filtered
+                          ? _filterContracts(snapshot.data!, _searchQuery)
+                          : _filterContracts(snapshot.data!, _searchQuery)
+                              .where((element) => element.liked == 1)
+                              .toList();
+
                       return ListView.builder(
                         itemCount: filteredContracts.length,
                         itemBuilder: (context, index) {
@@ -383,6 +396,7 @@ class _ContractsState extends State<Contracts> {
                                         contract.userCompanyId.toString(),
                                     item: contract.name,
                                     price: contract.price,
+                                    contract: contract,
                                     quantity:
                                         contract.qualityGradeId.toString(),
                                   ),

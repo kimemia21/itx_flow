@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/Serializers/UserTypes.dart';
+import 'package:itx/authentication/Regulator.dart';
 import 'package:itx/authentication/Verification.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
@@ -11,7 +12,7 @@ import 'package:provider/provider.dart';
 
 class AuthRequest {
   // Base URL for the API
-  static final main_url = "http://185.141.63.56:3067/api/v1/user";
+  static final main_url = "http://192.168.100.8:3000/api/v1";
 
   // Register request
   static Future<void> register({
@@ -21,26 +22,20 @@ class AuthRequest {
     required String phoneNumber,
     required String user_type,
   }) async {
-    // Retrieve the appBloc instance for managing the loading state
-    final appBloc bloc = context.read<appBloc>();
+    final appBloc bloc = Provider.of<appBloc>(context, listen: false);
 
     try {
-      // Prepare the request body
       final Map<String, dynamic> body = {
         "email": email,
         "password": password,
         "phonenumber": phoneNumber,
         "user_type": int.parse(user_type),
       };
-      // print(body);
 
-      // Define the endpoint for registration
-      final Uri url = Uri.parse("$main_url/register");
+      final Uri url = Uri.parse("$main_url/user/register");
 
-      // Start loading state
       bloc.changeIsLoading(true);
 
-      // Send POST request to register the user
       final http.Response response = await http.post(
         url,
         body: jsonEncode(body),
@@ -49,127 +44,194 @@ class AuthRequest {
 
       print("Response Status: ${response.statusCode}");
 
-      // Handle success response (status code 200)
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
 
         if (responseBody["rsp"] == true) {
-          // Registration is successful, navigate to verification screen
           print("Success: ${responseBody["message"]}");
-
-          bloc.changeIsLoading(false); // Stop loading after success
           bloc.getUserType(user_type);
-          Globals.switchScreens(
-            context: context,
-            screen: Verification(
-              context: context,
-              email: email,
-              phoneNumber: phoneNumber,
+          bloc.changeIsLoading(false);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Verification(
+                context: context,
+                email: email,
+                phoneNumber: phoneNumber,
+              ),
             ),
           );
         } else {
-          // Handle failure case (incorrect data, etc.)
           print("Request failed: ${responseBody["message"]}");
-          Globals.warningsAlerts(
-            title: "Registration Error",
-            content: responseBody["message"],
-            context: context,
-          );
-          bloc.changeIsLoading(false); // Stop loading after failure
+          bloc.changeIsLoading(false);
+          _showErrorDialog(
+              context, "Registration Error", responseBody["message"]);
         }
       } else {
-        // Handle non-200 response status codes
+        bloc.changeIsLoading(false);
         print("Error Response: ${response.body}");
         final body = jsonDecode(response.body) as Map;
-        String message = "";
-
-        // Custom message for "User already exists" case
-        if (body["message"] == "User already exists") {
-          message = "User with email $email already exists";
-        } else {
-          message = body["message"];
-        }
-
-        // Show warning alert with the error message
-        Globals.warningsAlerts(
-          title: "Registration Error",
-          content: message,
-          context: context,
-        );
-        bloc.changeIsLoading(false); // Stop loading after failure
+        String message = body["message"] == "User already exists"
+            ? "User with email $email already exists"
+            : body["message"];
+        _showErrorDialog(context, "Registration Error", message);
       }
     } catch (e) {
-      // Handle errors during the request
       print("Error during registration: $e");
-      bloc.changeIsLoading(false); // Stop loading after failure
+      _showErrorDialog(context, "Registration Error",
+          "An unexpected error occurred. Please try again.");
+    } finally {
+      bloc.changeIsLoading(false);
     }
   }
 
-static Future<void> UserRoles({
-  required BuildContext context,
-  required String user_type,
-  required List<int> commodities,
-}) async {
-  final appBloc bloc = context.read<appBloc>();
-  bloc.changeIsLoading(true);  // Start loading state at the beginning
-
-  try {
-    // Prepare the request body
-    final Map<String, dynamic> body = {
-      "commodities": commodities.join(","),  // Join commodities as comma-separated string
-      "user_type_id": user_type
-    };
-    final Uri url = Uri.parse("$main_url/commodities/certs");
-
-    // Send POST request to the API
-    final http.Response response = await http.post(
-      url,
-      body: jsonEncode(body),
-      headers: {
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
-        'Content-Type': 'application/json',
+  static void _showErrorDialog(
+      BuildContext context, String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
       },
     );
-
-    if (response.statusCode == 200) {
-      // Parse the response body
-      final Map<String, dynamic> responseBody = jsonDecode(response.body);
-
-      if (responseBody["rsp"] == true) {
-        // Handle success case
-        print("Success: ${responseBody["message"]}");
-        bloc.getUserType(user_type);
-      } else {
-        // Handle specific failure case when response is not successful
-        _handleError(context, "Registration Error", responseBody["message"]);
-      }
-    } else {
-      // Handle other HTTP status codes
-      final Map<String, dynamic> responseBody = jsonDecode(response.body);
-      String errorMessage = responseBody["message"] ?? "An unknown error occurred";
-      _handleError(context, "Registration Error", errorMessage);
-    }
-  } catch (e) {
-    // Handle exceptions during the request or response parsing
-    print("Error during registration: $e");
-    _handleError(context, "Registration Error", "Failed to process the request. Please try again.");
-  } finally {
-    // Ensure that loading is stopped regardless of success or failure
-    bloc.changeIsLoading(false);
   }
-}
 
-static void _handleError(BuildContext context, String title, String content) {
-  Globals.warningsAlerts(
-    title: title,
-    content: content,
-    context: context,
-  );
-}
+  static Future<void> UserCommodities({
+    required BuildContext context,
+    required String user_type,
+    required List<int> commodities,
+  }) async {
+    final appBloc bloc = context.read<appBloc>();
 
+    bloc.changeIsLoading(true);
+    // Start loading state at the beginning
+
+    try {
+      // Prepare the request body
+      final Map<String, dynamic> body = {
+        "commodities": commodities.join(","),
+        "user_type_id": int.parse(user_type)
+      };
+      bloc.changeUserCommoditesIds(commodities);
+
+      final Uri url = Uri.parse("$main_url/commodities/certs");
+      print(Provider.of<appBloc>(context, listen: false).token);
+      // Send POST request to the API
+      final http.Response response = await http.post(
+        url,
+        body: jsonEncode(body),
+        headers: {
+          "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Parse the response body
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+        if (responseBody["rsp"] == true) {
+          // success case
+          print("Success: ${responseBody["data"]}");
+          bloc.getUserType(user_type);
+          bloc.changeUserCommoditesCert(responseBody["data"]);
+          print(" this is user bloc ${bloc.UserCommoditesCerts}");
+          bloc.changeIsLoading(false);
+
+          Globals.switchScreens(context: context, screen: Regulators());
+        } else {
+          // Handle specific failure
+          _handleError(
+              context, "commodities select Error", responseBody["message"]);
+        }
+      } else {
+        // Handle other HTTP status codes
+        bloc.changeIsLoading(false);
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        String errorMessage =
+            responseBody["message"] ?? "An unknown error occurred";
+        _handleError(context, "Registration Error", errorMessage);
+      }
+    } catch (e) {
+      // Handle exceptions during the request or response parsing
+      print("Error during registration: $e");
+      _handleError(context, "Registration Error",
+          "Failed to process the request. Please try again.");
+    } finally {
+      // Ensure that loading is stopped regardless of success or failure
+      bloc.changeIsLoading(false);
+    }
+  }
+
+  static void _handleError(BuildContext context, String title, String content) {
+    Globals.warningsAlerts(
+      title: title,
+      content: content,
+      context: context,
+    );
+  }
+
+  static Future createBid(BuildContext context, bid, int id) async {
+    final Uri uri = Uri.parse("$main_url/contracts/$id/order");
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+    };
+
+    final request =
+        await http.post(body: jsonEncode(bid), uri, headers: headers);
+
+    print("request ${request.body}");
+
+    if (request.statusCode == 200) {
+      final responseBody = jsonDecode(request.body);
+      print("responseBody ${responseBody}");
+
+      if (responseBody.toString().contains("true")) {
+        // Show an authentication error if OTP fails
+        Globals.warningsAlerts(
+          title: "Highest Bidder",
+          content: responseBody["msg"],
+          context: context,
+        );
+      } else {
+        // Show an authentication error if OTP fails
+        Globals.warningsAlerts(
+          title: "bidding  Error",
+          content: responseBody["rsp"],
+          context: context,
+        );
+      }
+    }
+  }
+
+  static Future likeunlike(BuildContext context, likeunl, int id) async {
+    final Uri uri = Uri.parse("$main_url/contracts/$id/like");
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+    };
+
+    final request = await http.post(
+        body: jsonEncode({"like": likeunl}), uri, headers: headers);
+
+    print("request ${request.body}");
+
+    if (request.statusCode == 200) {}
+  }
 
   static Future<List<UserTypeModel>> getContracts(BuildContext context) async {
-    final Uri uri = Uri.parse("$main_url/types");
+    final Uri uri = Uri.parse("$main_url/user/types");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
       // "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
@@ -203,7 +265,7 @@ static void _handleError(BuildContext context, String title, String content) {
     final appBloc bloc = context.read<appBloc>();
 
     // Define the OTP verification endpoint
-    final Uri url = Uri.parse("$main_url/otpc");
+    final Uri url = Uri.parse("$main_url/user/otpc");
 
     // Prepare the request body for OTP verification
     final Map<String, dynamic> body = {
@@ -278,7 +340,7 @@ static void _handleError(BuildContext context, String title, String content) {
       };
 
       // Define the login endpoint
-      final Uri url = Uri.parse("$main_url/login");
+      final Uri url = Uri.parse("$main_url/user/login");
 
       // Start loading state
       bloc.changeIsLoading(true);

@@ -6,13 +6,14 @@ import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:itx/Serializers/CompanySerializer.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/global/AppBloc.dart';
+import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:provider/provider.dart';
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class CommodityService {
-  static String mainUri = "http://185.141.63.56:3067/api/v1";
+  static String mainUri = "http://192.168.100.8:3000/api/v1";
 
   static Future<List<CommodityModel>> fetchCommodities(
       BuildContext context, String keyword) async {
@@ -51,8 +52,9 @@ class CommodityService {
     }
   }
 
-  static Future<List<ContractsModel>> getContracts(BuildContext context) async {
-    final Uri uri = Uri.parse("$mainUri/contracts/list");
+  static Future<List<ContractsModel>> getContracts(
+      BuildContext context, filter) async {
+    final Uri uri = Uri.parse("$mainUri/contracts/list?${filter}");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
       "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
@@ -71,6 +73,35 @@ class CommodityService {
         return contracts;
       } else {
         throw Exception('Failed to fetch contracts: ${responseData['msg']}');
+      }
+    } else {
+      throw Exception('Failed to fetch commodities');
+    }
+  }
+
+  static Future PostContracts(BuildContext context) async {
+    final Uri uri = Uri.parse("$mainUri/user/interests");
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+    };
+    final Map<String, String> body = {
+      "commodities": Provider.of<appBloc>(context, listen: false)
+          .userCommoditiesIds
+          .join(","),
+    };
+
+    final http.Response response =
+        await http.post(uri, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (responseData['rsp'] == true) {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => GlobalsHomePage()));
+      } else {
+        throw Exception('Failed to submit  Docs: ${responseData['msg']}');
       }
     } else {
       throw Exception('Failed to fetch commodities');
@@ -107,8 +138,42 @@ class CommodityService {
     } catch (e) {
       print("catch error $e in getCompany ");
     }
+
   }
+
+
+    static Future getOrders(
+      {required BuildContext context, required String id}) async {
+    try {
+      final Uri uri = Uri.parse("$mainUri/user/orders");
+      final Map<String, String> headers = {
+        "Content-Type": "application/json",
+        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      };
+      final http.Response response = await http.get(uri, headers: headers);
+
+      final body = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        if (body["rsp"]) {
+          List<dynamic> data = body["data"];
+          print("this is  ${data[0]}");
+          CompanyModel companyModel = CompanyModel.fromJson(data[0]);
+
+          // List<CompanyModel> company =
+          //     data.map((company) => CompanyModel.fromJson(company)).toList();
+
+          return companyModel;
+        } else {
+          print("error message from getcompany() ${body["message"]}");
+        }
+      } else {
+        print("error message from getcompany() ${body["message"]}");
+      }
+    } catch (e) {
+      print("catch error $e in getCompany ");
+    }
+  }
+
+
+
 }
-
-
-

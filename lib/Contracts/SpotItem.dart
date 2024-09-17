@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -44,7 +43,11 @@ class _SpotitemState extends State<Spotitem>
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        leading: Globals.leading(context: context, screen: Contracts()),
+        leading: Globals.leading(
+            context: context,
+            screen: Contracts(
+              filtered: false,
+            )),
         title: Text('Create Contact'),
         centerTitle: true,
         // bottom: TabBar(
@@ -125,16 +128,21 @@ class _SpotitemState extends State<Spotitem>
                 ),
                 GestureDetector(
                   onTap: () {
-                    selectedCommodity!=null?
-                    Globals.switchScreens(
-                        context: context, screen: Specificorder(item:selectedCommodity! ,price:12,quantity:"23",companyId: "1",)):
-                         ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text(
-              'Please Select a Commodity'),
-        ),
-      );
+                    selectedCommodity != null
+                        ? Globals.switchScreens(
+                            context: context,
+                            screen: Specificorder(
+                              item: selectedCommodity!,
+                              price: 12,
+                              quantity: "23",
+                              companyId: "1",
+                            ))
+                        : ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: Colors.red,
+                              content: Text('Please Select a Commodity'),
+                            ),
+                          );
                   },
                   child: Container(
                     padding: EdgeInsets.all(15),

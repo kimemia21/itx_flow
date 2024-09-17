@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/authentication/Authorization.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/globals.dart';
+import 'package:itx/requests/HomepageRequest.dart';
 import 'package:provider/provider.dart';
 
 class Regulators extends StatefulWidget {
@@ -16,11 +18,7 @@ class _RegulatorsState extends State<Regulators> {
   final _formKey = GlobalKey<FormState>();
   int currentIndex = 0;
   Map<String, Map<String, dynamic>> formData = {};
-
-  Map<int, String> authorities = {
-    1: 'Authority A',
-    2: 'Authority B',
-  };
+  Map<String, List<String>> commodityAuthorities = {};
 
   @override
   void initState() {
@@ -32,6 +30,11 @@ class _RegulatorsState extends State<Regulators> {
       if (commodities != null) {
         for (var commodity in commodities) {
           _initializeFormData(commodity.toString());
+          commodityAuthorities[commodity.toString()] = [
+            '$commodity Authority A',
+            '$commodity Authority B',
+            '$commodity Authority C'
+          ];
         }
       } else {
         print("No commodities found.");
@@ -119,7 +122,7 @@ class _RegulatorsState extends State<Regulators> {
         final data = getFormData();
         if (data != null) {
           print(data);
-          Globals.switchScreens(context: context, screen: Authorization());
+          CommodityService.PostContracts(context);
         }
       }
     }
@@ -139,12 +142,16 @@ class _RegulatorsState extends State<Regulators> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: true,
         centerTitle: true,
+        leading: IconButton.filled(
+            onPressed: () =>
+                Globals.switchScreens(context: context, screen: Commodities()),
+            icon: Icon(Icons.arrow_back)),
         title: Text(
           'Regulators',
           style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontWeight: FontWeight.w600),
+              color: Colors.white, fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.green.shade800,
       ),
@@ -185,7 +192,12 @@ class _RegulatorsState extends State<Regulators> {
                         children: [
                           ElevatedButton(
                             onPressed: _skipForm,
-                            child: Text('Skip',style: GoogleFonts.poppins(color: Colors.black,fontWeight: FontWeight.w600),),
+                            child: Text(
+                              'Skip',
+                              style: GoogleFonts.poppins(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600),
+                            ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.grey.shade400,
                               padding: EdgeInsets.symmetric(
@@ -197,9 +209,14 @@ class _RegulatorsState extends State<Regulators> {
                           ),
                           ElevatedButton(
                             onPressed: _nextForm,
-                            child: Text(currentIndex == commodities.length - 1
-                                ? 'Submit'
-                                : 'Next',style: GoogleFonts.poppins(color: Colors.white,fontWeight: FontWeight.w600),),
+                            child: Text(
+                              currentIndex == commodities.length - 1
+                                  ? 'Submit'
+                                  : 'Next',
+                              style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600),
+                            ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green.shade800,
                               padding: EdgeInsets.symmetric(
@@ -228,17 +245,15 @@ class _RegulatorsState extends State<Regulators> {
       children: [
         _buildFormField(
           'Authority',
-          DropdownButtonFormField<int>(
+          DropdownButtonFormField<String>(
             value: formData[commodity]!['selectedAuthorityId'],
-            items: authorities.entries
-                .map<DropdownMenuItem<int>>(
-                  (entry) => DropdownMenuItem<int>(
-                    value: entry.key,
-                    child: Text(entry.value),
-                  ),
-                )
-                .toList(),
-            onChanged: (int? newValue) {
+            items: commodityAuthorities[commodity]?.map((String authority) {
+              return DropdownMenuItem<String>(
+                value: authority,
+                child: Text(authority),
+              );
+            }).toList() ?? [],
+            onChanged: (String? newValue) {
               setState(() {
                 formData[commodity]!['selectedAuthorityId'] = newValue;
               });
@@ -310,8 +325,8 @@ class _RegulatorsState extends State<Regulators> {
                 value == null || value.isEmpty ? 'Please select a date' : null,
             onTap: () async {
               FocusScope.of(context).requestFocus(new FocusNode());
-              await _selectDate(context,
-                  formData[commodity]!['expiryDateController']);
+              await _selectDate(
+                  context, formData[commodity]!['expiryDateController']);
             },
           ),
         ),

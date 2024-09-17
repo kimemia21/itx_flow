@@ -160,17 +160,18 @@ class _SplashscreenState extends State<Splashscreen>
                 height: 10,
               ),
               GestureDetector(
-                onTap: () async {
-                  bool connection = await checkInternetConnection(context);
-
-                  print("this is the internet connection status $connection");
-
-                  if (connection) {
+                onTap: () {
                     Globals.switchScreens(
                         context: context, screen: MainLoginScreen());
-                  } else {
-                    Globals().nointernet(context: context);
-                  }
+                  // bool connection = await checkInternetConnection(context);
+
+                  // print("this is the internet connection status $connection");
+
+                  // if (connection) {
+                  
+                  // } else {
+                  //   Globals().nointernet(context: context);
+                  // }
                 },
                 child: Material(
                     elevation: 5,
@@ -207,7 +208,7 @@ class _SplashscreenState extends State<Splashscreen>
 
                   child: GoogleAuthButton(
                       onPressed: () async {
-                        Authentication.signInWithGoogle(context: context);
+                        // Authentication.signInWithGoogle(context: context);
                       },
                       themeMode: themeMode,
                       isLoading: isLoading,
@@ -226,17 +227,12 @@ class _SplashscreenState extends State<Splashscreen>
               ),
               Center(
                 child: GestureDetector(
-                  onTap: () async {
+                  onTap: () {
                     print("pressed");
                     try {
-                      bool connection = await checkInternetConnection(context);
-
-                      if (connection) {
-                        Globals.switchScreens(
-                            context: context, screen: MainSignup());
-                      } else {
-                        Globals().nointernet(context: context);
-                      }
+                      Globals.switchScreens(
+                          context: context, screen: MainSignup());
+                    
                     } catch (e) {
                       print("Got this error in splashScreen $e");
                     }

@@ -21,7 +21,8 @@ class appBloc extends ChangeNotifier {
   String _user_type = "";
   Map<int, dynamic> _watchList = {};
   String _userEmail = "";
-  
+  List _userCommoditesCerts = [];
+  List<int> _userCommoditesIds = [];
 
   int get currentIndex => _currentIndex;
   bool get navIsVisible => _navIsVisible;
@@ -30,10 +31,12 @@ class appBloc extends ChangeNotifier {
   Map<int, dynamic> get watchList => _watchList;
   String get token => _token;
   String get userEmail => _userEmail;
-
+  List get UserCommoditesCerts => _userCommoditesCerts;
 
   List<String> _userCommodities = [];
   List<String> get userCommodities => _userCommodities;
+  
+  List<int> get userCommoditiesIds => _userCommoditesIds;
 
   void changeCurrentIndex({required int index}) {
     _currentIndex = index;
@@ -84,10 +87,20 @@ class appBloc extends ChangeNotifier {
   bool isInWatchList(int contractId) {
     return _watchList.containsKey(contractId);
   }
+
   void changeUser(String email) {
     _userEmail = email;
     notifyListeners();
-  } 
+  }
+
+  void changeUserCommoditesCert(List certs) {
+    _userCommoditesCerts = certs;
+    notifyListeners();
+  }
+    void changeUserCommoditesIds(List<int>ids) {
+    _userCommoditesIds = ids;
+    notifyListeners();
+  }
 }
 
 class CurrentUserProvider extends ChangeNotifier {

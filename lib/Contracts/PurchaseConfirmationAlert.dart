@@ -1,14 +1,17 @@
-
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:itx/Serializers/ContractSerializer.dart';
+import 'package:itx/requests/HomepageRequest.dart';
+import 'package:itx/requests/Requests.dart';
 
-class PurchaseConfirmationAlert extends StatelessWidget {
+class PurchaseConfirmationAlert extends StatefulWidget {
   final String productName;
   final double amount;
   final int quantity;
+  final ContractsModel contract;
   final DateTime deliveryDate;
   final String contactEmail;
   final String contactPhone;
@@ -17,12 +20,21 @@ class PurchaseConfirmationAlert extends StatelessWidget {
     Key? key,
     required this.productName,
     required this.amount,
+    required this.contract,
     required this.quantity,
     required this.deliveryDate,
     required this.contactEmail,
     required this.contactPhone,
   }) : super(key: key);
 
+  @override
+  State<PurchaseConfirmationAlert> createState() =>
+      _PurchaseConfirmationAlertState();
+}
+
+class _PurchaseConfirmationAlertState extends State<PurchaseConfirmationAlert> {
+  double amt = 0;
+  TextEditingController amtinput = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -63,7 +75,7 @@ class PurchaseConfirmationAlert extends StatelessWidget {
           ),
           SizedBox(height: 15),
           Text(
-            productName,
+            widget.productName,
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.w500,
@@ -71,15 +83,25 @@ class PurchaseConfirmationAlert extends StatelessWidget {
             ),
           ),
           SizedBox(height: 10),
-          Text(
-            'Quantity: $quantity',
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              color: Colors.grey[700],
+          // Text(
+          //   'Quantity: ${widget.quantity}',
+          //   style: GoogleFonts.poppins(
+          //     fontSize: 16,
+          //     color: Colors.grey[700],
+          //   ),
+          // ),
+          if (widget.amount == -1)
+            TextField(
+              controller: amtinput,
+              onChanged: (value) {
+                amt = double.parse(value);
+                setState(() {});
+              },
             ),
-          ),
           Text(
-            'Total: \$${(amount * quantity).toStringAsFixed(2)}',
+            widget.amount > 0
+                ? 'Total: \$${(widget.amount * widget.quantity).toStringAsFixed(2)}'
+                : 'Total: \$${amt.toStringAsFixed(2)}',
             style: GoogleFonts.poppins(
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -88,7 +110,7 @@ class PurchaseConfirmationAlert extends StatelessWidget {
           ),
           SizedBox(height: 10),
           Text(
-            'Delivery Date: ${DateFormat('MMM dd, yyyy').format(deliveryDate)}',
+            'Delivery Date: ${DateFormat('MMM dd, yyyy').format(widget.deliveryDate)}',
             style: GoogleFonts.poppins(
               fontSize: 16,
               color: Colors.grey[700],
@@ -96,31 +118,31 @@ class PurchaseConfirmationAlert extends StatelessWidget {
           ),
           SizedBox(height: 15),
           Divider(),
-          SizedBox(height: 15),
-          Text(
-            'Contact Information',
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-              color: Colors.blue[800],
-            ),
-          ),
-          SizedBox(height: 10),
-          Text(
-            'Email: $contactEmail',
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: Colors.grey[700],
-            ),
-          ),
-          Text(
-            'Phone: $contactPhone',
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              color: Colors.grey[700],
-            ),
-          ),
-          SizedBox(height: 22),
+          // SizedBox(height: 15),
+          // Text(
+          //   'Contact Information',
+          //   style: GoogleFonts.poppins(
+          //     fontSize: 18,
+          //     fontWeight: FontWeight.w500,
+          //     color: Colors.blue[800],
+          //   ),
+          // ),
+          // SizedBox(height: 10),
+          // Text(
+          //   'Email: ${widget.contactEmail}',
+          //   style: GoogleFonts.poppins(
+          //     fontSize: 14,
+          //     color: Colors.grey[700],
+          //   ),
+          // ),
+          // Text(
+          //   'Phone: ${widget.contactPhone}',
+          //   style: GoogleFonts.poppins(
+          //     fontSize: 14,
+          //     color: Colors.grey[700],
+          //   ),
+          // ),
+          // SizedBox(height: 22),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
@@ -137,7 +159,23 @@ class PurchaseConfirmationAlert extends StatelessWidget {
                 ),
               ),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
+                  if (widget.amount > 0) {
+                    amt = widget.amount;
+                  }
+                  if (amt < 1) {
+                    return;
+                  }
+
+                  AuthRequest.createBid(
+                          context,
+                          {"order_price": amt, "order_type": "BUY"},
+                          widget.contract.contractId)
+                      .then(
+                    (value) {
+                   //   Navigator.pop(context);
+                    },
+                  );
                   CherryToast.success(
                     title: Text("Purchase Confirmed"),
                     description: Text(
