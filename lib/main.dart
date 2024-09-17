@@ -3,9 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:itx/authentication/Regulator.dart';
 import 'package:itx/authentication/SplashScreen.dart';
 import 'package:itx/firebase_options.dart';
 import 'package:itx/global/AppBloc.dart';
+import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/web/CreateAccount.dart';
 import 'package:provider/provider.dart';
@@ -62,9 +64,10 @@ class MyApp extends StatelessWidget {
               child: CircularProgressIndicator(),
             );
           } else if (snapshot.hasData) {
-            return Splashscreen(); // Replace with your authenticated home screen
+            return GlobalsHomePage();
           } else {
-            return Splashscreen(); // Replace with your login screen
+            return GlobalsHomePage();
+            
           }
         },
       );

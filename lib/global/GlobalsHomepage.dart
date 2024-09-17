@@ -50,17 +50,18 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
 
   List<Widget> _buildScreens() {
     return [
+        // HomepageMain(),
+      //    Watchlist(),
+
+      //  Commodities(),
       // Sales(),
 // CommodityListPage(),
       Contracts(filtered: false),
       Contracts(filtered: true),
-//      // HomepageMain(),
-      //    Watchlist(),
-
-      //  Commodities(),
+//
 
       Spottrader(),
-      Mycontracts()
+      UserOrdersScreen()
     ];
   }
 
@@ -99,7 +100,6 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    CommodityService.getCompany(context: context, id: "1");
     return PersistentTabView(
       context,
       controller: _controller,

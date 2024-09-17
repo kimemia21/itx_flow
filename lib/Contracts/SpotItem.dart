@@ -111,7 +111,7 @@ class _SpotitemState extends State<Spotitem>
               children: [
                 GestureDetector(
                   onTap: () => Globals.switchScreens(
-                      context: context, screen: Mycontracts()),
+                      context: context, screen: UserOrdersScreen()),
                   child: Container(
                     padding: EdgeInsets.all(15),
                     decoration: BoxDecoration(

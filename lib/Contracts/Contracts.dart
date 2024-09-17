@@ -34,7 +34,7 @@ class _ContractsState extends State<Contracts> {
   void initState() {
     super.initState();
     _pageController = PageController();
-    print("reinited");
+   
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text.toLowerCase();
@@ -309,33 +309,7 @@ class _ContractsState extends State<Contracts> {
             ),
           ),
         ),
-        // actions: [
-        //   Padding(
-        //     padding: const EdgeInsets.only(right: 16.0),
-        //     child: Row(
-        //       children: [
-        //         CircleAvatar(
-        //           radius: 18, // Adjust the size of the avatar
-        //           backgroundColor: Colors.white, // Avatar background color
-        //           child: Icon(
-        //             Icons.person,
-        //             color: Colors.green.shade600, // Icon color
-        //             size: 20, // Slightly larger icon
-        //           ),
-        //         ),
-        //         SizedBox(width: 8), // Spacing between the icon and username
-        //         Text(
-        //           "Username", // Replace with actual username
-        //           style: GoogleFonts.poppins(
-        //             fontWeight: FontWeight.w600,
-        //             color: Colors.white,
-        //             fontSize: 16, // Adjust font size for username
-        //           ),
-        //         ),
-        //       ],
-        //     ),
-        //   ),
-        // ],
+     
       ),
       body: Container(
         decoration: BoxDecoration(

@@ -12,7 +12,7 @@ import 'package:provider/provider.dart';
 
 class AuthRequest {
   // Base URL for the API
-  static final main_url = "http://192.168.100.8:3000/api/v1";
+  static final main_url = "http://185.141.63.56:3067/api/v1/";
 
   // Register request
   static Future<void> register({

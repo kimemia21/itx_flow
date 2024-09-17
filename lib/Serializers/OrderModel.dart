@@ -20,10 +20,9 @@ class UserOrders {
   final DateTime deliveryDate;
   final double price;
   final String description;
-  final DateTime closeDate;
+  final DateTime? closeDate;
   final DateTime postedOn;
   final int closed;
-  final DateTime closedOn;
   final int id;
   final String name;
   final int? commodityGradeId;
@@ -58,7 +57,6 @@ class UserOrders {
     required this.closeDate,
     required this.postedOn,
     required this.closed,
-    required this.closedOn,
     required this.id,
     required this.name,
     this.commodityGradeId,
@@ -71,6 +69,7 @@ class UserOrders {
 
   // Factory method to create a `Contract` object from JSON data
   factory UserOrders.fromJson(Map<String, dynamic> json) {
+    print(("[\\n order json $json]"));
     return UserOrders(
       contractId: json['contract_id'],
       bidId: json['bid_id'],
@@ -86,7 +85,9 @@ class UserOrders {
       maxPrice: json['max_price'] != null ? json['max_price'].toDouble() : null,
       sessionOpen: json['session_open'],
       isHighestBid: json['is_highest_bid'],
-      sessionCloseAt: json['session_close_at'] != null ? DateTime.parse(json['session_close_at']) : null,
+      sessionCloseAt: json['session_close_at'] != null
+          ? DateTime.parse(json['session_close_at'])
+          : null,
       contractTypeId: json['contract_type_id'],
       commodityId: json['commodity_id'],
       qualityGradeId: json['quality_grade_id'],
@@ -96,7 +97,6 @@ class UserOrders {
       closeDate: DateTime.parse(json['close_date']),
       postedOn: DateTime.parse(json['posted_on']),
       closed: json['closed'],
-      closedOn: DateTime.parse(json['closed_on']),
       id: json['id'],
       name: json['name'],
       commodityGradeId: json['commodity_grade_id'],

@@ -5,15 +5,14 @@ import 'package:http/http.dart' as http;
 import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:itx/Serializers/CompanySerializer.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
+import 'package:itx/Serializers/OrderModel.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:provider/provider.dart';
 
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 class CommodityService {
-  static String mainUri = "http://192.168.100.8:3000/api/v1";
+  static String mainUri = "http://185.141.63.56:3067/api/v1/";
 
   static Future<List<CommodityModel>> fetchCommodities(
       BuildContext context, String keyword) async {
@@ -111,6 +110,7 @@ class CommodityService {
   static Future getCompany(
       {required BuildContext context, required String id}) async {
     try {
+      print("get user company");
       final Uri uri = Uri.parse("$mainUri/user/company/$id");
       final Map<String, String> headers = {
         "Content-Type": "application/json",
@@ -138,12 +138,10 @@ class CommodityService {
     } catch (e) {
       print("catch error $e in getCompany ");
     }
-
   }
 
-
-    static Future getOrders(
-      {required BuildContext context, required String id}) async {
+  static Future<List<UserOrders>> getOrders(
+      {required BuildContext context}) async {
     try {
       final Uri uri = Uri.parse("$mainUri/user/orders");
       final Map<String, String> headers = {
@@ -156,24 +154,21 @@ class CommodityService {
       if (response.statusCode == 200) {
         if (body["rsp"]) {
           List<dynamic> data = body["data"];
-          print("this is  ${data[0]}");
-          CompanyModel companyModel = CompanyModel.fromJson(data[0]);
-
-          // List<CompanyModel> company =
-          //     data.map((company) => CompanyModel.fromJson(company)).toList();
-
-          return companyModel;
+          print(data);
+          final List<UserOrders> orders =
+              data.map((order) => UserOrders.fromJson(order)).toList();
+          return orders;
         } else {
-          print("error message from getcompany() ${body["message"]}");
+          print("error message  ${body["message"]}");
+          throw Exception("error message ${body["message"]}");
         }
       } else {
-        print("error message from getcompany() ${body["message"]}");
+        print("error message ${body["message"]}");
+        throw Exception("error message  ${body["message"]}");
       }
     } catch (e) {
-      print("catch error $e in getCompany ");
+      print("catch error $e");
+      throw Exception("got this error $e");
     }
   }
-
-
-
 }

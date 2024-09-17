@@ -95,10 +95,12 @@ class Globals {
     );
   }
 
-  static Future<void> switchScreens(
-      {required BuildContext context, required Widget screen}) {
+  static Future<void> switchScreens({
+    required BuildContext context,
+    required Widget screen,
+  }) {
     try {
-      return Navigator.pushReplacement(
+      return Navigator.push(
           context,
           PageRouteBuilder(
             transitionDuration: Duration(
