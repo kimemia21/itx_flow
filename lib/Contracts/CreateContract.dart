@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:itx/Commodities.dart/ComDropDown.dart';
 import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/Contracts/Contracts.dart';
 import 'package:itx/Contracts/MyContracts.dart';
@@ -89,12 +90,8 @@ class _CreateContractState extends State<CreateContract> with SingleTickerProvid
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                buildDropdownButton(
-                  title: 'Choose a commodity',
-                  value: selectedCommodity,
-                  items: commodities,
-                  onChanged: (value) => setState(() => selectedCommodity = value),
-                ),
+                // add flags to know where and the fields to include 
+            CommodityDropdown(),
                 buildDropdownButton(
                   title: 'Choose a commodity Quality/Grade',
                   value: selectedQuality,

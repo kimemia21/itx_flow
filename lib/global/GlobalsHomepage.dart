@@ -6,7 +6,6 @@ import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Contracts/SpotItem.dart';
 import 'package:itx/Contracts/SpotTrader.dart';
 import 'package:itx/Serializers/TestPage.dart';
-import 'package:itx/global/Hompage.dart';
 import 'package:itx/global/WatchList.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
@@ -50,12 +49,7 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
 
   List<Widget> _buildScreens() {
     return [
-        // HomepageMain(),
-      //    Watchlist(),
 
-      //  Commodities(),
-      // Sales(),
-// CommodityListPage(),
       Contracts(filtered: false),
       Contracts(filtered: true),
 //

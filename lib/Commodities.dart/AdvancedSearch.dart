@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/Commodities.dart/ComDropDown.dart';
+import 'package:itx/Commodities.dart/ContrDropdown.dart';
 
 class AdvancedSearchModal extends StatefulWidget {
   final Function(Map<String, dynamic>) onSearch;
@@ -12,7 +14,7 @@ class AdvancedSearchModal extends StatefulWidget {
 
 class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
   final _formKey = GlobalKey<FormState>();
-  String _contractType = 'All';
+
   RangeValues _priceRange = RangeValues(0, 1000);
   DateTime? _deliveryDateStart;
   DateTime? _deliveryDateEnd;
@@ -40,7 +42,9 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
               ),
             ),
             SizedBox(height: 20),
-            _buildContractTypeDropdown(),
+            CommodityDropdown(),
+            SizedBox(height: 20),
+           ContractTypeDropdown(),
             SizedBox(height: 20),
             _buildPriceRangeSlider(),
             SizedBox(height: 20),
@@ -49,7 +53,9 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
             Center(
               child: ElevatedButton(
                 onPressed: _submitSearch,
-                child: Text('Search', style: GoogleFonts.poppins(fontSize: 16)),
+                child: Text('Search', style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontSize: 16)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green.shade600,
                   padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
@@ -63,25 +69,9 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
     );
   }
 
-  Widget _buildContractTypeDropdown() {
-    return DropdownButtonFormField<String>(
-      decoration: InputDecoration(
-        labelText: 'Contract Type',
-        border: OutlineInputBorder(),
-        filled: true,
-        fillColor: Colors.grey.shade100,
-      ),
-      value: _contractType,
-      items: ['All', 'Futures', 'Spot', 'Forward']
-          .map((type) => DropdownMenuItem(value: type, child: Text(type)))
-          .toList(),
-      onChanged: (value) {
-        setState(() {
-          _contractType = value!;
-        });
-      },
-    );
-  }
+
+
+
 
   Widget _buildPriceRangeSlider() {
     return Column(
@@ -108,6 +98,8 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
       ],
     );
   }
+
+
 
   Widget _buildDateRangePicker() {
     return Column(
@@ -141,7 +133,8 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
                 ),
               ),
             ),
-            SizedBox(width: 16),
+
+             SizedBox(width: 16),
             Expanded(
               child: TextFormField(
                 decoration: InputDecoration(
@@ -175,12 +168,13 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
   void _submitSearch() {
     if (_formKey.currentState!.validate()) {
       widget.onSearch({
-        'contractType': _contractType,
+        // 'contractType': _contractType,
         'priceRange': _priceRange,
         'deliveryDateStart': _deliveryDateStart,
         'deliveryDateEnd': _deliveryDateEnd,
       });
       Navigator.pop(context);
+      
     }
   }
 }

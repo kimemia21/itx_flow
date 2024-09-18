@@ -20,6 +20,7 @@ import 'package:provider/provider.dart';
 class Contracts extends StatefulWidget {
   const Contracts({super.key, required this.filtered});
   final bool filtered;
+
   @override
   State<Contracts> createState() => _ContractsState();
 }
@@ -29,16 +30,26 @@ class _ContractsState extends State<Contracts> {
   late PageController _pageController;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  late Future<List<ContractsModel>> contracts;
 
   @override
   void initState() {
     super.initState();
+    fetchContracts();
     _pageController = PageController();
-   
+
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text.toLowerCase();
       });
+    });
+  }
+
+  Future<void> fetchContracts() async {
+    setState(() {
+      // Assign the Future to the contracts variable
+      contracts = CommodityService.getContracts(
+          context, widget.filtered ? "this_user_liked=1" : "");
     });
   }
 
@@ -88,9 +99,6 @@ class _ContractsState extends State<Contracts> {
         "imageUrl": imageUrl as String,
       }
     };
-
-    print("THIS IS THE ID ${data[contractId]["contractId"]}");
-    print(contractId);
 
     return Container(
       height: 120,
@@ -259,141 +267,140 @@ class _ContractsState extends State<Contracts> {
   Widget build(BuildContext context) {
     print("${Provider.of<appBloc>(context, listen: false).token} token");
 
-    return Scaffold(
-      floatingActionButton: widget.filtered
-          ? null
-          : FloatingActionButton(
-              onPressed: () {
-                PersistentNavBarNavigator.pushNewScreen(
-                    withNavBar: true, context, screen: CreateContract());
-                // Globals.switchScreens(context: context, screen: CreateContract());
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    duration: Duration(seconds: 1),
-                    content: Text('Creating new contract...'),
-                    backgroundColor: Colors.green.shade600,
-                  ),
-                );
-              },
-              backgroundColor: Colors.green.shade600,
-              child: const Icon(Icons.add, color: Colors.white),
+    return RefreshIndicator(
+      onRefresh: () async {
+        await fetchContracts();
+      },
+      child: Scaffold(
+        floatingActionButton: widget.filtered
+            ? null
+            : FloatingActionButton(
+                onPressed: () {
+                  PersistentNavBarNavigator.pushNewScreen(
+                      withNavBar: true, context, screen: CreateContract());
+                  // Globals.switchScreens(context: context, screen: CreateContract());
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      duration: Duration(seconds: 1),
+                      content: Text('Creating new contract...'),
+                      backgroundColor: Colors.green.shade600,
+                    ),
+                  );
+                },
+                backgroundColor: Colors.green.shade600,
+                child: const Icon(Icons.add, color: Colors.white),
+              ),
+        appBar: AppBar(
+          centerTitle: true,
+          automaticallyImplyLeading: true,
+          title: Text(
+            widget.filtered ? "Watchlist" : "Contracts",
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
             ),
-      appBar: AppBar(
-        centerTitle: true,
-        automaticallyImplyLeading: true,
-        title: Text(
-          widget.filtered ? "Watchlist" : "Contracts",
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold, // Bold for more emphasis
-            color: Colors.white,
-            fontSize: 20, // Increased font size for visibility
+          ),
+          backgroundColor: Colors.green.shade600,
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(
+              bottom: Radius.circular(20),
+            ),
+          ),
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.green.shade500, Colors.green.shade700],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
           ),
         ),
-        backgroundColor: Colors.green.shade600,
-        elevation: 4, // Adds shadow to make the app bar stand out
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(
-                20), // Adds a curve to the bottom of the app bar
-          ),
-        ),
-        flexibleSpace: Container(
+        body: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                Colors.green.shade500,
-                Colors.green.shade700
-              ], // Adds a gradient
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
+              colors: [Colors.green.shade50, Colors.white],
             ),
           ),
-        ),
-     
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.green.shade50, Colors.white],
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              _buildSearchBar(context),
-              Expanded(
-                child: FutureBuilder<List<ContractsModel>>(
-                  future: CommodityService.getContracts(
-                      context, widget.filtered ? "this_user_liked=1" : ""),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                          child: CircularProgressIndicator(
-                              color: Colors.green.shade600));
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Text(
-                          'Error: ${snapshot.error}',
-                          style: GoogleFonts.poppins(color: Colors.red),
-                        ),
-                      );
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(
-                        child: Text(
-                          'No contracts available',
-                          style:
-                              GoogleFonts.poppins(color: Colors.grey.shade600),
-                        ),
-                      );
-                    } else {
-                      final filteredContracts = !widget.filtered
-                          ? _filterContracts(snapshot.data!, _searchQuery)
-                          : _filterContracts(snapshot.data!, _searchQuery)
-                              .where((element) => element.liked == 1)
-                              .toList();
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                _buildSearchBar(context),
+                Expanded(
+                  child: FutureBuilder<List<ContractsModel>>(
+                    future: contracts,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                            child: CircularProgressIndicator(
+                                color: Colors.green.shade600));
+                      } else if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                            'Error: ${snapshot.error}',
+                            style: GoogleFonts.poppins(color: Colors.red),
+                          ),
+                        );
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return Center(
+                          child: Text(
+                            'No contracts available',
+                            style: GoogleFonts.poppins(
+                                color: Colors.grey.shade600),
+                          ),
+                        );
+                      } else {
+                        final filteredContracts = !widget.filtered
+                            ? _filterContracts(snapshot.data!, _searchQuery)
+                            : _filterContracts(snapshot.data!, _searchQuery)
+                                .where((element) => element.liked == 1)
+                                .toList();
 
-                      return ListView.builder(
-                        itemCount: filteredContracts.length,
-                        itemBuilder: (context, index) {
-                          final contract = filteredContracts[index];
+                        return ListView.builder(
+                          itemCount: filteredContracts.length,
+                          itemBuilder: (context, index) {
+                            final contract = filteredContracts[index];
 
-                          return GestureDetector(
-                              onTap: () {
-                                PersistentNavBarNavigator.pushNewScreen(
-                                  withNavBar: true,
-                                  context,
-                                  screen: Specificorder(
-                                    companyId:
-                                        contract.userCompanyId.toString(),
-                                    item: contract.name,
+                            return GestureDetector(
+                                onTap: () {
+                                  PersistentNavBarNavigator.pushNewScreen(
+                                    withNavBar: true,
+                                    context,
+                                    screen: Specificorder(
+                                      companyId:
+                                          contract.userCompanyId.toString(),
+                                      item: contract.name,
+                                      price: contract.price,
+                                      contract: contract,
+                                      quantity:
+                                          contract.qualityGradeId.toString(),
+                                    ),
+                                  );
+                                },
+                                child: _buildSearchItem(
+                                    contractId: contract.contractId,
+                                    contractType: contract.contractType,
+                                    title: contract.name,
+                                    product: contract.name,
+                                    qualityGradeId: contract.qualityGradeId,
+                                    deliveryDate: contract.deliveryDate,
                                     price: contract.price,
-                                    contract: contract,
-                                    quantity:
-                                        contract.qualityGradeId.toString(),
-                                  ),
-                                );
-                              },
-                              child: _buildSearchItem(
-                                  contractId: contract.contractId,
-                                  contractType: contract.contractType,
-                                  title: contract.name,
-                                  product: contract.name,
-                                  qualityGradeId: contract.qualityGradeId,
-                                  deliveryDate: contract.deliveryDate,
-                                  price: contract.price,
-                                  description: contract.description,
-                                  iconName: contract.iconName,
-                                  imageUrl: contract.imageUrl));
-                        },
-                      );
-                    }
-                  },
+                                    description: contract.description,
+                                    iconName: contract.iconName,
+                                    imageUrl: contract.imageUrl));
+                          },
+                        );
+                      }
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

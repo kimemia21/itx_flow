@@ -24,60 +24,45 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  
- 
     return MultiProvider(
-        child: MaterialApp(
-          home: _getHomeScreen(),
-        ),
-        providers: [
-          ChangeNotifierProvider(create: (context) => CurrentUserProvider()),
-          ChangeNotifierProvider(create: (context) => appBloc())
-        ]);
+      providers: [
+        ChangeNotifierProvider(create: (context) => CurrentUserProvider()),
+        ChangeNotifierProvider(create: (context) => appBloc()),
+      ],
+      child: MaterialApp(
+        home: GetPlatform()
+      ),
+    );
   }
 
-  Widget _getHomeScreen() {
+  
+}
+
+class GetPlatform extends StatefulWidget {
+  const GetPlatform({super.key});
+
+  @override
+  State<GetPlatform> createState() => _GetPlatformState();
+}
+
+class _GetPlatformState extends State<GetPlatform> {
+  @override
+  Widget build(BuildContext context) {
+    final appBloc bloc = context.watch<appBloc>();
     // Web platform
     if (kIsWeb) {
-      return StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasData) {
-            return CreateAccountScreen();
-          } else {
-            return CreateAccountScreen(); // You can replace this with a different screen if needed
-          }
-        },
-      );
+      return bloc.token=="" ? CreateAccountScreen() : CreateAccountScreen();
     }
     // Android or iOS platform
     else if (Platform.isAndroid || Platform.isIOS) {
-      return StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (BuildContext context, AsyncSnapshot<User?> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (snapshot.hasData) {
-            return GlobalsHomePage();
-          } else {
-            return GlobalsHomePage();
-            
-          }
-        },
-      );
+      return bloc.token=="" ? Splashscreen() :GlobalsHomePage();
+
     } else {
       // Fallback for unsupported platforms
       return Scaffold(
-        body: Center(
-          child: Text('Unsupported Platform'),
-        ),
-      );
+          body: Center(
+        child: Text('Unsupported Platform'),
+      ));
     }
   }
 }

@@ -12,7 +12,7 @@ import 'package:provider/provider.dart';
 
 
 class CommodityService {
-  static String mainUri = "http://185.141.63.56:3067/api/v1/";
+  static String mainUri = "http://185.141.63.56:3067/api/v1";
 
   static Future<List<CommodityModel>> fetchCommodities(
       BuildContext context, String keyword) async {
