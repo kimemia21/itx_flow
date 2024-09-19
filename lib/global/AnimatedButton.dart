@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:itx/global/AppBloc.dart';
-import 'package:provider/provider.dart'; // Make sure to import your appBloc
+import 'package:provider/provider.dart';
 
 class LikeButton extends StatefulWidget {
   final Function(bool) onLikeChanged;
-
+  final int likes;
   final int contractId;
   final Map<int, dynamic> data;
 
@@ -13,6 +13,7 @@ class LikeButton extends StatefulWidget {
     required this.onLikeChanged,
     required this.contractId,
     required this.data,
+    required this.likes,
   }) : super(key: key);
 
   @override
@@ -40,12 +41,9 @@ class _LikeButtonState extends State<LikeButton>
     );
   }
 
-
-
   void _toggleLike(appBloc bloc) {
     setState(() {
       bool isLiked = bloc.watchList.containsKey(widget.contractId);
-      print(bloc.watchList);
 
       // If already liked, remove it from the watch list
       if (isLiked) {
@@ -65,13 +63,11 @@ class _LikeButtonState extends State<LikeButton>
     });
   }
 
-
-    @override
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {

@@ -5,10 +5,13 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:itx/Contracts/ContLiveBid.dart';
+import 'package:itx/Contracts/LiveAuction.dart';
 import 'package:itx/Contracts/PurchaseConfirmationAlert.dart';
 import 'package:itx/Serializers/CompanySerializer.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/requests/HomepageRequest.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class Specificorder extends StatefulWidget {
   final String item;
@@ -208,24 +211,30 @@ class _SpecificorderState extends State<Specificorder> {
                 ).animate().fadeIn(duration: 500.ms).scale(),
               SizedBox(height: 10),
               if (widget.contract!.canbid == 1)
+                //  PersistentNavBarNavigator.
                 GestureDetector(
                   onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => PurchaseConfirmationAlert(
-                        productName: widget.item,
-                        contract: widget.contract!,
-                        amount: -1,
-                        quantity: int.parse(widget.quantity),
-                        deliveryDate: DateTime.now().add(Duration(days: 7)),
-                        contactEmail: company?.companyAddress ??
-                            widget.companyEmail ??
-                            "support@example.com",
-                        contactPhone: company?.companyContacts ??
-                            widget.companyContacts ??
-                            "+1 (555) 123-4567",
-                      ),
-                    );
+                    PersistentNavBarNavigator.pushNewScreen(
+                        withNavBar: true, context, screen: ContractLiveBid(
+                          commodityname: widget.contract!.name,
+                          contractId: widget.contract!.contractId,));
+
+                    // showDialog(
+                    //   context: context,
+                    //   builder: (context) => PurchaseConfirmationAlert(
+                    //     productName: widget.item,
+                    //     contract: widget.contract!,
+                    //     amount: -1,
+                    //     quantity: int.parse(widget.quantity),
+                    //     deliveryDate: DateTime.now().add(Duration(days: 7)),
+                    //     contactEmail: company?.companyAddress ??
+                    //         widget.companyEmail ??
+                    //         "support@example.com",
+                    //     contactPhone: company?.companyContacts ??
+                    //         widget.companyContacts ??
+                    //         "+1 (555) 123-4567",
+                    //   ),
+                    // );
                   },
                   child: buildTradeOption(
                       'Place bid', 'Market execution', Icons.arrow_upward),
@@ -365,79 +374,3 @@ class _SpecificorderState extends State<Specificorder> {
     );
   }
 }
-
-//  void _showPlaceBidDialog(String itemName, double currentPrice) {
-//     showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         // double bidAmount = highestBid;
-//         String? errorText;
-
-//         return StatefulBuilder(builder: (context, setState) {
-//           return AlertDialog(
-//             title: Text('Place Bid for $itemName'),
-//             content: Column(
-//               mainAxisSize: MainAxisSize.min,
-//               children: [
-//                 Text('Current Highest Bid: \$${currentPrice.toStringAsFixed(2)}'),
-//                 SizedBox(height: 20),
-//                 TextField(
-//                   keyboardType: TextInputType.number,
-//                   decoration: InputDecoration(
-//                     labelText: 'Your Bid',
-//                     errorText: errorText,
-//                   ),
-//                   onChanged: (value) {
-//                     double? newBid = double.tryParse(value);
-//                     if (newBid != null) {
-//                       if (newBid <= currentPrice) {
-//                         setState(() {
-//                           errorText =
-//                               'Bid must be higher than \$${currentPrice.toStringAsFixed(2)}';
-//                         });
-//                       } else {
-//                         setState(() {
-//                           errorText = null;
-//                         currentPrice = newBid;
-//                         });
-//                       }
-//                     } else {
-//                       setState(() {
-//                         errorText = 'Please enter a valid number';
-//                       });
-//                     }
-//                   },
-//                 ),
-//               ],
-//             ),
-//             actions: [
-//               TextButton(
-//                 child: Text('Cancel'),
-//                 onPressed: () => Navigator.of(context).pop(),
-//               ),
-//               TextButton(
-//                 child: Text('Place Bid'),
-//                 onPressed: errorText == null
-//                     ? () {
-//                         if (bidAmount > highestBid) {
-//                           final now = DateTime.now();
-//                           setState(() {
-//                             highestBid = bidAmount;
-//                             bidsHistory.add({
-//                               'user': 'You',
-//                               'time': now,
-//                               'amount': bidAmount,
-//                             });
-//                             chartData.add(ChartData(now, bidAmount));
-//                           });
-//                           Navigator.of(context).pop();
-//                         }
-//                       }
-//                     : null,
-//               ),
-//             ],
-//           );
-//         });
-//       },
-//     );
-//   }

@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/Contracts/Contracts.dart';
-import 'package:itx/Contracts/MyContracts.dart';
+import 'package:itx/myOrders.dart/MyOrders.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/global/globals.dart';
 

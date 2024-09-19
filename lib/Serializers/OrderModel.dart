@@ -54,7 +54,7 @@ class UserOrders {
     required this.deliveryDate,
     required this.price,
     required this.description,
-    required this.closeDate,
+    this.closeDate,
     required this.postedOn,
     required this.closed,
     required this.id,
@@ -67,9 +67,52 @@ class UserOrders {
     required this.userCompanyId,
   });
 
-  // Factory method to create a `Contract` object from JSON data
+  // Factory method to create a `UserOrders` object from JSON data
   factory UserOrders.fromJson(Map<String, dynamic> json) {
-    print(("[\\n order json $json]"));
+    print("[\\n order json $json]");
+    
+    // Check for null values and print them
+    List<String> keysToCheck = [
+      'contract_id',
+      'bid_id',
+      'order_id',
+      'won_at',
+      'order_type',
+      'order_date',
+      'user_id',
+      'order_status',
+      'bid_price',
+      'bid_type',
+      'bid_date',
+      'max_price',
+      'session_open',
+      'is_highest_bid',
+      'session_close_at',
+      'contract_type_id',
+      'commodity_id',
+      'quality_grade_id',
+      'delivery_date',
+      'price',
+      'description',
+      'close_date',
+      'posted_on',
+      'closed',
+      'id',
+      'name',
+      'commodity_grade_id',
+      'commodity_type',
+      'icon_name',
+      'image_url',
+      'commodity_primary_packing_id',
+      'user_company_id'
+    ];
+
+    for (String key in keysToCheck) {
+      if (!json.containsKey(key) || json[key] == null) {
+        print("Null value found for key: $key");
+      }
+    }
+
     return UserOrders(
       contractId: json['contract_id'],
       bidId: json['bid_id'],
@@ -94,7 +137,9 @@ class UserOrders {
       deliveryDate: DateTime.parse(json['delivery_date']),
       price: json['price'].toDouble(),
       description: json['description'],
-      closeDate: DateTime.parse(json['close_date']),
+      closeDate: json['close_date'] != null
+          ? DateTime.parse(json['close_date'])
+          : null,
       postedOn: DateTime.parse(json['posted_on']),
       closed: json['closed'],
       id: json['id'],

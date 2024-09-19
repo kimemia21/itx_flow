@@ -47,7 +47,6 @@ class _ContractsState extends State<Contracts> {
 
   Future<void> fetchContracts() async {
     setState(() {
-      // Assign the Future to the contracts variable
       contracts = CommodityService.getContracts(
           context, widget.filtered ? "this_user_liked=1" : "");
     });
@@ -73,18 +72,18 @@ class _ContractsState extends State<Contracts> {
     }
   }
 
-  Widget _buildSearchItem({
-    required int contractId,
-    required String contractType,
-    required String title,
-    required String product,
-    required int qualityGradeId,
-    required DateTime deliveryDate,
-    required double price,
-    required String description,
-    required String iconName,
-    required String imageUrl,
-  }) {
+  Widget _buildSearchItem(
+      {required int contractId,
+      required String contractType,
+      required String title,
+      required String product,
+      required int qualityGradeId,
+      required DateTime deliveryDate,
+      required double price,
+      required String description,
+      required String iconName,
+      required String imageUrl,
+      required int likes}) {
     Map<int, dynamic> data = {
       contractId: {
         "contractId": contractId as int,
@@ -239,15 +238,14 @@ class _ContractsState extends State<Contracts> {
                           SizedBox(width: 8),
                           LikeButton(
                             contractId: contractId,
+                            likes: likes,
                             data: data,
-                            // initialIsLiked: false,
-                            onLikeChanged: (isLiked) {
-                              // Handle like state change
+                            onLikeChanged: (isLiked) async {
+                              await AuthRequest.likeunlike(
+                                  context, isLiked ? 1 : 0, contractId);
+
                               print(
                                   'Contract $contractId is ${isLiked ? 'liked' : 'unliked'}');
-
-                              AuthRequest.likeunlike(
-                                  context, isLiked ? 1 : 0, contractId);
                             },
                           ),
                         ],
@@ -354,7 +352,8 @@ class _ContractsState extends State<Contracts> {
                                 color: Colors.grey.shade600),
                           ),
                         );
-                      } else {
+                      } 
+                      else {
                         final filteredContracts = !widget.filtered
                             ? _filterContracts(snapshot.data!, _searchQuery)
                             : _filterContracts(snapshot.data!, _searchQuery)
@@ -392,6 +391,7 @@ class _ContractsState extends State<Contracts> {
                                     price: contract.price,
                                     description: contract.description,
                                     iconName: contract.iconName,
+                                    likes: contract.liked,
                                     imageUrl: contract.imageUrl));
                           },
                         );

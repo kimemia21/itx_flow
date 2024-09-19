@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:itx/Commodities.dart/ComRequest.dart';
 import 'package:itx/Commodities.dart/ContRequest.dart';
 
 class ContractTypeDropdown extends StatefulWidget {

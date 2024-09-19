@@ -6,13 +6,14 @@ import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:itx/Serializers/CompanySerializer.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/Serializers/OrderModel.dart';
+import 'package:itx/Serializers/PriceHistory.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:provider/provider.dart';
 
-
 class CommodityService {
   static String mainUri = "http://185.141.63.56:3067/api/v1";
+  // "http://185.141.63.56:3067/api/v1";
 
   static Future<List<CommodityModel>> fetchCommodities(
       BuildContext context, String keyword) async {
@@ -51,8 +52,8 @@ class CommodityService {
     }
   }
 
-  static Future<List<ContractsModel>> getContracts(
-      BuildContext context, filter) async {
+  static Future<List<ContractsModel>> getContracts(BuildContext context, filter,
+      [int? id]) async {
     final Uri uri = Uri.parse("$mainUri/contracts/list?${filter}");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
@@ -75,6 +76,43 @@ class CommodityService {
       }
     } else {
       throw Exception('Failed to fetch commodities');
+    }
+  }
+
+  static Future<List<PricehistoryModel>> ContractsBids(
+      {required BuildContext context, required int id}) async {
+    try {
+      final Uri uri = Uri.parse("$mainUri/contracts/$id/orders");
+
+      final Map<String, String> headers = {
+        "Content-Type": "application/json",
+        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      };
+
+      final http.Response response = await http.get(uri, headers: headers);
+      print("sucess");
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+
+        if (responseData['rsp'] == true) {
+          print(responseData["data"]);
+          List<dynamic> priceJson = responseData['data'];
+          print("---------------$priceJson-------------------");
+          List<PricehistoryModel> price = priceJson
+              .map((price) => PricehistoryModel.fromJson(price))
+              .toList();
+
+          return price;
+        } else {
+          throw Exception(
+              'Failed to fetch pricehistory: ${responseData['msg']}');
+        }
+      } else {
+        throw Exception('Failed to fetch pricehistory');
+      }
+    } catch (e) {
+      print("got this error $e");
+      throw Exception("price history error $e");
     }
   }
 
@@ -149,7 +187,7 @@ class CommodityService {
         "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
       };
       final http.Response response = await http.get(uri, headers: headers);
-
+      print("start");
       final body = jsonDecode(response.body);
       if (response.statusCode == 200) {
         if (body["rsp"]) {
