@@ -35,8 +35,10 @@ class appBloc extends ChangeNotifier {
 
   List<String> _userCommodities = [];
   List<String> get userCommodities => _userCommodities;
-  
+
   List<int> get userCommoditiesIds => _userCommoditesIds;
+  int _user_id = 0;
+  int get user_id => _user_id;
 
   void changeCurrentIndex({required int index}) {
     _currentIndex = index;
@@ -97,8 +99,15 @@ class appBloc extends ChangeNotifier {
     _userCommoditesCerts = certs;
     notifyListeners();
   }
-    void changeUserCommoditesIds(List<int>ids) {
+
+  void changeUserCommoditesIds(List<int> ids) {
     _userCommoditesIds = ids;
+    notifyListeners();
+  }
+
+  void changeCurrentUserID({required int id}) {
+    _user_id = id;
+
     notifyListeners();
   }
 }

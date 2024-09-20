@@ -26,8 +26,6 @@ class _UserOrdersScreenState extends State<UserOrdersScreen> {
     return await CommodityService.getOrders(context: context);
   }
 
-
-
   Widget deliveryInfo({
     required String name,
     required double bidPrice,
@@ -128,6 +126,8 @@ class _UserOrdersScreenState extends State<UserOrdersScreen> {
             );
           } else if (snapshot.hasData) {
             final myorders = snapshot.data!;
+            final paidOrders =
+                myorders.where((order) => order.orderStatus == "PAID").toList();
             return RefreshIndicator(
               onRefresh: () async {
                 setState(() {
@@ -143,7 +143,7 @@ class _UserOrdersScreenState extends State<UserOrdersScreen> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
                       child: Text(
-                        "Active Contracts",
+                        "My Contracts",
                         style: GoogleFonts.poppins(
                             fontSize: 22,
                             fontWeight: FontWeight.w600,
@@ -172,27 +172,39 @@ class _UserOrdersScreenState extends State<UserOrdersScreen> {
                             color: Colors.black87),
                       ),
                     ),
-                    ...myorders
-                        .where((order) => order.orderStatus == "PAID")
-                        .map((order) {
-                      return deliveryInfo(
-                        name: order.name,
-                        bidPrice: order.bidPrice,
-                        deliveryDate: order.deliveryDate,
-                        status: order.orderStatus,
-                        onTap: () {
-                          Globals.switchScreens(
-                            context: context,
-                            screen: Specificorder(
-                              item: order.name,
-                              price: order.price,
-                              quantity: order.description,
-                              companyId: order.userCompanyId.toString(),
+                    paidOrders.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No Data Available',
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey,
+                              ),
                             ),
-                          );
-                        },
-                      );
-                    }).toList(),
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: paidOrders.map((order) {
+                              return deliveryInfo(
+                                name: order.name,
+                                bidPrice: order.bidPrice,
+                                deliveryDate: order.deliveryDate,
+                                status: order.orderStatus,
+                                onTap: () {
+                                  Globals.switchScreens(
+                                    context: context,
+                                    screen: Specificorder(
+                                      item: order.name,
+                                      price: order.price,
+                                      quantity: order.description,
+                                      companyId: order.userCompanyId.toString(),
+                                    ),
+                                  );
+                                },
+                              );
+                            }).toList(),
+                          )
                   ],
                 ),
               ),

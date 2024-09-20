@@ -12,7 +12,8 @@ import 'package:provider/provider.dart';
 
 class AuthRequest {
   // Base URL for the API
-  static const  main_url = "http://185.141.63.56:3067/api/v1";
+  static const main_url = "http://192.168.100.8:3000/api/v1"
+      "http://185.141.63.56:3067/api/v1";
 
   // Register request
   static Future<void> register({
@@ -325,90 +326,92 @@ class AuthRequest {
   }
 
   // Login request
-static Future<void> login({
-  required BuildContext context,
-  required String email,
-  required String password,
-}) async {
-  final appBloc bloc = context.read<appBloc>();
-  try {
-    // Prepare the request body for login
-    final Map<String, dynamic> body = {
-      "email": email,
-      "password": password,
-    };
-    // Define the login endpoint
-    final Uri url = Uri.parse("http://185.141.63.56:3067/api/v1/user/login");
+  static Future<void> login({
+    required BuildContext context,
+    required String email,
+    required String password,
+  }) async {
+    final appBloc bloc = context.read<appBloc>();
+    try {
+      // Prepare the request body for login
+      final Map<String, dynamic> body = {
+        "email": email,
+        "password": password,
+      };
+      // Define the login endpoint
+      final Uri url = Uri.parse("http://185.141.63.56:3067/api/v1/user/login");
 
-    // Start loading state
-    bloc.changeIsLoading(true);
+      // Start loading state
+      bloc.changeIsLoading(true);
 
-    // Send POST request to login the user
-    final http.Response response = await http.post(
-      url,
-      body: jsonEncode(body),
-      headers: {'Content-Type': 'application/json'}, // Added headers
-    );
+      // Send POST request to login the user
+      final http.Response response = await http.post(
+        url,
+        body: jsonEncode(body),
+        headers: {'Content-Type': 'application/json'}, // Added headers
+      );
 
-    // Check for a successful response (status code 200)
-    if (response.statusCode == 200) {
-      print("Success");
+      // Check for a successful response (status code 200)
+      if (response.statusCode == 200) {
+        print("Success");
 
-      // Parse the response body
-      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        // Parse the response body
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
 
-      // Check for the rsp field in the response body
-      if (responseBody["rsp"] == true) {
-        String token = responseBody["token"];
-        String type = responseBody["user_type"] ?? "seller";
+        // Check for the rsp field in the response body
+        if (responseBody["rsp"] == true) {
+          String token = responseBody["token"];
+          String type = responseBody["user_type"] ?? "seller";
+          int id = responseBody["user_id"];
 
-        // Update the bloc with new state
-        bloc.changeIsLoading(false);
-        bloc.changeToken(token);
-        bloc.getUserType(type);
-        bloc.changeUser(email);
+          // Update the bloc with new state
+          bloc.changeIsLoading(false);
+          bloc.changeToken(token);
+          bloc.getUserType(type);
+          bloc.changeUser(email);
+          bloc.changeCurrentUserID(id: id);
 
-        // Switch screens upon successful login
-        Globals.switchScreens(context: context, screen: GlobalsHomePage());
+          // Switch screens upon successful login
+          Globals.switchScreens(context: context, screen: GlobalsHomePage());
 
-        print("Login successful: ${responseBody["message"]}");
+          print("Login successful: ${responseBody["message"]}");
+        } else {
+          // Handle login failure
+          bloc.changeIsLoading(false);
+          print("Login failed: ${responseBody["message"]}");
+
+          Globals.warningsAlerts(
+            title: "Login Error",
+            content: responseBody["message"],
+            context: context,
+          );
+        }
       } else {
-        // Handle login failure
+        // Handle non-200 response codes
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        print("Error Response: ${response.statusCode} ${response.body}");
+
         bloc.changeIsLoading(false);
-        print("Login failed: ${responseBody["message"]}");
 
         Globals.warningsAlerts(
           title: "Login Error",
-          content: responseBody["message"],
+          content: responseBody["message"] ?? "An error occurred",
           context: context,
         );
       }
-    } else {
-      // Handle non-200 response codes
-      final Map<String, dynamic> responseBody = jsonDecode(response.body);
-      print("Error Response: ${response.statusCode} ${response.body}");
-
+    } catch (e) {
+      // Handle errors during the request (e.g. network issues)
       bloc.changeIsLoading(false);
 
+      // Log the error for debugging purposes
+      print("Error during login: $e");
+
+      // Show an alert to the user about the error
       Globals.warningsAlerts(
         title: "Login Error",
-        content: responseBody["message"] ?? "An error occurred",
+        content: "Something went wrong. Please try again later.",
         context: context,
       );
     }
-  } catch (e) {
-    // Handle errors during the request (e.g. network issues)
-    bloc.changeIsLoading(false);
-
-    // Log the error for debugging purposes
-    print("Error during login: $e");
-
-    // Show an alert to the user about the error
-    Globals.warningsAlerts(
-      title: "Login Error",
-      content: "Something went wrong. Please try again later.",
-      context: context,
-    );
   }
-}
 }

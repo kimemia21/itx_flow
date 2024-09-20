@@ -12,7 +12,7 @@ import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:provider/provider.dart';
 
 class CommodityService {
-  static String mainUri = "http://185.141.63.56:3067/api/v1";
+  static String mainUri = "http://192.168.100.8:3000/api/v1";
   // "http://185.141.63.56:3067/api/v1";
 
   static Future<List<CommodityModel>> fetchCommodities(
@@ -92,6 +92,8 @@ class CommodityService {
       final http.Response response = await http.get(uri, headers: headers);
       print("sucess");
       if (response.statusCode == 200) {
+        print("item bids");
+
         final Map<String, dynamic> responseData = json.decode(response.body);
 
         if (responseData['rsp'] == true) {
@@ -209,4 +211,63 @@ class CommodityService {
       throw Exception("got this error $e");
     }
   }
+
+  static Future<bool> PostBid(BuildContext context, body, id) async {
+    final Uri uri = Uri.parse("$mainUri/contracts/$id/order");
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+    };
+
+    final http.Response response =
+        await http.post(uri, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (responseData['rsp'] == true) {
+        return true;
+
+      } else {
+        throw Exception('Failed to place bid: ${responseData['msg']}');
+      }
+    } else {
+      throw Exception('Failed to place bid');
+    }
+  }
+
+    static Future<List<ContractsModel>> getAdvancedContracts(BuildContext context, filter,
+      [int? id]) async {
+
+
+
+
+
+
+    final Uri uri = Uri.parse("$mainUri/contracts/list?${filter}");
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+    };
+    final http.Response response = await http.get(uri, headers: headers);
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (responseData['rsp'] == true) {
+        List<dynamic> contractsJson = responseData['data'];
+        print(contractsJson);
+        List<ContractsModel> contracts = contractsJson
+            .map((contracts) => ContractsModel.fromJson(contracts))
+            .toList();
+
+        return contracts;
+      } else {
+        throw Exception('Failed to fetch contracts: ${responseData['msg']}');
+      }
+    } else {
+      throw Exception('Failed to fetch commodities');
+    }
+  }
+
+
 }

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/Contracts/Contracts.dart';
-import 'package:itx/myOrders.dart/MyOrders.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Contracts/SpotItem.dart';
 import 'package:itx/Contracts/SpotTrader.dart';
 import 'package:itx/Serializers/TestPage.dart';
 import 'package:itx/global/WatchList.dart';
+import 'package:itx/homepage/UserHomepage.dart';
+import 'package:itx/myOrders.dart/MyOrders.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
@@ -49,8 +50,8 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
 
   List<Widget> _buildScreens() {
     return [
-
-      Contracts(filtered: false),
+      Userhomepage(),
+      // Contracts(filtered: false),
       Contracts(filtered: true),
 //
 

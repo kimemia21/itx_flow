@@ -460,9 +460,16 @@ class _ContractsState extends State<Contracts> {
                           bottom: MediaQuery.of(context).viewInsets.bottom),
                       child: AdvancedSearchModal(
                         onSearch: (searchParams) {
-                          // Implement the advanced search logic here
+                            Future<void> fetchContracts() async {
+    setState(() {
+      contracts = CommodityService.getContracts(
+          context, widget.filtered ? "this_user_liked=1" : "");
+    });
+  }
+
+                         
                           print('Advanced search params: $searchParams');
-                          // You might want to update the state or call a method to filter the contracts based on these params
+                         
                         },
                       ),
                     ),

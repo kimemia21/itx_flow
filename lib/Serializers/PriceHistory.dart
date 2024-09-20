@@ -8,6 +8,7 @@ class PricehistoryModel {
   final int session_open;
   final String session_close_at;
   final String user_masked_email;
+  final int user_id;
 
   PricehistoryModel({
     required this.bid_id,
@@ -19,6 +20,8 @@ class PricehistoryModel {
     required this.session_open,
     required this.session_close_at,
     required this.user_masked_email,
+    required this.user_id,
+    
   });
 
   factory PricehistoryModel.fromJson(Map<String, dynamic> json) {
@@ -33,6 +36,7 @@ class PricehistoryModel {
       session_open: json['session_open'],
       session_close_at: json['session_close_at'],
       user_masked_email: json['user_masked_email'],
+      user_id: json["user_id"]
     );
   }
 }

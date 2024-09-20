@@ -4,73 +4,68 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:itx/Serializers/PriceHistory.dart';
 import 'package:itx/fromWakulima/widgets/contant.dart';
+import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/requests/HomepageRequest.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class ContractLiveBid extends StatefulWidget {
   final int contractId;
   final String commodityname;
-  const ContractLiveBid(
-      {super.key, required this.contractId, required this.commodityname});
+  const ContractLiveBid({Key? key, required this.contractId, required this.commodityname}) : super(key: key);
 
   @override
   _ContractLiveBidState createState() => _ContractLiveBidState();
 }
 
-class _ContractLiveBidState extends State<ContractLiveBid>
-    with SingleTickerProviderStateMixin {
+class _ContractLiveBidState extends State<ContractLiveBid> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late Future<List<PricehistoryModel>> _bidsFuture;
-  // DateTime? _selectedDateTime;
-
   double _highestBid = 0.0;
-
-  // Add a new variable to store the chart data
   List<ChartData> chartData = [];
-
-  // Add a variable to store the remaining time
   late DateTime auctionEndTime;
   Duration remainingTime = Duration();
   Timer? timer;
+
+  @override
   void initState() {
     super.initState();
-    _bidsFuture =
-        CommodityService.ContractsBids(context: context, id: widget.contractId);
-    _updateHighestBid();
+    _bidsFuture = CommodityService.ContractsBids(context: context, id: widget.contractId);
+    _updateData();
+    _startTimer();
   }
-  
 
-
-
-Future<void> _updateHighestBid() async {
+  Future<void> _updateData() async {
     final data = await CommodityService.ContractsBids(context: context, id: widget.contractId);
     if (data.isNotEmpty) {
       data.sort((a, b) => b.bid_price.compareTo(a.bid_price));
       setState(() {
         _highestBid = data.first.bid_price;
+        chartData = data.map((bid) => ChartData(DateTime.parse(bid.bid_date), bid.bid_price)).toList();
+        chartData.sort((a, b) => a.date.compareTo(b.date));
       });
     }
   }
 
-
-    Future<void> _refreshData() async {
-    setState(() {
-      _bidsFuture = CommodityService.ContractsBids(context: context, id: widget.contractId);
-    });
-    await _updateHighestBid();
-  }
-
   void _startTimer() {
+    auctionEndTime = DateTime.now().add(Duration(hours: 24));
     timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
       setState(() {
         remainingTime = auctionEndTime.difference(DateTime.now());
         if (remainingTime.isNegative) {
           timer?.cancel();
-          remainingTime = Duration(seconds: 0);
+          remainingTime = Duration.zero;
         }
       });
     });
+  }
+
+  Future<void> _refreshData() async {
+    setState(() {
+      _bidsFuture = CommodityService.ContractsBids(context: context, id: widget.contractId);
+    });
+    await _updateData();
   }
 
   @override
@@ -80,13 +75,11 @@ Future<void> _updateHighestBid() async {
     super.dispose();
   }
 
-  void _showPlaceBidDialog(String itemName, double currentPrice) {
+  void _showPlaceBidDialog(String itemName, double currentPrice, int id) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         double bidAmount = _highestBid;
-
-
         String? errorText;
 
         return StatefulBuilder(builder: (context, setState) {
@@ -95,8 +88,7 @@ Future<void> _updateHighestBid() async {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                    'Current Highest Bid: \$${_highestBid.toStringAsFixed(2)}'),
+                Text('Current Highest Bid: \$${_highestBid.toStringAsFixed(2)}'),
                 SizedBox(height: 20),
                 TextField(
                   keyboardType: TextInputType.number,
@@ -109,8 +101,7 @@ Future<void> _updateHighestBid() async {
                     if (newBid != null) {
                       if (newBid <= _highestBid) {
                         setState(() {
-                          errorText =
-                              'Bid must be higher than \$${_highestBid.toStringAsFixed(2)}';
+                          errorText = 'Bid must be higher than \$${_highestBid.toStringAsFixed(2)}';
                         });
                       } else {
                         setState(() {
@@ -137,17 +128,13 @@ Future<void> _updateHighestBid() async {
                 onPressed: errorText == null
                     ? () {
                         if (bidAmount > _highestBid) {
-                          final now = DateTime.now();
-                          // this.setState(() {
-                          //   _highestBid = bidAmount;
-                          //   bidsHistory.add({
-                          //     'user': 'You',
-                          //     'time': now,
-                          //     'amount': bidAmount,
-                          //   });
-                          //   chartData.add(ChartData(now, bidAmount));
-                          // });
+                          final Map<String, dynamic> body = {
+                            "order_price": bidAmount,
+                            "order_type": "BUY"
+                          };
+                          CommodityService.PostBid(context, body, id);
                           Navigator.of(context).pop();
+                          _refreshData();
                         }
                       }
                     : null,
@@ -162,7 +149,7 @@ Future<void> _updateHighestBid() async {
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
-      onRefresh:_refreshData,
+      onRefresh: _refreshData,
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -177,9 +164,7 @@ Future<void> _updateHighestBid() async {
           ),
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+            onPressed: () => Navigator.of(context).pop(),
           ),
         ),
         body: Padding(
@@ -187,10 +172,7 @@ Future<void> _updateHighestBid() async {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-       
-      
               SizedBox(height: 20),
-      
               Text(
                 '${widget.commodityname} - 5,000',
                 style: GoogleFonts.poppins(
@@ -203,7 +185,7 @@ Future<void> _updateHighestBid() async {
               Row(
                 children: [
                   Text(
-                    '\$${_highestBid}',
+                    '\$${_highestBid.toStringAsFixed(2)}',
                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(width: 10),
@@ -211,7 +193,7 @@ Future<void> _updateHighestBid() async {
                     children: [
                       Text('Last 30 Days'),
                       Text(
-                        '$_highestBid ',
+                        '\$${_highestBid.toStringAsFixed(2)}',
                         style: TextStyle(color: Colors.green),
                       ),
                     ],
@@ -219,7 +201,6 @@ Future<void> _updateHighestBid() async {
                 ],
               ),
               SizedBox(height: 20),
-      
               Container(
                 height: 150,
                 child: SfCartesianChart(
@@ -234,14 +215,11 @@ Future<void> _updateHighestBid() async {
                 ),
               ),
               SizedBox(height: 20),
-      
-              // Place Bid Button, Timer, and Highest Bid
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   GestureDetector(
-                    onTap: () =>
-                        _showPlaceBidDialog(widget.commodityname, _highestBid),
+                    onTap: () => _showPlaceBidDialog(widget.commodityname, _highestBid, widget.contractId),
                     child: Container(
                       padding: EdgeInsets.all(2),
                       alignment: Alignment.center,
@@ -253,91 +231,60 @@ Future<void> _updateHighestBid() async {
                       width: AppWidth(context, 0.3),
                       child: Text(
                         "Place bid",
-                        style: GoogleFonts.poppins(
-                            color: Colors.white, fontWeight: FontWeight.w600),
+                        style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
-      
-                  // Remaining Time Display
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         'Remaining Time',
-                        style:
-                            TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                       ),
                       Text(
                         '${remainingTime.inHours}:${(remainingTime.inMinutes % 60).toString().padLeft(2, '0')}:${(remainingTime.inSeconds % 60).toString().padLeft(2, '0')}',
-                        style:
-                            TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
-      
-                  // Highest Bid Display
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         'Highest Bid',
-                        style:
-                            TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                       ),
                       Text(
                         '\$${_highestBid.toStringAsFixed(2)}',
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green),
                       ),
                     ],
                   ),
                 ],
               ),
               SizedBox(height: 20),
-      
               Expanded(
                 child: FutureBuilder<List<PricehistoryModel>>(
                   future: _bidsFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                        child: CircularProgressIndicator(
-                            color: Colors.green.shade600),
-                      );
+                      return Center(child: CircularProgressIndicator(color: Colors.green.shade600));
                     } else if (snapshot.hasError) {
-                      return Center(
-                        child: Text(
-                          'Error: ${snapshot.error}',
-                          style: GoogleFonts.poppins(color: Colors.red),
-                        ),
-                      );
+                      return Center(child: Text('Error: ${snapshot.error}', style: GoogleFonts.poppins(color: Colors.red)));
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(
-                        child: Text(
-                          'No bids available',
-                          style: GoogleFonts.poppins(color: Colors.grey.shade600),
-                        ),
-                      );
+                      return Center(child: Text('No bids available', style: GoogleFonts.poppins(color: Colors.grey.shade600)));
                     } else {
                       final data = snapshot.data!;
-                      // Sort the bids by price in descending order
                       data.sort((a, b) => b.bid_price.compareTo(a.bid_price));
                       final highestBid = data.first;
-                   
-      
                       return Column(
                         children: [
                           _buildHighestBidCard(highestBid),
                           Expanded(
                             child: ListView.builder(
                               itemCount: data.length,
-                              itemBuilder: (context, index) {
-                                final bid = data[index];
-                                return _buildBidCard(bid, isHighest: index == 0);
-                              },
+                              itemBuilder: (context, index) => _buildBidCard(context, data[index], isHighest: index == 0),
                             ),
                           ),
                         ],
@@ -413,41 +360,53 @@ Widget _buildHighestBidCard(PricehistoryModel bid) {
   );
 }
 
-Widget _buildBidCard(PricehistoryModel bid, {required bool isHighest}) {
+Widget _buildBidCard(BuildContext context, PricehistoryModel bid, {required bool isHighest}) {
+  int userId = context.watch<appBloc>().user_id;
   return Container(
     height: 70,
     child: Card(
-   
       margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor:
-              isHighest ? Colors.green.shade100 : Colors.grey.shade100,
-          child: Icon(Icons.gavel,
-              color: isHighest ? Colors.green.shade700 : Colors.grey.shade700),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadiusDirectional.all(Radius.circular(10)),
+          color: isHighest
+              ? Colors.green.shade100
+              : bid.user_id == userId
+                  ? Colors.green.shade300
+                  : Colors.grey.shade100,
         ),
-        title: Text(
-          '\$${bid.bid_price.toStringAsFixed(2)}',
-          style: GoogleFonts.poppins(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: isHighest ? Colors.green.shade700 : Colors.black87,
+        child: ListTile(
+          leading: CircleAvatar(
+            backgroundColor:
+                isHighest ? Colors.green.shade100 : Colors.grey.shade100,
+            child: Icon(Icons.gavel,
+                color:
+                    isHighest ? Colors.green.shade700 : Colors.grey.shade700),
           ),
-        ),
-        subtitle: Text(
-          DateFormat('MMM d, y - h:mm a').format(DateTime.parse(bid.bid_date)),
-          style: GoogleFonts.poppins(
-            fontSize: 12,
-            color: Colors.grey.shade600,
+          title: Text(
+            '\$${bid.bid_price.toStringAsFixed(2)}',
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: isHighest ? Colors.green.shade700 : Colors.black87,
+            ),
           ),
+          subtitle: Text(
+            DateFormat('MMM d, y - h:mm a')
+                .format(DateTime.parse(bid.bid_date)),
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              color: Colors.grey.shade600,
+            ),
+          ),
+          trailing: isHighest
+              ? Chip(
+                  label: Text('Highest',
+                      style: GoogleFonts.poppins(color: Colors.white)),
+                  backgroundColor: Colors.green,
+                )
+              : null,
         ),
-        trailing: isHighest
-            ? Chip(
-                label: Text('Highest',
-                    style: GoogleFonts.poppins(color: Colors.white)),
-                backgroundColor: Colors.green,
-              )
-            : null,
       ),
     ),
   );
