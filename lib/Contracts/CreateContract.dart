@@ -91,7 +91,7 @@ class _CreateContractState extends State<CreateContract> with SingleTickerProvid
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // add flags to know where and the fields to include 
-            CommodityDropdown(),
+            CommodityDropdown(onCommoditySelected: (commodity){}),
                 buildDropdownButton(
                   title: 'Choose a commodity Quality/Grade',
                   value: selectedQuality,

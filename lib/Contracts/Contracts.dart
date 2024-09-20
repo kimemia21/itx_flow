@@ -352,8 +352,7 @@ class _ContractsState extends State<Contracts> {
                                 color: Colors.grey.shade600),
                           ),
                         );
-                      } 
-                      else {
+                      } else {
                         final filteredContracts = !widget.filtered
                             ? _filterContracts(snapshot.data!, _searchQuery)
                             : _filterContracts(snapshot.data!, _searchQuery)
@@ -459,17 +458,42 @@ class _ContractsState extends State<Contracts> {
                       padding: EdgeInsets.only(
                           bottom: MediaQuery.of(context).viewInsets.bottom),
                       child: AdvancedSearchModal(
-                        onSearch: (searchParams) {
-                            Future<void> fetchContracts() async {
-    setState(() {
-      contracts = CommodityService.getContracts(
-          context, widget.filtered ? "this_user_liked=1" : "");
-    });
-  }
+                        onSearch: (searchParams) async {
+                          final contractId = searchParams["contractId"] ?? "";
+                          final commodityId = searchParams["commodityId"] ?? "";
+                          final String price_from =
+                              searchParams["price_from"] ?? "";
+                          final String price_to =
+                              searchParams["price_to"] ?? "";
+                          final String date_from =
+                              searchParams["deliveryDateStart"] ?? "";
+                          final String date_to =
+                              searchParams["deliveryDateEnd"] ?? "";
+                          print('Contract ID: $contractId');
+                          print('Commodity ID: $commodityId');
+                          print('Price From: $price_from');
+                          print('Price To: $price_to');
+                          print('Date From: $date_from');
+                          print('Date To: $date_to');
 
-                         
+                          setState(() {
+                            contracts = CommodityService.getAdvancedContracts(
+                                context,
+                                date_from,
+                                date_to,
+                                price_from,
+                                price_to);
+                          });
+                          // final contract
+
+                          // Future<void> fetchContracts() async {
+                          //   setState(() {
+                          //     contracts = CommodityService.getContracts(context,
+                          //         widget.filtered ? "this_user_liked=1" : "");
+                          //   });
+                          // }
+
                           print('Advanced search params: $searchParams');
-                         
                         },
                       ),
                     ),

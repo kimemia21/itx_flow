@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:itx/Commodities.dart/ComRequest.dart';
 
 class CommodityDropdown extends StatefulWidget {
+  final Function(String?) onCommoditySelected;
+
+  const CommodityDropdown({Key? key, required this.onCommoditySelected})
+      : super(key: key);
+
   @override
   _CommodityDropdownState createState() => _CommodityDropdownState();
 }
@@ -17,10 +22,10 @@ class _CommodityDropdownState extends State<CommodityDropdown> {
     _fetchCommodities();
   }
 
-  // Fetch commodities and set state
   Future<void> _fetchCommodities() async {
     try {
-      List<Map<String, dynamic>> fetchedCommodities = await CommodityRequest.fetchCommodities(context);
+      List<Map<String, dynamic>> fetchedCommodities =
+          await CommodityRequest.fetchCommodities(context);
       setState(() {
         _commodities = fetchedCommodities;
         _isLoading = false;
@@ -33,10 +38,9 @@ class _CommodityDropdownState extends State<CommodityDropdown> {
     }
   }
 
-
   Widget _buildCommodityTypeDropdown() {
     if (_isLoading) {
-      return CircularProgressIndicator(); // Show loading indicator while fetching
+      return CircularProgressIndicator();
     }
 
     return DropdownButtonFormField<String>(
@@ -57,6 +61,8 @@ class _CommodityDropdownState extends State<CommodityDropdown> {
         setState(() {
           _selectedCommodity = value;
         });
+        widget.onCommoditySelected(value);
+        print(value);
       },
     );
   }

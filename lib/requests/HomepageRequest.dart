@@ -227,7 +227,6 @@ class CommodityService {
 
       if (responseData['rsp'] == true) {
         return true;
-
       } else {
         throw Exception('Failed to place bid: ${responseData['msg']}');
       }
@@ -236,38 +235,40 @@ class CommodityService {
     }
   }
 
-    static Future<List<ContractsModel>> getAdvancedContracts(BuildContext context, filter,
+  static Future<List<ContractsModel>> getAdvancedContracts(BuildContext context,
+      String date_from, String date_to, String price_from, String price_to,
       [int? id]) async {
+    String filter =
+        "userid=-1&this_user_liked=-1&this_user_bought=-1&this_user_paid=-1&date_from=$date_from&date_to=$date_to&price_from=$price_from&price_to=$price_to";
+    print("------$mainUri/$filter-----------");
+    try {
+      final Uri uri = Uri.parse("$mainUri/contracts/list?$filter");
+      final Map<String, String> headers = {
+        "Content-Type": "application/json",
+        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      };
+      final http.Response response = await http.get(uri, headers: headers);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
 
+        if (responseData['rsp'] == true) {
+          List<dynamic> contractsJson = responseData['data'];
+          print(contractsJson);
+          List<ContractsModel> contracts = contractsJson
+              .map((contracts) => ContractsModel.fromJson(contracts))
+              .toList();
 
-
-
-
-
-    final Uri uri = Uri.parse("$mainUri/contracts/list?${filter}");
-    final Map<String, String> headers = {
-      "Content-Type": "application/json",
-      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
-    };
-    final http.Response response = await http.get(uri, headers: headers);
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
-
-      if (responseData['rsp'] == true) {
-        List<dynamic> contractsJson = responseData['data'];
-        print(contractsJson);
-        List<ContractsModel> contracts = contractsJson
-            .map((contracts) => ContractsModel.fromJson(contracts))
-            .toList();
-
-        return contracts;
+          return contracts;
+        } else {
+          throw Exception(
+              'Failed to fetch filter contracts: ${responseData['msg']}');
+        }
       } else {
-        throw Exception('Failed to fetch contracts: ${responseData['msg']}');
+        throw Exception('Failed to fetch filter contracts');
       }
-    } else {
-      throw Exception('Failed to fetch commodities');
+    } catch (e) {
+      print(e);
+      throw Exception("$e error in fetching contracts");
     }
   }
-
-
 }

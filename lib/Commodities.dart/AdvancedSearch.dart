@@ -6,7 +6,7 @@ import 'package:itx/Commodities.dart/ContrDropdown.dart';
 class AdvancedSearchModal extends StatefulWidget {
   final Function(Map<String, dynamic>) onSearch;
 
-   AdvancedSearchModal({Key? key, required this.onSearch}) : super(key: key);
+  AdvancedSearchModal({Key? key, required this.onSearch}) : super(key: key);
 
   @override
   _AdvancedSearchModalState createState() => _AdvancedSearchModalState();
@@ -14,10 +14,13 @@ class AdvancedSearchModal extends StatefulWidget {
 
 class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
   final _formKey = GlobalKey<FormState>();
-
+  String? commodityId;
+  String? contractId;
   RangeValues _priceRange = RangeValues(0, 1000);
   DateTime? _deliveryDateStart;
   DateTime? _deliveryDateEnd;
+  String? _price_from;
+  String? _price_to;
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +45,19 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
               ),
             ),
             SizedBox(height: 20),
-            CommodityDropdown(),
+            CommodityDropdown(onCommoditySelected: (commodityid) {
+              setState(() {
+                commodityId = commodityid;
+              });
+            }),
             SizedBox(height: 20),
-           ContractTypeDropdown(),
+            ContractTypeDropdown(
+              onContractSelected: (contractid) {
+                setState(() {
+                  contractId = contractid;
+                });
+              },
+            ),
             SizedBox(height: 20),
             _buildPriceRangeSlider(),
             SizedBox(height: 20),
@@ -53,13 +66,14 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
             Center(
               child: ElevatedButton(
                 onPressed: _submitSearch,
-                child: Text('Search', style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 16)),
+                child: Text('Search',
+                    style:
+                        GoogleFonts.poppins(color: Colors.white, fontSize: 16)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green.shade600,
                   padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30)),
                 ),
               ),
             ),
@@ -69,15 +83,13 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
     );
   }
 
-
-
-
-
   Widget _buildPriceRangeSlider() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Price Range', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600)),
+        Text('Price Range',
+            style:
+                GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600)),
         RangeSlider(
           values: _priceRange,
           min: 0,
@@ -89,6 +101,9 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
           ),
           onChanged: (RangeValues values) {
             setState(() {
+              _price_from = values.start.toStringAsFixed(2);
+              _price_to = values.end.toStringAsFixed(2);
+
               _priceRange = values;
             });
           },
@@ -99,13 +114,13 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
     );
   }
 
-
-
   Widget _buildDateRangePicker() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Delivery Date Range', style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600)),
+        Text('Delivery Date Range',
+            style:
+                GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600)),
         SizedBox(height: 8),
         Row(
           children: [
@@ -133,8 +148,7 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
                 ),
               ),
             ),
-
-             SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: TextFormField(
                 decoration: InputDecoration(
@@ -165,16 +179,26 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
     );
   }
 
-  void _submitSearch() {
-    if (_formKey.currentState!.validate()) {
-      widget.onSearch({
-        // 'contractType': _contractType,
-        'priceRange': _priceRange,
-        'deliveryDateStart': _deliveryDateStart,
-        'deliveryDateEnd': _deliveryDateEnd,
-      });
-      Navigator.pop(context);
-      
-    }
+String _formatDate(DateTime? date) {
+  return date != null 
+      ? '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}' 
+      : '';
+}
+
+void _submitSearch() {
+  if (_formKey.currentState!.validate()) {
+    widget.onSearch({
+      'contractId': contractId,
+      'price_from': _price_from ?? "",
+      'price_to': _price_to ?? "",
+      'commodityId': commodityId,
+      'priceRange': _priceRange.toString(),
+      'deliveryDateStart': _formatDate(_deliveryDateStart),
+      'deliveryDateEnd': _formatDate(_deliveryDateEnd),
+    });
+    Navigator.pop(context);
   }
 }
+}
+
+
