@@ -155,7 +155,7 @@ class _ContractLiveBidState extends State<ContractLiveBid> with SingleTickerProv
         appBar: AppBar(
           backgroundColor: Colors.white,
           title: Text(
-            'Live Action',
+            'Live Auction',
             style: GoogleFonts.poppins(
               fontSize: 22,
               fontWeight: FontWeight.w600,

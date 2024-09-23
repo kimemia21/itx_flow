@@ -1,8 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:itx/myOrders.dart/OrderDetails.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 Widget contractInfo({
+  required context,
   required String name,
   required String contractId,
   required String orderId,
@@ -12,49 +16,64 @@ Widget contractInfo({
   required DateTime orderDate,
   required String description,
 }) {
-    return Card(
-    elevation: 3,
-    margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-    child: Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.white, Colors.grey.shade50],
+  return GestureDetector(
+    onTap: () {
+      PersistentNavBarNavigator.pushNewScreen(
+          withNavBar: true,
+          context,
+          screen: Orderdetails(
+              contractId: contractId,
+              orderId: orderId,
+              orderType: orderType,
+              orderStatus: orderStatus,
+              bidPrice: bidPrice,
+              orderDate: orderDate,
+              description: description));
+    },
+    child: Card(
+      elevation: 3,
+      margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.white, Colors.grey.shade50],
+          ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    name,
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      // fontWeight: FontWeigh,
-                      color: Colors.black,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      name,
+                      style: GoogleFonts.poppins(
+                        fontSize: 20,
+                        // fontWeight: FontWeigh,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
-                ),
-                _buildStatusChip(orderStatus),
-              ],
-            ),
-            SizedBox(height: 12),
-            Text(
-              DateFormat('MMM d, y').format(orderDate),
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: Colors.grey.shade600,
+                  _buildStatusChip(orderStatus),
+                ],
               ),
-            ),
-          ],
+              SizedBox(height: 12),
+              Text(
+                DateFormat('MMM d, y').format(orderDate),
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     ),

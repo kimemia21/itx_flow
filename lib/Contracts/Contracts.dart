@@ -18,8 +18,9 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 class Contracts extends StatefulWidget {
-  const Contracts({super.key, required this.filtered});
+  const Contracts({super.key, required this.filtered, required this.showAppbarAndSearch  });
   final bool filtered;
+  final bool showAppbarAndSearch;
 
   @override
   State<Contracts> createState() => _ContractsState();
@@ -288,7 +289,10 @@ class _ContractsState extends State<Contracts> {
                 backgroundColor: Colors.green.shade600,
                 child: const Icon(Icons.add, color: Colors.white),
               ),
-        appBar: AppBar(
+            
+        appBar: widget.showAppbarAndSearch?
+        
+        AppBar(
           centerTitle: true,
           automaticallyImplyLeading: true,
           title: Text(
@@ -315,7 +319,7 @@ class _ContractsState extends State<Contracts> {
               ),
             ),
           ),
-        ),
+        ):null,
         body: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -328,7 +332,9 @@ class _ContractsState extends State<Contracts> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                _buildSearchBar(context),
+                 Visibility(
+                  visible: widget.showAppbarAndSearch,
+                  child: _buildSearchBar(context),)  ,
                 Expanded(
                   child: FutureBuilder<List<ContractsModel>>(
                     future: contracts,
@@ -469,12 +475,6 @@ class _ContractsState extends State<Contracts> {
                               searchParams["deliveryDateStart"] ?? "";
                           final String date_to =
                               searchParams["deliveryDateEnd"] ?? "";
-                          print('Contract ID: $contractId');
-                          print('Commodity ID: $commodityId');
-                          print('Price From: $price_from');
-                          print('Price To: $price_to');
-                          print('Date From: $date_from');
-                          print('Date To: $date_to');
 
                           setState(() {
                             contracts = CommodityService.getAdvancedContracts(

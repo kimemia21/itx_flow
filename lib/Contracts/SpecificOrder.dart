@@ -1,15 +1,13 @@
-import 'package:cherry_toast/resources/arrays.dart';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:cherry_toast/cherry_toast.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:itx/Contracts/ContLiveBid.dart';
-import 'package:itx/Contracts/LiveAuction.dart';
-import 'package:itx/Contracts/PurchaseConfirmationAlert.dart';
-import 'package:itx/Serializers/CompanySerializer.dart';
+import 'package:itx/Serializers/ComTrades.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
+import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
@@ -41,15 +39,16 @@ class Specificorder extends StatefulWidget {
 }
 
 class _SpecificorderState extends State<Specificorder> {
-  CompanyModel? company;
+  Commodity? company;
+  List<FlSpot> priceHistorySpots = [];
   bool isLoading = true;
   String? errorMessage;
 
   @override
   void initState() {
     super.initState();
-    if (widget.companyId != null) {
-      fetchCompany();
+    if (widget.companyId.isNotEmpty) {
+      fetchCompanyAndPriceHistory();
     } else {
       setState(() {
         isLoading = false;
@@ -57,24 +56,24 @@ class _SpecificorderState extends State<Specificorder> {
     }
   }
 
-  Future<void> fetchCompany() async {
+  Future<void> fetchCompanyAndPriceHistory() async {
     try {
-      CompanyModel? fetchedCompany = await CommodityService.getCompany(
-        context: context,
-        id: widget.companyId!,
-      );
-
+      final CommodityResponse response =
+          await CommodityService.fetchCommodityInfo(
+              context, int.parse(widget.companyId));
       setState(() {
-        if (fetchedCompany != null) {
-          company = fetchedCompany;
-        } else {
-          errorMessage = "Company data not available";
-        }
+        company = response.data.isNotEmpty ? response.data.first : null;
+        priceHistorySpots = response.priceHistory
+            .map((history) => FlSpot(
+                  history.priceDate.millisecondsSinceEpoch.toDouble(),
+                  history.price,
+                ))
+            .toList();
         isLoading = false;
       });
     } catch (e) {
       setState(() {
-        errorMessage = "Error loading company data: $e";
+        errorMessage = "Error loading data: $e";
         isLoading = false;
       });
     }
@@ -95,161 +94,197 @@ class _SpecificorderState extends State<Specificorder> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.item,
-                style: GoogleFonts.poppins(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildHeader(),
+                    SizedBox(height: 20),
+                    buildGraph(),
+                    SizedBox(height: 20),
+                    buildCompanyInfoSection(),
+                    SizedBox(height: 20),
+                    buildTradeOptions(),
+                  ],
                 ),
-              ).animate().fadeIn(duration: 500.ms).slideX(),
-              SizedBox(height: 10),
-              Row(
-                children: [
-                  Text(
-                    '\$${widget.price.toStringAsFixed(2)}',
-                    style: GoogleFonts.poppins(
-                      fontSize: 40,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
-                    ),
-                  ).animate().fadeIn(duration: 500.ms).scale(),
-                  SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '1D +0.20%',
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.green,
-                        ),
-                      ),
-                    ],
-                  ).animate().fadeIn(duration: 500.ms).slideY(),
-                ],
               ),
-              SizedBox(height: 20),
-              Container(
-                height: 200,
-                child: LineChart(
-                  LineChartData(
-                    gridData: FlGridData(show: false),
-                    titlesData: FlTitlesData(show: false),
-                    borderData: FlBorderData(show: false),
-                    lineBarsData: [
-                      LineChartBarData(
-                        spots: [
-                          FlSpot(0, 1),
-                          FlSpot(1, 1.5),
-                          FlSpot(2, 1.4),
-                          FlSpot(3, 3.4),
-                          FlSpot(4, 2),
-                          FlSpot(5, 2.2),
-                          FlSpot(6, 1.8),
-                        ],
-                        isCurved: true,
-                        dotData: FlDotData(show: false),
-                        belowBarData: BarAreaData(show: false),
-                      ),
-                    ],
-                  ),
-                ),
-              ).animate().fadeIn(duration: 800.ms),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  buildTimePeriodButton('1D', true),
-                  buildTimePeriodButton('1W', false),
-                  buildTimePeriodButton('1M', false),
-                  buildTimePeriodButton('3M', false),
-                  buildTimePeriodButton('1Y', false),
-                ],
-              ).animate().fadeIn(duration: 500.ms).slideX(),
-              SizedBox(height: 20),
-              buildCompanyInfoSection(),
-              SizedBox(height: 20),
-              Text(
-                'Trade',
-                style: GoogleFonts.poppins(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ).animate().fadeIn(duration: 500.ms).slideX(),
-              SizedBox(height: 10),
-              if (widget.contract!.canbid == 0)
-                GestureDetector(
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => PurchaseConfirmationAlert(
-                        productName: widget.item,
-                        amount: widget.price,
-                        contract: widget.contract!,
-                        quantity: int.parse(widget.quantity),
-                        deliveryDate: DateTime.now().add(Duration(days: 7)),
-                        contactEmail: company?.companyAddress ??
-                            widget.companyEmail ??
-                            "support@example.com",
-                        contactPhone: company?.companyContacts ??
-                            widget.companyContacts ??
-                            "+1 (555) 123-4567",
-                      ),
-                    );
-                  },
-                  child: buildTradeOption(
-                      'Buy', 'Market execution', Icons.arrow_upward),
-                ).animate().fadeIn(duration: 500.ms).scale(),
-              SizedBox(height: 10),
-              if (widget.contract!.canbid == 1)
-                //  PersistentNavBarNavigator.
-                GestureDetector(
-                  onTap: () {
-                    PersistentNavBarNavigator.pushNewScreen(
-                        withNavBar: true, context, screen: ContractLiveBid(
-                          commodityname: widget.contract!.name,
-                          contractId: widget.contract!.contractId,));
-
-                    // showDialog(
-                    //   context: context,
-                    //   builder: (context) => PurchaseConfirmationAlert(
-                    //     productName: widget.item,
-                    //     contract: widget.contract!,
-                    //     amount: -1,
-                    //     quantity: int.parse(widget.quantity),
-                    //     deliveryDate: DateTime.now().add(Duration(days: 7)),
-                    //     contactEmail: company?.companyAddress ??
-                    //         widget.companyEmail ??
-                    //         "support@example.com",
-                    //     contactPhone: company?.companyContacts ??
-                    //         widget.companyContacts ??
-                    //         "+1 (555) 123-4567",
-                    //   ),
-                    // );
-                  },
-                  child: buildTradeOption(
-                      'Place bid', 'Market execution', Icons.arrow_upward),
-                ).animate().fadeIn(duration: 500.ms).scale(),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 
+  Widget buildHeader() {
+    double priceChange = calculatePriceChange();
+    double percentageChange = calculatePercentageChange();
+    bool isPositive = priceChange >= 0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.item,
+          style: GoogleFonts.poppins(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ).animate().fadeIn(duration: 500.ms).slideX(),
+        SizedBox(height: 10),
+        Row(
+          children: [
+            Text(
+              '\$${widget.price.toStringAsFixed(2)}',
+              style: GoogleFonts.poppins(
+                fontSize: 40,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+            ).animate().fadeIn(duration: 500.ms).scale(),
+            SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${isPositive ? '+' : ''}${priceChange.toStringAsFixed(2)} (${percentageChange.toStringAsFixed(2)}%)',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: isPositive ? Colors.green : Colors.red,
+                  ),
+                ),
+              ],
+            ).animate().fadeIn(duration: 500.ms).slideY(),
+          ],
+        ),
+      ],
+    );
+  }
+
+  double calculatePriceChange() {
+    if (priceHistorySpots.length < 2) return 0;
+    return priceHistorySpots.last.y - priceHistorySpots.first.y;
+  }
+
+  double calculatePercentageChange() {
+    if (priceHistorySpots.length < 2) return 0;
+    double initialPrice = priceHistorySpots.first.y;
+    double currentPrice = priceHistorySpots.last.y;
+    return ((currentPrice - initialPrice) / initialPrice) * 100;
+  }
+
+  Widget buildGraph() {
+    if (priceHistorySpots.isEmpty) {
+      return Container(
+        height: 200,
+        child: Center(child: Text('No price history available')),
+      );
+    }
+
+    final minX = priceHistorySpots.first.x;
+    final maxX = priceHistorySpots.last.x;
+
+    return Container(
+      height: 250, // Increased height to accommodate x-axis labels
+      child: LineChart(
+        LineChartData(
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: true,
+            getDrawingHorizontalLine: (value) {
+              return FlLine(
+                color: Colors.grey.withOpacity(0.3),
+                strokeWidth: 1,
+              );
+            },
+            getDrawingVerticalLine: (value) {
+              return FlLine(
+                color: Colors.grey.withOpacity(0.3),
+                strokeWidth: 1,
+              );
+            },
+          ),
+          titlesData: FlTitlesData(
+            show: true,
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 30,
+                getTitlesWidget: (value, meta) =>
+                    bottomTitleWidgets(value, meta, minX, maxX),
+              ),
+            ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                getTitlesWidget: leftTitleWidgets,
+                reservedSize: 40,
+              ),
+            ),
+            topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          ),
+          borderData: FlBorderData(
+              show: true,
+              border: Border.all(color: Colors.grey.withOpacity(0.5))),
+          minX: minX,
+          maxX: maxX,
+          minY: priceHistorySpots
+              .map((spot) => spot.y)
+              .reduce((a, b) => a < b ? a : b),
+          maxY: priceHistorySpots
+              .map((spot) => spot.y)
+              .reduce((a, b) => a > b ? a : b),
+          lineBarsData: [
+            LineChartBarData(
+              spots: priceHistorySpots,
+              isCurved: true,
+              color: Colors.blue,
+              dotData: FlDotData(show: false),
+              belowBarData: BarAreaData(show: false),
+            ),
+          ],
+        ),
+      ),
+    ).animate().fadeIn(duration: 800.ms);
+  }
+
+  Widget bottomTitleWidgets(
+      double value, TitleMeta meta, double minX, double maxX) {
+    const style = TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 10,
+    );
+    Widget text;
+    final dateTime = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+
+    // Show 3 dates: start, middle, and end
+    if (value == minX || value == maxX || value == (minX + maxX) / 2) {
+      text = Text(DateFormat('MM/dd').format(dateTime), style: style);
+    } else {
+      text = const Text('');
+    }
+
+    return SideTitleWidget(
+      axisSide: meta.axisSide,
+      space: 8.0,
+      child: text,
+    );
+  }
+
+  Widget leftTitleWidgets(double value, TitleMeta meta) {
+    const style = TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 12,
+    );
+    return Text('\$${value.toStringAsFixed(2)}',
+        style: style, textAlign: TextAlign.left);
+  }
+
   Widget buildCompanyInfoSection() {
-    if (isLoading) {
-      return Center(child: CircularProgressIndicator());
-    } else if (errorMessage != null) {
+    if (errorMessage != null) {
       return Text(
         errorMessage!,
         style: GoogleFonts.poppins(
@@ -274,14 +309,30 @@ class _SpecificorderState extends State<Specificorder> {
     }
   }
 
-  Widget buildTimePeriodButton(String label, bool isSelected) {
-    return Text(
-      label,
-      style: GoogleFonts.poppins(
-        fontSize: 16,
-        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-        color: isSelected ? Colors.black : Colors.grey,
-      ),
+  Widget buildTradeOptions() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Trade',
+          style: GoogleFonts.poppins(
+            fontSize: 22,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ).animate().fadeIn(duration: 500.ms).slideX(),
+        SizedBox(height: 10),
+        // buildTradeOption('Buy', 'Market execution', Icons.arrow_upward),
+        SizedBox(height: 10),
+
+        GestureDetector(
+            onTap: () => PersistentNavBarNavigator.pushNewScreen(context,
+                screen: ContractLiveBid(
+                    contractId: widget.contract!.id,
+                    commodityname: widget.contract!.name)),
+            child: buildTradeOption(
+                'Place bid', 'Market execution', Icons.arrow_upward)),
+      ],
     );
   }
 

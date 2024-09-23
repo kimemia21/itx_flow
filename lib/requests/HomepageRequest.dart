@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:itx/Serializers/ComTrades.dart';
 import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:itx/Serializers/CompanySerializer.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
@@ -12,10 +13,13 @@ import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:provider/provider.dart';
 
 class CommodityService {
-  static String mainUri = "http://192.168.100.8:3000/api/v1";
+  static String mainUri = "http://185.141.63.56:3067/api/v1";
+
+
+  // "http://192.168.100.8:3000/api/v1";
   // "http://185.141.63.56:3067/api/v1";
 
-  static Future<List<CommodityModel>> fetchCommodities(
+  static Future<List<Commodity>> fetchCommodities(
       BuildContext context, String keyword) async {
     try {
       final Uri uri = Uri.parse("$mainUri/commodities");
@@ -33,8 +37,8 @@ class CommodityService {
         if (responseData['rsp'] == true) {
           List<dynamic> commoditiesJson = responseData['data'];
           print(commoditiesJson);
-          List<CommodityModel> commodities = commoditiesJson
-              .map((commodity) => CommodityModel.fromJson(commodity))
+          List<Commodity> commodities = commoditiesJson
+              .map((commodity) => Commodity.fromJson(commodity))
               .toList();
 
           return commodities;
@@ -269,6 +273,37 @@ class CommodityService {
     } catch (e) {
       print(e);
       throw Exception("$e error in fetching contracts");
+    }
+  }
+
+  static Future<CommodityResponse> fetchCommodityInfo(
+      BuildContext context, int id) async {
+    try {
+      final Uri uri = Uri.parse("$mainUri/contracts/$id/trades");
+      // print("token ${Provider.of<appBloc>(context, listen: false).token}");
+      final Map<String, String> headers = {
+        "Content-Type": "application/json",
+        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      };
+
+      final response = await http.get(uri, headers: headers);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+
+        if (responseData['rsp'] == true) {
+          return CommodityResponse.fromJson(responseData);
+        } else {
+          throw Exception(
+              'Failed to fetch commodities: ${responseData['msg']}');
+        }
+      } else {
+        throw Exception('Failed to fetch commodities');
+      }
+    } catch (e) {
+      // Handle any errors that might have occurred
+      print('Error: $e');
+      throw Exception('An error occurred while fetching commodities: $e');
     }
   }
 }

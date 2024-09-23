@@ -77,7 +77,7 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
                               PersistentNavBarNavigator.pushNewScreen(
                                   withNavBar: true,
                                   context,
-                                  screen: Contracts(filtered: false)),
+                                  screen: Contracts(filtered: false,showAppbarAndSearch: true,)),
                           child: Text(
                             'See all',
                             style: GoogleFonts.poppins(

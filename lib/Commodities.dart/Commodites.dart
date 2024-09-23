@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:itx/authentication/Documents.dart';
 import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/requests/HomepageRequest.dart';
-import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:itx/requests/Requests.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
@@ -22,8 +22,8 @@ class _CommoditiesState extends State<Commodities> {
   List<String> userItems = [];
   List<int> userItemsId = [];
   String searchText = '';
-  List<CommodityModel> allCommodities = [];
-  List<CommodityModel> filteredCommodities = [];
+  List<Commodity> allCommodities = [];
+  List<Commodity> filteredCommodities = [];
   bool isLoading = true;
 
   @override

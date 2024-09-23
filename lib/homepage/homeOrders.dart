@@ -3,7 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Serializers/OrderModel.dart';
 import 'package:itx/global/globals.dart';
+import 'package:itx/myOrders.dart/OrderDetails.dart';
 import 'package:itx/requests/HomepageRequest.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class HomePageOrders extends StatefulWidget {
   const HomePageOrders({Key? key}) : super(key: key);
@@ -106,7 +108,6 @@ class _HomePageOrdersState extends State<HomePageOrders> {
                 Expanded(
                   child: ListView.builder(
                     itemCount: limitedOrders.length,
-
                     itemBuilder: (context, index) {
                       final order = limitedOrders[index];
                       return contractCard(
@@ -115,15 +116,15 @@ class _HomePageOrdersState extends State<HomePageOrders> {
                         deliveryDate: order.deliveryDate,
                         status: order.orderStatus,
                         onTap: () {
-                          Globals.switchScreens(
-                            context: context,
-                            screen: Specificorder(
-                              item: order.name,
-                              price: order.price,
-                              quantity: "4000",
-                              companyId: order.userCompanyId.toString(),
-                            ),
-                          );
+                          PersistentNavBarNavigator.pushNewScreen(context,
+                              screen: Orderdetails(
+                                  contractId: order.contractId.toString(),
+                                  orderId: order.orderId.toString(),
+                                  orderType: order.orderType,
+                                  orderStatus: order.orderStatus,
+                                  bidPrice: order.bidPrice,
+                                  orderDate: order.orderDate,
+                                  description: order.description));
                         },
                       );
                     },

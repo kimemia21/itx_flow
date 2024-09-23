@@ -52,7 +52,7 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
     return [
       Userhomepage(),
       // Contracts(filtered: false),
-      Contracts(filtered: true),
+      Contracts(filtered: true,showAppbarAndSearch: true,),
 //
 
       Spottrader(),

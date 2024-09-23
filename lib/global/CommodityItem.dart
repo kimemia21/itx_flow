@@ -2,11 +2,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
-import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
+import '../Serializers/CommodityModel.dart';
+
 class CommodityDetailScreen extends StatelessWidget {
-  final CommodityModel commodity;
+  final Commodity  commodity;
 
   const CommodityDetailScreen({Key? key, required this.commodity})
       : super(key: key);
@@ -199,12 +200,10 @@ class CommodityDetailScreen extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () {
           double price = 100 + Random().nextInt(900).toDouble();
-        
+
           PersistentNavBarNavigator.pushNewScreen(
             context,
             screen: Specificorder(
-              
-
               item: commodity.name,
               companyId: commodity.userCompanyId.toString(),
               price: price,

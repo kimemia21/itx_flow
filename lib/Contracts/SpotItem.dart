@@ -47,6 +47,7 @@ class _SpotitemState extends State<Spotitem>
             context: context,
             screen: Contracts(
               filtered: false,
+              showAppbarAndSearch: false,
             )),
         title: Text('Create Contact'),
         centerTitle: true,

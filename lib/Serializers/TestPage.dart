@@ -1,5 +1,5 @@
 // import 'package:flutter/material.dart';
-// import 'package:itx/Serializers/CommodityModel.dart';
+// import 'package:itx/Serializers/Commodity.dart';
 // import 'package:itx/requests/HomepageRequest.dart';
 
 // class CommodityListPage extends StatelessWidget {
@@ -13,7 +13,7 @@
 //       appBar: AppBar(
 //         title: Text('Commodities'),
 //       ),
-//       body: FutureBuilder<List<CommodityModel>>(
+//       body: FutureBuilder<List<Commodity>>(
 //         future: CommodityService.fetchCommodities(context, "keyword"), // Fetching the data
 //         builder: (context, snapshot) {
 //           // Check for loading state

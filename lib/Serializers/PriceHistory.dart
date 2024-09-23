@@ -25,7 +25,7 @@ class PricehistoryModel {
   });
 
   factory PricehistoryModel.fromJson(Map<String, dynamic> json) {
-    // Return the model object, mapping JSON keys to class fields
+
     return PricehistoryModel(
       bid_id: json['bid_id'],
       contract_id: json['contract_id'],
@@ -39,4 +39,5 @@ class PricehistoryModel {
       user_id: json["user_id"]
     );
   }
+  
 }

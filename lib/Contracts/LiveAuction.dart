@@ -268,7 +268,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen>
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text(
-          'Live Action',
+          'Live Auction',
           style: GoogleFonts.poppins(
             fontSize: 22,
             fontWeight: FontWeight.w600,

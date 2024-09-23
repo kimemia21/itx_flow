@@ -92,6 +92,7 @@ class _AuthorizationState extends State<Authorization> {
                   onTap: () => Globals.switchScreens(
                       context: context,
                       screen: Contracts(
+                        showAppbarAndSearch: true,
                         filtered: false,
                       )),
                   child: Container(
