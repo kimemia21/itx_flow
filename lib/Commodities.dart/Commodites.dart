@@ -29,7 +29,6 @@ class _CommoditiesState extends State<Commodities> {
   @override
   void initState() {
     super.initState();
-
     _loadCommodities();
   }
 
@@ -38,10 +37,16 @@ class _CommoditiesState extends State<Commodities> {
       isLoading = true;
     });
     try {
-      allCommodities = await CommodityService.fetchCommodities(context, "");
+      allCommodities = await CommodityService.fetchCommodities(context);
       _filterCommodities();
     } catch (e) {
       print("Error loading commodities: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to load commodities. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     } finally {
       setState(() {
         isLoading = false;
@@ -91,6 +96,20 @@ class _CommoditiesState extends State<Commodities> {
             fontSize: 18,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh, color: Colors.white),
+            onPressed: () {
+              _loadCommodities();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Refreshing commodities...'),
+                  duration: Duration(seconds: 1),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -158,8 +177,10 @@ class _CommoditiesState extends State<Commodities> {
                                   setState(() {
                                     if (userItems.contains(commodity.name)) {
                                       userItems.remove(commodity.name);
+                                      userItemsId.remove(commodity.id);
                                     } else {
                                       userItems.add(commodity.name);
+                                      userItemsId.add(commodity.id);
                                     }
                                     context
                                         .read<appBloc>()
@@ -174,11 +195,9 @@ class _CommoditiesState extends State<Commodities> {
                                       if (value!) {
                                         userItems.add(commodity.name);
                                         userItemsId.add(commodity.id);
-                                        print(userItemsId);
                                       } else {
                                         userItems.remove(commodity.name);
                                         userItemsId.remove(commodity.id);
-                                        print(userItemsId);
                                       }
                                       context
                                           .read<appBloc>()
@@ -220,7 +239,6 @@ class _CommoditiesState extends State<Commodities> {
               alignment: Alignment.bottomCenter,
               child: GestureDetector(
                 onTap: () {
-                  print(userItems);
                   if (userItems.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -238,8 +256,6 @@ class _CommoditiesState extends State<Commodities> {
                   } else {
                     String user_type =
                         Provider.of<appBloc>(context, listen: false).user_type;
-                    print(userItemsId);
-
                     AuthRequest.UserCommodities(
                         context: context,
                         user_type: user_type,

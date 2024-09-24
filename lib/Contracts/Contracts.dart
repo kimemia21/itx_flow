@@ -18,7 +18,8 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 class Contracts extends StatefulWidget {
-  const Contracts({super.key, required this.filtered, required this.showAppbarAndSearch  });
+  const Contracts(
+      {super.key, required this.filtered, required this.showAppbarAndSearch});
   final bool filtered;
   final bool showAppbarAndSearch;
 
@@ -289,37 +290,36 @@ class _ContractsState extends State<Contracts> {
                 backgroundColor: Colors.green.shade600,
                 child: const Icon(Icons.add, color: Colors.white),
               ),
-            
-        appBar: widget.showAppbarAndSearch?
-        
-        AppBar(
-          centerTitle: true,
-          automaticallyImplyLeading: true,
-          title: Text(
-            widget.filtered ? "Watchlist" : "Contracts",
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              fontSize: 20,
-            ),
-          ),
-          backgroundColor: Colors.green.shade600,
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(20),
-            ),
-          ),
-          flexibleSpace: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.green.shade500, Colors.green.shade700],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ),
-        ):null,
+        appBar: widget.showAppbarAndSearch
+            ? AppBar(
+                centerTitle: true,
+                automaticallyImplyLeading: true,
+                title: Text(
+                  widget.filtered ? "Watchlist" : "Contracts",
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 20,
+                  ),
+                ),
+                backgroundColor: Colors.green.shade600,
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(20),
+                  ),
+                ),
+                flexibleSpace: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.green.shade500, Colors.green.shade700],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                  ),
+                ),
+              )
+            : null,
         body: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -332,9 +332,10 @@ class _ContractsState extends State<Contracts> {
             padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                 Visibility(
+                Visibility(
                   visible: widget.showAppbarAndSearch,
-                  child: _buildSearchBar(context),)  ,
+                  child: _buildSearchBar(context),
+                ),
                 Expanded(
                   child: FutureBuilder<List<ContractsModel>>(
                     future: contracts,
@@ -376,13 +377,7 @@ class _ContractsState extends State<Contracts> {
                                     withNavBar: true,
                                     context,
                                     screen: Specificorder(
-                                      companyId:
-                                          contract.userCompanyId.toString(),
-                                      item: contract.name,
-                                      price: contract.price,
                                       contract: contract,
-                                      quantity:
-                                          contract.qualityGradeId.toString(),
                                     ),
                                   );
                                 },

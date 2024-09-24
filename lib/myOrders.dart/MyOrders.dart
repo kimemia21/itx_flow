@@ -193,15 +193,15 @@ class _UserOrdersScreenState extends State<UserOrdersScreen> {
                                 deliveryDate: order.deliveryDate,
                                 status: order.orderStatus,
                                 onTap: () {
-                                  Globals.switchScreens(
-                                    context: context,
-                                    screen: Specificorder(
-                                      item: order.name,
-                                      price: order.price,
-                                      quantity: order.description,
-                                      companyId: order.userCompanyId.toString(),
-                                    ),
-                                  );
+                                  // Globals.switchScreens(
+                                  //   context: context,
+                                  //   screen: Specificorder(
+                                  //     item: order.name,
+                                  //     price: order.price,
+                                  //     quantity: order.description,
+                                  //     companyId: order.userCompanyId.toString(),
+                                  //   ),
+                                  // );
                                 },
                               );
                             }).toList(),

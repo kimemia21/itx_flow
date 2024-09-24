@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:itx/authentication/LoginScreen.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
   const ITXAppBar({Key? key}) : super(key: key);
@@ -8,14 +10,20 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.green[600],
       centerTitle: true,
+      
       title: const Text(
         'ITX',
         style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: Colors.white
-        ),
+            fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
       ),
+      leading: IconButton(
+          onPressed: () {
+            PersistentNavBarNavigator.pushNewScreen(
+              withNavBar: false,
+              context,
+                screen: MainLoginScreen());
+          },
+          icon: Icon(Icons.login)),
       // actions: [
       //   IconButton(
       //     icon: const Icon(Icons.search),

@@ -51,20 +51,21 @@ class _SpottraderState extends State<Spottrader> with SingleTickerProviderStateM
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            PersistentNavBarNavigator.pushNewScreen(
-              context,
-              screen: Specificorder(
-                item: "beans",
-                price: 40,
-                quantity: "12",
-                companyId: "1",
-              ),
-            );
-          },
-          icon: Icon(Icons.arrow_back),
-        ),
+        // leading: IconButton(
+        //   onPressed: () {
+        //     PersistentNavBarNavigator.pushNewScreen(
+        //       context,
+        //       screen: Specificorder(
+        //         productName: "bean",
+        //         item: "beans",
+        //         price: 40,
+        //         quantity: "12",
+        //         companyId: "1",
+        //       ),
+        //     );
+        //   },
+        //   icon: Icon(Icons.arrow_back),
+        // ),
         backgroundColor: Colors.white,
         centerTitle: true,
         title: Text(

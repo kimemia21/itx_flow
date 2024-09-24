@@ -77,7 +77,7 @@ class _HomePageOrdersState extends State<HomePageOrders> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Colors.white,
       body: FutureBuilder<List<UserOrders>>(
         future: _futureOrders,
         builder: (context, snapshot) {

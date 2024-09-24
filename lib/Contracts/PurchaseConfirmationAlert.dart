@@ -100,7 +100,8 @@ class _PurchaseConfirmationAlertState extends State<PurchaseConfirmationAlert> {
             ),
           Text(
             widget.amount > 0
-                ? 'Total: \$${(widget.amount * widget.quantity).toStringAsFixed(2)}'
+                ? 'Total: \$${NumberFormat.currency(symbol: '', decimalDigits: 2).format(widget.amount)}'
+
                 : 'Total: \$${amt.toStringAsFixed(2)}',
             style: GoogleFonts.poppins(
               fontSize: 20,
@@ -179,7 +180,7 @@ class _PurchaseConfirmationAlertState extends State<PurchaseConfirmationAlert> {
                   CherryToast.success(
                     title: Text("Purchase Confirmed"),
                     description: Text(
-                      'You will receive an invoice via email within 10 days.',
+                      'You should pay within 10 days to receive an invoice via email .',
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: Colors.grey[600],

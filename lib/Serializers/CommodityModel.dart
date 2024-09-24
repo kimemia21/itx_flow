@@ -4,7 +4,7 @@ class Commodity {
   final int commodityGradeId;
   final int commodityType;
   final String description;
-  final String iconName;
+  final String? iconName;
   final String imageUrl;
   final int commodityPrimaryPackingId;
   final int userCompanyId;
@@ -40,7 +40,7 @@ class Commodity {
       commodityGradeId: json['commodity_grade_id'],
       commodityType: json['commodity_type'],
       description: json['description'],
-      iconName: json['icon_name'],
+      iconName: json['icon_name']??"iconname",
       imageUrl: json['image_url'],
       commodityPrimaryPackingId: json['commodity_primary_packing_id'],
       userCompanyId: json['user_company_id'],

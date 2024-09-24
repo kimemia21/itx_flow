@@ -374,6 +374,8 @@ class AuthRequest {
           bloc.changeUser(email);
           bloc.changeCurrentUserID(id: id);
 
+          print("0000000000000000000000000${Provider.of<appBloc>(context, listen: false).user_id}000000000000000000000");
+
           // Switch screens upon successful login
           Globals.switchScreens(context: context, screen: GlobalsHomePage());
 
@@ -417,6 +419,4 @@ class AuthRequest {
       );
     }
   }
-
-
 }

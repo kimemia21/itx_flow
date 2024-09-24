@@ -1,3 +1,4 @@
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -5,6 +6,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:itx/Contracts/ContLiveBid.dart';
+import 'package:itx/Contracts/PurchaseConfirmationAlert.dart';
 import 'package:itx/Serializers/ComTrades.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/Serializers/CommodityModel.dart';
@@ -12,26 +14,28 @@ import 'package:itx/requests/HomepageRequest.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class Specificorder extends StatefulWidget {
-  final String item;
-  final double price;
-  final String quantity;
-  final String? companyName;
-  final String? companyAddress;
-  final String? companyContacts;
-  final String? companyEmail;
-  final String companyId;
-  final ContractsModel? contract;
+  // final String item;
+  // final productName;
+  // final double price;
+  // final String quantity;
+  // final String? companyName;
+  // final String? companyAddress;
+  // final String? companyContacts;
+  // final String? companyEmail;
+  // final String companyId;
+  final ContractsModel contract;
 
   Specificorder({
-    required this.item,
-    required this.quantity,
-    required this.price,
-    this.companyName,
-    this.companyAddress,
-    this.companyContacts,
-    this.companyEmail,
-    this.contract,
-    required this.companyId,
+    // required this.productName,
+    // required this.item,
+    // required this.quantity,
+    // required this.price,
+    // this.companyName,
+    // this.companyAddress,
+    // this.companyContacts,
+    // this.companyEmail,
+    required this.contract,
+    // required this.companyId,
   });
 
   @override
@@ -43,11 +47,14 @@ class _SpecificorderState extends State<Specificorder> {
   List<FlSpot> priceHistorySpots = [];
   bool isLoading = true;
   String? errorMessage;
+  var random = Random();
+  late int randomNumber;
 
   @override
   void initState() {
     super.initState();
-    if (widget.companyId.isNotEmpty) {
+    randomNumber = random.nextInt(2);
+    if (widget.contract.commodityId != null) {
       fetchCompanyAndPriceHistory();
     } else {
       setState(() {
@@ -60,7 +67,7 @@ class _SpecificorderState extends State<Specificorder> {
     try {
       final CommodityResponse response =
           await CommodityService.fetchCommodityInfo(
-              context, int.parse(widget.companyId));
+              context, int.parse(widget.contract.userCompanyId.toString()));
       setState(() {
         company = response.data.isNotEmpty ? response.data.first : null;
         priceHistorySpots = response.priceHistory
@@ -125,7 +132,7 @@ class _SpecificorderState extends State<Specificorder> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.item,
+          widget.contract.name,
           style: GoogleFonts.poppins(
             fontSize: 22,
             fontWeight: FontWeight.w600,
@@ -136,7 +143,7 @@ class _SpecificorderState extends State<Specificorder> {
         Row(
           children: [
             Text(
-              '\$${widget.price.toStringAsFixed(2)}',
+              '\$${widget.contract.price.toStringAsFixed(2)}',
               style: GoogleFonts.poppins(
                 fontSize: 40,
                 fontWeight: FontWeight.w600,
@@ -301,10 +308,10 @@ class _SpecificorderState extends State<Specificorder> {
       ).animate().fadeIn(duration: 500.ms).slideY();
     } else {
       return buildCompanyInfo(
-        widget.companyName,
-        widget.companyAddress,
-        widget.companyContacts,
-        widget.companyEmail,
+        company!.companyName,
+        company!.companyAddress,
+        company!.companyContacts,
+        company!.companyAddress,
       ).animate().fadeIn(duration: 500.ms).slideY();
     }
   }
@@ -323,21 +330,41 @@ class _SpecificorderState extends State<Specificorder> {
         ).animate().fadeIn(duration: 500.ms).slideX(),
         SizedBox(height: 10),
         // buildTradeOption('Buy', 'Market execution', Icons.arrow_upward),
-           Visibility(
-          visible: widget.contract!.canbid==1,
-               child: GestureDetector(
+        Visibility(
+          // visible: randomNumber==1,
+          visible: widget.contract!.canbid == 0,
+
+          child: GestureDetector(
               onTap: () => PersistentNavBarNavigator.pushNewScreen(context,
-                  screen: ContractLiveBid(
-                      contractId: widget.contract!.id,
-                      commodityname: widget.contract!.name)),
+                  screen: PurchaseConfirmationAlert(
+                      productName: widget.contract.name,
+                      amount: widget.contract.price,
+                      contract: widget.contract,
+                      quantity: 200,
+                      deliveryDate: widget.contract.deliveryDate,
+                      contactEmail: company!.companyAddress,
+                      contactPhone: company!.companyContacts)
+
+                  // PriceAlert(
+                  //     price: widget.price,
+                  //     onBuyNow: () {},
+                  //     onCancel: () {
+                  //       Navigator.pop(context);
+                  //     })
+                  //  ContractLiveBid(
+                  //     contractId: widget.contract!.id,
+                  //     commodityname: widget.contract!.name)
+
+                  ),
               child: buildTradeOption(
-                  'Place bid', 'Market execution', Icons.arrow_upward)),
-           ),
+                  'Buy Now', 'Market execution', Icons.arrow_upward)),
+        ),
         SizedBox(height: 10),
 
         Visibility(
-         visible: widget.contract!.canbid==0,
-             
+          //  visible: randomNumber==0,
+          visible: widget.contract!.canbid == 1,
+
           child: GestureDetector(
               onTap: () => PersistentNavBarNavigator.pushNewScreen(context,
                   screen: ContractLiveBid(

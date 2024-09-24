@@ -64,8 +64,8 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
         PersistentBottomNavBarItem(
           icon: const Icon(Icons.home),
           title: "Home",
-          activeColorPrimary: Colors.blue,
-          inactiveColorPrimary: Colors.grey,
+          activeColorPrimary: Colors.green.shade300,
+          inactiveColorPrimary: Colors.green,
         ),
         PersistentBottomNavBarItem(
           icon: const Icon(Icons.visibility),

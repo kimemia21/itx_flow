@@ -19,8 +19,8 @@ class CommodityService {
   // "http://192.168.100.8:3000/api/v1";
   // "http://185.141.63.56:3067/api/v1";
 
-  static Future<List<Commodity>> fetchCommodities(
-      BuildContext context, String keyword) async {
+  static Future<List<Commodity>> fetchCommodities(BuildContext context) async {
+    print("init");
     try {
       final Uri uri = Uri.parse("$mainUri/commodities");
       // print("token ${Provider.of<appBloc>(context, listen: false).token}");
@@ -32,6 +32,7 @@ class CommodityService {
       final response = await http.get(uri, headers: headers);
 
       if (response.statusCode == 200) {
+        print("success");
         final Map<String, dynamic> responseData = json.decode(response.body);
 
         if (responseData['rsp'] == true) {
@@ -218,7 +219,7 @@ class CommodityService {
 
   static Future<bool> PostBid(BuildContext context, body, id) async {
     final Uri uri = Uri.parse("$mainUri/contracts/$id/order");
-    
+
     try {
       final String token = Provider.of<appBloc>(context, listen: false).token;
       final Map<String, String> headers = {
@@ -242,7 +243,8 @@ class CommodityService {
           throw Exception('Bid placement failed: ${responseData['msg']}');
         }
       } else {
-        throw Exception('HTTP error ${response.statusCode}: ${response.reasonPhrase}');
+        throw Exception(
+            'HTTP error ${response.statusCode}: ${response.reasonPhrase}');
       }
     } catch (e) {
       print("Error in postBid function: $e");
@@ -253,8 +255,9 @@ class CommodityService {
   static Future<List<ContractsModel>> getAdvancedContracts(BuildContext context,
       String date_from, String date_to, String price_from, String price_to,
       [int? id]) async {
+    print("------------------------------------------${Provider.of<appBloc>(context, listen: false).user_id}----------------------------------");
     String filter =
-        "userid=-1&this_user_liked=-1&this_user_bought=-1&this_user_paid=-1&date_from=$date_from&date_to=$date_to&price_from=$price_from&price_to=$price_to";
+        "userid=${Provider.of<appBloc>(context, listen: false).user_id}&this_user_liked=-1&this_user_bought=-1&this_user_paid=-1&date_from=$date_from&date_to=$date_to&price_from=$price_from&price_to=$price_to";
 
     print("------$mainUri/contracts/list?$filter-----------");
 

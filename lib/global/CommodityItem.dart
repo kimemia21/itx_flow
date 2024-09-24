@@ -201,15 +201,18 @@ class CommodityDetailScreen extends StatelessWidget {
         onPressed: () {
           double price = 100 + Random().nextInt(900).toDouble();
 
-          PersistentNavBarNavigator.pushNewScreen(
-            context,
-            screen: Specificorder(
-              item: commodity.name,
-              companyId: commodity.userCompanyId.toString(),
-              price: price,
-              quantity: 10.toString(),
-            ),
-          );
+          // PersistentNavBarNavigator.pushNewScreen(
+          //   context,
+          //   screen: Specificorder(
+          //     contract: commodity,
+
+          //     productName: commodity.name,
+          //     item: commodity.name,
+          //     companyId: commodity.userCompanyId.toString(),
+          //     price: price,
+          //     quantity: 10.toString(),
+          //   ),
+          // );
         },
         child: Text(
           'Buy Now',

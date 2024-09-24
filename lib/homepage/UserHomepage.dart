@@ -20,6 +20,7 @@ class _UserhomepageState extends State<Userhomepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: ITXAppBar(),
       body: SingleChildScrollView(
         child: Column(

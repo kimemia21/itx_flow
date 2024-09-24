@@ -52,7 +52,38 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No contracts available'));
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('No contracts available'),
+                const SizedBox(height: 20), // Spacing between text and button
+                ElevatedButton(
+                  onPressed: () {
+                    PersistentNavBarNavigator.pushNewScreen(context,
+                        screen: Contracts(
+                            filtered: false, showAppbarAndSearch: true));
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade700, // Button color
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(30), // Rounded corners
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15), // Button size
+                    elevation: 5, // Elevation for shadow effect
+                  ),
+                  child: Text(
+                    'View Contracts',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white, // Text color
+                      fontWeight: FontWeight.bold, // Bold text
+                    ),
+                  ),
+                ),
+              ],
+            );
           } else {
             List<ContractsModel> contracts = snapshot.data!;
             return Column(
@@ -77,7 +108,10 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
                               PersistentNavBarNavigator.pushNewScreen(
                                   withNavBar: true,
                                   context,
-                                  screen: Contracts(filtered: false,showAppbarAndSearch: true,)),
+                                  screen: Contracts(
+                                    filtered: false,
+                                    showAppbarAndSearch: true,
+                                  )),
                           child: Text(
                             'See all',
                             style: GoogleFonts.poppins(
@@ -121,11 +155,12 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
         PersistentNavBarNavigator.pushNewScreen(
           context,
           screen: Specificorder(
-            companyId: contract.userCompanyId.toString(),
-            item: contract.name,
-            price: contract.price,
+            // productName: "contract",
+            // companyId: contract.userCompanyId.toString(),
+            // item: contract.name,
+            // price: contract.price,
             contract: contract,
-            quantity: contract.qualityGradeId.toString(),
+            // quantity: contract.qualityGradeId.toString(),
           ),
         );
       },

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Contracts/Contracts.dart';
 import 'package:itx/authentication/Regulator.dart';
+import 'package:itx/global/GlobalsHomepage.dart';
 
 import 'package:itx/global/globals.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 class Authorization extends StatefulWidget {
   const Authorization({super.key});
@@ -89,12 +91,12 @@ class _AuthorizationState extends State<Authorization> {
                   height: 20,
                 ),
                 GestureDetector(
-                  onTap: () => Globals.switchScreens(
-                      context: context,
-                      screen: Contracts(
-                        showAppbarAndSearch: true,
-                        filtered: false,
-                      )),
+                  onTap: () => PersistentNavBarNavigator.pushNewScreen(
+                      withNavBar: true,
+                      context,
+                      screen: GlobalsHomePage()
+                       
+                      ),
                   child: Container(
                     alignment: Alignment.center,
                     width: MediaQuery.of(context).size.width * 0.8,
