@@ -40,7 +40,11 @@ class _CommodityDropdownState extends State<CommodityDropdown> {
 
   Widget _buildCommodityTypeDropdown() {
     if (_isLoading) {
-      return CircularProgressIndicator();
+      return Center(
+        child: CircularProgressIndicator(
+          
+        ),
+      );
     }
 
     return DropdownButtonFormField<String>(

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:itx/Serializers/ComTrades.dart';
+import 'package:itx/Serializers/CommParams.dart';
 import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:itx/Serializers/CompanySerializer.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
@@ -14,7 +15,6 @@ import 'package:provider/provider.dart';
 
 class CommodityService {
   static String mainUri = "http://185.141.63.56:3067/api/v1";
-
 
   // "http://192.168.100.8:3000/api/v1";
   // "http://185.141.63.56:3067/api/v1";
@@ -218,24 +218,35 @@ class CommodityService {
 
   static Future<bool> PostBid(BuildContext context, body, id) async {
     final Uri uri = Uri.parse("$mainUri/contracts/$id/order");
-    final Map<String, String> headers = {
-      "Content-Type": "application/json",
-      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
-    };
+    
+    try {
+      final String token = Provider.of<appBloc>(context, listen: false).token;
+      final Map<String, String> headers = {
+        "Content-Type": "application/json",
+        "x-auth-token": token,
+      };
 
-    final http.Response response =
-        await http.post(uri, headers: headers, body: body);
+      final http.Response response = await http.post(
+        uri,
+        headers: headers,
+        body: json.encode(body), // Ensure the body is properly encoded
+      );
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
 
-      if (responseData['rsp'] == true) {
-        return true;
+        if (responseData['rsp'] == true) {
+          print("Bid placed successfully");
+          return true;
+        } else {
+          throw Exception('Bid placement failed: ${responseData['msg']}');
+        }
       } else {
-        throw Exception('Failed to place bid: ${responseData['msg']}');
+        throw Exception('HTTP error ${response.statusCode}: ${response.reasonPhrase}');
       }
-    } else {
-      throw Exception('Failed to place bid');
+    } catch (e) {
+      print("Error in postBid function: $e");
+      return false; // Return false instead of throwing an exception
     }
   }
 
@@ -244,7 +255,9 @@ class CommodityService {
       [int? id]) async {
     String filter =
         "userid=-1&this_user_liked=-1&this_user_bought=-1&this_user_paid=-1&date_from=$date_from&date_to=$date_to&price_from=$price_from&price_to=$price_to";
-    print("------$mainUri/$filter-----------");
+
+    print("------$mainUri/contracts/list?$filter-----------");
+
     try {
       final Uri uri = Uri.parse("$mainUri/contracts/list?$filter");
       final Map<String, String> headers = {
@@ -304,6 +317,39 @@ class CommodityService {
       // Handle any errors that might have occurred
       print('Error: $e');
       throw Exception('An error occurred while fetching commodities: $e');
+    }
+  }
+
+  static Future<List<CommParams>> getPrams({
+    required BuildContext context,
+    required int id,
+  }) async {
+    final Uri uri = Uri.parse("$mainUri/commodities/$id/params");
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+    };
+    try {
+      final http.Response response = await http.get(uri, headers: headers);
+      if (response.statusCode == 200) {
+        print("--------sucesss------");
+        final Map<String, dynamic> responseData = json.decode(response.body);
+
+        if (responseData['rsp'] == true) {
+          List<dynamic> paramsJson = responseData['data'];
+          print(paramsJson);
+          List<CommParams> params =
+              paramsJson.map((params) => CommParams.fromJson(params)).toList();
+
+          return params;
+        } else {
+          throw Exception('Failed to fetch params: ${responseData['msg']}');
+        }
+      } else {
+        throw Exception('Failed to fetch params');
+      }
+    } catch (e) {
+      throw Exception("---------Failed to fetch params $e---------");
     }
   }
 }

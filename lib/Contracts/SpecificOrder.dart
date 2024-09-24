@@ -87,12 +87,12 @@ class _SpecificorderState extends State<Specificorder> {
         automaticallyImplyLeading: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.more_vert, color: Colors.black),
-            onPressed: () {},
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: Icon(Icons.more_vert, color: Colors.black),
+        //     onPressed: () {},
+        //   ),
+        // ],
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
@@ -323,15 +323,29 @@ class _SpecificorderState extends State<Specificorder> {
         ).animate().fadeIn(duration: 500.ms).slideX(),
         SizedBox(height: 10),
         // buildTradeOption('Buy', 'Market execution', Icons.arrow_upward),
+           Visibility(
+          visible: widget.contract!.canbid==1,
+               child: GestureDetector(
+              onTap: () => PersistentNavBarNavigator.pushNewScreen(context,
+                  screen: ContractLiveBid(
+                      contractId: widget.contract!.id,
+                      commodityname: widget.contract!.name)),
+              child: buildTradeOption(
+                  'Place bid', 'Market execution', Icons.arrow_upward)),
+           ),
         SizedBox(height: 10),
 
-        GestureDetector(
-            onTap: () => PersistentNavBarNavigator.pushNewScreen(context,
-                screen: ContractLiveBid(
-                    contractId: widget.contract!.id,
-                    commodityname: widget.contract!.name)),
-            child: buildTradeOption(
-                'Place bid', 'Market execution', Icons.arrow_upward)),
+        Visibility(
+         visible: widget.contract!.canbid==0,
+             
+          child: GestureDetector(
+              onTap: () => PersistentNavBarNavigator.pushNewScreen(context,
+                  screen: ContractLiveBid(
+                      contractId: widget.contract!.id,
+                      commodityname: widget.contract!.name)),
+              child: buildTradeOption(
+                  'Place bid', 'Market execution', Icons.arrow_upward)),
+        ),
       ],
     );
   }

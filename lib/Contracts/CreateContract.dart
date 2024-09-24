@@ -2,15 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:itx/Commodities.dart/ComDropDown.dart';
-import 'package:itx/Commodities.dart/Commodites.dart';
-import 'package:itx/Contracts/Contracts.dart';
-import 'package:itx/myOrders.dart/MyOrders.dart';
-import 'package:itx/Contracts/SpecificOrder.dart';
+import 'package:itx/Commodities.dart/Grade.dart';
+import 'package:itx/Serializers/CommParams.dart';
 import 'package:itx/global/AppBloc.dart';
-import 'package:itx/global/globals.dart';
-import 'package:provider/provider.dart';import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
+import 'package:itx/requests/HomepageRequest.dart';
 import 'package:provider/provider.dart';
 
 class CreateContract extends StatefulWidget {
@@ -18,46 +13,63 @@ class CreateContract extends StatefulWidget {
   _CreateContractState createState() => _CreateContractState();
 }
 
-class _CreateContractState extends State<CreateContract> with SingleTickerProviderStateMixin {
-  String? selectedCommodity;
+class _CreateContractState extends State<CreateContract>
+    with TickerProviderStateMixin {
+  List<CommParams> params = [];
+  Map<int, TextEditingController> controllers = {};
+  bool isLoading = true;
+  String? errorMessage;
+  int selectedCommodityId = 1;
   String? selectedQuality;
   DateTime? selectedDate;
   final priceController = TextEditingController();
   final descriptionController = TextEditingController();
-
-  List commodities = [];
+  final quantityController = TextEditingController();
   List<String> qualities = ['Quality 1', 'Quality 2', 'Quality 3'];
   late TabController _tabController;
+  List<DeliveryMilestone> deliveryMilestones = [];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
+    _fetchParams();
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    priceController.dispose();
-    descriptionController.dispose();
-    super.dispose();
+  Future<void> _fetchParams() async {
+    try {
+      setState(() {
+        isLoading = true;
+        errorMessage = null;
+      });
+
+      params = await CommodityService.getPrams(context: context, id: selectedCommodityId);
+      for (var param in params) {
+        controllers[param.id] = TextEditingController();
+      }
+
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Error fetching params: $e';
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    commodities = context.watch<appBloc>().userCommodities;
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        automaticallyImplyLeading: true,
-        // leading: IconButton(
-        //   icon: Icon(Icons.arrow_back_ios, color: Colors.black),
-        //   onPressed: () => Navigator.of(context).pop(),
-        // ),
-        title: Text('Create Contract', style: GoogleFonts.poppins(color: Colors.black, fontWeight: FontWeight.bold)),
+        title: Text('Create Contract',
+            style: GoogleFonts.poppins(
+                color: Colors.black, fontWeight: FontWeight.bold)),
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(48.0),
@@ -70,6 +82,7 @@ class _CreateContractState extends State<CreateContract> with SingleTickerProvid
                 Tab(text: 'Forwards'),
                 Tab(text: 'Options'),
                 Tab(text: 'Swaps'),
+                Tab(text: "Spot")
               ],
               labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
@@ -79,76 +92,105 @@ class _CreateContractState extends State<CreateContract> with SingleTickerProvid
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
-        padding: EdgeInsets.all(16.0),
-        child: Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // add flags to know where and the fields to include 
-            CommodityDropdown(onCommoditySelected: (commodity){}),
-                buildDropdownButton(
-                  title: 'Choose a commodity Quality/Grade',
-                  value: selectedQuality,
-                  items: qualities,
-                  onChanged: (value) => setState(() => selectedQuality = value),
-                ),
-                buildDatePicker(
-                  title: 'Choose a delivery Date/Schedule',
-                  selectedDate: selectedDate,
-                  onDateSelected: (date) => setState(() => selectedDate = date),
-                ),
-                buildTextField(
-                  controller: priceController,
-                  title: 'Enter Price',
-                  icon: Icons.attach_money,
-                ),
-                buildTextField(
-                  controller: descriptionController,
-                  title: 'Description',
-                  maxLines: 4,
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        // TODO: Implement save functionality
-                      },
-                      icon: Icon(Icons.save),
-                      label: Text("Save Contract"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey[300],
-                        foregroundColor: Colors.black,
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        // TODO: Implement review functionality
-                      },
-                      icon: Icon(Icons.rate_review),
-                      label: Text("Review"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green[700],
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (isLoading) {
+      return Center(child: CircularProgressIndicator());
+    } else if (errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(errorMessage!, style: TextStyle(color: Colors.red)),
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _fetchParams,
+              child: Text('Retry'),
             ),
-          ),
+          ],
         ),
+      );
+    } else {
+      return Scrollbar(
+        child: ListView(
+          padding: EdgeInsets.all(16),
+          children: [
+            CommodityDropdown(onCommoditySelected: (commodity) {
+              setState(() {
+                selectedCommodityId = int.parse(commodity.toString());
+                _fetchParams();
+              });
+            }),
+            if (selectedCommodityId != null) ...[
+              
+            SizedBox(height: 10,),
+            GradeDropdown(onGradeSelected: (onGradeSelected){
+              setState(() {
+                selectedQuality =onGradeSelected;
+              });
+            }),
+            SizedBox(height: 10,),
+              buildTextField(
+                controller: priceController,
+                title: 'Enter Price',
+                icon: Icons.attach_money,
+              ),
+              buildTextField(
+                controller: descriptionController,
+                title: 'Description',
+                maxLines: 4,
+              ),
+              ...params.map((param) => _buildParamField(param)),
+            ],
+            SizedBox(height: 20),
+            buildDeliveryMilestoneWidget(),
+            SizedBox(height: 16),
+            
+            Column(
+              children: deliveryMilestones.map((milestone) => 
+                ListTile(
+                  title: Text('Date: ${DateFormat('yyyy-MM-dd').format(milestone.date)}'),
+                  subtitle: Text('Quantity: ${milestone.quantity}'),
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () {
+                      setState(() {
+                        deliveryMilestones.remove(milestone);
+                      });
+                    },
+                  ),
+                )
+              ).toList(),
+            ),
+
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _submitForm,
+              child: Text('Submit'),
+            ),
+            SizedBox(height: 100), // Add extra space at the bottom
+          ],
+        ),
+      );
+    }
+  }
+
+  Widget _buildParamField(CommParams param) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: TextField(
+        controller: controllers[param.id],
+        decoration: InputDecoration(
+          labelText: param.name,
+          hintText: 'Enter ${param.name}',
+          border: OutlineInputBorder(),
+        ),
+        keyboardType: param.inputDataType == 'number'
+            ? TextInputType.numberWithOptions(decimal: true)
+            : TextInputType.text,
       ),
     );
   }
@@ -167,7 +209,10 @@ class _CreateContractState extends State<CreateContract> with SingleTickerProvid
         DropdownButtonFormField<String>(
           value: value,
           onChanged: onChanged,
-          items: items.map((item) => DropdownMenuItem<String>(value: item, child: Text(item))).toList(),
+          items: items
+              .map((item) =>
+                  DropdownMenuItem<String>(value: item, child: Text(item)))
+              .toList(),
           decoration: InputDecoration(
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             filled: true,
@@ -202,15 +247,17 @@ class _CreateContractState extends State<CreateContract> with SingleTickerProvid
                 return Theme(
                   data: ThemeData.light().copyWith(
                     primaryColor: Colors.green,
-                    // accentColor: Colors.green,
                     colorScheme: ColorScheme.light(primary: Colors.green),
-                    buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+                    buttonTheme:
+                        ButtonThemeData(textTheme: ButtonTextTheme.primary),
                   ),
                   child: child!,
                 );
               },
             );
-            if (picked != null && picked != selectedDate) onDateSelected(picked);
+            if (picked != null && picked != selectedDate) {
+              onDateSelected(picked);
+            }
           },
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -223,7 +270,9 @@ class _CreateContractState extends State<CreateContract> with SingleTickerProvid
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  selectedDate != null ? DateFormat.yMMMd().format(selectedDate!) : 'Select date',
+                  selectedDate != null
+                      ? DateFormat.yMMMd().format(selectedDate)
+                      : 'Select date',
                   style: GoogleFonts.poppins(color: Colors.black),
                 ),
                 Icon(Icons.calendar_today, color: Colors.green),
@@ -263,4 +312,80 @@ class _CreateContractState extends State<CreateContract> with SingleTickerProvid
       ],
     );
   }
+
+  Widget buildDeliveryMilestoneWidget() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Add Delivery Milestone', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+        SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: buildDatePicker(
+                title: 'Delivery Date',
+                selectedDate: selectedDate,
+                onDateSelected: (date) => setState(() => selectedDate = date),
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: buildTextField(
+                controller: quantityController,
+                title: 'Quantity',
+                icon: Icons.production_quantity_limits,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: _addDeliveryMilestone,
+          child: Text('Add Milestone'),
+        ),
+      ],
+    );
+  }
+
+  void _addDeliveryMilestone() {
+    if (selectedDate != null && quantityController.text.isNotEmpty) {
+      setState(() {
+        deliveryMilestones.add(DeliveryMilestone(
+          date: selectedDate!,
+          quantity: double.parse(quantityController.text),
+        ));
+        selectedDate = null;
+        quantityController.clear();
+      });
+    }
+  }
+
+  void _submitForm() {
+    print('Form submitted');
+    params.forEach((param) {
+      print('${param.name}: ${controllers[param.id]?.text}');
+    });
+    print('Delivery Milestones:');
+    deliveryMilestones.forEach((milestone) {
+      print('Date: ${DateFormat('yyyy-MM-dd').format(milestone.date)}, Quantity: ${milestone.quantity}');
+    });
+
+  }
+
+  @override
+  void dispose() {
+    controllers.values.forEach((controller) => controller.dispose());
+    _tabController.dispose();
+    priceController.dispose();
+    descriptionController.dispose();
+    quantityController.dispose();
+    super.dispose();
+  }
+}
+
+class DeliveryMilestone {
+  final DateTime date;
+  final double quantity;
+
+  DeliveryMilestone({required this.date, required this.quantity});
 }

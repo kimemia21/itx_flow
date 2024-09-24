@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:itx/Commodities.dart/Commodites.dart';
+import 'package:itx/Serializers/CommParams.dart';
 import 'package:itx/Serializers/UserTypes.dart';
 import 'package:itx/authentication/Regulator.dart';
 import 'package:itx/authentication/Verification.dart';
@@ -14,9 +15,8 @@ class AuthRequest {
   // Base URL for the API
   static const main_url = "http://185.141.63.56:3067/api/v1";
 
-
   // "http://192.168.100.8:3000/api/v1"
-      // "http://185.141.63.56:3067/api/v1";
+  // "http://185.141.63.56:3067/api/v1";
 
   // Register request
   static Future<void> register({
@@ -417,4 +417,6 @@ class AuthRequest {
       );
     }
   }
+
+
 }
