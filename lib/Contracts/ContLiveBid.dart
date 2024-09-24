@@ -107,6 +107,7 @@ class _ContractLiveBidState extends State<ContractLiveBid> with SingleTickerProv
                         setState(() {
                           errorText = null;
                           bidAmount = newBid;
+                          
                         });
                       }
                     } else {
@@ -185,7 +186,7 @@ class _ContractLiveBidState extends State<ContractLiveBid> with SingleTickerProv
               Row(
                 children: [
                   Text(
-                    '\$${_highestBid.toStringAsFixed(2)}',
+                    '\$${   NumberFormat('#,##0.00').format(  _highestBid)}',
                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(width: 10),
@@ -256,7 +257,7 @@ class _ContractLiveBidState extends State<ContractLiveBid> with SingleTickerProv
                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
                       ),
                       Text(
-                        '\$${_highestBid.toStringAsFixed(2)}',
+                        '\$${NumberFormat('#,##0.00').format(  _highestBid)}',
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green),
                       ),
                     ],
@@ -331,7 +332,7 @@ Widget _buildHighestBidCard(PricehistoryModel bid) {
               ),
               SizedBox(height: 4),
               Text(
-                '\$${bid.bid_price.toStringAsFixed(2)}',
+                '\$${ NumberFormat('#,##0.00').format(bid.bid_price)}',
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -384,7 +385,7 @@ Widget _buildBidCard(BuildContext context, PricehistoryModel bid, {required bool
                     isHighest ? Colors.green.shade700 : Colors.grey.shade700),
           ),
           title: Text(
-            '\$${bid.bid_price.toStringAsFixed(2)}',
+            '\$${ NumberFormat('#,##0.00').format( bid.bid_price)}',
             style: GoogleFonts.poppins(
               fontSize: 12,
               fontWeight: FontWeight.w600,

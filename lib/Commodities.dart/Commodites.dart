@@ -61,10 +61,10 @@ class _CommoditiesState extends State<Commodities> {
       } else {
         filteredCommodities = allCommodities
             .where((commodity) =>
-                commodity.name
+                commodity.name!
                     .toLowerCase()
                     .contains(searchText.toLowerCase()) ||
-                commodity.packagingName
+                commodity.packagingName!
                     .toLowerCase()
                     .contains(searchText.toLowerCase()))
             .toList();
@@ -111,7 +111,9 @@ class _CommoditiesState extends State<Commodities> {
           ),
         ],
       ),
-      body: Padding(
+      body:
+      
+      Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
@@ -127,30 +129,29 @@ class _CommoditiesState extends State<Commodities> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  labelText: 'Search Commodities',
-                  labelStyle: TextStyle(color: Colors.green.shade800),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: Colors.green.shade800,
-                  ),
-                  fillColor: Colors.green.shade50,
-                  filled: true,
-                ),
-                onChanged: (text) {
-                  setState(() {
-                    searchText = text;
-                    _filterCommodities();
-                  });
-                },
-              ),
-            ),
+TextField(
+  decoration: InputDecoration(
+    hintText: 'Search Commodities',
+    prefixIcon: Icon(Icons.search),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide.none, // No border when not focused
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide.none, // Remove focus border color
+    ),
+    filled: true,
+    fillColor: Colors.grey[200],
+  ),
+  onChanged: (text) {
+    setState(() {
+      searchText = text;
+      _filterCommodities();
+    });
+  },
+),
+
             Expanded(
               child: isLoading
                   ? Center(child: CircularProgressIndicator())
@@ -179,8 +180,8 @@ class _CommoditiesState extends State<Commodities> {
                                       userItems.remove(commodity.name);
                                       userItemsId.remove(commodity.id);
                                     } else {
-                                      userItems.add(commodity.name);
-                                      userItemsId.add(commodity.id);
+                                      userItems.add(commodity.name!);
+                                      userItemsId.add(commodity.id!);
                                     }
                                     context
                                         .read<appBloc>()
@@ -193,8 +194,8 @@ class _CommoditiesState extends State<Commodities> {
                                   onChanged: (bool? value) {
                                     setState(() {
                                       if (value!) {
-                                        userItems.add(commodity.name);
-                                        userItemsId.add(commodity.id);
+                                        userItems.add(commodity.name!);
+                                        userItemsId.add(commodity.id!);
                                       } else {
                                         userItems.remove(commodity.name);
                                         userItemsId.remove(commodity.id);
@@ -206,14 +207,14 @@ class _CommoditiesState extends State<Commodities> {
                                   },
                                 ),
                                 title: Text(
-                                  commodity.name,
+                                  commodity.name!,
                                   style: GoogleFonts.poppins(
                                     fontWeight: FontWeight.w600,
                                     color: Colors.black87,
                                   ),
                                 ),
                                 subtitle: Text(
-                                  commodity.packagingName,
+                                  commodity.packagingName!,
                                   style: GoogleFonts.poppins(
                                     fontWeight: FontWeight.w400,
                                     color: Colors.grey.shade700,

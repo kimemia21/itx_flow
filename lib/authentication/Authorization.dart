@@ -64,6 +64,7 @@ class _AuthorizationState extends State<Authorization> {
                       infoTiles(
                           title: "Personal info",
                           subtitle: "complete to trade on iTx"),
+                          
                       infoTiles(
                           title: "Regulator status",
                           subtitle: "We need a few more details")

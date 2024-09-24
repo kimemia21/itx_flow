@@ -33,6 +33,8 @@ class _MainSignupState extends State<MainSignup>
   bool _obscureConfirmPassword = true;
   String? _selectedUserType;
   List<UserTypeModel> _userTypes = [];
+  List roleType = [];
+
   bool _isLoading = true;
 
   @override
@@ -60,17 +62,24 @@ class _MainSignupState extends State<MainSignup>
 
   Future<void> _fetchUserTypes() async {
     try {
-      final userTypes = await AuthRequest.getContracts(context);
+      final userTypes = await AuthRequest.getUserType(context);
       setState(() {
         _userTypes = userTypes;
         _isLoading = false;
+
+        roleType.clear();
+
+        for (var userType in _userTypes) {
+           print(userType); 
+          roleType.add(userType.name);
+        }
+        print("--------------- $roleType ---------------");
       });
     } catch (e) {
       print('Error fetching user types: $e');
       setState(() {
         _isLoading = false;
       });
-      // You might want to show an error message to the user here
     }
   }
 
@@ -82,12 +91,19 @@ class _MainSignupState extends State<MainSignup>
       } else if (_selectedUserType == null) {
         _showErrorToast('Role Error', 'Please select a user role');
       } else {
+        final Map<String, dynamic> body = {
+          "email": _emailController.text,
+          "password": _passwordController.text.trim(),
+          "phonenumber": _phoneNumberController.text.trim(),
+          "user_type": _selectedUserType!,
+        };
+
+        context.read<appBloc>().changeUserDetails(body);
+
         AuthRequest.register(
+          body: body,
           context: context,
-          email: _emailController.text,
-          password: _passwordController.text.trim(),
-          phoneNumber: _phoneNumberController.text.trim(),
-          user_type: _selectedUserType!,
+          isOnOtp: false,
         );
       }
     }
@@ -102,6 +118,7 @@ class _MainSignupState extends State<MainSignup>
       animationCurve: Curves.easeInOut,
     ).show(context);
   }
+
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -116,50 +133,63 @@ class _MainSignupState extends State<MainSignup>
         return Opacity(
           opacity: _fadeAnimation.value,
           child: Container(
-            margin: EdgeInsets.only(bottom: 15),
+            height: 60,
+            margin: EdgeInsets.only(bottom: 20),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.green.withOpacity(0.1),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: Offset(0, 3),
+                  color: Colors.black.withOpacity(0.05),
+                  spreadRadius: 1,
+                  blurRadius: 3,
+                  offset: Offset(0, 2),
                 ),
               ],
             ),
             child: TextFormField(
               controller: controller,
               obscureText: isPassword
-                  ? (isPassword == true ? _obscurePassword : _obscureConfirmPassword)
+                  ? (isPassword == true
+                      ? _obscurePassword
+                      : _obscureConfirmPassword)
                   : false,
-              keyboardType: isPassword ? TextInputType.visiblePassword : keyboardType,
+              keyboardType:
+                  isPassword ? TextInputType.visiblePassword : keyboardType,
               decoration: InputDecoration(
                 labelText: label,
-                
-                labelStyle: GoogleFonts.poppins(fontSize: 14, color: Colors.green[700]),
-                prefixIcon: Icon(icon, color: Colors.green[600]),
+                labelStyle: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                ),
+                prefixIcon: Icon(icon, color: Colors.grey.shade600, size: 22),
                 suffixIcon: isPassword
                     ? IconButton(
                         icon: Icon(
                           isPassword == true
-                              ? (_obscurePassword ? Icons.visibility_off : Icons.visibility)
-                              : (_obscureConfirmPassword ? Icons.visibility_off : Icons.visibility),
-                          color: Colors.green[600],
+                              ? (_obscurePassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility)
+                              : (_obscureConfirmPassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility),
+                          color: Colors.grey.shade600,
+                          size: 22,
                         ),
                         onPressed: () => setState(() => isPassword == true
                             ? _obscurePassword = !_obscurePassword
-                            : _obscureConfirmPassword = !_obscureConfirmPassword),
+                            : _obscureConfirmPassword =
+                                !_obscureConfirmPassword),
                       )
                     : null,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.green.shade200, width: 2),
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.green.shade400, width: 2),
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide:BorderSide.none
+                  //  BorderSide(color: Colors.grey.shade600, width: 1),
                 ),
                 filled: true,
                 fillColor: Colors.white,
@@ -171,7 +201,6 @@ class _MainSignupState extends State<MainSignup>
       },
     );
   }
-
   Widget _buildRadioButton({required String text, required String value}) {
     return AnimatedBuilder(
       animation: _fadeAnimation,
@@ -179,43 +208,53 @@ class _MainSignupState extends State<MainSignup>
         return Opacity(
           opacity: _fadeAnimation.value,
           child: Container(
-            margin: EdgeInsets.only(bottom: 10),
+            margin: EdgeInsets.only(bottom: 15),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
+              color: _selectedUserType == value
+                  ? Colors.green.shade50
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(
                   color: Colors.green.withOpacity(0.1),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: Offset(0, 3),
+                  spreadRadius: 1,
+                  blurRadius: 3,
+                  offset: Offset(0, 2),
                 ),
               ],
             ),
             child: RadioListTile<String>(
               title: Text(text,
-                  style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500)),
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: _selectedUserType == value
+                        ? Colors.green.shade700
+                        : Colors.black87,
+                  )),
               value: value,
               groupValue: _selectedUserType,
-              onChanged: (String? value) => setState(() => _selectedUserType = value),
+              onChanged: (String? value) =>
+                  setState(() => _selectedUserType = value),
               activeColor: Colors.green.shade700,
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              tileColor: _selectedUserType == value ? Colors.green.shade50 : null,
+              contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+              tileColor:
+                  _selectedUserType == value ? Colors.green.shade50 : null,
             ),
           ),
         );
       },
     );
   }
-
   @override
   Widget build(BuildContext context) {
     // _emailController.text = "mimeki5@ofionk.com";
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
+      appBar:AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -224,8 +263,9 @@ class _MainSignupState extends State<MainSignup>
             TypewriterAnimatedText(
               'Sign Up',
               textStyle: GoogleFonts.poppins(
-                color: Colors.black87,
+                fontSize: 24,
                 fontWeight: FontWeight.w600,
+                color: Colors.black,
               ),
               speed: Duration(milliseconds: 100),
             ),
@@ -234,12 +274,13 @@ class _MainSignupState extends State<MainSignup>
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () => Globals.switchScreens(context: context, screen: MainLoginScreen()),
+          onPressed: () => Globals.switchScreens(
+              context: context, screen: MainLoginScreen()),
         ),
       ),
-      body: SafeArea(
+         body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(20),
+          padding: EdgeInsets.all(25),
           child: AnimationLimiter(
             child: Form(
               key: _formKey,
@@ -253,27 +294,32 @@ class _MainSignupState extends State<MainSignup>
                   ),
                   children: [
                     Text(
-                      "Join as a Buyer, Producer, or Trader",
+                      "Join as a ${roleType.join(", ")}",
                       style: GoogleFonts.poppins(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        fontSize: 22,
+              
+                      color:  Colors.black,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
                       ),
                     ),
                     SizedBox(height: 10),
                     Text(
                       "Please provide your information to get started.",
-                      style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey[600]),
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        color: Colors.grey[600],
+                      ),
                     ),
-                    SizedBox(height: 30),
+                    SizedBox(height: 40),
                     _buildTextField(
                       controller: _emailController,
                       label: "Email",
-                      icon: Icons.email,
+                      icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
-                        if (value == null || value.isEmpty) return "Email is required";
-                        if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                        if (value == null || value.isEmpty)
+                          return "Email is required";
+                        if (!RegExp(
+                                r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                             .hasMatch(value)) return "Enter a valid email";
                         return null;
                       },
@@ -281,10 +327,11 @@ class _MainSignupState extends State<MainSignup>
                     _buildTextField(
                       controller: _phoneNumberController,
                       label: "Phone Number",
-                      icon: Icons.phone,
+                      icon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       validator: (value) {
-                        if (value == null || value.isEmpty) return "Phone number is required";
+                        if (value == null || value.isEmpty)
+                          return "Phone number is required";
                         if (!RegExp(r'^\d{10}$').hasMatch(value))
                           return "Enter a valid 10-digit phone number";
                         return null;
@@ -293,10 +340,11 @@ class _MainSignupState extends State<MainSignup>
                     _buildTextField(
                       controller: _passwordController,
                       label: "Password",
-                      icon: Icons.lock,
+                      icon: Icons.lock_outline,
                       isPassword: true,
                       validator: (value) {
-                        if (value == null || value.isEmpty) return "Password is required";
+                        if (value == null || value.isEmpty)
+                          return "Password is required";
                         if (value.length < 6)
                           return "Password must be at least 6 characters long";
                         return null;
@@ -305,7 +353,7 @@ class _MainSignupState extends State<MainSignup>
                     _buildTextField(
                       controller: _confirmPasswordController,
                       label: "Confirm Password",
-                      icon: Icons.lock,
+                      icon: Icons.lock_outline,
                       isPassword: true,
                       validator: (value) {
                         if (value == null || value.isEmpty)
@@ -315,20 +363,20 @@ class _MainSignupState extends State<MainSignup>
                         return null;
                       },
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 30),
                     Text(
                       "Select your role",
                       style: GoogleFonts.poppins(
-                        fontSize: 16,
+                        fontSize: 20,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
+                        color: Colors.green.shade800,
                       ),
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 15),
                     _isLoading
                         ? Center(
                             child: LoadingAnimationWidget.staggeredDotsWave(
-                              color: Colors.green,
+                              color: Colors.green.shade700,
                               size: 50,
                             ),
                           )
@@ -340,7 +388,7 @@ class _MainSignupState extends State<MainSignup>
                               );
                             }).toList(),
                           ),
-                    SizedBox(height: 30),
+                    SizedBox(height: 40),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -354,17 +402,17 @@ class _MainSignupState extends State<MainSignup>
                                 "Sign Up",
                                 style: GoogleFonts.poppins(
                                   color: Colors.white,
-                                  fontSize: 16,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green.shade500,
-                          padding: EdgeInsets.symmetric(vertical: 15),
+                          backgroundColor: Colors.green.shade600,
+                          padding: EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(15),
                           ),
-                          elevation: 5,
+                          elevation: 3,
                         ),
                       ),
                     ),

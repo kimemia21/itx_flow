@@ -17,6 +17,7 @@ class Userhomepage extends StatefulWidget {
 }
 
 class _UserhomepageState extends State<Userhomepage> {
+  bool orderIsEmpty =false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +26,10 @@ class _UserhomepageState extends State<Userhomepage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(height: 400, child: HomePageOrders()),
+            Container(
+                height: 400,
+                child: HomePageOrders(
+                    onOrderCountChanged: (onOrderCountChanged) {})),
             HomepageContractsWidget(),
           ],
         ),

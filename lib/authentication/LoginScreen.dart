@@ -85,7 +85,9 @@ class _MainLoginScreenState extends State<MainLoginScreen> {
           ),
           child: IconButton(
             onPressed: () {
+
               Globals.switchScreens(context: context, screen: Splashscreen());
+              
             },
             icon: Icon(
               Icons.arrow_back,

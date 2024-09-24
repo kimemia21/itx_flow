@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cherry_toast/cherry_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:itx/Commodities.dart/Commodites.dart';
@@ -19,23 +20,14 @@ class AuthRequest {
   // "http://185.141.63.56:3067/api/v1";
 
   // Register request
-  static Future<void> register({
-    required BuildContext context,
-    required String email,
-    required String password,
-    required String phoneNumber,
-    required String user_type,
-  }) async {
+  static Future<void> register(
+      {required BuildContext context,
+      required Map<String, dynamic> body,
+      required bool isOnOtp}) async {
     final appBloc bloc = Provider.of<appBloc>(context, listen: false);
+    print(body);
 
     try {
-      final Map<String, dynamic> body = {
-        "email": email,
-        "password": password,
-        "phonenumber": phoneNumber,
-        "user_type": int.parse(user_type),
-      };
-
       final Uri url = Uri.parse("$main_url/user/register");
 
       bloc.changeIsLoading(true);
@@ -53,37 +45,44 @@ class AuthRequest {
 
         if (responseBody["rsp"] == true) {
           print("Success: ${responseBody["message"]}");
-          bloc.getUserType(user_type);
+          isOnOtp ? null : bloc.getUserType(body["user_type"]);
           bloc.changeIsLoading(false);
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Verification(
-                context: context,
-                email: email,
-                phoneNumber: phoneNumber,
-              ),
-            ),
-          );
+          isOnOtp
+              ? CherryToast.success(
+                  title: Text("Opt resent Succesfully"),
+                ).show(context)
+              : Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Verification(
+                      context: context,
+                      email: body["email"],
+                      phoneNumber: body["phonenumber"],
+
+                    ),
+                  ),
+                );
         } else {
           print("Request failed: ${responseBody["message"]}");
           bloc.changeIsLoading(false);
           _showErrorDialog(
-              context, "Registration Error", responseBody["message"]);
+              context,
+              " ${isOnOtp ? "RESEND OTP ERROR" : "Registration"} Error",
+              responseBody["message"]);
         }
       } else {
         bloc.changeIsLoading(false);
         print("Error Response: ${response.body}");
-        final body = jsonDecode(response.body) as Map;
-        String message = body["message"] == "User already exists"
-            ? "User with email $email already exists"
-            : body["message"];
+        final _body = jsonDecode(response.body) as Map;
+        String message = _body["message"] == "User already exists"
+            ? "User with email ${body["email"]}  already exists"
+            : _body["message"];
         _showErrorDialog(context, "Registration Error", message);
       }
     } catch (e) {
       print("Error during registration: $e");
       _showErrorDialog(context, "Registration Error",
-          "An unexpected error occurred. Please try again.");
+          "An unexpected error occurred. Please try again $e.");
     } finally {
       bloc.changeIsLoading(false);
     }
@@ -234,7 +233,7 @@ class AuthRequest {
     if (request.statusCode == 200) {}
   }
 
-  static Future<List<UserTypeModel>> getContracts(BuildContext context) async {
+  static Future<List<UserTypeModel>> getUserType(BuildContext context) async {
     final Uri uri = Uri.parse("$main_url/user/types");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
@@ -374,7 +373,8 @@ class AuthRequest {
           bloc.changeUser(email);
           bloc.changeCurrentUserID(id: id);
 
-          print("0000000000000000000000000${Provider.of<appBloc>(context, listen: false).user_id}000000000000000000000");
+          print(
+              "0000000000000000000000000${Provider.of<appBloc>(context, listen: false).user_id}000000000000000000000");
 
           // Switch screens upon successful login
           Globals.switchScreens(context: context, screen: GlobalsHomePage());

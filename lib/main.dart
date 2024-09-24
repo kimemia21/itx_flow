@@ -29,13 +29,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => CurrentUserProvider()),
         ChangeNotifierProvider(create: (context) => appBloc()),
       ],
-      child: MaterialApp(
-        home: GetPlatform()
-      ),
+      child: MaterialApp(home: GetPlatform()),
     );
   }
-
-  
 }
 
 class GetPlatform extends StatefulWidget {
@@ -51,12 +47,11 @@ class _GetPlatformState extends State<GetPlatform> {
     final appBloc bloc = context.watch<appBloc>();
     // Web platform
     if (kIsWeb) {
-      return bloc.token=="" ? CreateAccountScreen() : CreateAccountScreen();
+      return bloc.token == "" ? CreateAccountScreen() : CreateAccountScreen();
     }
     // Android or iOS platform
     else if (Platform.isAndroid || Platform.isIOS) {
-      return bloc.token=="" ? Splashscreen() :GlobalsHomePage();
-
+      return bloc.token == "" ?  : Regulators();
     } else {
       // Fallback for unsupported platforms
       return Scaffold(

@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cherry_toast/cherry_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:itx/Serializers/ComTrades.dart';
@@ -44,6 +45,7 @@ class CommodityService {
 
           return commodities;
         } else {
+          print(responseData['msg']);
           throw Exception(
               'Failed to fetch commodities: ${responseData['msg']}');
         }
@@ -108,6 +110,9 @@ class CommodityService {
           List<PricehistoryModel> price = priceJson
               .map((price) => PricehistoryModel.fromJson(price))
               .toList();
+          CherryToast.success(
+            title: Text(responseData['msg']),
+          );
 
           return price;
         } else {
@@ -255,7 +260,8 @@ class CommodityService {
   static Future<List<ContractsModel>> getAdvancedContracts(BuildContext context,
       String date_from, String date_to, String price_from, String price_to,
       [int? id]) async {
-    print("------------------------------------------${Provider.of<appBloc>(context, listen: false).user_id}----------------------------------");
+    print(
+        "------------------------------------------${Provider.of<appBloc>(context, listen: false).user_id}----------------------------------");
     String filter =
         "userid=${Provider.of<appBloc>(context, listen: false).user_id}&this_user_liked=-1&this_user_bought=-1&this_user_paid=-1&date_from=$date_from&date_to=$date_to&price_from=$price_from&price_to=$price_to";
 
@@ -353,6 +359,33 @@ class CommodityService {
       }
     } catch (e) {
       throw Exception("---------Failed to fetch params $e---------");
+    }
+  }
+
+  static Future CreateContract(BuildContext context, body) async {
+    final Uri uri = Uri.parse("$mainUri/contracts/create");
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+    };
+
+    final http.Response response =
+        await http.post(uri, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (responseData['rsp'] == true) {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => GlobalsHomePage()));
+        CherryToast.success(
+          title: Text("sucess"),
+        ).show(context);
+      } else {
+        throw Exception('Failed to create contract: ${responseData['msg']}');
+      }
+    } else {
+      throw Exception('Failed to create contract');
     }
   }
 }

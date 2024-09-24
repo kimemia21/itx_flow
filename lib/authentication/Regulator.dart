@@ -122,7 +122,7 @@ class _RegulatorsState extends State<Regulators> {
         final data = getFormData();
         if (data != null) {
           print(data);
-          CommodityService.PostContracts(context);
+        
         }
       }
     }

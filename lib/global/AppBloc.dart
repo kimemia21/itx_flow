@@ -23,6 +23,7 @@ class appBloc extends ChangeNotifier {
   String _userEmail = "";
   List _userCommoditesCerts = [];
   List<int> _userCommoditesIds = [];
+  Map<String, dynamic> userDetails = {};
 
   int get currentIndex => _currentIndex;
   bool get navIsVisible => _navIsVisible;
@@ -32,6 +33,7 @@ class appBloc extends ChangeNotifier {
   String get token => _token;
   String get userEmail => _userEmail;
   List get UserCommoditesCerts => _userCommoditesCerts;
+  Map<String, dynamic> get _userDetails => userDetails;
 
   List<String> _userCommodities = [];
   List<String> get userCommodities => _userCommodities;
@@ -108,6 +110,11 @@ class appBloc extends ChangeNotifier {
   void changeCurrentUserID({required int id}) {
     _user_id = id;
 
+    notifyListeners();
+  }
+
+  void changeUserDetails(Map<String, dynamic> details) {
+    userDetails = details;
     notifyListeners();
   }
 }

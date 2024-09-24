@@ -342,8 +342,8 @@ class _SpecificorderState extends State<Specificorder> {
                       contract: widget.contract,
                       quantity: 200,
                       deliveryDate: widget.contract.deliveryDate,
-                      contactEmail: company!.companyAddress,
-                      contactPhone: company!.companyContacts)
+                      contactEmail: "companyy@gmail.com",
+                      contactPhone: "071234567")
 
                   // PriceAlert(
                   //     price: widget.price,

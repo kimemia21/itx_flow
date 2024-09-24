@@ -43,7 +43,8 @@ class _CreateContractState extends State<CreateContract>
         errorMessage = null;
       });
 
-      params = await CommodityService.getPrams(context: context, id: selectedCommodityId);
+      params = await CommodityService.getPrams(
+          context: context, id: selectedCommodityId);
       for (var param in params) {
         controllers[param.id] = TextEditingController();
       }
@@ -125,14 +126,17 @@ class _CreateContractState extends State<CreateContract>
               });
             }),
             if (selectedCommodityId != null) ...[
-              
-            SizedBox(height: 10,),
-            GradeDropdown(onGradeSelected: (onGradeSelected){
-              setState(() {
-                selectedQuality =onGradeSelected;
-              });
-            }),
-            SizedBox(height: 10,),
+              SizedBox(
+                height: 10,
+              ),
+              GradeDropdown(onGradeSelected: (onGradeSelected) {
+                setState(() {
+                  selectedQuality = onGradeSelected;
+                });
+              }),
+              SizedBox(
+                height: 10,
+              ),
               buildTextField(
                 controller: priceController,
                 title: 'Enter Price',
@@ -148,22 +152,23 @@ class _CreateContractState extends State<CreateContract>
             SizedBox(height: 20),
             buildDeliveryMilestoneWidget(),
             SizedBox(height: 16),
-            
+
             Column(
-              children: deliveryMilestones.map((milestone) => 
-                ListTile(
-                  title: Text('Date: ${DateFormat('yyyy-MM-dd').format(milestone.date)}'),
-                  subtitle: Text('Quantity: ${milestone.quantity}'),
-                  trailing: IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () {
-                      setState(() {
-                        deliveryMilestones.remove(milestone);
-                      });
-                    },
-                  ),
-                )
-              ).toList(),
+              children: deliveryMilestones
+                  .map((milestone) => ListTile(
+                        title: Text(
+                            'Date: ${DateFormat('yyyy-MM-dd').format(milestone.date)}'),
+                        subtitle: Text('Quantity: ${milestone.quantity}'),
+                        trailing: IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () {
+                            setState(() {
+                              deliveryMilestones.remove(milestone);
+                            });
+                          },
+                        ),
+                      ))
+                  .toList(),
             ),
 
             SizedBox(height: 20),
@@ -317,7 +322,8 @@ class _CreateContractState extends State<CreateContract>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Add Delivery Milestone', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+        Text('Add Delivery Milestone',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
         SizedBox(height: 8),
         Row(
           children: [
@@ -360,16 +366,17 @@ class _CreateContractState extends State<CreateContract>
     }
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     print('Form submitted');
     params.forEach((param) {
       print('${param.name}: ${controllers[param.id]?.text}');
     });
     print('Delivery Milestones:');
     deliveryMilestones.forEach((milestone) {
-      print('Date: ${DateFormat('yyyy-MM-dd').format(milestone.date)}, Quantity: ${milestone.quantity}');
+      print(
+          'Date: ${DateFormat('yyyy-MM-dd').format(milestone.date)}, Quantity: ${milestone.quantity}');
     });
-     Map<int, int> tabToContractTypeId = {
+    Map<int, int> tabToContractTypeId = {
       0: 1, // Futures
       1: 2, // Forwards
       2: 3, // Options
@@ -378,11 +385,12 @@ class _CreateContractState extends State<CreateContract>
     };
     int contractTypeId = tabToContractTypeId[_tabController.index] ?? 1;
 
-  // Parse the price and units
+    // Parse the price and units
     double price = double.tryParse(priceController.text) ?? 0.0;
     double units = 0.0;
     for (var param in params) {
-      if (param.name.toLowerCase() == 'units' || param.name.toLowerCase() == 'quantity') {
+      if (param.name.toLowerCase() == 'units' ||
+          param.name.toLowerCase() == 'quantity') {
         units = double.tryParse(controllers[param.id]?.text ?? '') ?? 0.0;
         break;
       }
@@ -392,8 +400,12 @@ class _CreateContractState extends State<CreateContract>
     DateTime? deliveryStartDate;
     DateTime? deliveryEndDate;
     if (deliveryMilestones.isNotEmpty) {
-      deliveryStartDate = deliveryMilestones.map((m) => m.date).reduce((a, b) => a.isBefore(b) ? a : b);
-      deliveryEndDate = deliveryMilestones.map((m) => m.date).reduce((a, b) => a.isAfter(b) ? a : b);
+      deliveryStartDate = deliveryMilestones
+          .map((m) => m.date)
+          .reduce((a, b) => a.isBefore(b) ? a : b);
+      deliveryEndDate = deliveryMilestones
+          .map((m) => m.date)
+          .reduce((a, b) => a.isAfter(b) ? a : b);
     }
 
     // Create the map
@@ -406,17 +418,19 @@ class _CreateContractState extends State<CreateContract>
       "price": price,
       "units": units,
       "description": descriptionController.text,
-      "milestones": deliveryMilestones.map((milestone) => {
-        "date": DateFormat('yyyy-MM-dd').format(milestone.date),
-        "metric": "units",
-        "value": milestone.quantity
-      }).toList(),
+      "milestones": deliveryMilestones
+          .map((milestone) => {
+                "date": DateFormat('yyyy-MM-dd').format(milestone.date),
+                "metric": "units",
+                "value": milestone.quantity
+              })
+          .toList(),
     };
+
+    CommodityService.CreateContract(context,contractData);
 
     // Print the map (you can replace this with sending to an API or other operations)
     print(contractData);
-
-
   }
 
   @override

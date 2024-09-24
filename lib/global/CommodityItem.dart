@@ -25,8 +25,8 @@ class CommodityDetailScreen extends StatelessWidget {
               children: [
                 _buildTitle(),
                 SizedBox(height: 20),
-                _buildInfoCard('Description', commodity.description),
-                _buildInfoCard('Packaging', commodity.packagingName),
+                _buildInfoCard('Description', commodity.description!),
+                _buildInfoCard('Packaging', commodity.packagingName!),
                 _buildInfoCard('Type', commodity.typeName ?? 'N/A'),
                 _buildCompanySection(),
                 SizedBox(height: 20),
@@ -76,8 +76,8 @@ class CommodityDetailScreen extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: commodity.imageUrl.isNotEmpty
-                ? NetworkImage(commodity.imageUrl)
+            image: commodity.imageUrl!.isNotEmpty
+                ? NetworkImage(commodity.imageUrl!)
                 : AssetImage('assets/placeholder_image.jpg') as ImageProvider,
             fit: BoxFit.cover,
             colorFilter: ColorFilter.mode(
@@ -105,7 +105,7 @@ class CommodityDetailScreen extends StatelessWidget {
         ],
       ),
       child: Text(
-        commodity.name,
+        commodity.name!,
         style: GoogleFonts.roboto(
           fontSize: 28,
           fontWeight: FontWeight.bold,
@@ -166,9 +166,9 @@ class CommodityDetailScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 12),
-            _buildCompanyInfo(Icons.business, commodity.companyName),
-            _buildCompanyInfo(Icons.location_on, commodity.companyAddress),
-            _buildCompanyInfo(Icons.phone, commodity.companyContacts),
+            _buildCompanyInfo(Icons.business, commodity.companyName!),
+            _buildCompanyInfo(Icons.location_on, commodity.companyAddress!),
+            _buildCompanyInfo(Icons.phone, commodity.companyContacts!),
           ],
         ),
       ),

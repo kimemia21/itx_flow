@@ -35,7 +35,7 @@ class PricehistoryModel {
       is_highest_bid: json['is_highest_bid'],
       session_open: json['session_open'],
       session_close_at: json['session_close_at'],
-      user_masked_email: json['user_masked_email'],
+      user_masked_email: json['user_masked_email']??"userbid@gmail.com",
       user_id: json["user_id"]
     );
   }
