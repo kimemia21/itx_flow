@@ -32,8 +32,8 @@ class CommodityService {
       // print("token ${Provider.of<appBloc>(context, listen: false).token}");
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token":
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiQVBQIiwiaWF0IjoxNzI3MjUxMjAyLCJleHAiOjE3MjcyNjkyMDJ9.knE5b5EPyY_dwVbo9CgmkOIz_TwROiLnpR86E_rzTfs",
+        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+            // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiQVBQIiwiaWF0IjoxNzI3MjUxMjAyLCJleHAiOjE3MjcyNjkyMDJ9.knE5b5EPyY_dwVbo9CgmkOIz_TwROiLnpR86E_rzTfs",
         // Provider.of<appBloc>(context, listen: false).token,
       };
 

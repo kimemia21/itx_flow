@@ -52,7 +52,9 @@ class _GetPlatformState extends State<GetPlatform> {
     }
     // Android or iOS platform
     else if (Platform.isAndroid || Platform.isIOS) {
-      return bloc.token == "" ?Regulators() : Regulators(); 
+      return bloc.token == "" ?   Splashscreen():GlobalsHomePage();
+    
+      // Regulators() : Regulators(); 
       // Splashscreen():GlobalsHomePage();
       
       // Regulators() : Regulators();

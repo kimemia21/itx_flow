@@ -95,11 +95,11 @@ class _CommoditiesState extends State<Commodities> {
     return AppBar(
       centerTitle: true,
       automaticallyImplyLeading: false,
-      leading: IconButton(
-        onPressed: () => PersistentNavBarNavigator.pushNewScreen(context,
-            screen: MainLoginScreen(), withNavBar: false),
-        icon: Icon(Icons.arrow_back, color: Colors.white),
-      ),
+      // leading: IconButton(
+      //   onPressed: () => PersistentNavBarNavigator.pushNewScreen(context,
+      //       screen: MainLoginScreen(), withNavBar: false),
+      //   icon: Icon(Icons.arrow_back, color: Colors.white),
+      // ),
       backgroundColor: Colors.green.shade800,
       title: Text('Commodities of Interest',
           style: GoogleFonts.poppins(

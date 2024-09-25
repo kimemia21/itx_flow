@@ -153,14 +153,7 @@ class _UserOrdersScreenState extends State<UserOrdersScreen> {
                     ...myorders.map((order) {
                       return contractInfo(
                         context: context,
-                        name: order.name,
-                        contractId: order.contractId.toString(),
-                        orderId: order.orderId.toString(),
-                        orderType: order.orderType,
-                        orderStatus: order.orderStatus,
-                        bidPrice: order.bidPrice,
-                        orderDate: order.orderDate,
-                        description: order.description,
+                        order: order
                       );
                     }).toList(),
                     Padding(

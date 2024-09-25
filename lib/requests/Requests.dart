@@ -123,8 +123,10 @@ class AuthRequest {
       // Prepare the request body
       final Map<String, dynamic> body = {
         "commodities": commodities.join(","),
-        "user_type_id": 1
+        
+        "user_type_id": int.parse(user_type)
       };
+
       bloc.changeUserCommoditesIds(commodities);
 
       final Uri url = Uri.parse("$main_url/commodities/certs");
@@ -136,7 +138,8 @@ class AuthRequest {
         url,
         body: jsonEncode(body),
         headers: {
-          "x-auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiQVBQIiwiaWF0IjoxNzI3MjUxMjAyLCJleHAiOjE3MjcyNjkyMDJ9.knE5b5EPyY_dwVbo9CgmkOIz_TwROiLnpR86E_rzTfs",
+          "x-auth-token":Provider.of<appBloc>(context, listen: false).token,
+          // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiQVBQIiwiaWF0IjoxNzI3MjUxMjAyLCJleHAiOjE3MjcyNjkyMDJ9.knE5b5EPyY_dwVbo9CgmkOIz_TwROiLnpR86E_rzTfs",
           // Provider.of<appBloc>(context, listen: false).token,
           'Content-Type': 'application/json',
         },
@@ -152,8 +155,7 @@ class AuthRequest {
 
           bloc.getUserType(user_type);
           bloc.changeUserCommoditesCert(responseBody["data"]);
-
-        
+          print(" this is user bloc ${bloc.UserCommoditesCerts}");
           bloc.changeIsLoading(false);
 
           Globals.switchScreens(context: context, screen: Regulators());

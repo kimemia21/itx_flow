@@ -2,33 +2,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:itx/Serializers/OrderModel.dart';
 import 'package:itx/myOrders.dart/OrderDetails.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
-Widget contractInfo({
-  required context,
-  required String name,
-  required String contractId,
-  required String orderId,
-  required String orderType,
-  required String orderStatus,
-  required double bidPrice,
-  required DateTime orderDate,
-  required String description,
-}) {
+Widget contractInfo({required context, required UserOrders order}) {
   return GestureDetector(
     onTap: () {
       PersistentNavBarNavigator.pushNewScreen(
           withNavBar: true,
           context,
-          screen: Orderdetails(
-              contractId: contractId,
-              orderId: orderId,
-              orderType: orderType,
-              orderStatus: orderStatus,
-              bidPrice: bidPrice,
-              orderDate: orderDate,
-              description: description));
+          screen: OrderDetails(
+            order: order,
+          ));
     },
     child: Card(
       elevation: 3,
@@ -53,7 +39,7 @@ Widget contractInfo({
                 children: [
                   Expanded(
                     child: Text(
-                      name,
+                      order.name,
                       style: GoogleFonts.poppins(
                         fontSize: 20,
                         // fontWeight: FontWeigh,
@@ -61,12 +47,12 @@ Widget contractInfo({
                       ),
                     ),
                   ),
-                  _buildStatusChip(orderStatus),
+                  _buildStatusChip(order.orderStatus),
                 ],
               ),
               SizedBox(height: 12),
               Text(
-                DateFormat('MMM d, y').format(orderDate),
+                DateFormat('MMM d, y').format(order.orderDate),
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   color: Colors.grey.shade600,

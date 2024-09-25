@@ -1,31 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:itx/Serializers/OrderModel.dart';
 
-class Orderdetails extends StatefulWidget {
-  final String contractId;
-  final String orderId;
-  final String orderType;
-  final String orderStatus;
-  final double bidPrice;
-  final DateTime orderDate;
-  final String description;
+class OrderDetails extends StatefulWidget {
+  final UserOrders order;
 
-  const Orderdetails({
+
+  const OrderDetails({
     Key? key,
-    required this.contractId,
-    required this.orderId,
-    required this.orderType,
-    required this.orderStatus,
-    required this.bidPrice,
-    required this.orderDate,
-    required this.description,
+    required this.order
   }) : super(key: key);
 
   @override
-  State<Orderdetails> createState() => _OrderdetailsState();
+  State<OrderDetails> createState() => _OrderDetailsState();
 }
 
-class _OrderdetailsState extends State<Orderdetails> {
+class _OrderDetailsState extends State<OrderDetails> {
   late TextEditingController _descriptionController;
   late String _orderStatus;
   bool _isEditing = false;
@@ -33,8 +24,8 @@ class _OrderdetailsState extends State<Orderdetails> {
   @override
   void initState() {
     super.initState();
-    _descriptionController = TextEditingController(text: widget.description);
-    _orderStatus = widget.orderStatus;
+    _descriptionController = TextEditingController(text: widget.order.description);
+    _orderStatus = widget.order.orderStatus;
   }
 
   @override
@@ -47,8 +38,10 @@ class _OrderdetailsState extends State<Orderdetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       appBar: AppBar(
-        title: const Text('Order Details'),
+        centerTitle: true,
+        title:  Text('Order Details',style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.bold),),
         backgroundColor: Colors.green,
         elevation: 0,
      
@@ -70,24 +63,70 @@ class _OrderdetailsState extends State<Orderdetails> {
     );
   }
 
+  Widget statusButton(BuildContext context, String status) {
+  Color buttonColor;
+
+  switch (status) {
+    case 'pending':
+      buttonColor = Colors.orange; // Color for pending
+      break;
+    case 'canceled':
+      buttonColor = Colors.red; // Color for canceled
+      break;
+    case 'complete':
+      buttonColor = Colors.green; // Color for complete
+      break;
+    default:
+      buttonColor = Colors.grey; // Default color if status is unknown
+  }
+
+  return ElevatedButton(
+    onPressed:(){},
+    child: Text(
+      status,
+      style: GoogleFonts.poppins(
+        fontWeight: FontWeight.w600,
+        color: Colors.white),
+    ),
+    style: ElevatedButton.styleFrom(
+      backgroundColor: buttonColor,
+      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+    ),
+  );
+}
+
   Widget _buildOrderHeader() {
+    final dateFormat = DateFormat('MMMM d, yyyy');
+  final timeFormat = DateFormat('hh:mm a');
+
     return Card(
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Order #${widget.orderId}',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '#${widget.order.orderId}',
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                statusButton(context, widget.order.orderStatus.toLowerCase())
+              ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 2),
             Text(
-              'Placed on ${DateFormat('MMMM d, yyyy').format(widget.orderDate)}',
+              '${dateFormat.format(widget.order.orderDate)} at ${timeFormat.format(widget.order.orderDate)}',
               style: TextStyle(color: Colors.grey[600]),
             ),
+                  _buildDetailItem('Order Type', widget.order.orderType),
+          _buildDetailItem('Bid Price', '\$${widget.order.bidPrice.toStringAsFixed(2)}'),
           ],
         ),
       ),
@@ -103,10 +142,10 @@ class _OrderdetailsState extends State<Orderdetails> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildDetailItem('Contract ID', widget.contractId),
-            _buildDetailItem('Order Type', widget.orderType),
+            _buildDetailItem('Contract ID', widget.order.contractId.toString()),
+            _buildDetailItem('Order Type', widget.order.orderType),
             _buildStatusDropdown(),
-            _buildDetailItem('Bid Price', '\$${widget.bidPrice.toStringAsFixed(2)}'),
+            _buildDetailItem('Bid Price', '\$${widget.order.bidPrice.toStringAsFixed(2)}'),
             _buildDescriptionField(),
           ],
         ),
@@ -124,13 +163,17 @@ class _OrderdetailsState extends State<Orderdetails> {
             width: 120,
             child: Text(
               label,
-              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo),
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.bold, color: Colors.black45),
             ),
           ),
           Expanded(
             child: Text(
-              value,
-              style: const TextStyle(fontSize: 16),
+              value.toUpperCase(),
+              style:  GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.bold, color: Colors.black45),
             ),
           ),
         ],
@@ -218,7 +261,7 @@ class _OrderdetailsState extends State<Orderdetails> {
                   ),
                 )
               : Text(
-                  widget.description,
+                  widget.order.description,
                   style: const TextStyle(fontSize: 16),
                 ),
         ],
