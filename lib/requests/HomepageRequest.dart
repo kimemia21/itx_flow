@@ -20,14 +20,20 @@ class CommodityService {
   // "http://192.168.100.8:3000/api/v1";
   // "http://185.141.63.56:3067/api/v1";
 
-  static Future<List<Commodity>> fetchCommodities(BuildContext context) async {
-    print("init");
+  static Future<List<Commodity>> fetchCommodities(
+      BuildContext context, bool filter,[text]) async {
+  
     try {
-      final Uri uri = Uri.parse("$mainUri/commodities");
+      final Uri uri = filter
+          ? Uri.parse("$mainUri/commodities?filter=$text")
+          : Uri.parse("$mainUri/commodities");
+
+      Uri.parse("$mainUri/commodities");
       // print("token ${Provider.of<appBloc>(context, listen: false).token}");
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiQVBQIiwiaWF0IjoxNzI3MjUxMjAyLCJleHAiOjE3MjcyNjkyMDJ9.knE5b5EPyY_dwVbo9CgmkOIz_TwROiLnpR86E_rzTfs",
+        "x-auth-token":
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiQVBQIiwiaWF0IjoxNzI3MjUxMjAyLCJleHAiOjE3MjcyNjkyMDJ9.knE5b5EPyY_dwVbo9CgmkOIz_TwROiLnpR86E_rzTfs",
         // Provider.of<appBloc>(context, listen: false).token,
       };
 

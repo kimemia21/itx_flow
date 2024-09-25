@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Serializers/CommodityModel.dart';
-import 'package:itx/authentication/Documents.dart';
 import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/requests/HomepageRequest.dart';
@@ -22,48 +22,35 @@ class Commodities extends StatefulWidget {
 class _CommoditiesState extends State<Commodities> {
   final Set<String> userItems = {};
   final Set<int> userItemsId = {};
-  String searchText = '';
   List<Commodity> allCommodities = [];
-  List<Commodity> filteredCommodities = [];
   bool isLoading = true;
   final Logger _logger = Logger('Commodities');
 
   @override
   void initState() {
     super.initState();
-    _loadCommodities();
+    _loadCommodities(context: context, isFilter: false);
   }
 
-  Future<void> _loadCommodities() async {
+  Future<void> _loadCommodities(
+      {required BuildContext context, required bool isFilter, text}) async {
     setState(() => isLoading = true);
     try {
       final stopwatch = Stopwatch()..start();
-      allCommodities = await CommodityService.fetchCommodities(context);
+      allCommodities =
+          await CommodityService.fetchCommodities(context, isFilter, text);
       stopwatch.stop();
       _logger.info('Commodities loaded in ${stopwatch.elapsedMilliseconds}ms');
-      _filterCommodities();
     } catch (e) {
       _logger.severe('Error loading commodities: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load commodities. Please try again.'), backgroundColor: Colors.red),
+        SnackBar(
+            content: Text('Failed to load commodities. Please try again.'),
+            backgroundColor: Colors.red),
       );
     } finally {
       setState(() => isLoading = false);
     }
-  }
-
-  void _filterCommodities() {
-    final stopwatch = Stopwatch()..start();
-    filteredCommodities = searchText.isEmpty
-        ? List.from(allCommodities)
-        : allCommodities
-            .where((commodity) =>
-                commodity.name!.toLowerCase().contains(searchText.toLowerCase()) ||
-                commodity.packagingName!.toLowerCase().contains(searchText.toLowerCase()))
-            .toList();
-    stopwatch.stop();
-    _logger.info('Commodities filtered in ${stopwatch.elapsedMilliseconds}ms');
-    setState(() {});
   }
 
   void _toggleCommodity(Commodity commodity) {
@@ -79,7 +66,8 @@ class _CommoditiesState extends State<Commodities> {
       context.read<appBloc>().changeCommodites(userItems.toList());
     });
     stopwatch.stop();
-    _logger.info('Commodity ${commodity.name} toggled in ${stopwatch.elapsedMilliseconds}ms');
+    _logger.info(
+        'Commodity ${commodity.name} toggled in ${stopwatch.elapsedMilliseconds}ms');
   }
 
   @override
@@ -92,7 +80,7 @@ class _CommoditiesState extends State<Commodities> {
         child: Column(
           children: [
             _buildHeader(),
-            _buildSearchField(),
+            _buildSearchField(), // This will remain, but won't affect the list
             Expanded(child: _buildCommodityList()),
             _buildSelectedCommodities(),
             SizedBox(height: 16),
@@ -108,17 +96,22 @@ class _CommoditiesState extends State<Commodities> {
       centerTitle: true,
       automaticallyImplyLeading: false,
       leading: IconButton(
-        onPressed: () => PersistentNavBarNavigator.pushNewScreen(context, screen: MainLoginScreen(), withNavBar: false),
+        onPressed: () => PersistentNavBarNavigator.pushNewScreen(context,
+            screen: MainLoginScreen(), withNavBar: false),
         icon: Icon(Icons.arrow_back, color: Colors.white),
       ),
       backgroundColor: Colors.green.shade800,
-      title: Text('Commodities of Interest', style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 18)),
+      title: Text('Commodities of Interest',
+          style: GoogleFonts.poppins(
+              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 18)),
       actions: [
         IconButton(
           icon: Icon(Icons.refresh, color: Colors.white),
           onPressed: () {
-            _loadCommodities();
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Refreshing commodities...'), duration: Duration(seconds: 1)));
+            _loadCommodities(context: context, isFilter: false);
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Refreshing commodities...'),
+                duration: Duration(seconds: 1)));
           },
         ),
       ],
@@ -130,7 +123,10 @@ class _CommoditiesState extends State<Commodities> {
       margin: EdgeInsets.only(bottom: 10),
       alignment: Alignment.center,
       child: Text("Add Commodities of Interest",
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 22, color: Colors.green.shade800)),
+          style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              fontSize: 22,
+              color: Colors.green.shade800)),
     );
   }
 
@@ -139,14 +135,19 @@ class _CommoditiesState extends State<Commodities> {
       decoration: InputDecoration(
         hintText: 'Search Commodities',
         prefixIcon: Icon(Icons.search),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide.none),
         filled: true,
         fillColor: Colors.grey[200],
       ),
       onChanged: (text) {
-        setState(() => searchText = text);
-        _filterCommodities();
+        _loadCommodities(context: context, isFilter: true, text: text);
+
+        // Search field exists, but doesn't filter anymore
       },
     );
   }
@@ -155,16 +156,41 @@ class _CommoditiesState extends State<Commodities> {
     if (isLoading) {
       return Center(child: CircularProgressIndicator());
     }
-    if (filteredCommodities.isEmpty) {
+    if (allCommodities.isEmpty) {
       return Center(
-        child: Text('No commodities available',
-            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.red.shade600)),
-      );
+  child: Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Icon(Icons.warning_amber_rounded, size: 48, color: Colors.black54),
+      SizedBox(height: 10),
+      Text(
+        'No commodities available',
+        style: GoogleFonts.poppins(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: Colors.black54,
+        ),
+        textAlign: TextAlign.center,
+      ),
+      SizedBox(height: 5),
+      // Text(
+      //   'Please check back later.',
+      //   style: GoogleFonts.poppins(
+      //     fontSize: 16,
+      //     fontWeight: FontWeight.w400,
+      //     color: Colors.grey.shade600,
+      //   ),
+      //   textAlign: TextAlign.center,
+      // ),
+    ],
+  ),
+);
+
     }
     return ListView.builder(
-      itemCount: filteredCommodities.length,
+      itemCount: allCommodities.length,
       itemBuilder: (context, index) {
-        final commodity = filteredCommodities[index];
+        final commodity = allCommodities[index];
         return Card(
           margin: EdgeInsets.symmetric(vertical: 6.0),
           elevation: 2,
@@ -175,8 +201,12 @@ class _CommoditiesState extends State<Commodities> {
               activeColor: Colors.green.shade800,
               onChanged: (bool? value) => _toggleCommodity(commodity),
             ),
-            title: Text(commodity.name!, style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.black87)),
-            subtitle: Text(commodity.packagingName!, style: GoogleFonts.poppins(fontWeight: FontWeight.w400, color: Colors.grey.shade700)),
+            title: Text(commodity.name!,
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600, color: Colors.black87)),
+            subtitle: Text(commodity.packagingName!,
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w400, color: Colors.grey.shade700)),
           ),
         );
       },
@@ -185,8 +215,13 @@ class _CommoditiesState extends State<Commodities> {
 
   Widget _buildSelectedCommodities() {
     return Text(
-      userItems.isNotEmpty ? 'Selected: ${userItems.join(', ')}' : "No commodities selected",
-      style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.green.shade800),
+      userItems.isNotEmpty
+          ? 'Selected: ${userItems.join(', ')}'
+          : "No commodities selected",
+      style: GoogleFonts.poppins(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: Colors.green.shade800),
     );
   }
 
@@ -200,11 +235,22 @@ class _CommoditiesState extends State<Commodities> {
         decoration: BoxDecoration(
           color: Colors.green.shade800,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [BoxShadow(color: Colors.green.withOpacity(0.3), blurRadius: 5, spreadRadius: 2, offset: Offset(0, 3))],
+          boxShadow: [
+            BoxShadow(
+                color: Colors.green.withOpacity(0.3),
+                blurRadius: 5,
+                spreadRadius: 2,
+                offset: Offset(0, 3))
+          ],
         ),
         child: context.watch<appBloc>().isLoading
-            ? LoadingAnimationWidget.staggeredDotsWave(color: Colors.white, size: 20)
-            : Text("Done", style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.white, fontSize: 20)),
+            ? LoadingAnimationWidget.staggeredDotsWave(
+                color: Colors.white, size: 20)
+            : Text("Done",
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                    fontSize: 20)),
       ),
     );
   }
@@ -215,12 +261,18 @@ class _CommoditiesState extends State<Commodities> {
         SnackBar(
           backgroundColor: Colors.black,
           content: Text("Please select a commodity",
-              style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.white)),
+              style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                  color: Colors.white)),
         ),
       );
     } else {
       String user_type = Provider.of<appBloc>(context, listen: false).user_type;
-      AuthRequest.UserCommodities(context: context, user_type: user_type, commodities: userItemsId.toList());
+      AuthRequest.UserCommodities(
+          context: context,
+          user_type: user_type,
+          commodities: userItemsId.toList());
     }
   }
 }
