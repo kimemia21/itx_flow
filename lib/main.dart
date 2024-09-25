@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/authentication/Regulator.dart';
 import 'package:itx/authentication/SplashScreen.dart';
 import 'package:itx/firebase_options.dart';
@@ -51,7 +52,10 @@ class _GetPlatformState extends State<GetPlatform> {
     }
     // Android or iOS platform
     else if (Platform.isAndroid || Platform.isIOS) {
-      return bloc.token == "" ?  : Regulators();
+      return bloc.token == "" ?Regulators() : Regulators(); 
+      // Splashscreen():GlobalsHomePage();
+      
+      // Regulators() : Regulators();
     } else {
       // Fallback for unsupported platforms
       return Scaffold(

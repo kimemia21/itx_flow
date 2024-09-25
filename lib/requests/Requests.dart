@@ -123,18 +123,21 @@ class AuthRequest {
       // Prepare the request body
       final Map<String, dynamic> body = {
         "commodities": commodities.join(","),
-        "user_type_id": int.parse(user_type)
+        "user_type_id": 1
       };
       bloc.changeUserCommoditesIds(commodities);
 
       final Uri url = Uri.parse("$main_url/commodities/certs");
       print(Provider.of<appBloc>(context, listen: false).token);
       // Send POST request to the API
+
+      // editted token for testing 
       final http.Response response = await http.post(
         url,
         body: jsonEncode(body),
         headers: {
-          "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+          "x-auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiQVBQIiwiaWF0IjoxNzI3MjUxMjAyLCJleHAiOjE3MjcyNjkyMDJ9.knE5b5EPyY_dwVbo9CgmkOIz_TwROiLnpR86E_rzTfs",
+          // Provider.of<appBloc>(context, listen: false).token,
           'Content-Type': 'application/json',
         },
       );
@@ -142,13 +145,15 @@ class AuthRequest {
       if (response.statusCode == 200) {
         // Parse the response body
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
-
-        if (responseBody["rsp"] == true) {
-          // success case
+         
+         if (responseBody["rsp"] == true) {
+ 
           print("Success: ${responseBody["data"]}");
+
           bloc.getUserType(user_type);
           bloc.changeUserCommoditesCert(responseBody["data"]);
-          print(" this is user bloc ${bloc.UserCommoditesCerts}");
+
+        
           bloc.changeIsLoading(false);
 
           Globals.switchScreens(context: context, screen: Regulators());
@@ -163,7 +168,7 @@ class AuthRequest {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
         String errorMessage =
             responseBody["message"] ?? "An unknown error occurred";
-        _handleError(context, "Registration Error", errorMessage);
+        _handleError(context, "Commodites of interest", errorMessage);
       }
     } catch (e) {
       // Handle exceptions during the request or response parsing
