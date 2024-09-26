@@ -6,16 +6,26 @@ class ContractsModel {
   final DateTime deliveryDate;
   final double price;
   final String description;
+  final DateTime closeDate;
+  final DateTime postedOn;
+  final DateTime? closedOn;
   final int id;
-  final int liked;
-  final int canbid;
-  final String contractType;
   final String name;
+  final int commodityGradeId;
   final int commodityType;
   final String iconName;
   final String imageUrl;
   final int commodityPrimaryPackingId;
   final int userCompanyId;
+  final String contractType;
+  final int canBid;
+  final String? companyName;
+  final String? companyAddress;
+  final String? companyContacts;
+  final int liked;
+  final int bought;
+  final int paid;
+  final bool closed;
 
   ContractsModel({
     required this.contractId,
@@ -25,16 +35,26 @@ class ContractsModel {
     required this.deliveryDate,
     required this.price,
     required this.description,
+    required this.closeDate,
+    required this.postedOn,
+    this.closedOn,
     required this.id,
-    required this.contractType,
     required this.name,
+    required this.commodityGradeId,
     required this.commodityType,
     required this.iconName,
-    required this.liked,
     required this.imageUrl,
     required this.commodityPrimaryPackingId,
-    required this.canbid,
     required this.userCompanyId,
+    required this.contractType,
+    required this.canBid,
+    this.companyName,
+    this.companyAddress,
+    this.companyContacts,
+    required this.liked,
+    required this.bought,
+    required this.paid,
+    required this.closed,
   });
 
   // Factory method to create an instance from JSON
@@ -47,27 +67,26 @@ class ContractsModel {
       deliveryDate: DateTime.parse(json['delivery_date']),
       price: (json['price'] as num).toDouble(),
       description: json['description'],
+      closeDate: DateTime.parse(json['close_date']),
+      postedOn: DateTime.parse(json['posted_on']),
+      closedOn: json['closed_on'] != null ? DateTime.parse(json['closed_on']) : null,
       id: json['id'],
-      contractType: json['contract_type'],
       name: json['name'],
+      commodityGradeId: json['commodity_grade_id'],
       commodityType: json['commodity_type'],
       iconName: json['icon_name'],
       imageUrl: json['image_url'],
-      liked: json["liked"],
-      canbid: json["can_bid"],
       commodityPrimaryPackingId: json['commodity_primary_packing_id'],
       userCompanyId: json['user_company_id'],
+      contractType: json['contract_type'],
+      canBid: json['can_bid'],
+      companyName: json['company_name'],
+      companyAddress: json['company_address'],
+      companyContacts: json['company_contacts'],
+      liked: json['liked'],
+      bought: json['bought'],
+      paid: json['paid'],
+      closed: json['closed'] == 1,
     );
   }
-
-  // Method to validate the data
-  // void validate() {
-  //   if (price <= 0) {
-  //     throw Exception("Price must be greater than zero.");
-  //   }
-
-  //   if (deliveryDate.isBefore(DateTime.now())) {
-  //     throw Exception("Delivery date must be in the future.");
-  //   }
-  // }
 }

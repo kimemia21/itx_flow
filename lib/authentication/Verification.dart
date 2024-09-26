@@ -126,22 +126,18 @@ class _VerificationState extends State<Verification> {
                 onPressed: () async {
                   Map<String, dynamic> userDetails =
                       Provider.of<appBloc>(context, listen: false).userDetails;
-                  AuthRequest.register(
-                      context: context, body: userDetails, isOnOtp: true);
+                  AuthRequest.ResendOtp(context: context);
                 },
-                child:
-                   Provider.of<appBloc>(context, listen: false).isLoading? 
-                   LoadingAnimationWidget.staggeredDotsWave(
-                          color: Colors.blue, size: 20):
-                
-                 Text(
-           
-                  "Resend Code",
-                  style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      color: Colors.blue),
-                ),
+                child: Provider.of<appBloc>(context, listen: false).isLoading
+                    ? LoadingAnimationWidget.staggeredDotsWave(
+                        color: Colors.blue, size: 20)
+                    : Text(
+                        "Resend Code",
+                        style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: Colors.blue),
+                      ),
               ),
               const SizedBox(height: 20),
               GestureDetector(
@@ -176,7 +172,6 @@ class _VerificationState extends State<Verification> {
                         ),
                 ),
               ),
-             
             ],
           ),
         ),

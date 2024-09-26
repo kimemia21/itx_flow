@@ -1,10 +1,12 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:itx/Commodities.dart/AdvancedSearch.dart';
+import 'package:itx/Contracts/AdvancedSearch.dart';
 import 'package:itx/Contracts/CreateContract.dart';
+import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
-import 'package:itx/global/AnimatedButton.dart';
+import 'package:itx/Contracts/AnimatedButton.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/requests/Requests.dart';
@@ -35,7 +37,7 @@ class _ContractsState extends State<Contracts> {
   Future<void> fetchContracts() async {
     setState(() {
       contracts = CommodityService.getContracts(
-          context, widget.filtered ? "this_user_liked=1" : "");
+          context:context, isWatchList:widget.filtered);
     });
   }
 
@@ -46,164 +48,172 @@ class _ContractsState extends State<Contracts> {
   }
 
   Widget _buildSearchItem({required ContractsModel contract}) {
-    return Container(
-      height: 120,
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.green.withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 120,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(15),
-                bottomLeft: Radius.circular(15),
-              ),
-              image: DecorationImage(
-                image: NetworkImage(contract.imageUrl),
-                fit: BoxFit.cover,
+    return GestureDetector(
+      onTap: () {
+        PersistentNavBarNavigator.pushNewScreen(
+          withNavBar: true,
+          context,
+            screen: Specificorder(contract: contract));
+      },
+      child: Container(
+        height: 120,
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.green.withOpacity(0.1),
+              spreadRadius: 2,
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 120,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(15),
+                  bottomLeft: Radius.circular(15),
+                ),
+                image: DecorationImage(
+                  image: NetworkImage(contract.imageUrl),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        contract.name,
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 18,
-                          color: Colors.green.shade800,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          contract.name,
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                            color: Colors.green.shade800,
+                          ),
                         ),
+                        Container(
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade50,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            contract.contractType,
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.blue.shade700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      contract.description,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
                       ),
-                      Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(10),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.grade, size: 16, color: Colors.amber),
+                            SizedBox(width: 4),
+                            Text(
+                              "Grade: ${contract.qualityGradeId}",
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ],
                         ),
-                        child: Text(
-                          contract.contractType,
+                        Row(
+                          children: [
+                            Icon(Icons.calendar_today,
+                                size: 16, color: Colors.green.shade600),
+                            SizedBox(width: 4),
+                            Text(
+                              "Delivery: ${DateFormat('MMM d, y').format(contract.deliveryDate)}",
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Contract #${contract.contractId}",
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: Colors.blue.shade700,
+                            color: Colors.grey.shade600,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    contract.description,
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.grade, size: 16, color: Colors.amber),
-                          SizedBox(width: 4),
-                          Text(
-                            "Grade: ${contract.qualityGradeId}",
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: Colors.grey.shade700,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.calendar_today,
-                              size: 16, color: Colors.green.shade600),
-                          SizedBox(width: 4),
-                          Text(
-                            "Delivery: ${DateFormat('MMM d, y').format(contract.deliveryDate)}",
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: Colors.grey.shade700,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Contract #${contract.contractId}",
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.green.shade50,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              "\$${contract.price.toStringAsFixed(2)}",
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                                color: Colors.green.shade700,
+                        Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.green.shade50,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                "\$${contract.price.toStringAsFixed(2)}",
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                  color: Colors.green.shade700,
+                                ),
                               ),
                             ),
-                          ),
-                          SizedBox(width: 8),
-                          LikeButton(
-                            contractId: contract.contractId,
-                            likes: contract.liked,
-                            // data: data,
-                            onLikeChanged: (isLiked) async {
-                              await AuthRequest.likeunlike(context,
-                                  isLiked ? 1 : 0, contract.contractId);
+                            SizedBox(width: 8),
+                            LikeButton(
+                              contractId: contract.contractId,
+                              likes: contract.liked,
+                              // data: data,
+                              onLikeChanged: (isLiked) async {
+                                await AuthRequest.likeunlike(context,
+                                    isLiked ? 1 : 0, contract.contractId);
 
-                              print(
-                                  'Contract ${contract.contractId} is ${isLiked ? 'liked' : 'unliked'}');
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
+                                print(
+                                    'Contract ${contract.contractId} is ${isLiked ? 'liked' : 'unliked'}');
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -280,67 +290,69 @@ class _ContractsState extends State<Contracts> {
                 height: 20,
               ),
               Expanded(
-      child: RefreshIndicator(
-        onRefresh: () async {
-    await fetchContracts(); // Fetch contracts when pulling down
-        },
-        child: FutureBuilder<List<ContractsModel>>(
-    future: contracts,
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return Center(child: CircularProgressIndicator());
-      } else if (snapshot.hasError) {
-        return Center(child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Error: ${snapshot.error}'),
-            
-              ElevatedButton(
-                onPressed: () async {
-                  await fetchContracts(); // Button to fetch contracts manually
-                },
-                style: ElevatedButton.styleFrom(
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    await fetchContracts(); // Fetch contracts when pulling down
+                  },
+                  child: FutureBuilder<List<ContractsModel>>(
+                    future: contracts,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(
+                            child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('Error: ${snapshot.error}'),
+                            ElevatedButton(
+                              onPressed: () async {
+                                await fetchContracts(); // Button to fetch contracts manually
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green.shade600,
+                              ),
+                              child: Text(
+                                "Refresh",
+                                style: GoogleFonts.poppins(color: Colors.white),
+                              ),
+                            )
+                          ],
+                        ));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('No contracts found.'),
+                              SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  await fetchContracts(); // Button to fetch contracts manually
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green.shade600,
+                                ),
+                                child: Text("Refresh"),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
 
-                  backgroundColor: Colors.green.shade600,
+                      List<ContractsModel> filteredContracts = snapshot.data!;
+
+                      return ListView.builder(
+                        itemCount: filteredContracts.length,
+                        itemBuilder: (context, index) {
+                          ContractsModel contract = filteredContracts[index];
+                          return _buildSearchItem(contract: contract);
+                        },
+                      );
+                    },
+                  ),
                 ),
-                child: Text("Refresh",style: GoogleFonts.poppins(color: Colors.white),),)
-          ],
-        ));
-      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('No contracts found.'),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  await fetchContracts(); // Button to fetch contracts manually
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green.shade600,
-                ),
-                child: Text("Refresh"),
               ),
-            ],
-          ),
-        );
-      }
-    
-      List<ContractsModel> filteredContracts = snapshot.data!;
-    
-      return ListView.builder(
-        itemCount: filteredContracts.length,
-        itemBuilder: (context, index) {
-          ContractsModel contract = filteredContracts[index];
-          return _buildSearchItem(contract: contract);
-        },
-      );
-    },
-        ),
-      ),
-    ),
-    
             ],
           ),
         ),
@@ -348,8 +360,7 @@ class _ContractsState extends State<Contracts> {
     );
   }
 
-
- Widget _buildSearchBar(BuildContext context) {
+  Widget _buildSearchBar(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
 
     return Container(

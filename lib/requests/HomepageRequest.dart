@@ -21,8 +21,8 @@ class CommodityService {
   // "http://185.141.63.56:3067/api/v1";
 
   static Future<List<Commodity>> fetchCommodities(
-      BuildContext context, bool filter,[text]) async {
-  
+      BuildContext context, bool filter,
+      [text]) async {
     try {
       final Uri uri = filter
           ? Uri.parse("$mainUri/commodities?filter=$text")
@@ -33,7 +33,7 @@ class CommodityService {
       final Map<String, String> headers = {
         "Content-Type": "application/json",
         "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
-            // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiQVBQIiwiaWF0IjoxNzI3MjUxMjAyLCJleHAiOjE3MjcyNjkyMDJ9.knE5b5EPyY_dwVbo9CgmkOIz_TwROiLnpR86E_rzTfs",
+        // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiQVBQIiwiaWF0IjoxNzI3MjUxMjAyLCJleHAiOjE3MjcyNjkyMDJ9.knE5b5EPyY_dwVbo9CgmkOIz_TwROiLnpR86E_rzTfs",
         // Provider.of<appBloc>(context, listen: false).token,
       };
 
@@ -66,9 +66,13 @@ class CommodityService {
     }
   }
 
-  static Future<List<ContractsModel>> getContracts(BuildContext context, filter,
-      [int? id]) async {
-    final Uri uri = Uri.parse("$mainUri/contracts/list?${filter}");
+  static Future<List<ContractsModel>> getContracts(
+      {required BuildContext context, required bool isWatchList}) async {
+    print(isWatchList);
+
+    final Uri uri = isWatchList
+        ? Uri.parse("$mainUri/contracts/list?this_user_liked=1")
+        : Uri.parse("$mainUri/contracts/list?");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
       "x-auth-token": Provider.of<appBloc>(context, listen: false).token,

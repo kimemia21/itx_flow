@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/Serializers/PriceHistory.dart';
 import 'package:itx/fromWakulima/widgets/contant.dart';
 import 'package:itx/global/AppBloc.dart';
@@ -9,17 +10,20 @@ import 'package:itx/global/globals.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class ContractLiveBid extends StatefulWidget {
-  final int contractId;
-  final String commodityname;
-  const ContractLiveBid({Key? key, required this.contractId, required this.commodityname}) : super(key: key);
+  final ContractsModel contract;
+
+  const ContractLiveBid({super.key, required this.contract});
+
 
   @override
   _ContractLiveBidState createState() => _ContractLiveBidState();
 }
 
-class _ContractLiveBidState extends State<ContractLiveBid> with SingleTickerProviderStateMixin {
+class _ContractLiveBidState extends State<ContractLiveBid>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late Future<List<PricehistoryModel>> _bidsFuture;
   double _highestBid = 0.0;
@@ -31,39 +35,45 @@ class _ContractLiveBidState extends State<ContractLiveBid> with SingleTickerProv
   @override
   void initState() {
     super.initState();
-    _bidsFuture = CommodityService.ContractsBids(context: context, id: widget.contractId);
+    _bidsFuture =
+        CommodityService.ContractsBids(context: context, id: widget.contract.contractId);
     _updateData();
-    _startTimer();
+    // _startTimer();
   }
 
   Future<void> _updateData() async {
-    final data = await CommodityService.ContractsBids(context: context, id: widget.contractId);
+    final data = await CommodityService.ContractsBids(
+        context: context, id: widget.contract.commodityId);
     if (data.isNotEmpty) {
       data.sort((a, b) => b.bid_price.compareTo(a.bid_price));
       setState(() {
         _highestBid = data.first.bid_price;
-        chartData = data.map((bid) => ChartData(DateTime.parse(bid.bid_date), bid.bid_price)).toList();
+        chartData = data
+            .map(
+                (bid) => ChartData(DateTime.parse(bid.bid_date), bid.bid_price))
+            .toList();
         chartData.sort((a, b) => a.date.compareTo(b.date));
       });
     }
   }
 
-  void _startTimer() {
-    auctionEndTime = DateTime.now().add(Duration(hours: 24));
-    timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
-      setState(() {
-        remainingTime = auctionEndTime.difference(DateTime.now());
-        if (remainingTime.isNegative) {
-          timer?.cancel();
-          remainingTime = Duration.zero;
-        }
-      });
-    });
-  }
+  // void _startTimer() {
+  //   auctionEndTime = DateTime.now().add(Duration(hours: 24));
+  //   timer = Timer.periodic(Duration(seconds: 1), (Timer t) {
+  //     setState(() {
+  //       remainingTime = auctionEndTime.difference(DateTime.now());
+  //       if (remainingTime.isNegative) {
+  //         timer?.cancel();
+  //         remainingTime = Duration.zero;
+  //       }
+  //     });
+  //   });
+  // }
 
   Future<void> _refreshData() async {
     setState(() {
-      _bidsFuture = CommodityService.ContractsBids(context: context, id: widget.contractId);
+      _bidsFuture = CommodityService.ContractsBids(
+          context: context, id: widget.contract.contractId);
     });
     await _updateData();
   }
@@ -88,7 +98,8 @@ class _ContractLiveBidState extends State<ContractLiveBid> with SingleTickerProv
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Current Highest Bid: \$${_highestBid.toStringAsFixed(2)}'),
+                Text(
+                    'Current Highest Bid: \$${_highestBid.toStringAsFixed(2)}'),
                 SizedBox(height: 20),
                 TextField(
                   keyboardType: TextInputType.number,
@@ -101,13 +112,13 @@ class _ContractLiveBidState extends State<ContractLiveBid> with SingleTickerProv
                     if (newBid != null) {
                       if (newBid <= _highestBid) {
                         setState(() {
-                          errorText = 'Bid must be higher than \$${_highestBid.toStringAsFixed(2)}';
+                          errorText =
+                              'Bid must be higher than \$${_highestBid.toStringAsFixed(2)}';
                         });
                       } else {
                         setState(() {
                           errorText = null;
                           bidAmount = newBid;
-                          
                         });
                       }
                     } else {
@@ -175,7 +186,7 @@ class _ContractLiveBidState extends State<ContractLiveBid> with SingleTickerProv
             children: [
               SizedBox(height: 20),
               Text(
-                '${widget.commodityname} - 5,000',
+                '${widget.contract.name} - 5,000',
                 style: GoogleFonts.poppins(
                   fontSize: 22,
                   fontWeight: FontWeight.w600,
@@ -186,7 +197,7 @@ class _ContractLiveBidState extends State<ContractLiveBid> with SingleTickerProv
               Row(
                 children: [
                   Text(
-                    '\$${   NumberFormat('#,##0.00').format(  _highestBid)}',
+                    '\$${NumberFormat('#,##0.00').format(_highestBid)}',
                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(width: 10),
@@ -220,7 +231,8 @@ class _ContractLiveBidState extends State<ContractLiveBid> with SingleTickerProv
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   GestureDetector(
-                    onTap: () => _showPlaceBidDialog(widget.commodityname, _highestBid, widget.contractId),
+                    onTap: () => _showPlaceBidDialog(
+                        widget.contract.name, _highestBid, widget.contract.contractId),
                     child: Container(
                       padding: EdgeInsets.all(2),
                       alignment: Alignment.center,
@@ -232,7 +244,8 @@ class _ContractLiveBidState extends State<ContractLiveBid> with SingleTickerProv
                       width: AppWidth(context, 0.3),
                       child: Text(
                         "Place bid",
-                        style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600),
+                        style: GoogleFonts.poppins(
+                            color: Colors.white, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
@@ -241,11 +254,16 @@ class _ContractLiveBidState extends State<ContractLiveBid> with SingleTickerProv
                     children: [
                       Text(
                         'Remaining Time',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w500),
                       ),
                       Text(
-                        '${remainingTime.inHours}:${(remainingTime.inMinutes % 60).toString().padLeft(2, '0')}:${(remainingTime.inSeconds % 60).toString().padLeft(2, '0')}',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        timeago.format(widget.contract.closeDate),
+
+
+                        // '${remainingTime.inHours}:${(remainingTime.inMinutes % 60).toString().padLeft(2, '0')}:${(remainingTime.inSeconds % 60).toString().padLeft(2, '0')}',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -254,11 +272,15 @@ class _ContractLiveBidState extends State<ContractLiveBid> with SingleTickerProv
                     children: [
                       Text(
                         'Highest Bid',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w500),
                       ),
                       Text(
-                        '\$${NumberFormat('#,##0.00').format(  _highestBid)}',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green),
+                        '\$${NumberFormat('#,##0.00').format(_highestBid)}',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green),
                       ),
                     ],
                   ),
@@ -270,11 +292,18 @@ class _ContractLiveBidState extends State<ContractLiveBid> with SingleTickerProv
                   future: _bidsFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator(color: Colors.green.shade600));
+                      return Center(
+                          child: CircularProgressIndicator(
+                              color: Colors.green.shade600));
                     } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}', style: GoogleFonts.poppins(color: Colors.red)));
+                      return Center(
+                          child: Text('Error: ${snapshot.error}',
+                              style: GoogleFonts.poppins(color: Colors.red)));
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(child: Text('No bids available', style: GoogleFonts.poppins(color: Colors.grey.shade600)));
+                      return Center(
+                          child: Text('No bids available',
+                              style: GoogleFonts.poppins(
+                                  color: Colors.grey.shade600)));
                     } else {
                       final data = snapshot.data!;
                       data.sort((a, b) => b.bid_price.compareTo(a.bid_price));
@@ -285,7 +314,9 @@ class _ContractLiveBidState extends State<ContractLiveBid> with SingleTickerProv
                           Expanded(
                             child: ListView.builder(
                               itemCount: data.length,
-                              itemBuilder: (context, index) => _buildBidCard(context, data[index], isHighest: index == 0),
+                              itemBuilder: (context, index) => _buildBidCard(
+                                  context, data[index],
+                                  isHighest: index == 0),
                             ),
                           ),
                         ],
@@ -332,7 +363,7 @@ Widget _buildHighestBidCard(PricehistoryModel bid) {
               ),
               SizedBox(height: 4),
               Text(
-                '\$${ NumberFormat('#,##0.00').format(bid.bid_price)}',
+                '\$${NumberFormat('#,##0.00').format(bid.bid_price)}',
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -361,7 +392,8 @@ Widget _buildHighestBidCard(PricehistoryModel bid) {
   );
 }
 
-Widget _buildBidCard(BuildContext context, PricehistoryModel bid, {required bool isHighest}) {
+Widget _buildBidCard(BuildContext context, PricehistoryModel bid,
+    {required bool isHighest}) {
   int userId = context.watch<appBloc>().user_id;
   return Container(
     height: 70,
@@ -385,7 +417,7 @@ Widget _buildBidCard(BuildContext context, PricehistoryModel bid, {required bool
                     isHighest ? Colors.green.shade700 : Colors.grey.shade700),
           ),
           title: Text(
-            '\$${ NumberFormat('#,##0.00').format( bid.bid_price)}',
+            '\$${NumberFormat('#,##0.00').format(bid.bid_price)}',
             style: GoogleFonts.poppins(
               fontSize: 12,
               fontWeight: FontWeight.w600,

@@ -79,6 +79,7 @@ dependencies:
   sms_autofill: ^2.4.0
   smart_auth: ^2.0.0
   mockito: ^5.4.4
+  timeago: ^3.7.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

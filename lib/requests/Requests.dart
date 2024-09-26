@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:cherry_toast/cherry_toast.dart';
+import 'package:cherry_toast/resources/arrays.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/Serializers/CommParams.dart';
@@ -58,7 +60,6 @@ class AuthRequest {
                       context: context,
                       email: body["email"],
                       phoneNumber: body["phonenumber"],
-
                     ),
                   ),
                 );
@@ -123,7 +124,6 @@ class AuthRequest {
       // Prepare the request body
       final Map<String, dynamic> body = {
         "commodities": commodities.join(","),
-        
         "user_type_id": int.parse(user_type)
       };
 
@@ -133,12 +133,12 @@ class AuthRequest {
       print(Provider.of<appBloc>(context, listen: false).token);
       // Send POST request to the API
 
-      // editted token for testing 
+      // editted token for testing
       final http.Response response = await http.post(
         url,
         body: jsonEncode(body),
         headers: {
-          "x-auth-token":Provider.of<appBloc>(context, listen: false).token,
+          "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
           // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiQVBQIiwiaWF0IjoxNzI3MjUxMjAyLCJleHAiOjE3MjcyNjkyMDJ9.knE5b5EPyY_dwVbo9CgmkOIz_TwROiLnpR86E_rzTfs",
           // Provider.of<appBloc>(context, listen: false).token,
           'Content-Type': 'application/json',
@@ -148,9 +148,8 @@ class AuthRequest {
       if (response.statusCode == 200) {
         // Parse the response body
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
-         
-         if (responseBody["rsp"] == true) {
- 
+
+        if (responseBody["rsp"] == true) {
           print("Success: ${responseBody["data"]}");
 
           bloc.getUserType(user_type);
@@ -191,7 +190,7 @@ class AuthRequest {
     );
   }
 
-  static Future createBid(BuildContext context, bid, int id) async {
+  static Future createOrder(BuildContext context, bid, int id) async {
     final Uri uri = Uri.parse("$main_url/contracts/$id/order");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
@@ -206,6 +205,20 @@ class AuthRequest {
     if (request.statusCode == 200) {
       final responseBody = jsonDecode(request.body);
       print("responseBody ${responseBody}");
+      CherryToast.success(
+        title: Text("Purchase Confirmed"),
+        description: Text(
+          'You should pay within 10 days to receive an invoice via email.',
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            color: Colors.grey[600],
+          ),
+        ),
+        animationType: AnimationType.fromRight,
+        animationDuration: Duration(milliseconds: 1000),
+        autoDismiss: true,
+      ).show(context);
+      Navigator.of(context).pop();
 
       if (responseBody.toString().contains("true")) {
         // Show an authentication error if OTP fails
@@ -267,6 +280,72 @@ class AuthRequest {
   }
 
   // OTP verification request
+  static Future<void> ResendOtp({
+    required BuildContext context,
+  }) async {
+    final appBloc bloc = context.read<appBloc>();
+    final Uri url = Uri.parse("$main_url/user/otp");
+    final Map<String, dynamic> body =
+        Provider.of<appBloc>(context, listen: false).userDetails;
+    print(body);
+
+    try {
+      // Start loading state
+      bloc.changeIsLoading(true);
+
+      // Send POST request for OTP verification
+      final http.Response response = await http.post(
+        url,
+        body: jsonEncode(body),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        print("${response.body} success");
+        final Map responseBody = jsonDecode(response.body);
+
+        if (responseBody["rsp"]) {
+
+           Globals().successAlerts(
+        title: "Verification OTP",
+        content:
+            "verification OTP sent to  ${Provider.of<appBloc>(context,listen: false).userDetails["phonenumber"]}",
+        context: context);
+
+          final String token = responseBody["token"];
+          context.read<appBloc>().changeToken(token);
+
+          // Delay navigation for a few seconds for better UX
+          Future.delayed(Duration(seconds: 3));
+          Globals.switchScreens(context: context, screen: Commodities());
+
+          bloc.changeIsLoading(false); // Stop loading after success
+        } else {
+          // Show an authentication error if OTP fails
+          Globals.warningsAlerts(
+            title: "Authentication Error",
+            content: responseBody["rsp"],
+            context: context,
+          );
+        }
+      } else {
+        // Show an authentication error for non-200 responses
+        Globals.warningsAlerts(
+          title: "Authentication Error",
+          content: response.body,
+          context: context,
+        );
+        print("${response.body} failed ");
+      }
+    } catch (e) {
+      // Handle errors during OTP request
+      print("Error during OTP verification: $e");
+    } finally {
+      // Stop loading state
+      bloc.changeIsLoading(false);
+    }
+  }
+
   static Future<void> otp({
     required BuildContext context,
     required String email,
@@ -348,7 +427,7 @@ class AuthRequest {
         "password": password,
       };
       // Define the login endpoint
-      final Uri url = Uri.parse("http://185.141.63.56:3067/api/v1/user/login");
+      final Uri url = Uri.parse("$main_url/user/login");
 
       // Start loading state
       bloc.changeIsLoading(true);
@@ -380,8 +459,7 @@ class AuthRequest {
           bloc.changeUser(email);
           bloc.changeCurrentUserID(id: id);
 
-          print(
-              "0000000000000000000000000${Provider.of<appBloc>(context, listen: false).user_id}000000000000000000000");
+     
 
           // Switch screens upon successful login
           Globals.switchScreens(context: context, screen: GlobalsHomePage());

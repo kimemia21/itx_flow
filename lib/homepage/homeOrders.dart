@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Serializers/OrderModel.dart';
 import 'package:itx/global/globals.dart';
+import 'package:itx/myOrders.dart/MyOrders.dart';
 import 'package:itx/myOrders.dart/OrderDetails.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
@@ -18,7 +19,8 @@ class HomePageOrders extends StatefulWidget {
   State<HomePageOrders> createState() => _HomePageOrdersState();
 }
 
-class _HomePageOrdersState extends State<HomePageOrders> with SingleTickerProviderStateMixin {
+class _HomePageOrdersState extends State<HomePageOrders>
+    with SingleTickerProviderStateMixin {
   Future<List<UserOrders>>? _futureOrders;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -35,7 +37,8 @@ class _HomePageOrdersState extends State<HomePageOrders> with SingleTickerProvid
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
+    _fadeAnimation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
     _animationController.forward();
   }
 
@@ -61,7 +64,8 @@ class _HomePageOrdersState extends State<HomePageOrders> with SingleTickerProvid
           child: Card(
             elevation: 5,
             margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
             child: InkWell(
               onTap: onTap,
               borderRadius: BorderRadius.circular(15),
@@ -83,7 +87,8 @@ class _HomePageOrdersState extends State<HomePageOrders> with SingleTickerProvid
                               style: GoogleFonts.poppins(
                                 fontSize: 16, // Adjusted for homepage
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black87, // Slightly darker color for readability
+                                color: Colors
+                                    .black87, // Slightly darker color for readability
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -94,12 +99,14 @@ class _HomePageOrdersState extends State<HomePageOrders> with SingleTickerProvid
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          Icon(Icons.attach_money, size: 18, color: Colors.green.shade600),
+                          Icon(Icons.attach_money,
+                              size: 18, color: Colors.green.shade600),
                           const SizedBox(width: 4),
                           Text(
                             'Bid Price: \$${order.bidPrice.toStringAsFixed(2)}',
                             style: GoogleFonts.poppins(
-                              fontSize: 14, // Slightly smaller for secondary text
+                              fontSize:
+                                  14, // Slightly smaller for secondary text
                               color: Colors.green.shade600,
                             ),
                           ),
@@ -108,13 +115,15 @@ class _HomePageOrdersState extends State<HomePageOrders> with SingleTickerProvid
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.calendar_today, size: 18, color: Colors.black54),
+                          Icon(Icons.calendar_today,
+                              size: 18, color: Colors.black54),
                           const SizedBox(width: 4),
                           Text(
                             'Delivery: ${_formatDate(order.deliveryDate)}',
                             style: GoogleFonts.poppins(
                               fontSize: 14, // Adjusted for homepage
-                              color: Colors.black54, // Neutral color for less important text
+                              color: Colors
+                                  .black54, // Neutral color for less important text
                             ),
                           ),
                         ],
@@ -189,7 +198,8 @@ class _HomePageOrdersState extends State<HomePageOrders> with SingleTickerProvid
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.warning_amber_rounded, size: 48, color: Colors.black54),
+                    Icon(Icons.warning_amber_rounded,
+                        size: 48, color: Colors.black54),
                     const SizedBox(height: 10),
                     Text(
                       'No Orders available',
@@ -209,40 +219,37 @@ class _HomePageOrdersState extends State<HomePageOrders> with SingleTickerProvid
 
               return Column(
                 children: [
-                        Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'My Orders',
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.green.shade800,
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'My Orders',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.green.shade800,
+                          ),
                         ),
-                      ),
-                      TextButton(
-                          onPressed: (){},
-                              // PersistentNavBarNavigator.pushNewScreen(
-                              //     withNavBar: true,
-                              //     context,
-                              //     screen: Contracts(
-                              //       filtered: false,
-                              //       showAppbarAndSearch: true,
-                              //     )),
-                          child: Text(
-                            'See all',
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.blue,
-                            ),
-                          )),
-                    ],
+                        TextButton(
+                            onPressed: () =>
+                                PersistentNavBarNavigator.pushNewScreen(
+                                    withNavBar: true,
+                                    context,
+                                    screen: UserOrdersScreen()),
+                            child: Text(
+                              'See all',
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.blue,
+                              ),
+                            )),
+                      ],
+                    ),
                   ),
-                ),
                   Expanded(
                     child: AnimationLimiter(
                       child: ListView.builder(

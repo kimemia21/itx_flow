@@ -46,13 +46,12 @@ class _LikeButtonState extends State<LikeButton>
     });
 
     // Update the like state
-    setState(() {
+    setState(() async {
       isLiked = !isLiked;
+    await AuthRequest.likeunlike(context, isLiked ? 1 : 0, widget.contractId);
     });
 
     widget.onLikeChanged(isLiked);
-
-    await AuthRequest.likeunlike(context, isLiked ? 1 : 0, widget.contractId);
 
     // Optionally, you can display feedback
     ScaffoldMessenger.of(context).showSnackBar(

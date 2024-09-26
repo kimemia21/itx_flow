@@ -6,36 +6,22 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:itx/Contracts/ContLiveBid.dart';
-import 'package:itx/Contracts/PurchaseConfirmationAlert.dart';
+import 'package:itx/fromWakulima/FirebaseFunctions/FirebaseFunctions.dart';
+import 'package:itx/global/AppBloc.dart';
+import 'package:itx/payments/PayNow.dart';
+import 'package:itx/payments/PurchaseConfirmationAlert.dart';
 import 'package:itx/Serializers/ComTrades.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
 
 class Specificorder extends StatefulWidget {
-  // final String item;
-  // final productName;
-  // final double price;
-  // final String quantity;
-  // final String? companyName;
-  // final String? companyAddress;
-  // final String? companyContacts;
-  // final String? companyEmail;
-  // final String companyId;
   final ContractsModel contract;
 
   Specificorder({
-    // required this.productName,
-    // required this.item,
-    // required this.quantity,
-    // required this.price,
-    // this.companyName,
-    // this.companyAddress,
-    // this.companyContacts,
-    // this.companyEmail,
     required this.contract,
-    // required this.companyId,
   });
 
   @override
@@ -91,15 +77,15 @@ class _SpecificorderState extends State<Specificorder> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        centerTitle: true,
+        title: Text(
+          "${widget.contract.name}",
+          style: GoogleFonts.poppins(
+              color: Colors.white, fontWeight: FontWeight.w600),
+        ),
         automaticallyImplyLeading: true,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.green,
         elevation: 0,
-        // actions: [
-        //   IconButton(
-        //     icon: Icon(Icons.more_vert, color: Colors.black),
-        //     onPressed: () {},
-        //   ),
-        // ],
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
@@ -329,47 +315,56 @@ class _SpecificorderState extends State<Specificorder> {
           ),
         ).animate().fadeIn(duration: 500.ms).slideX(),
         SizedBox(height: 10),
-        // buildTradeOption('Buy', 'Market execution', Icons.arrow_upward),
         Visibility(
-          // visible: randomNumber==1,
-          visible: widget.contract!.canbid == 0,
-
+          visible: widget.contract!.canBid == 0,
           child: GestureDetector(
-              onTap: () => PersistentNavBarNavigator.pushNewScreen(context,
-                  screen: PurchaseConfirmationAlert(
-                      productName: widget.contract.name,
-                      amount: widget.contract.price,
-                      contract: widget.contract,
-                      quantity: 200,
-                      deliveryDate: widget.contract.deliveryDate,
-                      contactEmail: "companyy@gmail.com",
-                      contactPhone: "071234567")
-
-                  // PriceAlert(
-                  //     price: widget.price,
-                  //     onBuyNow: () {},
-                  //     onCancel: () {
-                  //       Navigator.pop(context);
-                  //     })
-                  //  ContractLiveBid(
-                  //     contractId: widget.contract!.id,
-                  //     commodityname: widget.contract!.name)
-
-                  ),
+              onTap: () {
+                final userType =
+                    Provider.of<appBloc>(context, listen: false).user_type;
+                print(userType);
+                if (userType == "individual") {
+                  print("true");
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        child: PaymentInfoForm(
+                          contract: widget.contract,
+                          contactEmail: "company.companyAddress",
+                          contactPhone: "contactPhone",
+                        ),
+                      );
+                    },
+                  );
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        child: purchaseConfirmationAlert(
+                          context: context,
+                          contract: widget.contract,
+                          contactEmail: "company.companyAddress",
+                          contactPhone: "contactPhone",
+                        ),
+                      );
+                    },
+                  );
+                }
+              },
               child: buildTradeOption(
                   'Buy Now', 'Market execution', Icons.arrow_upward)),
         ),
         SizedBox(height: 10),
-
         Visibility(
           //  visible: randomNumber==0,
-          visible: widget.contract!.canbid == 1,
+          visible: widget.contract.canBid == 1,
 
           child: GestureDetector(
               onTap: () => PersistentNavBarNavigator.pushNewScreen(context,
-                  screen: ContractLiveBid(
-                      contractId: widget.contract!.id,
-                      commodityname: widget.contract!.name)),
+                  screen: ContractLiveBid(contract: widget.contract,)),
               child: buildTradeOption(
                   'Place bid', 'Market execution', Icons.arrow_upward)),
         ),

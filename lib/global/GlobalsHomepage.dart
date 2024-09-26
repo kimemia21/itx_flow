@@ -51,7 +51,7 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
   List<Widget> _buildScreens() {
     return [
       Userhomepage(),
-      // Contracts(filtered: false),
+      
       Contracts(filtered: true,showAppbarAndSearch: true,),
 //
 

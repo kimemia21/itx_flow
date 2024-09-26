@@ -35,8 +35,9 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
 
   Future<List<ContractsModel>> fetchContracts() async {
     return CommodityService.getContracts(
-      context,
-      widget.filtered ? "this_user_liked=1" : "",
+      context:context,isWatchList: false
+
+
     );
   }
 
