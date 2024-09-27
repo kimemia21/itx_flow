@@ -9,6 +9,7 @@ import 'package:itx/fromWakulima/widgets/contant.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/requests/HomepageRequest.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -31,189 +32,225 @@ class _ContractLiveBidState extends State<ContractLiveBid>
   @override
   void initState() {
     super.initState();
+    print(
+        "----------update id is---------${widget.contract.contractId}-------------");
     _bidsFuture = CommodityService.ContractsBids(
         context: context, id: widget.contract.contractId);
-    _updateData();
+    _updateData(context);
   }
 
- Future _updateData() async {
-  final data = await CommodityService.ContractsBids(
-      context: context, id: widget.contract.commodityId);
-  if (data.isNotEmpty) {
-    data.sort((a, b) => b.bid_price.compareTo(a.bid_price));
-    setState(() {
-      _highestBid = data.first.bid_price;
-      chartData = data
-          .map(
-              (bid) => ChartData(DateTime.parse(bid.bid_date), bid.bid_price))
-          .toList();
-      chartData.sort((a, b) => a.date.compareTo(b.date));
-    });
+  Future<void> _updateData(BuildContext context) async {
+    final appBloc bloc = context.read<appBloc>();
+    try {
+      bloc.changeIsLoading(true);
+      final data = await CommodityService.ContractsBids(
+        context: context,
+        id: widget.contract.contractId,
+      );
+
+      if (data != null && data.isNotEmpty) {
+        // The first item in the list already contains the highest bid
+        setState(() {
+          _highestBid = data.first.bid_price;
+          print("this is the highest bid $_highestBid");
+
+          chartData = data
+              .map((bid) =>
+                  ChartData(DateTime.parse(bid.bid_date), bid.bid_price))
+              .toList();
+
+          // Sort the chart data by date in ascending order
+          chartData.sort((a, b) => a.date.compareTo(b.date));
+        });
+        bloc.changeIsLoading(false);
+      } else {
+        bloc.changeIsLoading(false);
+        // Handle case when data is empty
+        setState(() {
+          _highestBid = 0; // or any default value
+          chartData = [];
+        });
+      }
+    } catch (e) {
+      // Handle exceptions
+      print('Error fetching bid data: $e');
+    } finally {
+      bloc.changeIsLoading(false);
+    }
   }
-}
 
   Future<void> _refreshData() async {
     setState(() {
       _bidsFuture = CommodityService.ContractsBids(
           context: context, id: widget.contract.contractId);
     });
-    await _updateData();
+    await _updateData(context);
   }
 
   void _showPlaceBidDialog() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      double bidAmount = _highestBid;
-      String? errorText;
-      final TextEditingController _bidController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        double bidAmount = _highestBid;
+        String? errorText;
+        final TextEditingController _bidController = TextEditingController();
 
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            title: Text(
-              'Place Bid for ${widget.contract.name}',
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.blue[800],
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
-            ),
-            content: Container(
-              width: double.maxFinite,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Card(
-                    elevation: 2,
-                    color: Colors.blue[50],
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Current Highest Bid',
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: Colors.blue[800],
+              title: Text(
+                textAlign: TextAlign.center,
+                'Place Bid for ${widget.contract.name}',
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[600],
+                ),
+              ),
+              content: Container(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Card(
+                      elevation: 2,
+                      color: Colors.blue[50],
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              'Current Highest Bid',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: Colors.blue[800],
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            '\$${NumberFormat('#,##0.00').format(_highestBid)}',
-                            style: GoogleFonts.poppins(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green[700],
+                            SizedBox(height: 8),
+                            Text(
+                              '\$${NumberFormat('#,##0.00').format(_highestBid)}',
+                              style: GoogleFonts.poppins(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green[700],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 20),
-                  TextField(
-                    controller: _bidController,
-                    keyboardType: TextInputType.numberWithOptions(decimal: true),
-                    decoration: InputDecoration(
-                      labelText: 'Your Bid',
-                      errorText: errorText,
-                      prefixIcon: Icon(Icons.attach_money, color: Colors.green[700]),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[300]!),
+                    SizedBox(height: 20),
+                    TextField(
+                      controller: _bidController,
+                      keyboardType:
+                          TextInputType.numberWithOptions(decimal: true),
+                      decoration: InputDecoration(
+                        labelText: 'Your Bid',
+                        errorText: errorText,
+                        prefixIcon:
+                            Icon(Icons.attach_money, color: Colors.green[700]),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: Colors.blue[300]!),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide:
+                              BorderSide(color: Colors.blue[700]!, width: 2),
+                        ),
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Colors.blue[700]!, width: 2),
-                      ),
-                    ),
-                    onChanged: (value) {
-                      double? newBid = double.tryParse(value);
-                      if (newBid != null) {
-                        if (newBid <= _highestBid) {
-                          setState(() {
-                            errorText = 'Bid must be higher than \$${NumberFormat('#,##0.00').format(_highestBid)}';
-                          });
+                      onChanged: (value) {
+                        double? newBid = double.tryParse(value);
+                        if (newBid != null) {
+                          if (newBid <= _highestBid) {
+                            setState(() {
+                              errorText =
+                                  'Bid must be higher than \$${NumberFormat('#,##0.00').format(_highestBid)}';
+                            });
+                          } else {
+                            setState(() {
+                              errorText = null;
+                              bidAmount = newBid;
+                            });
+                          }
                         } else {
                           setState(() {
-                            errorText = null;
-                            bidAmount = newBid;
+                            errorText = 'Please enter a valid number';
                           });
                         }
-                      } else {
-                        setState(() {
-                          errorText = 'Please enter a valid number';
-                        });
-                      }
-                    },
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Enter an amount higher than the current bid',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                      fontStyle: FontStyle.italic,
+                      },
                     ),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                child: Text(
-                  'Cancel',
-                  style: GoogleFonts.poppins(color: Colors.grey[700]),
+                    SizedBox(height: 16),
+                    Text(
+                      'Enter an amount higher than the current bid',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
                 ),
-                onPressed: () => Navigator.of(context).pop(),
               ),
-              ElevatedButton(
-                child: Text(
-                  'Place Bid',
-                  style: GoogleFonts.poppins(
+              actions: [
+                TextButton(
+                  child: Text(
+                    'Cancel',
+                    style: GoogleFonts.poppins(color: Colors.grey[700]),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                ElevatedButton(
+                  child: Provider.of<appBloc>(context, listen: false).isLoading
+                      ? LoadingAnimationWidget.staggeredDotsWave(
+                          color: Colors.white, size: 20)
+                      : Text(
+                          'Place Bid',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[700],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  ),
+                  onPressed: errorText == null && _bidController.text.isNotEmpty
+                      ? () async {
+                          if (bidAmount > _highestBid) {
+                            final Map<String, dynamic> body = {
+                              "order_price": bidAmount,
+                              "order_type": "BUY"
+                            };
+                            await CommodityService.PostBid(
+                                context, body, widget.contract.contractId);
 
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue[700],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                ),
-                onPressed: errorText == null && _bidController.text.isNotEmpty
-                    ? () {
-                        if (bidAmount > _highestBid) {
-                          final Map<String, dynamic> body = {
-                            "order_price": bidAmount,
-                            "order_type": "BUY"
-                          };
-                          CommodityService.PostBid(context, body, widget.contract.contractId);
-                          Navigator.of(context).pop();
-                          _refreshData();
+                            await _updateData(context);
+                            await _refreshData();
+                            Navigator.of(context).pop();
+                          }
                         }
-                      }
-                    : null,
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
+                      : null,
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
         _refreshData();
-        _updateData();
+        _updateData(context);
       },
       child: Scaffold(
         appBar: AppBar(
@@ -315,14 +352,17 @@ class _ContractLiveBidState extends State<ContractLiveBid>
   Widget _buildBidButton() {
     return ElevatedButton(
       onPressed: _showPlaceBidDialog,
-      child: Text(
-        'Place Bid',
-        style: GoogleFonts.poppins(
-          fontSize: 16,
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+      child: Provider.of<appBloc>(context, listen: false).isLoading
+          ? LoadingAnimationWidget.staggeredDotsWave(
+              color: Colors.white, size: 20)
+          : Text(
+              'Place Bid',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.blue[700],
         padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
@@ -385,6 +425,9 @@ class _ContractLiveBidState extends State<ContractLiveBid>
         } else {
           final data = snapshot.data!;
           data.sort((a, b) => b.bid_price.compareTo(a.bid_price));
+          print(
+              "--list builder Prices  Raw bid prices: ${data.map((bid) => bid.bid_price).toList()}");
+
           return ListView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
@@ -397,42 +440,49 @@ class _ContractLiveBidState extends State<ContractLiveBid>
     );
   }
 
-  Widget _buildBidCard(BuildContext context, PricehistoryModel bid,
-      {required bool isHighest}) {
-    int userId = context.watch<appBloc>().user_id;
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: 4),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: isHighest ? Colors.green[100] : Colors.grey[100],
-          child: Icon(
-            Icons.gavel,
-            color: isHighest ? Colors.green[700] : Colors.grey[700],
-          ),
+ Widget _buildBidCard(BuildContext context, PricehistoryModel bid, {required bool isHighest}) {
+  int userId = context.watch<appBloc>().user_id;
+  bool isUserBid = bid.user_id == userId;
+
+  return Card(
+    margin: EdgeInsets.symmetric(vertical: 4),
+    color: isUserBid ? Colors.green[50] : null, // Light green background for user's bids
+    child: ListTile(
+      leading: CircleAvatar(
+        backgroundColor: isHighest ? Colors.green[100] : Colors.grey[100],
+        child: Icon(
+          isUserBid ? Icons.person : Icons.gavel,
+          color: isHighest ? Colors.green[700] : (isUserBid ? Colors.green[400] : Colors.grey[700]),
         ),
-        title: Text(
-          '\$${NumberFormat('#,##0.00').format(bid.bid_price)}',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            color: isHighest ? Colors.green[700] : Colors.black87,
-          ),
-        ),
-        subtitle: Text(
-          DateFormat('MMM d, y - h:mm a').format(DateTime.parse(bid.bid_date)),
-          style: GoogleFonts.poppins(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ),
-        trailing: isHighest
-            ? Chip(
-                label: Text('Highest', style: TextStyle(color: Colors.white)),
-                backgroundColor: Colors.green,
-              )
-            : null,
       ),
-    );
-  }
+      title: Text(
+        '\$${NumberFormat('#,##0.00').format(bid.bid_price)}',
+        style: GoogleFonts.poppins(
+          fontWeight: FontWeight.w600,
+          color: isHighest ? Colors.green[700] : (isUserBid ? Colors.green[600] : Colors.black87),
+        ),
+      ),
+      subtitle: Text(
+        DateFormat('MMM d, y - h:mm a').format(DateTime.parse(bid.bid_date)),
+        style: GoogleFonts.poppins(
+          fontSize: 12,
+          color: Colors.grey[600],
+        ),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+       
+          if (isHighest)
+            Chip(
+              label: Text('Highest', style: TextStyle(color: Colors.white)),
+              backgroundColor: Colors.green,
+            ),
+        ],
+      ),
+    ),
+  );
+}
 }
 
 class ChartData {

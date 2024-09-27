@@ -1,12 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:itx/Contracts/ContLiveBid.dart';
-import 'package:itx/fromWakulima/FirebaseFunctions/FirebaseFunctions.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/payments/PayNow.dart';
 import 'package:itx/payments/PurchaseConfirmationAlert.dart';
@@ -33,13 +30,11 @@ class _SpecificorderState extends State<Specificorder> {
   List<FlSpot> priceHistorySpots = [];
   bool isLoading = true;
   String? errorMessage;
-  var random = Random();
-  late int randomNumber;
 
   @override
   void initState() {
     super.initState();
-    randomNumber = random.nextInt(2);
+  
     if (widget.contract.commodityId != null) {
       fetchCompanyAndPriceHistory();
     } else {
@@ -49,28 +44,54 @@ class _SpecificorderState extends State<Specificorder> {
     }
   }
 
-  Future<void> fetchCompanyAndPriceHistory() async {
-    try {
-      final CommodityResponse response =
-          await CommodityService.fetchCommodityInfo(
-              context, int.parse(widget.contract.userCompanyId.toString()));
+Future<void> fetchCompanyAndPriceHistory() async {
+  setState(() {
+    isLoading = true; // Start loading
+  });
+
+  try {
+    // Fetch commodity info
+    final CommodityResponse response = await CommodityService.fetchCommodityInfo(
+        context, int.parse(widget.contract.userCompanyId.toString()));
+
+    // Handle the case where response or data is null or empty
+    if (response != null) {
       setState(() {
+        // Set company if data is not empty, otherwise null
         company = response.data.isNotEmpty ? response.data.first : null;
-        priceHistorySpots = response.priceHistory
-            .map((history) => FlSpot(
-                  history.priceDate.millisecondsSinceEpoch.toDouble(),
-                  history.price,
-                ))
-            .toList();
-        isLoading = false;
+
+        // Handle empty price history and convert it to list of FlSpot
+        if (response.priceHistory != null && response.priceHistory.isNotEmpty) {
+          priceHistorySpots = response.priceHistory
+              .map((history) => FlSpot(
+                    history.priceDate.millisecondsSinceEpoch.toDouble(),
+                    history.price,
+                  ))
+              .toList();
+        } else {
+          priceHistorySpots = []; // Set empty if priceHistory is null or empty
+        }
+
+        isLoading = false; // Loading is complete
       });
-    } catch (e) {
+    } else {
+      // Handle case where response is null
       setState(() {
-        errorMessage = "Error loading data: $e";
+        company = null;
+        priceHistorySpots = [];
+        errorMessage = "No data available";
         isLoading = false;
       });
     }
+  } catch (e) {
+    // Handle any errors and update the state accordingly
+    setState(() {
+      errorMessage = "Error loading data: $e";
+      isLoading = false;
+    });
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -322,7 +343,7 @@ class _SpecificorderState extends State<Specificorder> {
                 final userType =
                     Provider.of<appBloc>(context, listen: false).user_type;
                 print(userType);
-                if (userType == "individual") {
+                if (userType == "individua") {
                   print("true");
                   showDialog(
                     context: context,
@@ -337,7 +358,9 @@ class _SpecificorderState extends State<Specificorder> {
                       );
                     },
                   );
-                } else {
+                }
+                
+                 else {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {

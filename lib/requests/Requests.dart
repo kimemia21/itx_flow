@@ -12,6 +12,8 @@ import 'package:itx/authentication/Verification.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/global/globals.dart';
+import 'package:itx/myOrders.dart/MyOrders.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 class AuthRequest {
@@ -206,7 +208,7 @@ class AuthRequest {
       final responseBody = jsonDecode(request.body);
       print("responseBody ${responseBody}");
       CherryToast.success(
-        title: Text("Purchase Confirmed"),
+        title: Text("Oder Confirmed"),
         description: Text(
           'You should pay within 10 days to receive an invoice via email.',
           style: GoogleFonts.poppins(
@@ -219,22 +221,26 @@ class AuthRequest {
         autoDismiss: true,
       ).show(context);
       Navigator.of(context).pop();
+      PersistentNavBarNavigator.pushNewScreen(
+        withNavBar: true,
+        context,
+          screen: UserOrdersScreen());
 
-      if (responseBody.toString().contains("true")) {
-        // Show an authentication error if OTP fails
-        Globals.warningsAlerts(
-          title: "Highest Bidder",
-          content: responseBody["msg"],
-          context: context,
-        );
-      } else {
-        // Show an authentication error if OTP fails
-        Globals.warningsAlerts(
-          title: "bidding  Error",
-          content: responseBody["rsp"],
-          context: context,
-        );
-      }
+      // if (responseBody.toString().contains("true")) {
+      //   // Show an authentication error if OTP fails
+      //   Globals.warningsAlerts(
+      //     title: "Highest Bidder",
+      //     content: responseBody["msg"],
+      //     context: context,
+      //   );
+      // } else {
+      //   // Show an authentication error if OTP fails
+      //   Globals.warningsAlerts(
+      //     title: "bidding  Error",
+      //     content: responseBody["rsp"],
+      //     context: context,
+      //   );
+      // }
     }
   }
 
@@ -305,12 +311,11 @@ class AuthRequest {
         final Map responseBody = jsonDecode(response.body);
 
         if (responseBody["rsp"]) {
-
-           Globals().successAlerts(
-        title: "Verification OTP",
-        content:
-            "verification OTP sent to  ${Provider.of<appBloc>(context,listen: false).userDetails["phonenumber"]}",
-        context: context);
+          Globals().successAlerts(
+              title: "Verification OTP",
+              content:
+                  "verification OTP sent to  ${Provider.of<appBloc>(context, listen: false).userDetails["phonenumber"]}",
+              context: context);
 
           final String token = responseBody["token"];
           context.read<appBloc>().changeToken(token);
@@ -458,8 +463,6 @@ class AuthRequest {
           bloc.getUserType(type);
           bloc.changeUser(email);
           bloc.changeCurrentUserID(id: id);
-
-     
 
           // Switch screens upon successful login
           Globals.switchScreens(context: context, screen: GlobalsHomePage());
