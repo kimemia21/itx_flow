@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +7,7 @@ import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/Contracts/AnimatedButton.dart';
 import 'package:itx/global/AppBloc.dart';
+import 'package:itx/global/globals.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/requests/Requests.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
@@ -37,7 +37,7 @@ class _ContractsState extends State<Contracts> {
   Future<void> fetchContracts() async {
     setState(() {
       contracts = CommodityService.getContracts(
-          context:context, isWatchList:widget.filtered);
+          context: context, isWatchList: widget.filtered);
     });
   }
 
@@ -51,8 +51,8 @@ class _ContractsState extends State<Contracts> {
     return GestureDetector(
       onTap: () {
         PersistentNavBarNavigator.pushNewScreen(
-          withNavBar: true,
-          context,
+            withNavBar: true,
+            context,
             screen: Specificorder(contract: contract));
       },
       child: Container(
@@ -300,44 +300,15 @@ class _ContractsState extends State<Contracts> {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(child: CircularProgressIndicator());
                       } else if (snapshot.hasError) {
-                        return Center(
-                            child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Error: ${snapshot.error}'),
-                            ElevatedButton(
-                              onPressed: () async {
-                                await fetchContracts(); // Button to fetch contracts manually
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green.shade600,
-                              ),
-                              child: Text(
-                                "Refresh",
-                                style: GoogleFonts.poppins(color: Colors.white),
-                              ),
-                            )
-                          ],
-                        ));
+                        String name =
+                            widget.filtered ? "Watchlist":"Contracts"  ;
+                        return Globals.buildErrorState(
+                            function: fetchContracts, items:name);
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text('No contracts found.'),
-                              SizedBox(height: 20),
-                              ElevatedButton(
-                                onPressed: () async {
-                                  await fetchContracts(); // Button to fetch contracts manually
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green.shade600,
-                                ),
-                                child: Text("Refresh"),
-                              ),
-                            ],
-                          ),
-                        );
+                        String name =
+                            widget.filtered ? "Contracts" : "Watchlist";
+                        return Globals.buildNoDataState(
+                            function: fetchContracts, item: name);
                       }
 
                       List<ContractsModel> filteredContracts = snapshot.data!;

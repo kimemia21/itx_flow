@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:itx/Commodities.dart/Commodites.dart';
-import 'package:itx/Serializers/CommParams.dart';
 import 'package:itx/Serializers/UserTypes.dart';
 import 'package:itx/authentication/Regulator.dart';
 import 'package:itx/authentication/Verification.dart';
@@ -19,7 +21,7 @@ import 'package:provider/provider.dart';
 class AuthRequest {
   // Base URL for the API
   static const main_url = "http://185.141.63.56:3067/api/v1";
-
+// grace  // "http://192.168.100.56:3000/api/v1"
   // "http://192.168.100.8:3000/api/v1"
   // "http://185.141.63.56:3067/api/v1";
 
@@ -59,6 +61,7 @@ class AuthRequest {
                   context,
                   MaterialPageRoute(
                     builder: (context) => Verification(
+                      isRegistered: false,
                       context: context,
                       email: body["email"],
                       phoneNumber: body["phonenumber"],
@@ -222,9 +225,7 @@ class AuthRequest {
       ).show(context);
       Navigator.of(context).pop();
       PersistentNavBarNavigator.pushNewScreen(
-        withNavBar: true,
-        context,
-          screen: UserOrdersScreen());
+          withNavBar: true, context, screen: UserOrdersScreen());
 
       // if (responseBody.toString().contains("true")) {
       //   // Show an authentication error if OTP fails
@@ -291,6 +292,7 @@ class AuthRequest {
   }) async {
     final appBloc bloc = context.read<appBloc>();
     final Uri url = Uri.parse("$main_url/user/otp");
+    final String token = Provider.of<appBloc>(context, listen: false).token;
     final Map<String, dynamic> body =
         Provider.of<appBloc>(context, listen: false).userDetails;
     print(body);
@@ -300,10 +302,11 @@ class AuthRequest {
       bloc.changeIsLoading(true);
 
       // Send POST request for OTP verification
-      final http.Response response = await http.post(
+      final http.Response response = await http.get(
         url,
-        body: jsonEncode(body),
-        headers: {'Content-Type': 'application/json'},
+
+        // body: jsonEncode(body),
+        headers: {"x-auth-token": token, 'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
@@ -312,10 +315,7 @@ class AuthRequest {
 
         if (responseBody["rsp"]) {
           Globals().successAlerts(
-              title: "Verification OTP",
-              content:
-                  "verification OTP sent to  ${Provider.of<appBloc>(context, listen: false).userDetails["phonenumber"]}",
-              context: context);
+              title: "Verification OTP", content: "", context: context);
 
           final String token = responseBody["token"];
           context.read<appBloc>().changeToken(token);
@@ -355,6 +355,7 @@ class AuthRequest {
     required BuildContext context,
     required String email,
     required String otp,
+    required bool isRegistered,
   }) async {
     final appBloc bloc = context.read<appBloc>();
 
@@ -389,7 +390,9 @@ class AuthRequest {
 
           // Delay navigation for a few seconds for better UX
           Future.delayed(Duration(seconds: 3));
-          Globals.switchScreens(context: context, screen: Commodities());
+          Globals.switchScreens(
+              context: context,
+              screen: isRegistered ? GlobalsHomePage() : Commodities());
 
           bloc.changeIsLoading(false); // Stop loading after success
         } else {
@@ -465,7 +468,15 @@ class AuthRequest {
           bloc.changeCurrentUserID(id: id);
 
           // Switch screens upon successful login
-          Globals.switchScreens(context: context, screen: GlobalsHomePage());
+
+          Globals.switchScreens(
+              context: context,
+              screen: Verification(
+                context: context,
+                email: email,
+                phoneNumber: null,
+                isRegistered: true,
+              ));
 
           print("Login successful: ${responseBody["message"]}");
         } else {
@@ -507,4 +518,126 @@ class AuthRequest {
       );
     }
   }
+
+
+  
+
+  static Future<GoogleSignInAccount?> signInWithGoogle() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    try {
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      return googleUser;
+    } catch (error) {
+      print("Error during Google Sign In: $error");
+      return null;
+    }
+  }
+
+
+static Future<void> registerWithGoogle({
+  required BuildContext context,
+}) async {
+  final appBloc bloc = Provider.of<appBloc>(context, listen: false);
+
+  try {
+    bloc.changeIsLoading(true);
+
+    // Initialize GoogleSignIn
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+
+    print("Attempting Google Sign-In");
+    
+    try {
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      
+      if (googleUser == null) {
+        print("Google Sign-In returned null user");
+        throw Exception('Google Sign-In failed: No user data received');
+      }
+
+      print("Google Sign-In successful. User: ${googleUser.email}");
+
+      // Get auth details from request
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      // Create credential
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      // Sign in to Firebase with credential
+      final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final User? user = userCredential.user;
+
+      if (user == null) {
+        throw Exception('Firebase Sign-In failed: No user data received');
+      }
+
+      // Prepare the request body for registration
+      final Map<String, dynamic> body = {
+        "email": user.email,
+        "name": user.displayName,
+        "auth_provider": "google",
+        "google_id": user.uid,
+        "user_type": 1,
+        "phone": user.phoneNumber ?? "0769922984", // Use Firebase phone if available, else default
+      };
+
+      final Uri url = Uri.parse("$main_url/user/register");
+
+      print("Sending registration request to: $url");
+      final http.Response response = await http.post(
+        url,
+        body: jsonEncode(body),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      print("Response Status: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+        if (responseBody["rsp"] == true) {
+          print("Registration successful: ${responseBody["message"]}");
+          bloc.getUserType(responseBody["user_type"]);
+          bloc.changeIsLoading(false);
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Verification(
+                isRegistered: false,
+                context: context,
+                email: user.email!,
+                phoneNumber: user.phoneNumber,
+              ),
+            ),
+          );
+        } else {
+          print("Registration failed: ${responseBody["message"]}");
+          _showErrorDialog(context, "Registration Error", responseBody["message"]);
+        }
+      } else {
+        print("Non-200 response: ${response.statusCode}");
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        String message = responseBody["message"] ?? "An error occurred";
+        _showErrorDialog(context, "Registration Error", message);
+      }
+
+    } on FirebaseAuthException catch (e) {
+      print("FirebaseAuthException: ${e.code} - ${e.message}");
+      _showErrorDialog(context, "Authentication Error", "An error occurred during Google Sign-In: ${e.message}");
+    } on PlatformException catch (e) {
+      print("PlatformException: ${e.code} - ${e.message}");
+      _showErrorDialog(context, "Platform Error", "An error occurred with the platform: ${e.message}");
+    }
+
+  } catch (e) {
+    print("Unexpected error during registration: $e");
+    _showErrorDialog(context, "Registration Error", "An unexpected error occurred during registration. Please try again later.");
+  } finally {
+    bloc.changeIsLoading(false);
+  }
+}
 }

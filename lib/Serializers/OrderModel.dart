@@ -70,7 +70,7 @@ class UserOrders {
   // Factory method to create a `UserOrders` object from JSON data
   factory UserOrders.fromJson(Map<String, dynamic> json) {
     print("[\\n order json $json]");
-    
+
     // Check for null values and print them
     List<String> keysToCheck = [
       'contract_id',
@@ -125,12 +125,12 @@ class UserOrders {
       bidPrice: json['bid_price'].toDouble(),
       bidType: json['bid_type'],
       bidDate: DateTime.parse(json['bid_date']),
-      maxPrice: json['max_price'] != null ? json['max_price'].toDouble() : null,
+      maxPrice: json['max_price'] != null ? json['max_price'].toDouble() : 0.0,
       sessionOpen: json['session_open'],
       isHighestBid: json['is_highest_bid'],
-      sessionCloseAt: json['session_close_at'] != null
+      sessionCloseAt: json['session_close_at'] != DateTime.now()
           ? DateTime.parse(json['session_close_at'])
-          : null,
+          : DateTime.now(),
       contractTypeId: json['contract_type_id'],
       commodityId: json['commodity_id'],
       qualityGradeId: json['quality_grade_id'],
@@ -139,7 +139,7 @@ class UserOrders {
       description: json['description'],
       closeDate: json['close_date'] != null
           ? DateTime.parse(json['close_date'])
-          : null,
+          : DateTime.now(),
       postedOn: DateTime.parse(json['posted_on']),
       closed: json['closed'],
       id: json['id'],

@@ -266,7 +266,7 @@ class _LiveAuctionScreenState extends State<LiveAuctionScreen>
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.green,
         title: Text(
           'Live Auction',
           style: GoogleFonts.poppins(

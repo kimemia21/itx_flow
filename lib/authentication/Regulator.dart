@@ -8,7 +8,10 @@ import 'package:itx/authentication/Authorization.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/requests/HomepageRequest.dart';
+import 'package:itx/requests/Requests.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 class Regulators extends StatefulWidget {
   @override
@@ -20,6 +23,8 @@ class _RegulatorsState extends State<Regulators> {
   int currentIndex = 0;
   Map<String, Map<String, dynamic>> formData = {};
   Map<String, List<String>> commodityAuthorities = {};
+  bool _isLoading = false;
+  String _message = '';
 
   @override
   void initState() {
@@ -64,7 +69,7 @@ class _RegulatorsState extends State<Regulators> {
 
     if (result != null && result.files.isNotEmpty) {
       setState(() {
-        controller.text = result.files.first.name;
+        controller.text = result.files.first.path!;
       });
     }
   }
@@ -82,7 +87,7 @@ class _RegulatorsState extends State<Regulators> {
     }
   }
 
-  Map<String, dynamic>? getFormData() {
+  Map<String, dynamic> getFormData() {
     if (_formKey.currentState?.validate() ?? false) {
       Map<String, dynamic> data = {};
       formData.forEach((commodity, commodityData) {
@@ -94,11 +99,95 @@ class _RegulatorsState extends State<Regulators> {
             commodityData["expiryDateController"].text;
         data["${commodity}_proof_of_payment"] =
             commodityData["proofOfPaymentController"].text;
+        data["${commodity}_certificate_file"] =
+            commodityData["certificateFileName"].text;
+        data["${commodity}_proof_of_payment_file"] =
+            commodityData["proofOfPaymentFileName"].text;
       });
-      print(data);
       return data;
     }
-    return null;
+    return {};
+  }
+
+  Future<void> uploadData() async {
+    setState(() {
+      _isLoading = true;
+      _message = '';
+    });
+
+    var data = getFormData();
+    if (data.isEmpty) {
+      setState(() {
+        _isLoading = false;
+        _message = 'No data to upload';
+      });
+      return;
+    }
+
+    var request = http.MultipartRequest(
+        'POST', Uri.parse('http://185.141.63.56:3067/api/v1/user/upload'));
+
+    // Add common fields
+    request.fields.addAll({
+      'api': '7',
+      'user': Provider.of<appBloc>(context)
+          .user_id
+          .toString(), // You might want to fill this with the actual user ID or leave it empty as in your example
+    });
+
+    for (var commodity in formData.keys) {
+      var commodityData = formData[commodity]!;
+
+      // Add certificate type and expiry for each commodity
+      request.fields['certificate_type'] = commodity;
+      request.fields['expiry'] = commodityData['expiryDateController'].text;
+
+      // Add certificate file
+      if (commodityData['certificateFileName'].text.isNotEmpty) {
+        request.files.add(await http.MultipartFile.fromPath(
+            'certificate', commodityData['certificateFileName'].text));
+      }
+
+      // Add proof of payment file
+      if (commodityData['proofOfPaymentFileName'].text.isNotEmpty) {
+        request.files.add(await http.MultipartFile.fromPath(
+            'payment_proof', commodityData['proofOfPaymentFileName'].text));
+      }
+
+      // Send the request for this commodity
+      try {
+        http.StreamedResponse response = await request.send();
+        if (response.statusCode == 200) {
+          print(await response.stream.bytesToString());
+          Globals.switchScreens(context: context, screen: Authorization());
+          // setState(() {
+          //   _message += 'Upload successful for $commodity\n';
+          // });
+        } else {
+          print(response.reasonPhrase);
+          Globals.warningsAlerts(
+              title: "Upload failed",
+              content:
+                  'Upload failed for $commodity: ${response.reasonPhrase}\n',
+              context: context);
+          // setState(() {
+          //   _message +=
+          //       'Upload failed for $commodity: ${response.reasonPhrase}\n';
+          // });
+        }
+      } catch (e) {
+        setState(() {
+          _message += 'Error uploading data for $commodity: $e\n';
+        });
+      }
+
+      // Clear the files for the next commodity
+      request.files.clear();
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<List<String>> _initializeData() async {
@@ -115,28 +204,24 @@ class _RegulatorsState extends State<Regulators> {
     }
   }
 
-  
   void _saveCurrentFormData() {
-    final currentCommodity = context.read<appBloc>().userCommodities[currentIndex].toString();
-    formData[currentCommodity]!['selectedAuthorityId'] = formData[currentCommodity]!['selectedAuthorityId'];
+    final currentCommodity =
+        context.read<appBloc>().userCommodities[currentIndex].toString();
+    formData[currentCommodity]!['selectedAuthorityId'] =
+        formData[currentCommodity]!['selectedAuthorityId'];
     // Save other form fields if necessary
   }
 
- void _nextForm() {
+  void _nextForm() {
     if (_formKey.currentState?.validate() ?? false) {
-      // Save the current form data
       _saveCurrentFormData();
-      
+
       if (currentIndex < context.read<appBloc>().userCommodities.length - 1) {
         setState(() {
           currentIndex++;
         });
       } else {
-        final data = getFormData();
-        if (data != null) {
-          
-          print(data);
-        }
+        uploadData(); // Call the new upload method
       }
     }
   }
@@ -154,17 +239,14 @@ class _RegulatorsState extends State<Regulators> {
   void _backForm() {
     if (currentIndex > 0) {
       setState(() {
-        currentIndex--; // Move back one step
+        currentIndex--;
       });
     } else {
-      Globals.switchScreens(
-          context: context,
-          screen: Commodities()); // Go back to the previous screen
+      Globals.switchScreens(context: context, screen: Commodities());
     }
   }
 
   Color _getButtonColor({required String fileName}) {
-    // final fileName = formData[commodity]!['certificateFileName'].text;
     if (fileName.isEmpty) {
       return Colors.red.shade400;
     } else if (fileName.toLowerCase().endsWith('.pdf')) {
@@ -174,29 +256,31 @@ class _RegulatorsState extends State<Regulators> {
     }
   }
 
-  Widget buttons({required void Function() onPressed, required String title, required Color color}) {
+  Widget buttons(
+      {required void Function() onPressed,
+      required String title,
+      required Color color}) {
     return ElevatedButton(
       onPressed: onPressed,
       child: Text(
         title,
         style: GoogleFonts.poppins(
-          color:
-              Colors.black87, // Slightly darker text color for better contrast
+          color: Colors.black87,
           fontWeight: FontWeight.w600,
-          fontSize: 16, // Increase font size for readability
+          fontSize: 16,
         ),
       ),
       style: ElevatedButton.styleFrom(
-        backgroundColor: color, // Softer background color
+        backgroundColor: color,
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25), // Rounded corners
+          borderRadius: BorderRadius.circular(25),
         ),
-        elevation: 5, // Elevation to give the button a 3D look
-        shadowColor: Colors.black26, // Subtle shadow effect
+        elevation: 5,
+        shadowColor: Colors.black26,
         side: BorderSide(
-          color: color, // Border color for a more defined look
-          width: 2, // Border width
+          color: color,
+          width: 2,
         ),
         textStyle: GoogleFonts.poppins(
           fontWeight: FontWeight.w500,
@@ -207,6 +291,18 @@ class _RegulatorsState extends State<Regulators> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_message.isNotEmpty) {
+      return Scaffold(
+        body: Center(child: Text(_message)),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
@@ -250,7 +346,6 @@ class _RegulatorsState extends State<Regulators> {
                       onPressed: () {
                         Globals.switchScreens(
                             context: context, screen: Commodities());
-                        // Logic for selecting commodities goes here
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
@@ -258,7 +353,7 @@ class _RegulatorsState extends State<Regulators> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        backgroundColor: Colors.green.shade800, // Button color
+                        backgroundColor: Colors.green.shade800,
                       ),
                       child: const Text(
                         "Select Commodities",
@@ -295,33 +390,20 @@ class _RegulatorsState extends State<Regulators> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          buttons(onPressed: _backForm, title: "Back", color: Colors.grey.shade300),
-                          buttons(onPressed: _skipForm, title: "Skip", color: Colors.grey.shade300),
-                         buttons(onPressed: _nextForm, title:  currentIndex == commodities.length - 1
+                          buttons(
+                              onPressed: _backForm,
+                              title: "Back",
+                              color: Colors.grey.shade300),
+                          buttons(
+                              onPressed: _skipForm,
+                              title: "Skip",
+                              color: Colors.grey.shade300),
+                          buttons(
+                              onPressed: _nextForm,
+                              title: currentIndex == commodities.length - 1
                                   ? 'Submit'
-                                  : 'Next', color:  Colors.green.shade800),
-
-
-                    
-                          // ElevatedButton(
-                          //   onPressed: _nextForm,
-                          //   child: Text(
-                          //     currentIndex == commodities.length - 1
-                          //         ? 'Submit'
-                          //         : 'Next',
-                          //     style: GoogleFonts.poppins(
-                          //         color: Colors.white,
-                          //         fontWeight: FontWeight.w600),
-                          //   ),
-                          //   style: ElevatedButton.styleFrom(
-                          //     backgroundColor: Colors.green.shade800,
-                          //     padding: EdgeInsets.symmetric(
-                          //         vertical: 15, horizontal: 20),
-                          //     textStyle: GoogleFonts.poppins(
-                          //       fontWeight: FontWeight.w500,
-                          //     ),
-                          //   ),
-                          // ),
+                                  : 'Next',
+                              color: Colors.green.shade800),
                         ],
                       ),
                     ],
@@ -339,18 +421,19 @@ class _RegulatorsState extends State<Regulators> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-            _buildFormField(
+        _buildFormField(
           'Authority',
           StatefulBuilder(
             builder: (BuildContext context, StateSetter setDropdownState) {
               return DropdownButtonFormField<String>(
                 value: formData[commodity]!['selectedAuthorityId'],
                 items: commodityAuthorities[commodity]?.map((String authority) {
-                  return DropdownMenuItem<String>(
-                    value: authority,
-                    child: Text(authority),
-                  );
-                }).toList() ?? [],
+                      return DropdownMenuItem<String>(
+                        value: authority,
+                        child: Text(authority),
+                      );
+                    }).toList() ??
+                    [],
                 onChanged: (String? newValue) {
                   setDropdownState(() {
                     formData[commodity]!['selectedAuthorityId'] = newValue;
@@ -365,7 +448,8 @@ class _RegulatorsState extends State<Regulators> {
                   filled: true,
                   fillColor: Colors.white,
                 ),
-                validator: (value) => value == null ? 'Please select an authority' : null,
+                validator: (value) =>
+                    value == null ? 'Please select an authority' : null,
               );
             },
           ),
@@ -378,10 +462,7 @@ class _RegulatorsState extends State<Regulators> {
               hintText: 'Enter or upload certificate URL',
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none
-                  //  BorderSide(color: Colors.grey
-                  //  ),
-                  ),
+                  borderSide: BorderSide.none),
               filled: true,
               fillColor: Colors.white,
               contentPadding:
@@ -392,7 +473,6 @@ class _RegulatorsState extends State<Regulators> {
                 : null,
           ),
         ),
-        // SizedBox(height: 4),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -455,19 +535,15 @@ class _RegulatorsState extends State<Regulators> {
             ),
           ],
         ),
-
         _buildFormField(
           'Expiry Date',
           TextFormField(
             controller: formData[commodity]!['expiryDateController'],
             decoration: InputDecoration(
-              hintText: 'Select  $commodity Certificate Expiry Date',
+              hintText: 'Select $commodity Certificate Expiry Date',
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none
-                  //  BorderSide(color: Colors.grey
-                  //  ),
-                  ),
+                  borderSide: BorderSide.none),
               filled: true,
               fillColor: Colors.white,
               contentPadding:
@@ -483,7 +559,6 @@ class _RegulatorsState extends State<Regulators> {
             },
           ),
         ),
-        // SizedBox(height: 8),
         _buildFormField(
           'Proof of Payment',
           TextFormField(
@@ -492,10 +567,7 @@ class _RegulatorsState extends State<Regulators> {
               hintText: 'Enter or upload proof of payment',
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide.none
-                  //  BorderSide(color: Colors.grey
-                  //  ),
-                  ),
+                  borderSide: BorderSide.none),
               filled: true,
               fillColor: Colors.white,
               contentPadding:

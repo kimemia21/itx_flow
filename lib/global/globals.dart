@@ -344,6 +344,68 @@ class Globals {
     );
   }
 
+  static Widget buildErrorState({required void Function() function,required String items}) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.error_outline, size: 48, color: Colors.red),
+          const SizedBox(height: 10),
+          Text(
+            'Error loading $items. Please try again.',
+            style: GoogleFonts.poppins(fontSize: 18, color: Colors.black54),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: function,
+            child: Text(
+              'Refresh',
+              style: GoogleFonts.poppins(color: Colors.white),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green.shade400,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+   static  Widget buildNoDataState({required void Function() function ,required String item}) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.info_outline, size: 48, color: Colors.black54),
+          const SizedBox(height: 10),
+          Text(
+            'No $item available',
+            style: GoogleFonts.poppins(fontSize: 18, color: Colors.black54),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: function,
+            child:  Text('Refresh',style: GoogleFonts.poppins(color: Colors.white),),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green.shade400,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   static Map authErrors = {
     "admin-restricted-operation":
         "This operation is restricted to administrators only.",

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
+import 'package:itx/requests/Requests.dart';
 
 class PaymentInfoForm extends StatefulWidget {
   final ContractsModel contract;
@@ -21,15 +22,15 @@ class PaymentInfoForm extends StatefulWidget {
 class _PaymentInfoFormState extends State<PaymentInfoForm> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _phoneController;
-  final TextEditingController _cardNumberController = TextEditingController();
-  final TextEditingController _expirationDateController =
+  late TextEditingController _cardNumberController = TextEditingController();
+  late TextEditingController _expirationDateController =
       TextEditingController();
-  final TextEditingController _cvvController = TextEditingController();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _cityController = TextEditingController();
-  final TextEditingController _countryController = TextEditingController();
-  final TextEditingController _zipCodeController = TextEditingController();
+  late TextEditingController _cvvController = TextEditingController();
+  late TextEditingController _nameController = TextEditingController();
+  late TextEditingController _addressController = TextEditingController();
+  late TextEditingController _cityController = TextEditingController();
+  late TextEditingController _countryController = TextEditingController();
+  late TextEditingController _zipCodeController = TextEditingController();
   late TextEditingController _emailController;
 
   @override
@@ -37,6 +38,19 @@ class _PaymentInfoFormState extends State<PaymentInfoForm> {
     super.initState();
     _phoneController = TextEditingController(text: widget.contactPhone);
     _emailController = TextEditingController(text: widget.contactEmail);
+    _phoneController = TextEditingController(text: widget.contactPhone);
+    _emailController = TextEditingController(text: widget.contactEmail);
+    _cardNumberController =
+        TextEditingController(text: '1234 5678 9012 3456'); // Dummy card number
+    _expirationDateController =
+        TextEditingController(text: '12/34'); // Dummy expiration date
+    _cvvController = TextEditingController(text: '123'); // Dummy CVV
+    _nameController = TextEditingController(text: 'John Doe'); // Dummy name
+    _addressController =
+        TextEditingController(text: '123 Main St'); // Dummy address
+    _cityController = TextEditingController(text: 'New York'); // Dummy city
+    _countryController = TextEditingController(text: 'USA'); // Dummy country
+    _zipCodeController = TextEditingController(text: '10001'); // Dummy ZIP code
   }
 
   @override
@@ -249,12 +263,10 @@ class _PaymentInfoFormState extends State<PaymentInfoForm> {
         ),
       ),
       actions: [
-        
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red, // Button background color
-            padding: EdgeInsets.symmetric(
-                horizontal: 12, vertical: 12), 
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15), // Rounded corners
             ),
@@ -273,7 +285,9 @@ class _PaymentInfoFormState extends State<PaymentInfoForm> {
             ),
           ),
         ),
-        SizedBox(width: 40,),
+        SizedBox(
+          width: 40,
+        ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green[700], // Button background color
@@ -285,7 +299,7 @@ class _PaymentInfoFormState extends State<PaymentInfoForm> {
             elevation: 5, // Shadow elevation for a subtle shadow effect
             shadowColor: Colors.black.withOpacity(0.3), // Shadow color
           ),
-          onPressed: () {
+          onPressed: () async {
             if (_formKey.currentState!.validate()) {
               // Process the payment information here
               print('Payment information submitted:');
@@ -301,7 +315,14 @@ class _PaymentInfoFormState extends State<PaymentInfoForm> {
               print('City: ${_cityController.text}');
               print('Country: ${_countryController.text}');
               print('ZIP Code: ${_zipCodeController.text}');
-              Navigator.of(context).pop();
+              await AuthRequest.createOrder(
+                context,
+                {"order_price": widget.contract.price, "order_type": "BUY"},
+                widget.contract.contractId,
+              );
+              showPaymentSuccessAlert(context, widget.contract.price.toString());
+
+              // Navigator.of(context).pop();
             }
           },
           child: const Text(
@@ -316,4 +337,72 @@ class _PaymentInfoFormState extends State<PaymentInfoForm> {
       ],
     );
   }
+}
+
+void showPaymentSuccessAlert(BuildContext context, String amount) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20), // Rounded corners
+        ),
+        contentPadding: EdgeInsets.all(20), // Padding for the dialog content
+        backgroundColor: Colors.white, // Dialog background color
+        content: Column(
+          mainAxisSize: MainAxisSize.min, // Minimize the height of the dialog
+          children: [
+            Icon(
+              Icons.check_circle_outline,
+              color: Colors.green,
+              size: 80, // Large checkmark icon
+            ),
+            SizedBox(height: 16), // Spacing between icon and text
+            Text(
+              'Payment Successful!',
+              style: TextStyle(
+                fontSize: 22, // Larger font size for emphasis
+                fontWeight: FontWeight.bold, // Bold font for emphasis
+                color: Colors.black, // Text color
+              ),
+            ),
+            SizedBox(height: 8), // Spacing between title and subtitle
+            Text(
+              'Thank you for your $amount   payment. Your transaction has been processed.',
+              textAlign: TextAlign.center, // Center-align the text
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[700], // Subtle color for the subtitle
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green, // Button color
+                padding: EdgeInsets.symmetric(
+                    horizontal: 24, vertical: 12), // Button padding
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12), // Button shape
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the alert dialog
+              },
+              child: Text(
+                'Close',
+                style: TextStyle(
+                  fontSize: 16, // Button text size
+                  fontWeight: FontWeight.bold, // Bold text for the button
+                  color: Colors.white, // Button text color
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    },
+  );
 }

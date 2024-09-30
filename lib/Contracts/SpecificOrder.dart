@@ -147,6 +147,27 @@ Future<void> fetchCompanyAndPriceHistory() async {
           ),
         ).animate().fadeIn(duration: 500.ms).slideX(),
         SizedBox(height: 10),
+         Text(
+          widget.contract.description,
+
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+            color: Colors.black,
+          ),
+        ).animate().fadeIn(duration: 500.ms).slideX(),
+        SizedBox(height: 5),
+         SizedBox(height: 5),
+         Text(
+          "Delivery date ${DateFormat('MM/dd/yy').format(widget.contract.deliveryDate)}" ,
+          
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+            color: Colors.black,
+          ),
+        ).animate().fadeIn(duration: 500.ms).slideX(),
+        SizedBox(height: 5),
         Row(
           children: [
             Text(
@@ -343,7 +364,7 @@ Future<void> fetchCompanyAndPriceHistory() async {
                 final userType =
                     Provider.of<appBloc>(context, listen: false).user_type;
                 print(userType);
-                if (userType == "individua") {
+                if (userType == "individual") {
                   print("true");
                   showDialog(
                     context: context,

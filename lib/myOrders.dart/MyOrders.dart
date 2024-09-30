@@ -108,32 +108,72 @@ class _UserOrdersScreenState extends State<UserOrdersScreen> {
             );
           } else if (snapshot.hasError) {
             return Center(
-              child: Text(
-                'Failed to load orders',
-                style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    color: Colors.red,
-                    fontWeight: FontWeight.w500),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.warning_amber_rounded,
+                      size: 48, color: Colors.black54),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Error occurred. Please try again.',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black54,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _futureOrders = loadOrders();
+                      });
+                    },
+                    icon: Icon(Icons.refresh),
+                    label: Text("Retry"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                    ),
+                  ),
+                ],
               ),
             );
           } else if (snapshot.hasData && snapshot.data!.isEmpty) {
             return Center(
-              child: Text(
-                'No orders found',
-                style: GoogleFonts.poppins(
-                    fontSize: 18, fontWeight: FontWeight.w500),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'No orders found',
+                    style: GoogleFonts.poppins(
+                        fontSize: 18, fontWeight: FontWeight.w500),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _futureOrders = loadOrders();
+                      });
+                    },
+                    icon: Icon(Icons.refresh),
+                    label: Text("Refresh"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                    ),
+                  ),
+                ],
               ),
             );
           } else if (snapshot.hasData) {
             final myorders = snapshot.data!;
             final paidOrders =
-                myorders.where((order) => order.orderStatus == "PAID").toList();
+                myorders.where((order) => order.orderStatus != "").toList();
             return RefreshIndicator(
               onRefresh: () async {
                 setState(() {
                   _futureOrders = loadOrders();
                 });
-                // return _futureOrders!;
               },
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -151,10 +191,7 @@ class _UserOrdersScreenState extends State<UserOrdersScreen> {
                       ),
                     ),
                     ...myorders.map((order) {
-                      return contractInfo(
-                        context: context,
-                        order: order
-                      );
+                      return contractInfo(context: context, order: order);
                     }).toList(),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
@@ -186,15 +223,7 @@ class _UserOrdersScreenState extends State<UserOrdersScreen> {
                                 deliveryDate: order.deliveryDate,
                                 status: order.orderStatus,
                                 onTap: () {
-                                  // Globals.switchScreens(
-                                  //   context: context,
-                                  //   screen: Specificorder(
-                                  //     item: order.name,
-                                  //     price: order.price,
-                                  //     quantity: order.description,
-                                  //     companyId: order.userCompanyId.toString(),
-                                  //   ),
-                                  // );
+                                  // Action on tap
                                 },
                               );
                             }).toList(),

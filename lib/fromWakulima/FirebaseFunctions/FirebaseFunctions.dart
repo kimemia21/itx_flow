@@ -67,7 +67,8 @@ Future<void> signInWithEmailAndPassword({
       Globals.switchScreens(context: context, screen: GlobalsHomePage());
     } else {
       // Navigate to VerifyEmail screen if email is not verified
-      Globals.switchScreens(context: context, screen: VerifyEmail(email: email));
+      Globals.switchScreens(
+          context: context, screen: VerifyEmail(email: email));
     }
 
     print("Email signup is $email");
@@ -209,14 +210,16 @@ class Authentication {
     FirebaseAuth auth = FirebaseAuth.instance;
     User? user;
 
-    final GoogleSignIn googleSignIn = GoogleSignIn();
+ final GoogleSignIn googleSignIn = GoogleSignIn();
 
     try {
       final GoogleSignInAccount? googleSignInAccount =
           await googleSignIn.signIn();
+
       print("Google Sign-In account retrieved: ${googleSignInAccount != null}");
 
       if (googleSignInAccount != null) {
+        print("true ----------$googleSignInAccount");
         final GoogleSignInAuthentication googleSignInAuthentication =
             await googleSignInAccount.authentication;
 

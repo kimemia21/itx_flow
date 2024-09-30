@@ -28,11 +28,7 @@ class _HomePageOrdersState extends State<HomePageOrders>
   @override
   void initState() {
     super.initState();
-    _futureOrders = loadOrders();
-    _futureOrders?.then((orders) {
-      widget.onOrderCountChanged(orders.length);
-    });
-
+    _loadOrders();
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
@@ -46,6 +42,16 @@ class _HomePageOrdersState extends State<HomePageOrders>
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  void _loadOrders() {
+    setState(() {
+      _futureOrders = loadOrders();
+      // _futureOrders
+      // ?.then((orders) {
+      //   widget.onOrderCountChanged(orders.length);
+      // });
+    });
   }
 
   Future<List<UserOrders>> loadOrders() async {
@@ -85,10 +91,9 @@ class _HomePageOrdersState extends State<HomePageOrders>
                             child: Text(
                               order.name,
                               style: GoogleFonts.poppins(
-                                fontSize: 16, // Adjusted for homepage
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors
-                                    .black87, // Slightly darker color for readability
+                                color: Colors.black87,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -105,8 +110,7 @@ class _HomePageOrdersState extends State<HomePageOrders>
                           Text(
                             'Bid Price: \$${order.bidPrice.toStringAsFixed(2)}',
                             style: GoogleFonts.poppins(
-                              fontSize:
-                                  14, // Slightly smaller for secondary text
+                              fontSize: 14,
                               color: Colors.green.shade600,
                             ),
                           ),
@@ -121,9 +125,8 @@ class _HomePageOrdersState extends State<HomePageOrders>
                           Text(
                             'Delivery: ${_formatDate(order.deliveryDate)}',
                             style: GoogleFonts.poppins(
-                              fontSize: 14, // Adjusted for homepage
-                              color: Colors
-                                  .black54, // Neutral color for less important text
+                              fontSize: 14,
+                              color: Colors.black54,
                             ),
                           ),
                         ],
@@ -159,7 +162,7 @@ class _HomePageOrdersState extends State<HomePageOrders>
       label: Text(
         status,
         style: GoogleFonts.poppins(
-          fontSize: 12, // Chip text size
+          fontSize: 12,
           color: Colors.white,
         ),
       ),
@@ -176,124 +179,94 @@ class _HomePageOrdersState extends State<HomePageOrders>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      body: Visibility(
-        visible: _futureOrders != null,
-        child: FutureBuilder<List<UserOrders>>(
-          future: _futureOrders,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text(
-                  'Failed to load orders',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    color: Colors.red,
-                  ),
-                ),
-              );
-            } else if (snapshot.hasData && snapshot.data!.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.warning_amber_rounded,
-                        size: 48, color: Colors.black54),
-                    const SizedBox(height: 10),
-                    Text(
-                      'No Orders available',
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black54,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              );
-            } else if (snapshot.hasData) {
-              final myorders = snapshot.data!;
-              final limitedOrders = myorders.take(3).toList();
+      body: FutureBuilder<List<UserOrders>>(
+        future: _futureOrders,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            print("Orders error ${snapshot.error}");
 
-              return Column(
-                children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'My Orders',
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.green.shade800,
-                          ),
-                        ),
-                        TextButton(
-                            onPressed: () =>
-                                PersistentNavBarNavigator.pushNewScreen(
-                                    withNavBar: true,
+            return Globals.buildErrorState(function: _loadOrders,items: "Orders");
+          } else if (snapshot.hasData && snapshot.data!.isEmpty) {
+            return Globals.buildNoDataState(function: _loadOrders,item: "Orders");
+          } else if (snapshot.hasData) {
+            final myorders = snapshot.data!;
+            final limitedOrders = myorders.take(3).toList();
+
+            return Column(
+              children: [
+                _buildHeader(),
+                Expanded(
+                  child: AnimationLimiter(
+                    child: ListView.builder(
+                      itemCount: limitedOrders.length,
+                      itemBuilder: (context, index) {
+                        final order = limitedOrders[index];
+                        return AnimationConfiguration.staggeredList(
+                          position: index,
+                          duration: const Duration(milliseconds: 375),
+                          child: SlideAnimation(
+                            verticalOffset: 50.0,
+                            child: FadeInAnimation(
+                              child: contractCard(
+                                order: order,
+                                onTap: () {
+                                  PersistentNavBarNavigator.pushNewScreen(
                                     context,
-                                    screen: UserOrdersScreen()),
-                            child: Text(
-                              'See all',
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.blue,
-                              ),
-                            )),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: AnimationLimiter(
-                      child: ListView.builder(
-                        itemCount: limitedOrders.length,
-                        itemBuilder: (context, index) {
-                          final order = limitedOrders[index];
-                          return AnimationConfiguration.staggeredList(
-                            position: index,
-                            duration: const Duration(milliseconds: 375),
-                            child: SlideAnimation(
-                              verticalOffset: 50.0,
-                              child: FadeInAnimation(
-                                child: contractCard(
-                                  order: order,
-                                  onTap: () {
-                                    PersistentNavBarNavigator.pushNewScreen(
-                                      context,
-                                      screen: OrderDetails(order: order),
-                                    );
-                                  },
-                                ),
+                                    screen: OrderDetails(order: order),
+                                  );
+                                },
                               ),
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
                     ),
                   ),
-                ],
-              );
-            } else {
-              return Center(
-                child: Text(
-                  'Unknown error occurred',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    color: Colors.black87,
-                  ),
                 ),
-              );
-            }
-          },
-        ),
+              ],
+            );
+          } else {
+            return Globals.buildErrorState(function: _loadOrders,items: "Order");
+          }
+        },
       ),
     );
   }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'My Orders',
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Colors.green.shade800,
+            ),
+          ),
+          TextButton(
+            onPressed: () => PersistentNavBarNavigator.pushNewScreen(context,
+                screen: UserOrdersScreen()),
+            child: Text(
+              'See all',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                color: Colors.blue,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
+ 
 }

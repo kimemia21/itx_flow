@@ -85,9 +85,7 @@ class _MainLoginScreenState extends State<MainLoginScreen> {
           ),
           child: IconButton(
             onPressed: () {
-
               Globals.switchScreens(context: context, screen: Splashscreen());
-              
             },
             icon: Icon(
               Icons.arrow_back,
@@ -266,6 +264,9 @@ class _MainLoginScreenState extends State<MainLoginScreen> {
                     margin: EdgeInsets.only(top: screenHeight * 0.02),
                     child: GoogleAuthButton(
                       onPressed: () async {
+                      //  Authentication.signInWithGoogle(context: context);
+                      AuthRequest.registerWithGoogle(context: context);
+
                         // bool connection = await checkInternetConnection(context);
                         // if (connection) {
                         //   Authentication.signInWithGoogle(context: context);

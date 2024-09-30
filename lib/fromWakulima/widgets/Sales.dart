@@ -7,7 +7,6 @@ import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/authentication/LoginScreen.dart';
-import 'package:itx/fromWakulima/widgets/AllListing.dart';
 import 'package:itx/fromWakulima/widgets/Arrivals.dart';
 import 'package:itx/fromWakulima/widgets/Deals.dart';
 import 'package:itx/fromWakulima/widgets/Popular.dart';
@@ -204,7 +203,7 @@ class _SelectionState extends State<Selection> {
       appBar: appbar(context),
       body: SingleChildScrollView(
         child: Column(
-          children: [TopBar(), popular(context), Arrivals(), Alllisting()],
+          children: [TopBar(), popular(context), Arrivals()],
         ),
       ),
     );
