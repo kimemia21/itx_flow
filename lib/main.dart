@@ -4,13 +4,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:itx/authentication/LoginScreen.dart';
-import 'package:itx/authentication/Regulator.dart';
+import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:itx/authentication/SplashScreen.dart';
 import 'package:itx/firebase_options.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/web/CreateAccount.dart';
+import 'package:itx/web/SignInWeb.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -48,7 +49,7 @@ class _GetPlatformState extends State<GetPlatform> {
     final appBloc bloc = context.watch<appBloc>();
     // Web platform
     if (kIsWeb) {
-      return bloc.token == "" ? CreateAccountScreen() : CreateAccountScreen();
+      return bloc.token == "" ? SignInWeb() :  SignInWeb();
     }
     // Android or iOS platform
     else if (Platform.isAndroid || Platform.isIOS) {

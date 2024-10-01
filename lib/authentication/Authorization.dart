@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Contracts/Contracts.dart';
-import 'package:itx/authentication/Regulator.dart';
+import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 
 import 'package:itx/global/globals.dart';

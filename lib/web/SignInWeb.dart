@@ -1,161 +1,121 @@
-import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/authentication/SignUp.dart';
 import 'package:itx/authentication/SplashScreen.dart';
-import 'package:itx/fromWakulima/FirebaseFunctions/FirebaseFunctions.dart';
-import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/web/CreateAccount.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:provider/provider.dart';
-import 'package:auth_buttons/auth_buttons.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 
-
-class SigninWeb extends StatefulWidget {
-  const SigninWeb({super.key});
+class SignInWeb extends StatefulWidget {
+  const SignInWeb({Key? key}) : super(key: key);
 
   @override
-  State<SigninWeb> createState() => _SigninWebState();
+  State<SignInWeb> createState() => _SignInWebState();
 }
 
-class _SigninWebState extends State<SigninWeb> {
-  final GlobalKey<FormState> _formState = GlobalKey<FormState>();
-  late StreamSubscription<List<ConnectivityResult>> subscription;
+class _SignInWebState extends State<SignInWeb> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool isLoading = false;
   bool visibility = true;
-  bool isConnected = false;
-  bool darkMode = false;
-  ThemeMode get themeMode => darkMode ? ThemeMode.dark : ThemeMode.light;
-
-  AuthButtonType? buttonType;
-  AuthIconType? iconType;
 
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  final Connectivity _connectivity = Connectivity();
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    subscription.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double formWidth = screenWidth > 600 ? 600 : screenWidth * 0.75;
-
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: AppBar(
-        automaticallyImplyLeading: true,
         backgroundColor: Colors.grey.shade100,
+        elevation: 0,
         centerTitle: true,
         title: Text(
           "Login",
           style: GoogleFonts.poppins(
-              color: Colors.black54, fontWeight: FontWeight.w500),
+            color: Colors.black54,
+            fontWeight: FontWeight.w500,
+            fontSize: 24,
+          ),
         ),
+
         // leading: Container(
-        //   margin: EdgeInsets.only(left: 10),
-        //   width: 2,
-        //   height: 2,
+        //   margin: const EdgeInsets.only(left: 16),
         //   decoration: BoxDecoration(
         //     color: Colors.grey.shade300,
-        //     borderRadius: BorderRadius.circular(20),
+        //     borderRadius: BorderRadius.circular(8),
+        //     boxShadow: [
+        //       BoxShadow(
+        //         color: Colors.black.withOpacity(0.1),
+        //         blurRadius: 5,
+        //         offset: const Offset(0, 2),
+        //       ),
+        //     ],
         //   ),
         //   child: IconButton(
-        //     onPressed: () {
-        //       Globals.switchScreens(context: context, screen: Splashscreen());
-        //     },
-        //     icon: Icon(
-        //       Icons.arrow_back,
-        //       color: Colors.black,
-        //     ),
+        //     onPressed: () => Globals.switchScreens(context: context, screen: Splashscreen()),
+        //     icon: const Icon(Icons.arrow_back, color: Colors.black),
         //   ),
         // ),
       ),
       body: Center(
-        child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
-          child: Container(
-            width: formWidth,
-            padding: EdgeInsets.symmetric(vertical: 20),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(40),
-            ),
-            child: Form(
-              key: _formState,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    "Login to your Account",
-                    style: GoogleFonts.abel(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      "Login to your Account",
+                      style: GoogleFonts.abel(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "Welcome to our App, Please login to continue",
-                    style: GoogleFonts.abel(),
-                  ),
-                  SizedBox(height: 20),
-                  _buildTextField(
-                    controller: _emailController,
-                    labelText: "Email",
-                    icon: CupertinoIcons.mail_solid,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Email is empty";
-                      }
-                      if (!RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$")
-                          .hasMatch(value)) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 10),
-                  _buildTextField(
-                    controller: _passwordController,
-                    labelText: "Password",
-                    icon: CupertinoIcons.padlock_solid,
-                    obscureText: visibility,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        visibility
-                            ? CupertinoIcons.eye_slash_fill
-                            : CupertinoIcons.eye_fill,
+                    const SizedBox(height: 16),
+                    Text(
+                      "Welcome to our App, Please login to continue",
+                      style: GoogleFonts.abel(
+                        fontSize: 16,
                         color: Colors.black54,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          visibility = !visibility;
-                        });
-                      },
+                      textAlign: TextAlign.center,
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Password is empty";
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  _buildLoginButton(context),
-                  SizedBox(height: 15),
-                  // _buildGoogleButton(context),
-                  SizedBox(height: 15),
-                  _buildSignUpButton(context),
-                ],
+                    const SizedBox(height: 32),
+                    _buildInputField(
+                      controller: _emailController,
+                      label: "Email",
+                      icon: CupertinoIcons.mail_solid,
+                      isPassword: false,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildInputField(
+                      controller: _passwordController,
+                      label: "Password",
+                      icon: CupertinoIcons.padlock_solid,
+                      isPassword: true,
+                      visibility: visibility,
+                      toggleVisibility: () => setState(() => visibility = !visibility),
+                    ),
+                    const SizedBox(height: 32),
+                    _buildLoginButton(),
+                    const SizedBox(height: 16),
+                    _buildSignupButton(),
+                  ],
+                ),
               ),
             ),
           ),
@@ -164,137 +124,104 @@ class _SigninWebState extends State<SigninWeb> {
     );
   }
 
-  Widget _buildTextField({
+  Widget _buildInputField({
     required TextEditingController controller,
-    required String labelText,
+    required String label,
     required IconData icon,
-    bool obscureText = false,
-    Widget? suffixIcon,
-    String? Function(String?)? validator,
+    bool isPassword = false,
+    bool? visibility,
+    VoidCallback? toggleVisibility,
   }) {
     return Container(
-      height: 60,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: TextFormField(
+        obscureText: isPassword ? visibility! : false,
         controller: controller,
         cursorColor: Colors.black,
-        obscureText: obscureText,
         decoration: InputDecoration(
-          labelText: labelText,
+          labelText: label,
           labelStyle: GoogleFonts.poppins(
-            fontSize: 12,
-            color: Colors.black,
+            fontSize: 14,
+            color: Colors.black54,
           ),
-          prefixIcon: Icon(icon, color: Colors.black54),
-          suffixIcon: suffixIcon,
-          border: InputBorder.none,
-          focusedBorder: OutlineInputBorder(
+          prefixIcon: Icon(icon, color: Colors.black54, size: 20),
+          suffixIcon: isPassword
+              ? IconButton(
+                  icon: Icon(
+                    visibility! ? CupertinoIcons.eye_slash_fill : CupertinoIcons.eye_fill,
+                    size: 20,
+                  ),
+                  color: Colors.black54,
+                  onPressed: toggleVisibility,
+                )
+              : null,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide.none,
           ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide(color: Colors.green.shade400, width: 2),
+          ),
+          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
         ),
-        validator: validator,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return "$label is required";
+          }
+          return null;
+        },
       ),
     );
   }
 
-  Widget _buildLoginButton(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        if (_formState.currentState!.validate()) {
-          signInWithEmailAndPassword(
-            context: context,
-            email: _emailController.text.trim(),
-            password: _passwordController.text.trim(),
-          );
+  Widget _buildLoginButton() {
+    return ElevatedButton(
+      onPressed: () {
+        if (_formKey.currentState!.validate()) {
+          // Add your authentication logic here
         }
       },
-      child: Container(
-        alignment: Alignment.center,
-        height: 40,
-        decoration: BoxDecoration(
-          color: Colors.green.shade500,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: TextButton(
-          onPressed: () async {
-            if (_formState.currentState!.validate()) {
-              bool connection = await checkInternetConnection(context);
-              if (connection) {
-                signInWithEmailAndPassword(
-                  context: context,
-                  email: _emailController.text.trim(),
-                  password: _passwordController.text.trim(),
-                );
-              } else {
-                Globals().nointernet(context: context);
-              }
-            }
-          },
-          child: context.watch<CurrentUserProvider>().isLoading
-              ? LoadingAnimationWidget.staggeredDotsWave(
-                  color: Colors.white, size: 25)
-              : Text(
-                  "Login",
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-        ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.green.shade500,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
+      child: isLoading
+          ? LoadingAnimationWidget.staggeredDotsWave(
+              color: Colors.white,
+              size: 24,
+            )
+          : Text(
+              "Login",
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
     );
   }
 
-  // Widget _buildGoogleButton(BuildContext context) {
-  //   return GoogleAuthButton(
-  //     onPressed: () async {
-  //       bool connection = await checkInternetConnection(context);
-  //       if (connection) {
-  //         Authentication.signInWithGoogle(context: context);
-  //       } else {
-  //         Globals().nointernet(context: context);
-  //       }
-  //     },
-  //     themeMode: themeMode,
-  //     isLoading: isLoading,
-  //     style: AuthButtonStyle(
-  //       width: MediaQuery.of(context).size.width > 600
-  //           ? 600 * 0.75
-  //           : MediaQuery.of(context).size.width * 0.75,
-  //       textStyle: GoogleFonts.poppins(
-  //         color: Colors.black54,
-  //         fontWeight: FontWeight.w600,
-  //       ),
-  //       buttonType: buttonType,
-  //       iconType: iconType,
-  //     ),
-  //   );
-  // }
-
-  Widget _buildSignUpButton(BuildContext context) {
-    return Container(
-      height: 40,
-      width: MediaQuery.of(context).size.width > 600
-          ? 600 * 0.25
-          : MediaQuery.of(context).size.width * 0.25,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: TextButton(
-        onPressed: () {
-          Globals.switchScreens(context: context, screen: CreateAccountScreen());
-        },
-        child: Text(
-          "Sign up",
-          style: GoogleFonts.abel(
-            color: Colors.blue.shade300,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+  Widget _buildSignupButton() {
+    return TextButton(
+      onPressed: () => Globals.switchScreens(context: context, screen: MainSignupWeb()),
+      child: Text(
+        "Don't have an account? Sign up",
+        style: GoogleFonts.abel(
+          color: Colors.blue.shade700,
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
         ),
       ),
     );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:itx/authentication/Regulator.dart';
+import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/globals.dart';
 import 'package:provider/provider.dart';
@@ -97,7 +97,7 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
   @override
   Widget build(BuildContext context) {
     // Fetching the user role directly from the appBloc using context.watch
-    final String _role = context.watch<appBloc>().user_type;
+    final int user_type = context.watch<appBloc>().user_type;
 
     return Scaffold(
       appBar: AppBar(
@@ -143,8 +143,8 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
                 ),
               ),
               _buildDocsType(
-                title: _role == "Buyer" ? "Authorization" : "Compliance",
-                subtitle: _role == "Buyer"
+                title: user_type == 3 ? "Authorization" : "Compliance",
+                subtitle: user_type == 3
                     ? "Add a document to prove you are authorized to buy these products: ${context.watch<appBloc>().userCommodities.join(',')}"
                     : "Add a document to prove these products are eligible for sale: ${context.watch<appBloc>().userCommodities.join(',')}",
                 action: () {

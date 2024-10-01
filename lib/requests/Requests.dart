@@ -9,7 +9,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/Serializers/UserTypes.dart';
-import 'package:itx/authentication/Regulator.dart';
+import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:itx/authentication/Verification.dart';
 import 'package:itx/global/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
@@ -117,7 +117,7 @@ class AuthRequest {
 
   static Future<void> UserCommodities({
     required BuildContext context,
-    required String user_type,
+    required int user_type,
     required List<int> commodities,
   }) async {
     final appBloc bloc = context.read<appBloc>();
@@ -129,7 +129,7 @@ class AuthRequest {
       // Prepare the request body
       final Map<String, dynamic> body = {
         "commodities": commodities.join(","),
-        "user_type_id": int.parse(user_type)
+        "user_type_id": user_type
       };
 
       bloc.changeUserCommoditesIds(commodities);
@@ -143,7 +143,9 @@ class AuthRequest {
         url,
         body: jsonEncode(body),
         headers: {
-          "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+          "x-auth-token":   Provider.of<appBloc>(context, listen: false).token,
+              // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzI3NzY1NjcwLCJleHAiOjE3Mjc3ODM2NzB9.EU03b8Sb8WeV3k9WaSvI-4fsnkUvmk-VWU_BzOgSJo4",
+        
           // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiQVBQIiwiaWF0IjoxNzI3MjUxMjAyLCJleHAiOjE3MjcyNjkyMDJ9.knE5b5EPyY_dwVbo9CgmkOIz_TwROiLnpR86E_rzTfs",
           // Provider.of<appBloc>(context, listen: false).token,
           'Content-Type': 'application/json',
@@ -174,13 +176,13 @@ class AuthRequest {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
         String errorMessage =
             responseBody["message"] ?? "An unknown error occurred";
+
         _handleError(context, "Commodites of interest", errorMessage);
       }
     } catch (e) {
       // Handle exceptions during the request or response parsing
-      print("Error during registration: $e");
-      _handleError(context, "Registration Error",
-          "Failed to process the request. Please try again.");
+      print("Error during commodites of interest : $e");
+      _handleError(context, "Commodites  Error", "$e");
     } finally {
       // Ensure that loading is stopped regardless of success or failure
       bloc.changeIsLoading(false);
@@ -457,13 +459,19 @@ class AuthRequest {
         // Check for the rsp field in the response body
         if (responseBody["rsp"] == true) {
           String token = responseBody["token"];
-          String type = responseBody["user_type"] ?? "seller";
+  Map<String, int> userTypeMap = {
+  "individual": 3,
+  "producer": 4,
+  "trader": 5
+};
+int type = userTypeMap[responseBody["user_type"]] ?? 6;
           int id = responseBody["user_id"];
 
           // Update the bloc with new state
           bloc.changeIsLoading(false);
           bloc.changeToken(token);
           bloc.getUserType(type);
+
           bloc.changeUser(email);
           bloc.changeCurrentUserID(id: id);
 
@@ -519,9 +527,6 @@ class AuthRequest {
     }
   }
 
-
-  
-
   static Future<GoogleSignInAccount?> signInWithGoogle() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
     try {
@@ -533,111 +538,115 @@ class AuthRequest {
     }
   }
 
+  static Future<void> registerWithGoogle({
+    required BuildContext context,
+  }) async {
+    final appBloc bloc = Provider.of<appBloc>(context, listen: false);
 
-static Future<void> registerWithGoogle({
-  required BuildContext context,
-}) async {
-  final appBloc bloc = Provider.of<appBloc>(context, listen: false);
-
-  try {
-    bloc.changeIsLoading(true);
-
-    // Initialize GoogleSignIn
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-
-    print("Attempting Google Sign-In");
-    
     try {
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-      
-      if (googleUser == null) {
-        print("Google Sign-In returned null user");
-        throw Exception('Google Sign-In failed: No user data received');
-      }
+      bloc.changeIsLoading(true);
 
-      print("Google Sign-In successful. User: ${googleUser.email}");
+      // Initialize GoogleSignIn
+      final GoogleSignIn googleSignIn = GoogleSignIn();
 
-      // Get auth details from request
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      print("Attempting Google Sign-In");
 
-      // Create credential
-      final OAuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+      try {
+        final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
-      // Sign in to Firebase with credential
-      final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-      final User? user = userCredential.user;
-
-      if (user == null) {
-        throw Exception('Firebase Sign-In failed: No user data received');
-      }
-
-      // Prepare the request body for registration
-      final Map<String, dynamic> body = {
-        "email": user.email,
-        "name": user.displayName,
-        "auth_provider": "google",
-        "google_id": user.uid,
-        "user_type": 1,
-        "phone": user.phoneNumber ?? "0769922984", // Use Firebase phone if available, else default
-      };
-
-      final Uri url = Uri.parse("$main_url/user/register");
-
-      print("Sending registration request to: $url");
-      final http.Response response = await http.post(
-        url,
-        body: jsonEncode(body),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      print("Response Status: ${response.statusCode}");
-      print("Response Body: ${response.body}");
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
-
-        if (responseBody["rsp"] == true) {
-          print("Registration successful: ${responseBody["message"]}");
-          bloc.getUserType(responseBody["user_type"]);
-          bloc.changeIsLoading(false);
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Verification(
-                isRegistered: false,
-                context: context,
-                email: user.email!,
-                phoneNumber: user.phoneNumber,
-              ),
-            ),
-          );
-        } else {
-          print("Registration failed: ${responseBody["message"]}");
-          _showErrorDialog(context, "Registration Error", responseBody["message"]);
+        if (googleUser == null) {
+          print("Google Sign-In returned null user");
+          throw Exception('Google Sign-In failed: No user data received');
         }
-      } else {
-        print("Non-200 response: ${response.statusCode}");
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
-        String message = responseBody["message"] ?? "An error occurred";
-        _showErrorDialog(context, "Registration Error", message);
+
+        print("Google Sign-In successful. User: ${googleUser.email}");
+
+        // Get auth details from request
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
+
+        // Create credential
+        final OAuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+
+        // Sign in to Firebase with credential
+        final UserCredential userCredential =
+            await FirebaseAuth.instance.signInWithCredential(credential);
+        final User? user = userCredential.user;
+
+        if (user == null) {
+          throw Exception('Firebase Sign-In failed: No user data received');
+        }
+
+        // Prepare the request body for registration
+        final Map<String, dynamic> body = {
+          "email": user.email,
+          "name": user.displayName,
+          "auth_provider": "google",
+          "google_id": user.uid,
+          "user_type": 1,
+          "phone": user.phoneNumber ??
+              "0769922984", // Use Firebase phone if available, else default
+        };
+
+        final Uri url = Uri.parse("$main_url/user/register");
+
+        print("Sending registration request to: $url");
+        final http.Response response = await http.post(
+          url,
+          body: jsonEncode(body),
+          headers: {'Content-Type': 'application/json'},
+        );
+
+        print("Response Status: ${response.statusCode}");
+        print("Response Body: ${response.body}");
+
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+          if (responseBody["rsp"] == true) {
+            print("Registration successful: ${responseBody["message"]}");
+            bloc.getUserType(responseBody["user_type"]);
+            bloc.changeIsLoading(false);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => Verification(
+                  isRegistered: false,
+                  context: context,
+                  email: user.email!,
+                  phoneNumber: user.phoneNumber,
+                ),
+              ),
+            );
+          } else {
+            print("Registration failed: ${responseBody["message"]}");
+            _showErrorDialog(
+                context, "Registration Error", responseBody["message"]);
+          }
+        } else {
+          print("Non-200 response: ${response.statusCode}");
+          final Map<String, dynamic> responseBody = jsonDecode(response.body);
+          String message = responseBody["message"] ?? "An error occurred";
+          _showErrorDialog(context, "Registration Error", message);
+        }
+      } on FirebaseAuthException catch (e) {
+        print("FirebaseAuthException: ${e.code} - ${e.message}");
+        _showErrorDialog(context, "Authentication Error",
+            "An error occurred during Google Sign-In: ${e.message}");
+      } on PlatformException catch (e) {
+        print("PlatformException: ${e.code} - ${e.message}");
+        _showErrorDialog(context, "Platform Error",
+            "An error occurred with the platform: ${e.message}");
       }
-
-    } on FirebaseAuthException catch (e) {
-      print("FirebaseAuthException: ${e.code} - ${e.message}");
-      _showErrorDialog(context, "Authentication Error", "An error occurred during Google Sign-In: ${e.message}");
-    } on PlatformException catch (e) {
-      print("PlatformException: ${e.code} - ${e.message}");
-      _showErrorDialog(context, "Platform Error", "An error occurred with the platform: ${e.message}");
+    } catch (e) {
+      print("Unexpected error during registration: $e");
+      _showErrorDialog(context, "Registration Error",
+          "An unexpected error occurred during registration. Please try again later.");
+    } finally {
+      bloc.changeIsLoading(false);
     }
-
-  } catch (e) {
-    print("Unexpected error during registration: $e");
-    _showErrorDialog(context, "Registration Error", "An unexpected error occurred during registration. Please try again later.");
-  } finally {
-    bloc.changeIsLoading(false);
   }
-}
 }

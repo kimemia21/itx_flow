@@ -268,7 +268,7 @@ class _CommoditiesState extends State<Commodities> {
         ),
       );
     } else {
-      String user_type = Provider.of<appBloc>(context, listen: false).user_type;
+      int user_type = Provider.of<appBloc>(context, listen: false).user_type;
       AuthRequest.UserCommodities(
           context: context,
           user_type: user_type,

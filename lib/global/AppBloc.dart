@@ -18,7 +18,7 @@ class appBloc extends ChangeNotifier {
   bool _navIsVisible = true;
   bool _isLoading = false;
   String _token = "";
-  String _user_type = "";
+  int _user_type =0;
   Map<int, dynamic> _watchList = {};
   String _userEmail = "";
   List _userCommoditesCerts = [];
@@ -28,7 +28,7 @@ class appBloc extends ChangeNotifier {
   int get currentIndex => _currentIndex;
   bool get navIsVisible => _navIsVisible;
   bool get isLoading => _isLoading;
-  String get user_type => _user_type;
+  int  get user_type => _user_type;
   Map<int, dynamic> get watchList => _watchList;
   String get token => _token;
   String get userEmail => _userEmail;
@@ -57,7 +57,7 @@ class appBloc extends ChangeNotifier {
     notifyListeners();
   }
 
-  void getUserType(String type) {
+  void getUserType(int type) {
     _user_type = type;
     notifyListeners();
   }
