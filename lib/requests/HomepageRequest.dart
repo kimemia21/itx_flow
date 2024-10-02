@@ -427,6 +427,18 @@ static Future<void> UpdateBid(BuildContext context, double  price, int id) async
       print("Patched successfully");
       bloc.changeIsLoading(false);
       Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Bid updated successfully!',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(top: 50, left: 20, right: 20), // Positioned at the top
+          duration: Duration(seconds: 3), // Duration of the snackbar
+        ),
+      );
     } else {
       print("Failed to patch");
       print(response.body);
@@ -442,24 +454,40 @@ static Future<void> UpdateBid(BuildContext context, double  price, int id) async
 static Future<void> DeleteBid(BuildContext context, int id) async {
   final Uri uri = Uri.parse("$mainUri/contracts/bids/$id");
   final Map<String, String> headers = {
-    "Content-Type": "application/json", // Set Content-Type to JSON
+    "Content-Type": "application/json", 
     "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
   };
   
   final appBloc bloc = context.read<appBloc>();
   try {
     bloc.changeIsLoading(true);
+
     final http.Response response = await http.delete(
       uri,
       headers: headers,
-  // Encode the body to JSON
     );
+
     if (response.statusCode == 200) {
-      print("deleted  successfully");
+      print("Deleted successfully");
+
       bloc.changeIsLoading(false);
       Navigator.pop(context);
+
+    
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Bid deleted successfully!',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.only(top: 50, left: 20, right: 20), // Positioned at the top
+          duration: Duration(seconds: 3), // Duration of the snackbar
+        ),
+      );
     } else {
-      print("Failed to patch");
+      print("Failed to delete");
       print(response.body);
       bloc.changeIsLoading(false);
     }
@@ -468,5 +496,6 @@ static Future<void> DeleteBid(BuildContext context, int id) async {
     bloc.changeIsLoading(false);
   }
 }
+
 
 }

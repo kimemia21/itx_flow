@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:itx/requests/Requests.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:itx/Commodities.dart/Commodites.dart';
@@ -23,6 +24,7 @@ class _RegulatorsState extends State<Regulators> {
   bool _isLoading = false;
   String _message = '';
   String? selectedCommodity;
+  bool ispressed = false;
 
   @override
   void initState() {
@@ -92,9 +94,12 @@ class _RegulatorsState extends State<Regulators> {
     setState(() {
       _isLoading = true;
       _message = '';
+      ispressed = true;
     });
 
     if (_formKey.currentState?.validate() ?? false) {
+      final appBloc bloc = context.read<appBloc>();
+
       var request = http.MultipartRequest(
           'POST', Uri.parse('${AuthRequest.main_url}/user/upload'));
 
@@ -117,18 +122,30 @@ class _RegulatorsState extends State<Regulators> {
       }
 
       try {
-        http.StreamedResponse response = await request.send();
+        bloc.changeIsLoading(true);
+        
+        http.StreamedResponse response =
+            await request.send().timeout(Duration(seconds: 10));
+
         if (response.statusCode == 200) {
           print("Upload successful");
+          // changing the auth state to 1 meaning the user is authorized
+
+          bloc.changeIsLoading(false);
+          context.read<appBloc>().changeIsAuthorized(1);
+
           Globals.switchScreens(context: context, screen: Authorization());
         } else {
+          bloc.changeIsLoading(false);
           Globals.warningsAlerts(
             title: "Upload failed",
             content: 'Upload failed: ${response.reasonPhrase}',
             context: context,
           );
+          print('Upload failed: ${response.reasonPhrase}');
         }
       } catch (e) {
+        bloc.changeIsLoading(false);
         Globals.warningsAlerts(
           title: "Upload failed",
           content: 'Upload failed: $e',
@@ -139,6 +156,7 @@ class _RegulatorsState extends State<Regulators> {
 
     setState(() {
       _isLoading = false;
+      ispressed = false;
     });
   }
 
@@ -155,17 +173,31 @@ class _RegulatorsState extends State<Regulators> {
   Widget buttons(
       {required void Function() onPressed,
       required String title,
+      required Color textColor,
+      required bool isSubmit,
       required Color color}) {
     return ElevatedButton(
       onPressed: onPressed,
-      child: Text(
-        title,
-        style: GoogleFonts.poppins(
-          color: Colors.black87,
-          fontWeight: FontWeight.w600,
-          fontSize: 16,
-        ),
-      ),
+      child: isSubmit
+          ? Provider.of<appBloc>(context, listen: false).isLoading
+              ? LoadingAnimationWidget.staggeredDotsWave(
+                  color: Colors.white, size: 20)
+              : Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    color: textColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                )
+          : Text(
+              title,
+              style: GoogleFonts.poppins(
+                color: textColor,
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+              ),
+            ),
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
@@ -187,17 +219,17 @@ class _RegulatorsState extends State<Regulators> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
+    // if (_isLoading) {
+    //   return Scaffold(
+    //     body: Center(child: CircularProgressIndicator()),
+    //   );
+    // }
 
-    if (_message.isNotEmpty) {
-      return Scaffold(
-        body: Center(child: Text(_message)),
-      );
-    }
+    // if (_message.isNotEmpty) {
+    //   return Scaffold(
+    //     body: Center(child: Text(_message)),
+    //   );
+    // }
 
     return Scaffold(
       appBar: AppBar(
@@ -286,13 +318,21 @@ class _RegulatorsState extends State<Regulators> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   buttons(
+                    isSubmit: false,
+                    textColor: Colors.black,
                     onPressed: () => Globals.switchScreens(
                         context: context, screen: Commodities()),
                     title: "Back",
                     color: Colors.grey.shade300,
                   ),
                   buttons(
-                    onPressed: uploadData,
+                    isSubmit: true,
+                    textColor: Colors.white,
+                    onPressed: () {
+                      ispressed
+                          ? Globals.showOperationInProgressSnackBar(context)
+                          : uploadData();
+                    },
                     title: 'Submit',
                     color: Colors.green.shade800,
                   ),

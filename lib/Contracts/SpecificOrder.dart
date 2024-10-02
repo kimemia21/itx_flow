@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:itx/Contracts/ContLiveBid.dart';
+import 'package:itx/global/NoAuthorized.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:itx/payments/PayNow.dart';
 import 'package:itx/payments/PurchaseConfirmationAlert.dart';
@@ -11,6 +12,7 @@ import 'package:itx/Serializers/ComTrades.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:itx/requests/HomepageRequest.dart';
+import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -34,7 +36,7 @@ class _SpecificorderState extends State<Specificorder> {
   @override
   void initState() {
     super.initState();
-  
+
     if (widget.contract.commodityId != null) {
       fetchCompanyAndPriceHistory();
     } else {
@@ -44,54 +46,56 @@ class _SpecificorderState extends State<Specificorder> {
     }
   }
 
-Future<void> fetchCompanyAndPriceHistory() async {
-  setState(() {
-    isLoading = true; // Start loading
-  });
+  Future<void> fetchCompanyAndPriceHistory() async {
+    setState(() {
+      isLoading = true; // Start loading
+    });
 
-  try {
-    // Fetch commodity info
-    final CommodityResponse response = await CommodityService.fetchCommodityInfo(
-        context, int.parse(widget.contract.userCompanyId.toString()));
+    try {
+      // Fetch commodity info
+      final CommodityResponse response =
+          await CommodityService.fetchCommodityInfo(
+              context, int.parse(widget.contract.userCompanyId.toString()));
 
-    // Handle the case where response or data is null or empty
-    if (response != null) {
+      // Handle the case where response or data is null or empty
+      if (response != null) {
+        setState(() {
+          // Set company if data is not empty, otherwise null
+          company = response.data.isNotEmpty ? response.data.first : null;
+
+          // Handle empty price history and convert it to list of FlSpot
+          if (response.priceHistory != null &&
+              response.priceHistory.isNotEmpty) {
+            priceHistorySpots = response.priceHistory
+                .map((history) => FlSpot(
+                      history.priceDate.millisecondsSinceEpoch.toDouble(),
+                      history.price,
+                    ))
+                .toList();
+          } else {
+            priceHistorySpots =
+                []; // Set empty if priceHistory is null or empty
+          }
+
+          isLoading = false; // Loading is complete
+        });
+      } else {
+        // Handle case where response is null
+        setState(() {
+          company = null;
+          priceHistorySpots = [];
+          errorMessage = "No data available";
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      // Handle any errors and update the state accordingly
       setState(() {
-        // Set company if data is not empty, otherwise null
-        company = response.data.isNotEmpty ? response.data.first : null;
-
-        // Handle empty price history and convert it to list of FlSpot
-        if (response.priceHistory != null && response.priceHistory.isNotEmpty) {
-          priceHistorySpots = response.priceHistory
-              .map((history) => FlSpot(
-                    history.priceDate.millisecondsSinceEpoch.toDouble(),
-                    history.price,
-                  ))
-              .toList();
-        } else {
-          priceHistorySpots = []; // Set empty if priceHistory is null or empty
-        }
-
-        isLoading = false; // Loading is complete
-      });
-    } else {
-      // Handle case where response is null
-      setState(() {
-        company = null;
-        priceHistorySpots = [];
-        errorMessage = "No data available";
+        errorMessage = "Error loading data: $e";
         isLoading = false;
       });
     }
-  } catch (e) {
-    // Handle any errors and update the state accordingly
-    setState(() {
-      errorMessage = "Error loading data: $e";
-      isLoading = false;
-    });
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -147,9 +151,8 @@ Future<void> fetchCompanyAndPriceHistory() async {
           ),
         ).animate().fadeIn(duration: 500.ms).slideX(),
         SizedBox(height: 10),
-         Text(
+        Text(
           widget.contract.description,
-
           style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.w500,
@@ -157,10 +160,9 @@ Future<void> fetchCompanyAndPriceHistory() async {
           ),
         ).animate().fadeIn(duration: 500.ms).slideX(),
         SizedBox(height: 5),
-         SizedBox(height: 5),
-         Text(
-          "Delivery date ${DateFormat('MM/dd/yy').format(widget.contract.deliveryDate)}" ,
-          
+        SizedBox(height: 5),
+        Text(
+          "Delivery date ${DateFormat('MM/dd/yy').format(widget.contract.deliveryDate)}",
           style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.w500,
@@ -379,9 +381,7 @@ Future<void> fetchCompanyAndPriceHistory() async {
                       );
                     },
                   );
-                }
-                
-                 else {
+                } else {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -407,8 +407,39 @@ Future<void> fetchCompanyAndPriceHistory() async {
           visible: widget.contract.canBid == 1,
 
           child: GestureDetector(
-              onTap: () => PersistentNavBarNavigator.pushNewScreen(context,
-                  screen: ContractLiveBid(contract: widget.contract,)),
+              onTap: () async {
+                try {
+                  final authorStatus =
+                      Provider.of<appBloc>(context, listen: false).isAuthorized;
+
+                  if (authorStatus == "yes") {
+                    PersistentNavBarNavigator.pushNewScreen(
+                        withNavBar: true,
+                        context,
+                        screen: ContractLiveBid(contract: widget.contract));
+                  } else {
+                    showAuthorizationAlert(context);
+                    //                  showDialog(
+                    //   context: context,
+                    //   builder: (BuildContext context) {
+                    //     return TradingAlert(
+                    //       onUploadClick: () {
+                    //         Navigator.pop(context); // Close the alert
+                    //         PersistentNavBarNavigator.
+                    //         pushNewScreen(
+                    //            context,
+                    //           screen: Regulators(),
+                    //           withNavBar: true,
+                    //         );
+                    //       },
+                    //     );
+                    //   },
+                    // );
+                  }
+                } catch (e) {
+                  print("error on specific order $e");
+                }
+              },
               child: buildTradeOption(
                   'Place bid', 'Market execution', Icons.arrow_upward)),
         ),

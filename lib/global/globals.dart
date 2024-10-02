@@ -405,6 +405,27 @@ class Globals {
       ),
     );
   }
+  static void showOperationInProgressSnackBar(BuildContext context) {
+  final snackBar = SnackBar(
+    content: Row(
+      children: [
+        CircularProgressIndicator(), // Spinner icon
+        SizedBox(width: 20), // Space between spinner and text
+        Expanded(
+          child: Text(
+            'An operation is currently happening, please be patient...',
+            style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
+          ),
+        ),
+      ],
+    ),
+    backgroundColor: Colors.blueAccent,
+    duration: Duration(seconds: 5), // SnackBar duration
+  );
+
+  // Show the SnackBar
+  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+}
 
   static Map authErrors = {
     "admin-restricted-operation":

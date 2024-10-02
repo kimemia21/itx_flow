@@ -158,11 +158,11 @@ class AuthRequest {
           print("Success: ${responseBody["data"]}");
           final List<dynamic> body = responseBody["data"];
 
-          final List<CommCert> mapper =
-              body.map((element) => CommCert.fromJson(element)).toList();
-// getting the commodity response and saving it to state when this enpoint is called
+//           final List<CommCert> mapper =
+//               body.map((element) => CommCert.fromJson(element)).toList();
+// // getting the commodity response and saving it to state when this enpoint is called
 
-          bloc.changeCommCert(mapper);
+//           bloc.changeCommCert(mapper);
 
           bloc.getUserType(user_type);
           bloc.changeUserCommoditesCert(responseBody["data"]);
@@ -471,8 +471,10 @@ class AuthRequest {
           };
           int type = userTypeMap[responseBody["user_type"]] ?? 6;
           int id = responseBody["user_id"];
+          int isAuthorized = responseBody["authorized"];
           print(
               "user type id  ----$type----------------------------------------------");
+          print("isAuthorized status --------------------$isAuthorized");
 
           // Update the bloc with new state
           bloc.changeIsLoading(false);
@@ -481,6 +483,7 @@ class AuthRequest {
 
           bloc.changeUser(email);
           bloc.changeCurrentUserID(id: id);
+          bloc.changeIsAuthorized(isAuthorized);
 
           // Switch screens upon successful login
 
@@ -533,6 +536,9 @@ class AuthRequest {
       );
     }
   }
+
+
+
 
   static Future<GoogleSignInAccount?> signInWithGoogle() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();

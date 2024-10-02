@@ -24,6 +24,7 @@ class appBloc extends ChangeNotifier {
   List<int> _userCommoditesIds = [];
   Map<String, dynamic> userDetails = {};
   List<CommCert> commcert = [];
+  String isAuthorized = "";
 
   int get currentIndex => _currentIndex;
   bool get navIsVisible => _navIsVisible;
@@ -121,6 +122,11 @@ class appBloc extends ChangeNotifier {
   void changeCommCert(List<CommCert> commCert) {
     commcert.clear();
     commcert = commCert;
+    notifyListeners();
+  }
+
+  void changeIsAuthorized(int status) {
+    isAuthorized = status == 0 ? "no" : "yes";
     notifyListeners();
   }
 }
