@@ -12,7 +12,7 @@ import 'package:itx/fromWakulima/widgets/Deals.dart';
 import 'package:itx/fromWakulima/widgets/Popular.dart';
 import 'package:itx/fromWakulima/widgets/TobBar.dart';
 import 'package:itx/fromWakulima/widgets/contant.dart';
-import 'package:itx/global/AppBloc.dart';
+import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/globals.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';

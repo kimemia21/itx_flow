@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:itx/Commodities.dart/ComDropDown.dart';
 import 'package:itx/Commodities.dart/Grade.dart';
 import 'package:itx/Serializers/CommParams.dart';
-import 'package:itx/global/AppBloc.dart';
+import 'package:itx/state/AppBloc.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:provider/provider.dart';
 

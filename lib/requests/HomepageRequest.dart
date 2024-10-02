@@ -10,7 +10,8 @@ import 'package:itx/Serializers/CompanySerializer.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/Serializers/OrderModel.dart';
 import 'package:itx/Serializers/PriceHistory.dart';
-import 'package:itx/global/AppBloc.dart';
+import 'package:itx/global/globals.dart';
+import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:provider/provider.dart';
 
@@ -399,4 +400,73 @@ class CommodityService {
       throw Exception('Failed to create contract');
     }
   }
+
+static Future<void> UpdateBid(BuildContext context, double  price, int id) async {
+  final Uri uri = Uri.parse("$mainUri/contracts/bids/$id");
+  final Map<String, String> headers = {
+    "Content-Type": "application/json", // Set Content-Type to JSON
+    "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+  };
+  
+  final appBloc bloc = context.read<appBloc>();
+  try {
+    bloc.changeIsLoading(true);
+
+    // Encode the body as JSON
+    final Map<String, dynamic> body = {
+      "bid_price": price,
+    };
+
+    final http.Response response = await http.patch(
+      uri,
+      headers: headers,
+      body: jsonEncode(body), // Encode the body to JSON
+    );
+
+    if (response.statusCode == 200) {
+      print("Patched successfully");
+      bloc.changeIsLoading(false);
+      Navigator.pop(context);
+    } else {
+      print("Failed to patch");
+      print(response.body);
+      bloc.changeIsLoading(false);
+    }
+  } catch (e) {
+    print("Error: $e");
+    bloc.changeIsLoading(false);
+  }
+}
+
+
+static Future<void> DeleteBid(BuildContext context, int id) async {
+  final Uri uri = Uri.parse("$mainUri/contracts/bids/$id");
+  final Map<String, String> headers = {
+    "Content-Type": "application/json", // Set Content-Type to JSON
+    "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+  };
+  
+  final appBloc bloc = context.read<appBloc>();
+  try {
+    bloc.changeIsLoading(true);
+    final http.Response response = await http.delete(
+      uri,
+      headers: headers,
+  // Encode the body to JSON
+    );
+    if (response.statusCode == 200) {
+      print("deleted  successfully");
+      bloc.changeIsLoading(false);
+      Navigator.pop(context);
+    } else {
+      print("Failed to patch");
+      print(response.body);
+      bloc.changeIsLoading(false);
+    }
+  } catch (e) {
+    print("Error: $e");
+    bloc.changeIsLoading(false);
+  }
+}
+
 }

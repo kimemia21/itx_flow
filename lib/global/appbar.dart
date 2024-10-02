@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:itx/authentication/LoginScreen.dart';
-import 'package:itx/global/AppBloc.dart';
+import 'package:itx/state/AppBloc.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 

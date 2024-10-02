@@ -5,7 +5,7 @@ import 'package:itx/requests/Requests.dart';
 import 'package:provider/provider.dart';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:itx/global/AppBloc.dart';
+import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/authentication/LoginScreen.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';

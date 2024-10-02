@@ -88,7 +88,7 @@ class _UserOrdersScreenState extends State<UserOrdersScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.green,
         title: Text(
           "My Dashboard",
           style: GoogleFonts.poppins(

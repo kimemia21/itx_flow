@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:itx/authentication/LoginScreen.dart';
-import 'package:itx/global/AppBloc.dart';
+import 'package:itx/state/AppBloc.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/requests/Requests.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -268,10 +268,10 @@ class _CommoditiesState extends State<Commodities> {
         ),
       );
     } else {
-      int user_type = Provider.of<appBloc>(context, listen: false).user_type;
+    
       AuthRequest.UserCommodities(
           context: context,
-          user_type: user_type,
+          
           commodities: userItemsId.toList());
     }
   }

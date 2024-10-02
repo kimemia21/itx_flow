@@ -6,7 +6,7 @@ import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/authentication/SignUp.dart';
 import 'package:itx/fromWakulima/FirebaseFunctions/FirebaseFunctions.dart';
-import 'package:itx/global/AppBloc.dart';
+import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/global/globals.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';

@@ -1,10 +1,9 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:itx/Serializers/CommoditesCerts.dart';
 import 'package:itx/fromWakulima/widgets/contant.dart';
 import 'package:itx/global/globals.dart';
 import 'package:provider/provider.dart';
@@ -18,17 +17,18 @@ class appBloc extends ChangeNotifier {
   bool _navIsVisible = true;
   bool _isLoading = false;
   String _token = "";
-  int _user_type =0;
+  int _user_type = 0;
   Map<int, dynamic> _watchList = {};
   String _userEmail = "";
   List _userCommoditesCerts = [];
   List<int> _userCommoditesIds = [];
   Map<String, dynamic> userDetails = {};
+  List<CommCert> commcert = [];
 
   int get currentIndex => _currentIndex;
   bool get navIsVisible => _navIsVisible;
   bool get isLoading => _isLoading;
-  int  get user_type => _user_type;
+  int get user_type => _user_type;
   Map<int, dynamic> get watchList => _watchList;
   String get token => _token;
   String get userEmail => _userEmail;
@@ -115,6 +115,12 @@ class appBloc extends ChangeNotifier {
 
   void changeUserDetails(Map<String, dynamic> details) {
     userDetails = details;
+    notifyListeners();
+  }
+
+  void changeCommCert(List<CommCert> commCert) {
+    commcert.clear();
+    commcert = commCert;
     notifyListeners();
   }
 }

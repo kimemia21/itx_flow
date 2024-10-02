@@ -6,7 +6,7 @@ import 'package:itx/Contracts/TimeRemaining.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/Serializers/PriceHistory.dart';
 import 'package:itx/fromWakulima/widgets/contant.dart';
-import 'package:itx/global/AppBloc.dart';
+import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -87,13 +87,18 @@ class _ContractLiveBidState extends State<ContractLiveBid>
     await _updateData(context);
   }
 
-  void _showPlaceBidDialog() {
+  void _showBidDialog({PricehistoryModel? existingBid}) {
+    bool isEditing = existingBid != null;
+
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        double bidAmount = _highestBid;
+        double bidAmount = isEditing ? existingBid.bid_price : _highestBid;
         String? errorText;
-        final TextEditingController _bidController = TextEditingController();
+        final TextEditingController _bidController = TextEditingController(
+          text: isEditing ? bidAmount.toString() : '',
+        );
 
         return StatefulBuilder(
           builder: (context, setState) {
@@ -103,7 +108,9 @@ class _ContractLiveBidState extends State<ContractLiveBid>
               ),
               title: Text(
                 textAlign: TextAlign.center,
-                'Place Bid for ${widget.contract.name}',
+                isEditing
+                    ? 'Edit Bid for ${widget.contract.name}'
+                    : 'Place Bid for ${widget.contract.name}',
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -165,10 +172,16 @@ class _ContractLiveBidState extends State<ContractLiveBid>
                       onChanged: (value) {
                         double? newBid = double.tryParse(value);
                         if (newBid != null) {
-                          if (newBid <= _highestBid) {
+                          final double _highestCap = _highestBid + 500;
+                          if (!isEditing && newBid <= _highestBid) {
                             setState(() {
                               errorText =
                                   'Bid must be higher than \$${NumberFormat('#,##0.00').format(_highestBid)}';
+                            });
+                          } else if (!isEditing && newBid > _highestCap) {
+                            setState(() {
+                              errorText =
+                                  'Bid must be \$500 higher than the highest bid.';
                             });
                           } else {
                             setState(() {
@@ -185,7 +198,9 @@ class _ContractLiveBidState extends State<ContractLiveBid>
                     ),
                     SizedBox(height: 16),
                     Text(
-                      'Enter an amount higher than the current bid',
+                      isEditing
+                          ? 'Edit your bid amount'
+                          : 'Enter an amount higher than the current bid',
                       style: GoogleFonts.poppins(
                         fontSize: 12,
                         color: Colors.grey[600],
@@ -203,12 +218,35 @@ class _ContractLiveBidState extends State<ContractLiveBid>
                   ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
+                if (isEditing)
+                  TextButton(
+                    child:
+                    
+                  Provider.of<appBloc>(context, listen: false).isLoading
+                      ? LoadingAnimationWidget.staggeredDotsWave(
+                          color: Colors.white, size: 20)
+                      : 
+
+                    
+                    
+                     Text(
+                      'Delete Bid',
+                      style: GoogleFonts.poppins(color: Colors.red),
+                    ),
+                    onPressed: () async {
+                      await CommodityService.DeleteBid(
+                          context, existingBid.bid_id);
+                      await _updateData(context);
+                      await _refreshData();
+                      Navigator.of(context).pop();
+                    },
+                  ),
                 ElevatedButton(
                   child: Provider.of<appBloc>(context, listen: false).isLoading
                       ? LoadingAnimationWidget.staggeredDotsWave(
                           color: Colors.white, size: 20)
                       : Text(
-                          'Place Bid',
+                          isEditing ? 'Update Bid' : 'Place Bid',
                           style: GoogleFonts.poppins(
                             fontWeight: FontWeight.bold,
                           ),
@@ -222,14 +260,18 @@ class _ContractLiveBidState extends State<ContractLiveBid>
                   ),
                   onPressed: errorText == null && _bidController.text.isNotEmpty
                       ? () async {
-                          if (bidAmount > _highestBid) {
+                          if (isEditing || bidAmount > _highestBid) {
                             final Map<String, dynamic> body = {
                               "order_price": bidAmount,
                               "order_type": "BUY"
                             };
-                            await CommodityService.PostBid(
-                                context, body, widget.contract.contractId);
-
+                            if (isEditing) {
+                              await CommodityService.UpdateBid(
+                                  context, bidAmount, existingBid.bid_id);
+                            } else {
+                              await CommodityService.PostBid(
+                                  context, body, widget.contract.contractId);
+                            }
                             await _updateData(context);
                             await _refreshData();
                             Navigator.of(context).pop();
@@ -351,7 +393,7 @@ class _ContractLiveBidState extends State<ContractLiveBid>
 
   Widget _buildBidButton() {
     return ElevatedButton(
-      onPressed: _showPlaceBidDialog,
+      onPressed: _showBidDialog,
       child: Provider.of<appBloc>(context, listen: false).isLoading
           ? LoadingAnimationWidget.staggeredDotsWave(
               color: Colors.white, size: 20)
@@ -424,6 +466,7 @@ class _ContractLiveBidState extends State<ContractLiveBid>
           return Center(child: Text('No bids available'));
         } else {
           final data = snapshot.data!;
+
           data.sort((a, b) => b.bid_price.compareTo(a.bid_price));
           print(
               "--list builder Prices  Raw bid prices: ${data.map((bid) => bid.bid_price).toList()}");
@@ -440,49 +483,67 @@ class _ContractLiveBidState extends State<ContractLiveBid>
     );
   }
 
- Widget _buildBidCard(BuildContext context, PricehistoryModel bid, {required bool isHighest}) {
-  int userId = context.watch<appBloc>().user_id;
-  bool isUserBid = bid.user_id == userId;
+  Widget _buildBidCard(BuildContext context, PricehistoryModel bid,
+      {required bool isHighest}) {
+    int userId = context.watch<appBloc>().user_id;
+    bool isUserBid = bid.user_id == userId;
 
-  return Card(
-    margin: EdgeInsets.symmetric(vertical: 4),
-    color: isUserBid ? Colors.green[50] : null, // Light green background for user's bids
-    child: ListTile(
-      leading: CircleAvatar(
-        backgroundColor: isHighest ? Colors.green[100] : Colors.grey[100],
-        child: Icon(
-          isUserBid ? Icons.person : Icons.gavel,
-          color: isHighest ? Colors.green[700] : (isUserBid ? Colors.green[400] : Colors.grey[700]),
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 4),
+      color: isUserBid
+          ? Colors.blue[50]
+          : null, // Light blue background for user's bids
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: isHighest ? Colors.yellow : Colors.grey[300],
+          child: Icon(
+            isUserBid ? Icons.person : Icons.gavel,
+            color: Colors.black,
+          ),
+        ),
+        title: Text(
+          '\$${NumberFormat('#,##0.00').format(bid.bid_price)}',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: isHighest ? Colors.green : Colors.black,
+          ),
+        ),
+        subtitle: Text(
+          DateFormat('MMM d, y - h:mm a').format(DateTime.parse(bid.bid_date)),
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[600],
+          ),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isHighest)
+              Chip(
+                label: Text('Highest', style: TextStyle(color: Colors.white)),
+                backgroundColor: Colors.green,
+              ),
+            if (isUserBid) ...[
+              IconButton(
+                icon: Icon(Icons.edit, color: Colors.blue),
+                onPressed: () {
+                  _showBidDialog(existingBid: bid);
+
+                  // TODO: Implement edit functionality
+                },
+              ),
+              // IconButton(
+              //   icon: Icon(Icons.delete, color: Colors.red),
+              //   onPressed: () {
+              //     // TODO: Implement delete functionality
+              //   },
+              // ),
+            ],
+          ],
         ),
       ),
-      title: Text(
-        '\$${NumberFormat('#,##0.00').format(bid.bid_price)}',
-        style: GoogleFonts.poppins(
-          fontWeight: FontWeight.w600,
-          color: isHighest ? Colors.green[700] : (isUserBid ? Colors.green[600] : Colors.black87),
-        ),
-      ),
-      subtitle: Text(
-        DateFormat('MMM d, y - h:mm a').format(DateTime.parse(bid.bid_date)),
-        style: GoogleFonts.poppins(
-          fontSize: 12,
-          color: Colors.grey[600],
-        ),
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-       
-          if (isHighest)
-            Chip(
-              label: Text('Highest', style: TextStyle(color: Colors.white)),
-              backgroundColor: Colors.green,
-            ),
-        ],
-      ),
-    ),
-  );
-}
+    );
+  }
 }
 
 class ChartData {

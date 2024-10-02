@@ -17,7 +17,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/authentication/SignUp.dart';
 import 'package:itx/authentication/SplashScreen.dart';
 import 'package:itx/fromWakulima/FirebaseFunctions/FirebaseFunctions.dart';
-import 'package:itx/global/AppBloc.dart';
+import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/requests/Requests.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';

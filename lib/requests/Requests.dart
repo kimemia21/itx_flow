@@ -8,10 +8,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:itx/Commodities.dart/Commodites.dart';
+import 'package:itx/Serializers/CommoditesCerts.dart';
 import 'package:itx/Serializers/UserTypes.dart';
 import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:itx/authentication/Verification.dart';
-import 'package:itx/global/AppBloc.dart';
+import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/myOrders.dart/MyOrders.dart';
@@ -117,7 +118,6 @@ class AuthRequest {
 
   static Future<void> UserCommodities({
     required BuildContext context,
-    required int user_type,
     required List<int> commodities,
   }) async {
     final appBloc bloc = context.read<appBloc>();
@@ -126,6 +126,8 @@ class AuthRequest {
     // Start loading state at the beginning
 
     try {
+      int user_type = Provider.of<appBloc>(context, listen: false).user_type;
+      print("user_type --------------------------$user_type");
       // Prepare the request body
       final Map<String, dynamic> body = {
         "commodities": commodities.join(","),
@@ -143,11 +145,7 @@ class AuthRequest {
         url,
         body: jsonEncode(body),
         headers: {
-          "x-auth-token":   Provider.of<appBloc>(context, listen: false).token,
-              // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzI3NzY1NjcwLCJleHAiOjE3Mjc3ODM2NzB9.EU03b8Sb8WeV3k9WaSvI-4fsnkUvmk-VWU_BzOgSJo4",
-        
-          // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiQVBQIiwiaWF0IjoxNzI3MjUxMjAyLCJleHAiOjE3MjcyNjkyMDJ9.knE5b5EPyY_dwVbo9CgmkOIz_TwROiLnpR86E_rzTfs",
-          // Provider.of<appBloc>(context, listen: false).token,
+          "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
           'Content-Type': 'application/json',
         },
       );
@@ -158,6 +156,13 @@ class AuthRequest {
 
         if (responseBody["rsp"] == true) {
           print("Success: ${responseBody["data"]}");
+          final List<dynamic> body = responseBody["data"];
+
+          final List<CommCert> mapper =
+              body.map((element) => CommCert.fromJson(element)).toList();
+// getting the commodity response and saving it to state when this enpoint is called
+
+          bloc.changeCommCert(mapper);
 
           bloc.getUserType(user_type);
           bloc.changeUserCommoditesCert(responseBody["data"]);
@@ -459,13 +464,15 @@ class AuthRequest {
         // Check for the rsp field in the response body
         if (responseBody["rsp"] == true) {
           String token = responseBody["token"];
-  Map<String, int> userTypeMap = {
-  "individual": 3,
-  "producer": 4,
-  "trader": 5
-};
-int type = userTypeMap[responseBody["user_type"]] ?? 6;
+          Map<String, int> userTypeMap = {
+            "individual": 3,
+            "producer": 4,
+            "trader": 5
+          };
+          int type = userTypeMap[responseBody["user_type"]] ?? 6;
           int id = responseBody["user_id"];
+          print(
+              "user type id  ----$type----------------------------------------------");
 
           // Update the bloc with new state
           bloc.changeIsLoading(false);

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:itx/global/AppBloc.dart';
+import 'package:itx/state/AppBloc.dart';
 import 'package:provider/provider.dart';
 
 class NewContractPage extends StatefulWidget {
