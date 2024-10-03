@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:itx/Serializers/ComTrades.dart';
 import 'package:itx/Serializers/CommParams.dart';
+import 'package:itx/Serializers/CommoditesCerts.dart';
 import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:itx/Serializers/CompanySerializer.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
@@ -496,6 +497,10 @@ static Future<void> DeleteBid(BuildContext context, int id) async {
     bloc.changeIsLoading(false);
   }
 }
+
+
+
+
 
 
 }

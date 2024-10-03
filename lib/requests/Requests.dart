@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:itx/Commodities.dart/Commodites.dart';
+import 'package:itx/Serializers/CommCert.dart';
 import 'package:itx/Serializers/CommoditesCerts.dart';
 import 'package:itx/Serializers/UserTypes.dart';
 import 'package:itx/homepage/WareHouseHomepage.dart';
@@ -121,13 +122,14 @@ class AuthRequest {
     );
   }
 
-  static Future<void> UserCommodities({
+  static Future<List<CommoditiesCert>> UserCommodities({
     required BuildContext context,
     required List<int> commodities,
     required bool isWarehouse,
   }) async {
     final appBloc bloc = context.read<appBloc>();
 
+    List<CommoditiesCert> mapper = [];
     bloc.changeIsLoading(true);
     // Start loading state at the beginning
 
@@ -164,11 +166,10 @@ class AuthRequest {
           print("Success: ${responseBody["data"]}");
           final List<dynamic> body = responseBody["data"];
 
-//           final List<CommCert> mapper =
-//               body.map((element) => CommCert.fromJson(element)).toList();
-// // getting the commodity response and saving it to state when this enpoint is called
+          mapper = body.map((element) => CommoditiesCert.fromJson(element)).toList();
+// getting the commodity response and saving it to state when this enpoint is called
 
-//           bloc.changeCommCert(mapper);
+          bloc.changeCommCert(mapper);
 
           bloc.getUserType(user_type);
           bloc.changeUserCommoditesCert(responseBody["data"]);
@@ -177,7 +178,7 @@ class AuthRequest {
 
           Globals.switchScreens(
               context: context,
-              screen: isWarehouse ? WarehouseDocuments() : Regulators());
+              screen: isWarehouse ? WarehouseDocuments() : Regulators(commCerts: mapper));
         } else {
           // Handle specific failure
           _handleError(
@@ -200,6 +201,8 @@ class AuthRequest {
       // Ensure that loading is stopped regardless of success or failure
       bloc.changeIsLoading(false);
     }
+
+    return mapper;
   }
 
   static void _handleError(BuildContext context, String title, String content) {
@@ -408,7 +411,7 @@ class AuthRequest {
           // Delay navigation for a few seconds for better UX
           Future.delayed(Duration(seconds: 3));
 
-          if (bloc.user_type == 6){
+          if (bloc.user_type == 6) {
             Globals.switchScreens(
                 context: context,
                 screen: isRegistered
@@ -418,13 +421,13 @@ class AuthRequest {
                       ));
           }
 
-           Globals.switchScreens(
-                context: context,
-                screen: isRegistered
-                    ? GlobalsHomePage()
-                    : Commodities(
-                        isWareHouse: false,
-                      ));
+          Globals.switchScreens(
+              context: context,
+              screen: isRegistered
+                  ? GlobalsHomePage()
+                  : Commodities(
+                      isWareHouse: false,
+                    ));
           bloc.changeIsLoading(false); // Stop loading after success
         } else {
           // Show an authentication error if OTP fails

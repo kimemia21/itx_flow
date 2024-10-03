@@ -21,109 +21,111 @@ class WebAuthrequest {
   // "http://185.141.63.56:3067/api/v1";
 
   // Register request
-static Future<void> register({
-  required BuildContext context,
-  required Map<String, dynamic> body,
-  required bool isOnOtp,
-}) async {
-  final Webbloc bloc = Provider.of<Webbloc>(context, listen: false);
-  print(body);
-  print(body.runtimeType);
-  print(jsonEncode(body).runtimeType);
-  print(jsonEncode(body));
+  static Future<void> register({
+    required BuildContext context,
+    required Map<String, dynamic> body,
+    required bool isOnOtp,
+  }) async {
+    final Webbloc bloc = Provider.of<Webbloc>(context, listen: false);
+    print(body);
+    print(body.runtimeType);
+    print(jsonEncode(body).runtimeType);
+    print(jsonEncode(body));
 
-  try {
-    final Uri url = Uri.parse("$main_url/user/register");
+    try {
+      final Uri url = Uri.parse("$main_url/user/register");
 
-    // Start the loading state
-    bloc.changeIsLoading(true);
+      // Start the loading state
+      bloc.changeIsLoading(true);
 
-    // Define headers for the request
-    var headers = {
-      'Content-Type': 'application/json',
-    };
+      // Define headers for the request
+      var headers = {
+        'Content-Type': 'application/json',
+      };
 
-    // Create the request body
-    final Map<String, dynamic> requestBody = {
-      "api": 2,
-      "email": body["email"],
-      "phonenumber": body["phonenumber"], // Ensure field matches backend requirements
-      "user_type": body["user_type"],
-      "password": body["password"],
-    };
+      // Create the request body
+      final Map<String, dynamic> requestBody = {
+        "api": 2,
+        "email": body["email"],
+        "phonenumber":
+            body["phonenumber"], // Ensure field matches backend requirements
+        "user_type": body["user_type"],
+        "password": body["password"],
+      };
 
-    // Send the request using http.Request to manage streaming
-    var request = http.Request('POST', url);
-    request.body = jsonEncode(requestBody);
-    request.headers.addAll(headers);
+      // Send the request using http.Request to manage streaming
+      var request = http.Request('POST', url);
+      request.body = jsonEncode(requestBody);
+      request.headers.addAll(headers);
 
-    // Handle the streamed response
-    http.StreamedResponse streamedResponse = await request.send();
+      // Handle the streamed response
+      http.StreamedResponse streamedResponse = await request.send();
 
-    // Await full response after stream
-    final http.Response response = await http.Response.fromStream(streamedResponse);
-    
-    print("Response Status: ${response.statusCode}");
+      // Await full response after stream
+      final http.Response response =
+          await http.Response.fromStream(streamedResponse);
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      print("Response Status: ${response.statusCode}");
 
-      if (responseBody["rsp"] == true) {
-        // Successful response handling
-        bloc.getUserType(body["user_type"]);
-        print("userType ----- ${bloc.user_type}");
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
 
-        bloc.changeIsLoading(false);
+        if (responseBody["rsp"] == true) {
+          // Successful response handling
+          bloc.getUserType(body["user_type"]);
+          print("userType ----- ${bloc.user_type}");
 
-        if (isOnOtp) {
-          CherryToast.success(
-            title: Text("OTP resent successfully"),
-          ).show(context);
-        } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => WebOtpVerification(
-                phoneNumber: body["phonenumber"],
+          bloc.changeIsLoading(false);
+
+          if (isOnOtp) {
+            CherryToast.success(
+              title: Text("OTP resent successfully"),
+            ).show(context);
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => WebOtpVerification(
+                  isRegistered: false,
+                  phoneNumber: body["phonenumber"],
+                ),
               ),
-            ),
+            );
+          }
+        } else {
+          // Handle the failure response from backend
+          print("Request failed: ${responseBody["message"]}");
+          bloc.changeIsLoading(false);
+          _showErrorDialog(
+            context,
+            "${isOnOtp ? "RESEND OTP ERROR" : "Registration"} Error",
+            responseBody["message"],
           );
         }
       } else {
-        // Handle the failure response from backend
-        print("Request failed: ${responseBody["message"]}");
+        // Handle non-200 response codes
+        print("Error Response: ${response.body}");
+        final Map<String, dynamic> _body = jsonDecode(response.body);
+        String message = _body["message"] == "User already exists"
+            ? "User with email ${body["email"]} already exists"
+            : _body["message"];
         bloc.changeIsLoading(false);
-        _showErrorDialog(
-          context,
-          "${isOnOtp ? "RESEND OTP ERROR" : "Registration"} Error",
-          responseBody["message"],
-        );
+        _showErrorDialog(context, "Registration Error", message);
       }
-    } else {
-      // Handle non-200 response codes
-      print("Error Response: ${response.body}");
-      final Map<String, dynamic> _body = jsonDecode(response.body);
-      String message = _body["message"] == "User already exists"
-          ? "User with email ${body["email"]} already exists"
-          : _body["message"];
+    } catch (e) {
+      // Catch and handle exceptions
+      print("Error during registration: $e");
       bloc.changeIsLoading(false);
-      _showErrorDialog(context, "Registration Error", message);
+      _showErrorDialog(
+        context,
+        "Registration Error",
+        "An unexpected error occurred. Please try again. $e",
+      );
+    } finally {
+      // End loading state
+      bloc.changeIsLoading(false);
     }
-  } catch (e) {
-    // Catch and handle exceptions
-    print("Error during registration: $e");
-    bloc.changeIsLoading(false);
-    _showErrorDialog(
-      context,
-      "Registration Error",
-      "An unexpected error occurred. Please try again. $e",
-    );
-  } finally {
-    // End loading state
-    bloc.changeIsLoading(false);
   }
-}
-
 
   static void _showErrorDialog(
       BuildContext context, String title, String message) {
@@ -253,7 +255,6 @@ static Future<void> register({
       //   "user_type": 3.toString(),
       // };
 
-
       // Define the login endpoint
       final Uri url = Uri.parse("$main_url/user/login");
 
@@ -300,7 +301,11 @@ static Future<void> register({
 
           // Switch screens upon successful login
 
-          Globals.switchScreens(context: context, screen: WebOtpVerification()
+          Globals.switchScreens(
+              context: context,
+              screen: WebOtpVerification(
+                isRegistered: true,
+              )
 
               // Verification(
               //   context: context,
@@ -351,8 +356,7 @@ static Future<void> register({
     }
   }
 
-
-    static Future<void> WebResendOtp({
+  static Future<void> WebResendOtp({
     required BuildContext context,
   }) async {
     final Webbloc bloc = context.read<Webbloc>();
@@ -370,7 +374,6 @@ static Future<void> register({
       // Send get  request for OTP verification
       final http.Response response = await http.get(
         url,
-
         headers: {"x-auth-token": token, 'Content-Type': 'application/json'},
       );
 
@@ -463,14 +466,14 @@ static Future<void> register({
                 context: context,
                 screen: isRegistered
                     ? MyHomePageWeb(title: "Home")
-                    :TradeAuthorizationScreen());
-          }
-
-         Globals.switchScreens(
+                    : TradeAuthorizationScreen());
+          } else {
+            Globals.switchScreens(
                 context: context,
                 screen: isRegistered
                     ? MyHomePageWeb(title: "Home")
-                    :TradeAuthorizationScreen());
+                    : TradeAuthorizationScreen());
+          }
           bloc.changeIsLoading(false); // Stop loading after success
         } else {
           // Show an authentication error if OTP fails
@@ -497,7 +500,4 @@ static Future<void> register({
       bloc.changeIsLoading(false);
     }
   }
-
-
-
 }

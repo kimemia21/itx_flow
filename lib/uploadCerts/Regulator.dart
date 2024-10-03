@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:itx/Serializers/CommCert.dart';
 import 'package:itx/requests/Requests.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
@@ -12,253 +13,22 @@ import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 
-class Regulators extends StatefulWidget {
-  @override
-  State<Regulators> createState() => _RegulatorsState();
-}
 
-class _RegulatorsState extends State<Regulators> {
-  final _formKey = GlobalKey<FormState>();
-  Map<String, dynamic> formData = {};
-  List<String> commodityAuthorities = [];
-  bool _isLoading = false;
-  String _message = '';
-  String? selectedCommodity;
-  bool ispressed = false;
+class Regulators extends StatelessWidget {
+  final List<CommoditiesCert>? commCerts; // List of CommoditiesCert objects
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeData();
-    });
-  }
+  Regulators({Key? key, this.commCerts}) : super(key: key);
 
-  void _initializeData() {
-    final appBlocInstance = context.read<appBloc>();
-    final commodities = appBlocInstance.userCommodities;
-
-    if (commodities != null && commodities.isNotEmpty) {
-      setState(() {
-        selectedCommodity = commodities.first.toString();
-        _initializeFormData();
-        commodityAuthorities = [
-          '$selectedCommodity Authority A',
-          '$selectedCommodity Authority B',
-          '$selectedCommodity Authority C'
-        ];
-      });
-    } else {
-      print("No commodities found.");
-    }
-  }
-
-  void _initializeFormData() {
-    formData = {
-      "selectedAuthorityId": null,
-      "certificateController": TextEditingController(),
-      "certificateFileName": TextEditingController(),
-      "expiryDateController": TextEditingController(),
-      "proofOfPaymentController": TextEditingController(),
-      "proofOfPaymentFileName": TextEditingController()
-    };
-  }
-
-  Future<void> _selectDate(
-      BuildContext context, TextEditingController controller) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null) {
-      setState(() {
-        controller.text = DateFormat('yyyy-MM-dd').format(picked);
-      });
-    }
-  }
-
-  Future<void> _pickFile(TextEditingController controller) async {
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(type: FileType.any);
-
-    if (result != null && result.files.isNotEmpty) {
-      setState(() {
-        controller.text = result.files.first.path!;
-      });
-    }
-  }
-
-  Future<void> uploadData() async {
-    setState(() {
-      _isLoading = true;
-      _message = '';
-      ispressed = true;
-    });
-
-    if (_formKey.currentState?.validate() ?? false) {
-      final appBloc bloc = context.read<appBloc>();
-
-      var request = http.MultipartRequest(
-          'POST', Uri.parse('${AuthRequest.main_url}/user/upload'));
-
-      request.fields.addAll({
-        // 'x-auth-token':Provider.of<appBloc>(context,listen: false).token,
-        'api': '7',
-        'user': Provider.of<appBloc>(context, listen: false).user_id.toString(),
-        'certificate_type': selectedCommodity!,
-        'expiry': formData['expiryDateController'].text,
-      });
-
-      if (formData['certificateFileName'].text.isNotEmpty) {
-        request.files.add(await http.MultipartFile.fromPath(
-            'certificate', formData['certificateFileName'].text));
-      }
-
-      if (formData['proofOfPaymentFileName'].text.isNotEmpty) {
-        request.files.add(await http.MultipartFile.fromPath(
-            'payment_proof', formData['proofOfPaymentFileName'].text));
-      }
-
-      try {
-        bloc.changeIsLoading(true);
-
-        http.StreamedResponse response =
-            await request.send().timeout(Duration(seconds: 10));
-
-        if (response.statusCode == 200) {
-          print("Upload successful");
-          // changing the auth state to 1 meaning the user is authorized
-
-          bloc.changeIsLoading(false);
-          context.read<appBloc>().changeIsAuthorized(1);
-
-          Globals.switchScreens(context: context, screen: Authorization());
-        } else {
-          bloc.changeIsLoading(false);
-          Globals.warningsAlerts(
-            title: "Upload failed",
-            content: 'Upload failed: ${response.reasonPhrase}',
-            context: context,
-          );
-          print('Upload failed: ${response.reasonPhrase}');
-        }
-      } catch (e) {
-        bloc.changeIsLoading(false);
-        Globals.warningsAlerts(
-          title: "Upload failed",
-          content: 'Upload failed: $e',
-          context: context,
-        );
-      }
-    }
-
-    setState(() {
-      _isLoading = false;
-      ispressed = false;
-    });
-  }
-
-  Color _getButtonColor({required String fileName}) {
-    if (fileName.isEmpty) {
-      return Colors.red.shade400;
-    } else if (fileName.toLowerCase().endsWith('.pdf')) {
-      return Colors.blue.shade400;
-    } else {
-      return Colors.green.shade400;
-    }
-  }
-
-  Widget buttons(
-      {required void Function() onPressed,
-      required String title,
-      required Color textColor,
-      required bool isSubmit,
-      required Color color}) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      child: isSubmit
-          ? Provider.of<appBloc>(context, listen: false).isLoading
-              ? LoadingAnimationWidget.staggeredDotsWave(
-                  color: Colors.white, size: 20)
-              : Text(
-                  title,
-                  style: GoogleFonts.poppins(
-                    color: textColor,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                )
-          : Text(
-              title,
-              style: GoogleFonts.poppins(
-                color: textColor,
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-              ),
-            ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25),
-        ),
-        elevation: 5,
-        shadowColor: Colors.black26,
-        side: BorderSide(
-          color: color,
-          width: 2,
-        ),
-        textStyle: GoogleFonts.poppins(
-          fontWeight: FontWeight.w500,
-        ),
+  void navigateToCertificateForm(BuildContext context, CommoditiesCert certificate) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CertificateFormScreen(certificate: certificate),
       ),
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // if (_isLoading) {
-    //   return Scaffold(
-    //     body: Center(child: CircularProgressIndicator()),
-    //   );
-    // }
-
-    // if (_message.isNotEmpty) {
-    //   return Scaffold(
-    //     body: Center(child: Text(_message)),
-    //   );
-    // }
-
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: true,
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () =>
-              Globals.switchScreens(context: context, screen: Commodities(isWareHouse: false,)),
-          icon: Icon(color: Colors.white, Icons.arrow_back),
-        ),
-        title: Text(
-          'Regulators',
-          style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        backgroundColor: Colors.green.shade800,
-      ),
-      body: Container(
-        color: Colors.grey.shade200,
-        child: selectedCommodity == null
-            ? _buildNoCommoditiesMessage()
-            : _buildForm(),
-      ),
-    );
-  }
-
-  Widget _buildNoCommoditiesMessage() {
+    Widget _buildNoCommoditiesMessage(context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -297,257 +67,93 @@ class _RegulatorsState extends State<Regulators> {
     );
   }
 
-  Widget _buildForm() {
-    return Form(
-      key: _formKey,
-      child: SingleChildScrollView(
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.green,
+        centerTitle: true,
+        title: Text('Regulators', style: GoogleFonts.poppins(color: Colors.white)),
+      ),
+      body:commCerts!=null?
+      
+       ListView.builder(
+        itemCount: commCerts!.length,
+        itemBuilder: (context, index) {
+          CommoditiesCert cert = commCerts![index];
+          return ListTile(
+            title: Text(cert.certificateName ?? 'Unnamed Certificate'),
+            subtitle: Text(cert.authorityName ?? 'Unknown Authority'),
+            onTap: () => navigateToCertificateForm(context, cert),
+          );
+        },
+      ):_buildNoCommoditiesMessage(context)
+      ,
+    );
+  }
+}
+
+class CertificateFormScreen extends StatelessWidget {
+  final CommoditiesCert certificate;
+
+  CertificateFormScreen({required this.certificate});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.green,
+        title: Text(certificate.certificateName ?? 'Certificate Details'),
+      ),
+      body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Commodity: $selectedCommodity',
-                style: GoogleFonts.poppins(
-                    fontSize: 18, fontWeight: FontWeight.bold),
+                'Authority: ${certificate.authorityName ?? 'Unknown'}',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 20),
-              _buildCommodityForm(),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  buttons(
-                    isSubmit: false,
-                    textColor: Colors.black,
-                    onPressed: () => Globals.switchScreens(
-                        context: context, screen: Commodities(isWareHouse: false,)),
-                    title: "Back",
-                    color: Colors.grey.shade300,
-                  ),
-                  buttons(
-                    isSubmit: true,
-                    textColor: Colors.white,
-                    onPressed: () {
-                      ispressed
-                          ? Globals.showOperationInProgressSnackBar(context)
-                          : uploadData();
-                    },
-                    title: 'Submit',
-                    color: Colors.green.shade800,
-                  ),
-                ],
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  // Implement file upload logic
+                },
+                child: Text('Upload ${certificate.certificateName ?? 'Certificate'}'),
               ),
+              if (certificate.proofOfPaymentRequired == 1) ...[
+                SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () {
+                    // Implement proof of payment upload logic
+                  },
+                  child: Text(
+                    'Upload Proof of Payment' +
+                    (certificate.certificateFee != null
+                        ? ' (Fee: ${certificate.certificateFee})'
+                        : '')
+                  ),
+                ),
+              ],
+              SizedBox(height: 16),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Expiry Date',
+                  suffixIcon: Icon(Icons.calendar_today),
+                ),
+                onTap: () {
+                  // Implement date picker logic
+                },
+              ),
+              if (certificate.certificateTtl != null) ...[
+                SizedBox(height: 16),
+                Text('Time to Live: ${certificate.certificateTtl} ${certificate.certificateTtlUnits ?? ''}'),
+              ],
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildCommodityForm() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildFormField(
-          'Authority',
-          DropdownButtonFormField<String>(
-            value: formData['selectedAuthorityId'],
-            
-            items: commodityAuthorities.map((String authority) {
-              return DropdownMenuItem<String>(
-                value: authority,
-                child: Text(authority),
-              );
-            }).toList(),
-            onChanged: (String? newValue) {
-              setState(() {
-                formData['selectedAuthorityId'] = newValue;
-              });
-            },
-            decoration: InputDecoration(
-              hintText: "Select $selectedCommodity Authority",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
-              fillColor: Colors.white,
-            ),
-            validator: (value) =>
-                value == null ? 'Please select an authority' : null,
-          ),
-        ),
-        _buildFormField(
-          'Certificate URL',
-          TextFormField(
-            controller: formData['certificateController'],
-            decoration: InputDecoration(
-              hintText: 'Enter or upload certificate URL',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
-              fillColor: Colors.white,
-              contentPadding:
-                  EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-            ),
-            validator: (value) => value == null || value.isEmpty
-                ? 'Please enter or upload a certificate URL'
-                : null,
-          ),
-        ),
-        _buildFileUploadRow(
-          'Upload $selectedCommodity authority Certificate',
-          formData['certificateFileName'],
-        ),
-        _buildFormField(
-          'Expiry Date',
-          TextFormField(
-            controller: formData['expiryDateController'],
-            decoration: InputDecoration(
-              hintText: 'Select $selectedCommodity Certificate Expiry Date',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
-              fillColor: Colors.white,
-              contentPadding:
-                  EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-              suffixIcon: Icon(Icons.calendar_today),
-            ),
-            validator: (value) =>
-                value == null || value.isEmpty ? 'Please select a date' : null,
-            onTap: () async {
-              FocusScope.of(context).requestFocus(new FocusNode());
-              await _selectDate(context, formData['expiryDateController']);
-            },
-          ),
-        ),
-        _buildFormField(
-          'Proof of Payment',
-          TextFormField(
-            controller: formData['proofOfPaymentController'],
-            decoration: InputDecoration(
-              hintText: 'Enter or upload proof of payment',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.0),
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
-              fillColor: Colors.white,
-              contentPadding:
-                  EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-            ),
-            validator: (value) => value == null || value.isEmpty
-                ? 'Please enter or upload proof of payment'
-                : null,
-          ),
-        ),
-        _buildFileUploadRow(
-          'Upload $selectedCommodity proof Of Payment',
-          formData['proofOfPaymentFileName'],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFormField(String label, Widget field) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          SizedBox(height: 10),
-          Container(
-            height: 60,
-            margin: EdgeInsets.only(bottom: 20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  spreadRadius: 1,
-                  blurRadius: 3,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: field,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFileUploadRow(String label, TextEditingController controller) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          flex: 3,
-          child: ElevatedButton.icon(
-            onPressed: () => _pickFile(controller),
-            icon: Icon(Icons.upload_file),
-            label: Text(
-              label,
-              overflow: TextOverflow.ellipsis,
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: _getButtonColor(fileName: controller.text),
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-              textStyle: GoogleFonts.poppins(
-                fontWeight: FontWeight.w500,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ),
-        SizedBox(width: 10),
-        Expanded(
-          flex: 2,
-          child: Visibility(
-            visible: controller.text.isNotEmpty,
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey.shade400),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.file_present,
-                      size: 16, color: Colors.grey.shade700),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      controller.text,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade800,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

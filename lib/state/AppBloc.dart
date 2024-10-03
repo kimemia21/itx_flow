@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:itx/Serializers/CommCert.dart';
 import 'package:itx/Serializers/CommoditesCerts.dart';
 import 'package:itx/fromWakulima/widgets/contant.dart';
 import 'package:itx/global/globals.dart';
@@ -23,7 +24,7 @@ class appBloc extends ChangeNotifier {
   List _userCommoditesCerts = [];
   List<int> _userCommoditesIds = [];
   Map<String, dynamic> userDetails = {};
-  List<CommCert> commcert = [];
+  List<CommoditiesCert> commcert = [];
   String isAuthorized = "";
 
   int get currentIndex => _currentIndex;
@@ -119,7 +120,7 @@ class appBloc extends ChangeNotifier {
     notifyListeners();
   }
 
-  void changeCommCert(List<CommCert> commCert) {
+  void changeCommCert(List<CommoditiesCert> commCert) {
     commcert.clear();
     commcert = commCert;
     notifyListeners();

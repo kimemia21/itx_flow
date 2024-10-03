@@ -10,8 +10,10 @@ import 'package:provider/provider.dart';
 
 class WebOtpVerification extends StatefulWidget {
   final String? phoneNumber;
+  final bool isRegistered;
 
-  const WebOtpVerification({super.key, this.phoneNumber});
+  const WebOtpVerification(
+      {super.key, this.phoneNumber, required this.isRegistered});
 
   @override
   _WebOtpVerificationState createState() => _WebOtpVerificationState();
@@ -109,7 +111,7 @@ class _WebOtpVerificationState extends State<WebOtpVerification> {
                   SizedBox(height: 10),
                   SizedBox(height: 20),
                   TextField(
-                    controller:otp ,
+                    controller: otp,
                     decoration: InputDecoration(
                       labelText: 'Enter the code sent to $displayPhoneNumber',
                       filled: true,
@@ -174,13 +176,17 @@ class _WebOtpVerificationState extends State<WebOtpVerification> {
                       ),
                     ),
                     onPressed: () async {
-                      final String email = context.watch<Webbloc>().userEmail;
+                      try {
+                        final String email =  Provider.of<Webbloc>(context,listen: false).userEmail;
 
-                      WebAuthrequest.WebOtp(
-                          context: context,
-                          email: email,
-                          otp:otp.text.trim() ,
-                          isRegistered: false);
+                        WebAuthrequest.WebOtp(
+                            context: context,
+                            email: email,
+                            otp: otp.text.trim().toUpperCase(),
+                            isRegistered: widget.isRegistered);
+                      } catch (e) {
+                        print("login error $e");
+                      }
                     },
                     child: context.watch<Webbloc>().isLoading
                         ? LoadingAnimationWidget.staggeredDotsWave(
