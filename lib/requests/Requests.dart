@@ -10,12 +10,14 @@ import 'package:http/http.dart' as http;
 import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/Serializers/CommoditesCerts.dart';
 import 'package:itx/Serializers/UserTypes.dart';
+import 'package:itx/homepage/WareHouseHomepage.dart';
 import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:itx/authentication/Verification.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/myOrders.dart/MyOrders.dart';
+import 'package:itx/uploadCerts/WareHouseUploads.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -51,8 +53,11 @@ class AuthRequest {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
 
         if (responseBody["rsp"] == true) {
-          print("Success: ${responseBody["message"]}");
+          bloc.getUserType(body["user_type"]);
+          print("userType ----- ${bloc.user_type}");
+
           isOnOtp ? null : bloc.getUserType(body["user_type"]);
+
           bloc.changeIsLoading(false);
           isOnOtp
               ? CherryToast.success(
@@ -119,6 +124,7 @@ class AuthRequest {
   static Future<void> UserCommodities({
     required BuildContext context,
     required List<int> commodities,
+    required bool isWarehouse,
   }) async {
     final appBloc bloc = context.read<appBloc>();
 
@@ -169,7 +175,9 @@ class AuthRequest {
           print(" this is user bloc ${bloc.UserCommoditesCerts}");
           bloc.changeIsLoading(false);
 
-          Globals.switchScreens(context: context, screen: Regulators());
+          Globals.switchScreens(
+              context: context,
+              screen: isWarehouse ? WarehouseDocuments() : Regulators());
         } else {
           // Handle specific failure
           _handleError(
@@ -308,7 +316,7 @@ class AuthRequest {
       // Start loading state
       bloc.changeIsLoading(true);
 
-      // Send POST request for OTP verification
+      // Send get  request for OTP verification
       final http.Response response = await http.get(
         url,
 
@@ -322,20 +330,22 @@ class AuthRequest {
 
         if (responseBody["rsp"]) {
           Globals().successAlerts(
-              title: "Verification OTP", content: "", context: context);
+              title: "Verification",
+              content: "Code is being Sent",
+              context: context);
 
           final String token = responseBody["token"];
           context.read<appBloc>().changeToken(token);
 
           // Delay navigation for a few seconds for better UX
           Future.delayed(Duration(seconds: 3));
-          Globals.switchScreens(context: context, screen: Commodities());
+          Globals.switchScreens(context: context, screen: GlobalsHomePage());
 
           bloc.changeIsLoading(false); // Stop loading after success
         } else {
           // Show an authentication error if OTP fails
           Globals.warningsAlerts(
-            title: "Authentication Error",
+            title: "Otp Error",
             content: responseBody["rsp"],
             context: context,
           );
@@ -397,10 +407,24 @@ class AuthRequest {
 
           // Delay navigation for a few seconds for better UX
           Future.delayed(Duration(seconds: 3));
-          Globals.switchScreens(
-              context: context,
-              screen: isRegistered ? GlobalsHomePage() : Commodities());
 
+          if (bloc.user_type == 6){
+            Globals.switchScreens(
+                context: context,
+                screen: isRegistered
+                    ? Warehousehomepage()
+                    : Commodities(
+                        isWareHouse: true,
+                      ));
+          }
+
+           Globals.switchScreens(
+                context: context,
+                screen: isRegistered
+                    ? GlobalsHomePage()
+                    : Commodities(
+                        isWareHouse: false,
+                      ));
           bloc.changeIsLoading(false); // Stop loading after success
         } else {
           // Show an authentication error if OTP fails
@@ -536,9 +560,6 @@ class AuthRequest {
       );
     }
   }
-
-
-
 
   static Future<GoogleSignInAccount?> signInWithGoogle() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();

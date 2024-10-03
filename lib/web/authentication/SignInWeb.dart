@@ -4,8 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/authentication/SignUp.dart';
 import 'package:itx/authentication/SplashScreen.dart';
 import 'package:itx/global/globals.dart';
-import 'package:itx/web/CreateAccount.dart';
+import 'package:itx/web/authentication/SignUp.dart';
+import 'package:itx/web/requests/AuthRequest.dart';
+import 'package:itx/web/state/Webbloc.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:provider/provider.dart';
 
 class SignInWeb extends StatefulWidget {
   const SignInWeb({Key? key}) : super(key: key);
@@ -108,7 +111,8 @@ class _SignInWebState extends State<SignInWeb> {
                       icon: CupertinoIcons.padlock_solid,
                       isPassword: true,
                       visibility: visibility,
-                      toggleVisibility: () => setState(() => visibility = !visibility),
+                      toggleVisibility: () =>
+                          setState(() => visibility = !visibility),
                     ),
                     const SizedBox(height: 32),
                     _buildLoginButton(),
@@ -158,7 +162,9 @@ class _SignInWebState extends State<SignInWeb> {
           suffixIcon: isPassword
               ? IconButton(
                   icon: Icon(
-                    visibility! ? CupertinoIcons.eye_slash_fill : CupertinoIcons.eye_fill,
+                    visibility!
+                        ? CupertinoIcons.eye_slash_fill
+                        : CupertinoIcons.eye_fill,
                     size: 20,
                   ),
                   color: Colors.black54,
@@ -173,7 +179,8 @@ class _SignInWebState extends State<SignInWeb> {
             borderRadius: BorderRadius.circular(8),
             borderSide: BorderSide(color: Colors.green.shade400, width: 2),
           ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
@@ -187,8 +194,13 @@ class _SignInWebState extends State<SignInWeb> {
 
   Widget _buildLoginButton() {
     return ElevatedButton(
-      onPressed: () {
+      onPressed: () async {
         if (_formKey.currentState!.validate()) {
+          WebAuthrequest.login(
+              context: context,
+              email: _emailController.text,
+              password: _passwordController.text);
+
           // Add your authentication logic here
         }
       },
@@ -198,10 +210,10 @@ class _SignInWebState extends State<SignInWeb> {
         padding: const EdgeInsets.symmetric(vertical: 16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
-      child: isLoading
+      child: context.watch<Webbloc>().isLoading
           ? LoadingAnimationWidget.staggeredDotsWave(
               color: Colors.white,
-              size: 24,
+              size: 20,
             )
           : Text(
               "Login",
@@ -215,7 +227,8 @@ class _SignInWebState extends State<SignInWeb> {
 
   Widget _buildSignupButton() {
     return TextButton(
-      onPressed: () => Globals.switchScreens(context: context, screen: MainSignupWeb()),
+      onPressed: () =>
+          Globals.switchScreens(context: context, screen: MainSignupWeb()),
       child: Text(
         "Don't have an account? Sign up",
         style: GoogleFonts.abel(

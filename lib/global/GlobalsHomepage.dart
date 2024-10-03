@@ -50,9 +50,12 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
 
   List<Widget> _buildScreens() {
     return [
-    Commodities(),
-      
-      Contracts(filtered: true,showAppbarAndSearch: true,),
+      Userhomepage(),
+
+      Contracts(
+        filtered: true,
+        showAppbarAndSearch: true,
+      ),
 //
 
       Spottrader(),

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/authentication/CustomOtp.dart';
 import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/authentication/SignUp.dart';
 import 'package:itx/state/AppBloc.dart';
@@ -144,19 +144,16 @@ class _VerificationState extends State<Verification> {
                 ),
               ),
             const SizedBox(height: 10),
-            OtpTextField(
-              textStyle:
-                  GoogleFonts.abel(fontSize: 20, fontWeight: FontWeight.w600),
-              focusedBorderColor: Colors.black54,
-              fieldHeight: 85,
-              borderWidth: 3,
-              fieldWidth: 65,
-              borderRadius: const BorderRadius.all(Radius.circular(15)),
-              cursorColor: Colors.black54,
-              keyboardType: TextInputType.text,
-              numberOfFields: 5,
+            
+            CustomOtpTextField( // Use the custom OTP widget here
+              textStyle: GoogleFonts.abel(fontSize: 20, fontWeight: FontWeight.w600),
+              fieldHeight: 65,
+              fieldWidth: 50,
+              borderRadius: BorderRadius.circular(10),
+              borderWidth: 2,
               borderColor: _isOtpValid ? Colors.black : Colors.red,
-              showFieldAsBox: true,
+              focusedBorderColor: Colors.black54,
+              numberOfFields: 5,
               onCodeChanged: (String code) {
                 setState(() {
                   _isSubmitted = false;
@@ -168,8 +165,10 @@ class _VerificationState extends State<Verification> {
                   _isSubmitted = true;
                   _otpCode = verificationCode;
                 });
+                _validateOtp(); // Trigger validation on submit
               },
             ),
+            
             if (!_isOtpValid)
               Padding(
                 padding: const EdgeInsets.only(top: 10),

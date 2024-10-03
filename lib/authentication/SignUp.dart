@@ -95,7 +95,7 @@ class _MainSignupState extends State<MainSignup>
           "email": _emailController.text,
           "password": _passwordController.text.trim(),
           "phonenumber": _phoneNumberController.text.trim(),
-          "user_type": _selectedUserType!,
+          "user_type": int.parse(_selectedUserType!),
         };
 
         context.read<appBloc>().changeUserDetails(body);
@@ -255,7 +255,7 @@ class _MainSignupState extends State<MainSignup>
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar:AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.green,
         elevation: 0,
         centerTitle: true,
         title: AnimatedTextKit(
@@ -265,7 +265,7 @@ class _MainSignupState extends State<MainSignup>
               textStyle: GoogleFonts.poppins(
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
-                color: Colors.black,
+                color: Colors.white,
               ),
               speed: Duration(milliseconds: 100),
             ),
@@ -273,7 +273,7 @@ class _MainSignupState extends State<MainSignup>
           totalRepeatCount: 1,
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Globals.switchScreens(
               context: context, screen: MainLoginScreen()),
         ),

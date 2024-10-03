@@ -89,16 +89,16 @@ class _SalesState extends State<Sales> {
                     splashColor: Colors.grey,
                     radius: 100,
                     onTap: () async {
-                      await checkInternetConnection(context).then((value) {
-                        value
-                            ? PersistentNavBarNavigator.pushNewScreen(context,
-                                screen: Commodities())
-                            // Navigator.push(
-                            //     context,
-                            //     MaterialPageRoute(
-                            //         builder: (context) => SearchPage()))
-                            : Globals().nointernet(context: context);
-                      });
+                      // await checkInternetConnection(context).then((value) {
+                      //   value
+                      //       ? PersistentNavBarNavigator.pushNewScreen(context,
+                      //           screen: Commodities())
+                      //       // Navigator.push(
+                      //       //     context,
+                      //       //     MaterialPageRoute(
+                      //       //         builder: (context) => SearchPage()))
+                      //       : Globals().nointernet(context: context);
+                      // });
                     },
                     borderRadius: BorderRadius.circular(8),
                     child: Padding(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:itx/Commodities.dart/ComRequest.dart';
+import 'package:itx/web/requests/AuthRequest.dart';
 
 class CommodityDropdown extends StatefulWidget {
   final Function(String?) onCommoditySelected;
@@ -24,12 +25,9 @@ class _CommodityDropdownState extends State<CommodityDropdown> {
 
   Future<void> _fetchCommodities() async {
     try {
-      print("we are in");
-      List<Map<String, dynamic>> fetchedCommodities =
-          await CommodityRequest.fetchCommodities(context);
+      List<Map<String, dynamic>> fetchedCommodities = await WebAuthrequest.fetchCommodities(context);
       setState(() {
         _commodities = fetchedCommodities;
-        print(_commodities);
         _isLoading = false;
       });
     } catch (e) {
@@ -43,7 +41,9 @@ class _CommodityDropdownState extends State<CommodityDropdown> {
   Widget _buildCommodityTypeDropdown() {
     if (_isLoading) {
       return Center(
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(
+          
+        ),
       );
     }
 

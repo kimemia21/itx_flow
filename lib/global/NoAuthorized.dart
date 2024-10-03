@@ -36,7 +36,7 @@ void showAuthorizationAlert(BuildContext context) {
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
                   screen: Regulators(),
-                  withNavBar: true,
+                  withNavBar: false,
                 );
                 // Close the dialog
                 // Navigate to document upload page

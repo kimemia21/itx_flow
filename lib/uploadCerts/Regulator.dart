@@ -123,7 +123,7 @@ class _RegulatorsState extends State<Regulators> {
 
       try {
         bloc.changeIsLoading(true);
-        
+
         http.StreamedResponse response =
             await request.send().timeout(Duration(seconds: 10));
 
@@ -237,7 +237,7 @@ class _RegulatorsState extends State<Regulators> {
         centerTitle: true,
         leading: IconButton(
           onPressed: () =>
-              Globals.switchScreens(context: context, screen: Commodities()),
+              Globals.switchScreens(context: context, screen: Commodities(isWareHouse: false,)),
           icon: Icon(color: Colors.white, Icons.arrow_back),
         ),
         title: Text(
@@ -275,7 +275,7 @@ class _RegulatorsState extends State<Regulators> {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              Globals.switchScreens(context: context, screen: Commodities());
+              Globals.switchScreens(context: context, screen: Commodities(isWareHouse: false,));
             },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
@@ -321,7 +321,7 @@ class _RegulatorsState extends State<Regulators> {
                     isSubmit: false,
                     textColor: Colors.black,
                     onPressed: () => Globals.switchScreens(
-                        context: context, screen: Commodities()),
+                        context: context, screen: Commodities(isWareHouse: false,)),
                     title: "Back",
                     color: Colors.grey.shade300,
                   ),
@@ -353,6 +353,7 @@ class _RegulatorsState extends State<Regulators> {
           'Authority',
           DropdownButtonFormField<String>(
             value: formData['selectedAuthorityId'],
+            
             items: commodityAuthorities.map((String authority) {
               return DropdownMenuItem<String>(
                 value: authority,

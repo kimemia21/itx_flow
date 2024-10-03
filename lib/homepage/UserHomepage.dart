@@ -37,8 +37,4 @@ class _UserhomepageState extends State<Userhomepage> {
     );
   }
 }
-    // HomepageContractsWidget(),
-    // SimplifiedContractsScreen()
-
-    // HomePageOrders()
-    // // SimplifiedContractsScreen()
+    

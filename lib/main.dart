@@ -10,8 +10,10 @@ import 'package:itx/firebase_options.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/requests/HomepageRequest.dart';
-import 'package:itx/web/CreateAccount.dart';
-import 'package:itx/web/SignInWeb.dart';
+import 'package:itx/web/authentication/SignUp.dart';
+import 'package:itx/web/authentication/SignInWeb.dart';
+import 'package:itx/web/authentication/WebSplash.dart';
+import 'package:itx/web/state/Webbloc.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -30,6 +32,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => CurrentUserProvider()),
         ChangeNotifierProvider(create: (context) => appBloc()),
+        ChangeNotifierProvider(create: (context)=>Webbloc())
       ],
       child: MaterialApp(home: GetPlatform()),
     );
@@ -49,7 +52,7 @@ class _GetPlatformState extends State<GetPlatform> {
     final appBloc bloc = context.watch<appBloc>();
     // Web platform
     if (kIsWeb) {
-      return bloc.token == "" ? SignInWeb() :  SignInWeb();
+      return bloc.token == "" ? SplashScreenWeb() :  SignInWeb();
     }
     // Android or iOS platform
     else if (Platform.isAndroid || Platform.isIOS) {

@@ -12,8 +12,8 @@ import 'package:provider/provider.dart';
 import 'package:logging/logging.dart';
 
 class Commodities extends StatefulWidget {
-  final ScrollController? scrollController;
-  const Commodities({Key? key, this.scrollController}) : super(key: key);
+  final bool isWareHouse;
+  const Commodities({Key? key, required this.isWareHouse}) : super(key: key);
 
   @override
   State<Commodities> createState() => _CommoditiesState();
@@ -72,6 +72,7 @@ class _CommoditiesState extends State<Commodities> {
 
   @override
   Widget build(BuildContext context) {
+    print("--------------------${widget.isWareHouse}------------------");
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: _buildAppBar(),
@@ -158,34 +159,33 @@ class _CommoditiesState extends State<Commodities> {
     }
     if (allCommodities.isEmpty) {
       return Center(
-  child: Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Icon(Icons.warning_amber_rounded, size: 48, color: Colors.black54),
-      SizedBox(height: 10),
-      Text(
-        'No commodities available',
-        style: GoogleFonts.poppins(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          color: Colors.black54,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.warning_amber_rounded, size: 48, color: Colors.black54),
+            SizedBox(height: 10),
+            Text(
+              'No commodities available',
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.black54,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 5),
+            // Text(
+            //   'Please check back later.',
+            //   style: GoogleFonts.poppins(
+            //     fontSize: 16,
+            //     fontWeight: FontWeight.w400,
+            //     color: Colors.grey.shade600,
+            //   ),
+            //   textAlign: TextAlign.center,
+            // ),
+          ],
         ),
-        textAlign: TextAlign.center,
-      ),
-      SizedBox(height: 5),
-      // Text(
-      //   'Please check back later.',
-      //   style: GoogleFonts.poppins(
-      //     fontSize: 16,
-      //     fontWeight: FontWeight.w400,
-      //     color: Colors.grey.shade600,
-      //   ),
-      //   textAlign: TextAlign.center,
-      // ),
-    ],
-  ),
-);
-
+      );
     }
     return ListView.builder(
       itemCount: allCommodities.length,
@@ -268,10 +268,9 @@ class _CommoditiesState extends State<Commodities> {
         ),
       );
     } else {
-    
       AuthRequest.UserCommodities(
+          isWarehouse: widget.isWareHouse,
           context: context,
-          
           commodities: userItemsId.toList());
     }
   }

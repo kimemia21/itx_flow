@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:easy_sidemenu/easy_sidemenu.dart';
 import 'package:flutter/material.dart';
 import 'package:itx/web/DocumentScreen.dart';
-import 'package:itx/web/GlobalExchange.dart';
+import 'package:itx/web/uplaodDocs.dart/GlobalExchange.dart';
 import 'package:itx/web/MetaTrading.dart';
 import 'package:itx/web/NewContract.dart';
 
