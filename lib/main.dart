@@ -13,6 +13,7 @@ import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/web/authentication/SignUp.dart';
 import 'package:itx/web/authentication/SignInWeb.dart';
 import 'package:itx/web/authentication/WebSplash.dart';
+import 'package:itx/web/state/Webbloc.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => CurrentUserProvider()),
         ChangeNotifierProvider(create: (context) => appBloc()),
+        ChangeNotifierProvider(create: (context)=>Webbloc())
       ],
       child: MaterialApp(home: GetPlatform()),
     );

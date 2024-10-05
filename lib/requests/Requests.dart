@@ -11,7 +11,7 @@ import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/Serializers/CommCert.dart';
 import 'package:itx/Serializers/CommoditesCerts.dart';
 import 'package:itx/Serializers/UserTypes.dart';
-import 'package:itx/homepage/WareHouseHomepage.dart';
+import 'package:itx/warehouse/WareHouseHomepage.dart';
 import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:itx/authentication/Verification.dart';
 import 'package:itx/state/AppBloc.dart';
@@ -166,7 +166,8 @@ class AuthRequest {
           print("Success: ${responseBody["data"]}");
           final List<dynamic> body = responseBody["data"];
 
-          mapper = body.map((element) => CommoditiesCert.fromJson(element)).toList();
+          mapper =
+              body.map((element) => CommoditiesCert.fromJson(element)).toList();
 // getting the commodity response and saving it to state when this enpoint is called
 
           bloc.changeCommCert(mapper);
@@ -178,7 +179,7 @@ class AuthRequest {
 
           Globals.switchScreens(
               context: context,
-              screen: isWarehouse ? WarehouseDocuments() : Regulators(commCerts: mapper));
+              screen: Regulators(commCerts: mapper, isWareHouse: isWarehouse));
         } else {
           // Handle specific failure
           _handleError(
@@ -410,6 +411,9 @@ class AuthRequest {
 
           // Delay navigation for a few seconds for better UX
           Future.delayed(Duration(seconds: 3));
+
+          print(
+              "checkwarehouse-------------------${bloc.user_type}--------------");
 
           if (bloc.user_type == 6) {
             Globals.switchScreens(
@@ -685,5 +689,12 @@ class AuthRequest {
     } finally {
       bloc.changeIsLoading(false);
     }
+
   }
+
+
+
+
+
+  
 }

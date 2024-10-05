@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/state/AppBloc.dart';
 import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
 
 void showAuthorizationAlert(BuildContext context) {
   showDialog(
@@ -26,16 +28,18 @@ void showAuthorizationAlert(BuildContext context) {
             child: TextButton(
               style: TextButton.styleFrom(
                 backgroundColor: Colors.green.shade700,
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
-            
+                final bool isWareHouse = context.watch<appBloc>().user_id == 6;
+
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
-                  screen: Regulators(),
+                  screen: Regulators(isWareHouse: isWareHouse,),
                   withNavBar: false,
                 );
                 // Close the dialog
@@ -45,7 +49,10 @@ void showAuthorizationAlert(BuildContext context) {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.upload_file,color: Colors.white,),
+                  Icon(
+                    Icons.upload_file,
+                    color: Colors.white,
+                  ),
                   Text(
                     'Upload Document',
                     style: GoogleFonts.poppins(

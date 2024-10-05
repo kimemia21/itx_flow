@@ -45,11 +45,12 @@ class _AuthorizationState extends State<Authorization> {
   @override
   Widget build(BuildContext context) {
     final authStatus = Provider.of<appBloc>(context, listen: false).isAuthorized;
+       final bool isWareHouse = context.watch<appBloc>().user_id == 6;
 
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () => Globals.switchScreens(context: context, screen: Regulators()),
+          onPressed: () => Globals.switchScreens(context: context, screen: Regulators(isWareHouse: isWareHouse,)),
           icon: Icon(Icons.arrow_back),
         ),
         centerTitle: true,

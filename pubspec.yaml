@@ -80,7 +80,9 @@ dependencies:
   smart_auth: ^2.0.0
   mockito: ^5.4.4
   timeago: ^3.7.0
-  webview_flutter: ^4.8.0
+  flutter_typeahead: ^5.2.0
+  get: ^4.6.6
+  animated_custom_dropdown: ^3.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

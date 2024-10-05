@@ -11,9 +11,11 @@ import 'package:itx/Serializers/CompanySerializer.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/Serializers/OrderModel.dart';
 import 'package:itx/Serializers/PriceHistory.dart';
+import 'package:itx/Serializers/WareHouseUsers.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 class CommodityService {
@@ -383,14 +385,18 @@ class CommodityService {
     };
 
     final http.Response response =
-        await http.post(uri, headers: headers, body: body);
+        await http.post(uri, headers: headers, body: jsonEncode(body));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = json.decode(response.body);
 
       if (responseData['rsp'] == true) {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => GlobalsHomePage()));
+        // Navigator.push(context,
+        //     MaterialPageRoute(builder: (context) => GlobalsHomePage()));
+        PersistentNavBarNavigator.pushNewScreen(
+          withNavBar: false,
+          context,
+            screen: GlobalsHomePage());
         CherryToast.success(
           title: Text("sucess"),
         ).show(context);
@@ -402,105 +408,124 @@ class CommodityService {
     }
   }
 
-static Future<void> UpdateBid(BuildContext context, double  price, int id) async {
-  final Uri uri = Uri.parse("$mainUri/contracts/bids/$id");
-  final Map<String, String> headers = {
-    "Content-Type": "application/json", // Set Content-Type to JSON
-    "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
-  };
-  
-  final appBloc bloc = context.read<appBloc>();
-  try {
-    bloc.changeIsLoading(true);
-
-    // Encode the body as JSON
-    final Map<String, dynamic> body = {
-      "bid_price": price,
+  static Future<void> UpdateBid(
+      BuildContext context, double price, int id) async {
+    final Uri uri = Uri.parse("$mainUri/contracts/bids/$id");
+    final Map<String, String> headers = {
+      "Content-Type": "application/json", // Set Content-Type to JSON
+      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
     };
 
-    final http.Response response = await http.patch(
-      uri,
-      headers: headers,
-      body: jsonEncode(body), // Encode the body to JSON
-    );
+    final appBloc bloc = context.read<appBloc>();
+    try {
+      bloc.changeIsLoading(true);
 
-    if (response.statusCode == 200) {
-      print("Patched successfully");
-      bloc.changeIsLoading(false);
-      Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Bid updated successfully!',
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.only(top: 50, left: 20, right: 20), // Positioned at the top
-          duration: Duration(seconds: 3), // Duration of the snackbar
-        ),
+      // Encode the body as JSON
+      final Map<String, dynamic> body = {
+        "bid_price": price,
+      };
+
+      final http.Response response = await http.patch(
+        uri,
+        headers: headers,
+        body: jsonEncode(body), // Encode the body to JSON
       );
-    } else {
-      print("Failed to patch");
-      print(response.body);
+
+      if (response.statusCode == 200) {
+        print("Patched successfully");
+        bloc.changeIsLoading(false);
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Bid updated successfully!',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.only(
+                top: 50, left: 20, right: 20), // Positioned at the top
+            duration: Duration(seconds: 3), // Duration of the snackbar
+          ),
+        );
+      } else {
+        print("Failed to patch");
+        print(response.body);
+        bloc.changeIsLoading(false);
+      }
+    } catch (e) {
+      print("Error: $e");
       bloc.changeIsLoading(false);
     }
-  } catch (e) {
-    print("Error: $e");
-    bloc.changeIsLoading(false);
   }
-}
 
+  static Future<void> DeleteBid(BuildContext context, int id) async {
+    final Uri uri = Uri.parse("$mainUri/contracts/bids/$id");
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+    };
 
-static Future<void> DeleteBid(BuildContext context, int id) async {
-  final Uri uri = Uri.parse("$mainUri/contracts/bids/$id");
-  final Map<String, String> headers = {
-    "Content-Type": "application/json", 
-    "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
-  };
-  
-  final appBloc bloc = context.read<appBloc>();
-  try {
-    bloc.changeIsLoading(true);
+    final appBloc bloc = context.read<appBloc>();
+    try {
+      bloc.changeIsLoading(true);
 
-    final http.Response response = await http.delete(
-      uri,
-      headers: headers,
-    );
-
-    if (response.statusCode == 200) {
-      print("Deleted successfully");
-
-      bloc.changeIsLoading(false);
-      Navigator.pop(context);
-
-    
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Bid deleted successfully!',
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.only(top: 50, left: 20, right: 20), // Positioned at the top
-          duration: Duration(seconds: 3), // Duration of the snackbar
-        ),
+      final http.Response response = await http.delete(
+        uri,
+        headers: headers,
       );
-    } else {
-      print("Failed to delete");
-      print(response.body);
+
+      if (response.statusCode == 200) {
+        print("Deleted successfully");
+
+        bloc.changeIsLoading(false);
+        Navigator.pop(context);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Bid deleted successfully!',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            margin: EdgeInsets.only(
+                top: 50, left: 20, right: 20), // Positioned at the top
+            duration: Duration(seconds: 3), // Duration of the snackbar
+          ),
+        );
+      } else {
+        print("Failed to delete");
+        print(response.body);
+        bloc.changeIsLoading(false);
+      }
+    } catch (e) {
+      print("Error: $e");
       bloc.changeIsLoading(false);
     }
-  } catch (e) {
-    print("Error: $e");
-    bloc.changeIsLoading(false);
   }
-}
 
+  static Future<List<WarehouseNames>> getWareHouse(
+      {required BuildContext context}) async {
+    try {
+      final Uri uri = Uri.parse("$mainUri/user/all?type=6");
+      final Map<String, String> headers = {
+        "Content-Type": "application/json",
+        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      };
 
+      final http.Response response = await http.get(uri, headers: headers);
+      final body = jsonDecode(response.body);
 
-
-
-
+      if (response.statusCode == 200 && body["rsp"]) {
+        List<dynamic> data = body["data"];
+        return data.map((json) => WarehouseNames.fromJson(json)).toList();
+      } else {
+        throw Exception("Failed to load warehouse data");
+      }
+    } catch (e) {
+      print("Error fetching warehouse: $e");
+      return [];
+    }
+  }
 }

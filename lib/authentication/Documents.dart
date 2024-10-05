@@ -98,6 +98,7 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
   Widget build(BuildContext context) {
     // Fetching the user role directly from the appBloc using context.watch
     final int user_type = context.watch<appBloc>().user_type;
+    final bool isWareHouse = context.watch<appBloc>().user_id == 6;
 
     return Scaffold(
       appBar: AppBar(
@@ -148,7 +149,7 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
                     ? "Add a document to prove you are authorized to buy these products: ${context.watch<appBloc>().userCommodities.join(',')}"
                     : "Add a document to prove these products are eligible for sale: ${context.watch<appBloc>().userCommodities.join(',')}",
                 action: () {
-                  Globals.switchScreens(context: context, screen: Regulators());
+                  Globals.switchScreens(context: context, screen: Regulators(isWareHouse: isWareHouse,));
                 },
               ),
             ],

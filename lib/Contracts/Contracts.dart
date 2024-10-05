@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:itx/Contracts/AdvancedSearch.dart';
-import 'package:itx/Contracts/CreateContract.dart';
+import 'package:itx/Contracts/CreateContract/CreateContract.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/Contracts/AnimatedButton.dart';
