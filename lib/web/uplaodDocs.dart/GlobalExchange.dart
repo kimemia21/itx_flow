@@ -3,26 +3,26 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Commodities.dart/ComDropDown.dart';
 import 'package:itx/web/ContractsScreen.dart';
 
-class TradeAuthorizationScreen extends StatefulWidget {
+class TradeAuthorizationStatusScreen extends StatefulWidget {
   @override
-  _TradeAuthorizationScreenState createState() =>
-      _TradeAuthorizationScreenState();
+  _TradeAuthorizationStatusScreenState createState() =>
+      _TradeAuthorizationStatusScreenState();
 }
 
-class _TradeAuthorizationScreenState extends State<TradeAuthorizationScreen> {
+class _TradeAuthorizationStatusScreenState
+    extends State<TradeAuthorizationStatusScreen> {
   String selectedDocument = 'Search...';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Trade Authorization',
+            Text('Trade AuthorizationStatus',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             SizedBox(height: 20),
             Text('Step 1: Verify your identity',
@@ -30,7 +30,7 @@ class _TradeAuthorizationScreenState extends State<TradeAuthorizationScreen> {
             Text(
                 'Complete the form below to verify your identity. This is required to trade on Global Exchange.'),
             SizedBox(height: 20),
-           CommodityDropdown(onCommoditySelected: (selectedComId){}),
+            CommodityDropdown(onCommoditySelected: (selectedComId) {}),
             SizedBox(height: 10),
             Text("Required Regulatory Document"),
             SizedBox(height: 10),

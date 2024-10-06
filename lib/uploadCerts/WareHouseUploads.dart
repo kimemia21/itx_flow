@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:itx/requests/Requests.dart';
+import 'package:itx/uploadCerts/Authorization.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:itx/authentication/Authorization.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/requests/HomepageRequest.dart';
@@ -41,7 +41,6 @@ class _WarehouseDocumentsState extends State<WarehouseDocuments> {
         _initializeFormData();
         commodityAuthorities = [
           '$selectedCommodity',
-    
         ];
       });
     } else {
@@ -119,7 +118,11 @@ class _WarehouseDocumentsState extends State<WarehouseDocuments> {
       if (response.statusCode == 200) {
         print("Upload successful");
         bloc.changeIsLoading(false);
-        Globals.switchScreens(context: context, screen: Authorization());
+        Globals.switchScreens(
+            context: context,
+            screen: AuthorizationStatus(
+              isWareHouse: true,
+            ));
       } else {
         bloc.changeIsLoading(false);
         Globals.warningsAlerts(
@@ -348,9 +351,8 @@ class _WarehouseDocumentsState extends State<WarehouseDocuments> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: _getButtonColor(
-                    fileName: controller.text.isNotEmpty
-                        ? controller.text
-                        : ''),
+                    fileName:
+                        controller.text.isNotEmpty ? controller.text : ''),
               ),
               child: Text(
                 controller.text.isEmpty ? 'Choose File' : 'File Selected',

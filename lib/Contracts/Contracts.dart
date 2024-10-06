@@ -15,9 +15,10 @@ import 'package:provider/provider.dart';
 
 class Contracts extends StatefulWidget {
   const Contracts(
-      {super.key, required this.filtered, required this.showAppbarAndSearch});
+      {super.key, required this.filtered, required this.showAppbarAndSearch,  required this.isWareHouse});
   final bool filtered;
   final bool showAppbarAndSearch;
+  final isWareHouse;
 
   @override
   State<Contracts> createState() => _ContractsState();
@@ -37,7 +38,7 @@ class _ContractsState extends State<Contracts> {
   Future<void> fetchContracts() async {
     setState(() {
       contracts = CommodityService.getContracts(
-          context: context, isWatchList: widget.filtered);
+          context: context, isWatchList: widget.filtered, isWareHouse:widget.isWareHouse);
     });
   }
 
@@ -244,7 +245,7 @@ class _ContractsState extends State<Contracts> {
           ? AppBar(
               centerTitle: true,
               automaticallyImplyLeading: true,
-              title: Text(
+              title: Text(widget.isWareHouse?"WareHouse Orders": 
                 widget.filtered ? "Watchlist" : "Contracts",
                 style: GoogleFonts.poppins(
                   fontWeight: FontWeight.bold,
@@ -297,16 +298,16 @@ class _ContractsState extends State<Contracts> {
                   child: FutureBuilder<List<ContractsModel>>(
                     future: contracts,
                     builder: (context, snapshot) {
+                       String name =
+                           widget.isWareHouse?"WareHouse Orders":  widget.filtered ? "Watchlist" : "Contracts";
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(child: CircularProgressIndicator());
                       } else if (snapshot.hasError) {
-                        String name =
-                            widget.filtered ? "Watchlist":"Contracts"  ;
+                       
                         return Globals.buildErrorState(
-                            function: fetchContracts, items:name);
+                            function: fetchContracts, items: name);
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        String name =
-                            widget.filtered ? "Contracts" : "Watchlist";
+                       
                         return Globals.buildNoDataState(
                             function: fetchContracts, item: name);
                       }

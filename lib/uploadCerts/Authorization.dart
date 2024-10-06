@@ -1,60 +1,102 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/Commodities.dart/Commodites.dart';
 import 'package:itx/Contracts/Contracts.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/global/globals.dart';
+import 'package:itx/warehouse/WareHouseHomepage.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
-class Authorization extends StatefulWidget {
-  const Authorization({super.key});
+class AuthorizationStatus extends StatefulWidget {
+  final bool isWareHouse;
+  const AuthorizationStatus({super.key, required this.isWareHouse});
 
   @override
-  State<Authorization> createState() => _AuthorizationState();
+  State<AuthorizationStatus> createState() => _AuthorizationStatusState();
 }
 
-class _AuthorizationState extends State<Authorization> {
-  Widget infoTiles({required String title, required String subtitle}) {
-    return Container(
-      width: MediaQuery.of(context).size.width * 0.4,
-      padding: EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadiusDirectional.circular(10),
-        border: Border.all(color: Colors.black54),
-        color: Colors.grey.shade300,
-      ),
-      height: 120,
-      margin: EdgeInsets.only(right: 2),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.check),
-          Text(
-            title,
-            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+class _AuthorizationStatusState extends State<AuthorizationStatus> {
+ Widget infoTiles({
+  required String title,
+  required String subtitle,
+  required bool status,
+}) {
+  return Container(
+    width: MediaQuery.of(context).size.width * 0.4,
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: Colors.black12, width: 1.5),
+      color: Colors.white, // Clean background
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black12,
+          offset: Offset(2, 2),
+          blurRadius: 6, // Subtle shadow for modern touch
+        ),
+      ],
+    ),
+    height: 120,
+    margin: const EdgeInsets.only(right: 8),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Center(
+          child: Icon(
+            status ? Icons.check_circle_outline : Icons.error_outline,
+            size: 28,
+            color: status ? Colors.green : Colors.red,
           ),
-          Text(subtitle),
-        ],
-      ),
-    );
-  }
+        ),
+        const SizedBox(height: 10),
+        Text(
+          title,
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          subtitle,
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
+            color: Colors.grey.shade600,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
-    final authStatus = Provider.of<appBloc>(context, listen: false).isAuthorized;
-       final bool isWareHouse = context.watch<appBloc>().user_id == 6;
+    final authStatus =
+        Provider.of<appBloc>(context, listen: false).isAuthorized;
+    final bool isWareHouse = context.watch<appBloc>().user_id == 6;
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.green,
         leading: IconButton(
-          onPressed: () => Globals.switchScreens(context: context, screen: Regulators(isWareHouse: isWareHouse,)),
+          onPressed: () => Globals.switchScreens(
+              context: context,
+              screen: Regulators(
+                isWareHouse: isWareHouse,
+              )),
           icon: Icon(Icons.arrow_back),
         ),
         centerTitle: true,
-        title: Text("Trading Authorization"),
+        title: Text("Trading Authorization Status",style: GoogleFonts.poppins(
+          fontWeight: FontWeight.w500,
+          color: Colors.white),),
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -83,7 +125,7 @@ class _AuthorizationState extends State<Authorization> {
                     SizedBox(height: 40),
                     GestureDetector(
                       onTap: () => PersistentNavBarNavigator.pushNewScreen(
-                        withNavBar: true, context, screen: GlobalsHomePage()),
+                          withNavBar: true, context, screen: GlobalsHomePage()),
                       child: Container(
                         alignment: Alignment.center,
                         width: MediaQuery.of(context).size.width * 0.8,
@@ -114,8 +156,10 @@ class _AuthorizationState extends State<Authorization> {
                           infoTiles(
                             title: "Personal info",
                             subtitle: "Complete to trade on iTx",
+                            status: true,
                           ),
                           infoTiles(
+                            status: authStatus == 'yes',
                             title: "Regulator status",
                             subtitle: "We need a few more details",
                           ),
@@ -130,10 +174,8 @@ class _AuthorizationState extends State<Authorization> {
                           Text("Regulator status"),
                           TextButton(
                             onPressed: () {
-                              PersistentNavBarNavigator.pushNewScreen(
-                                context,
-                                screen: GlobalsHomePage(),
-                              );
+                              PersistentNavBarNavigator.pushNewScreen(context,
+                                  screen: Regulators(isWareHouse: isWareHouse));
                             },
                             child: Text("Continue"),
                           ),
@@ -146,7 +188,10 @@ class _AuthorizationState extends State<Authorization> {
                     SizedBox(height: 20),
                     GestureDetector(
                       onTap: () => PersistentNavBarNavigator.pushNewScreen(
-                        withNavBar: true, context, screen: GlobalsHomePage()),
+                          context,
+                          screen: isWareHouse
+                              ? Commodities(isWareHouse: isWareHouse)
+                              : GlobalsHomePage()),
                       child: Container(
                         alignment: Alignment.center,
                         width: MediaQuery.of(context).size.width * 0.8,

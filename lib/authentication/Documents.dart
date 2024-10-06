@@ -144,12 +144,16 @@ class _DocumentsVerificationState extends State<DocumentsVerification> {
                 ),
               ),
               _buildDocsType(
-                title: user_type == 3 ? "Authorization" : "Compliance",
+                title: user_type == 3 ? "AuthorizationStatus" : "Compliance",
                 subtitle: user_type == 3
                     ? "Add a document to prove you are authorized to buy these products: ${context.watch<appBloc>().userCommodities.join(',')}"
                     : "Add a document to prove these products are eligible for sale: ${context.watch<appBloc>().userCommodities.join(',')}",
                 action: () {
-                  Globals.switchScreens(context: context, screen: Regulators(isWareHouse: isWareHouse,));
+                  Globals.switchScreens(
+                      context: context,
+                      screen: Regulators(
+                        isWareHouse: isWareHouse,
+                      ));
                 },
               ),
             ],

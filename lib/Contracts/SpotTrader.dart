@@ -89,7 +89,8 @@ class _SpottraderState extends State<Spottrader> with SingleTickerProviderStateM
       body: TabBarView(
         controller: _tabController,
         children: [
-          Contracts(filtered: true,showAppbarAndSearch: false,),
+          // warehouse has no views 
+          Contracts(filtered: true,showAppbarAndSearch: false,isWareHouse: false,),
           Center(child: Text('Agriculture Content', style: GoogleFonts.poppins(fontSize: 18))),
           Center(child: Text('Energy Content', style: GoogleFonts.poppins(fontSize: 18))),
           Center(child: Text('Crafts Content', style: GoogleFonts.poppins(fontSize: 18))),

@@ -466,13 +466,13 @@ class WebAuthrequest {
                 context: context,
                 screen: isRegistered
                     ? MyHomePageWeb(title: "Home")
-                    : TradeAuthorizationScreen());
+                    : TradeAuthorizationStatusScreen());
           } else {
             Globals.switchScreens(
                 context: context,
                 screen: isRegistered
                     ? MyHomePageWeb(title: "Home")
-                    : TradeAuthorizationScreen());
+                    : TradeAuthorizationStatusScreen());
           }
           bloc.changeIsLoading(false); // Stop loading after success
         } else {

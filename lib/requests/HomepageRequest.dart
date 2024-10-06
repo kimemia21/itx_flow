@@ -71,12 +71,17 @@ class CommodityService {
   }
 
   static Future<List<ContractsModel>> getContracts(
-      {required BuildContext context, required bool isWatchList}) async {
+      {required BuildContext context,
+      required bool isWatchList,
+      required isWareHouse}) async {
     print(isWatchList);
+    final int userId = Provider.of<appBloc>(context, listen: false).user_id;
 
     final Uri uri = isWatchList
         ? Uri.parse("$mainUri/contracts/list?this_user_liked=1")
-        : Uri.parse("$mainUri/contracts/list?");
+        : isWareHouse
+            ? Uri.parse("$mainUri/contracts/list?warehouse_id=$userId")
+            : Uri.parse("$mainUri/contracts/list?");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
       "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
@@ -392,8 +397,13 @@ class CommodityService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
 
+        print("this is the response $responseData");
+
         if (responseData['rsp'] == true) {
           bloc.changeIsLoading(false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Contract created successfully')),
+          );
 
           PersistentNavBarNavigator.pushNewScreen(
               withNavBar: false, context, screen: GlobalsHomePage());
@@ -406,7 +416,7 @@ class CommodityService {
         }
       } else {
         bloc.changeIsLoading(false);
-        throw Exception('Failed to create contract');
+        throw Exception('Failed to create contract ${response.statusCode}');
       }
     } catch (e) {
       bloc.changeIsLoading(false);

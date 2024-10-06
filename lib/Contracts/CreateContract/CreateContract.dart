@@ -595,20 +595,23 @@ class _CreateContractState extends State<CreateContract>
                 "value": milestone.quantity
               })
           .toList(),
-      "params": params
-          .map((param) => {
-                "param_id": param.id,
-                "param_value": controllers[param.id]?.text ?? ''
-              })
-          .toList(),
+      "params": {"param_id": 1, "param_value": 100}
+
+      // params
+      //     .map((param) => {
+      //           "param_id": param.id,
+      //           "param_value": controllers[param.id]?.text ?? ''
+      //         })
+      // .toList(),
     };
+    print("-------------------------------------");
+    print(contractData);
+    
+    print("-------------------------------------");
 
     try {
       await CommodityService.CreateContract(context, contractData);
       // Show success message or navigate to a new screen
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Contract created successfully')),
-      );
     } catch (e) {
       // Show error message
       ScaffoldMessenger.of(context).showSnackBar(

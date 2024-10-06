@@ -54,7 +54,15 @@ class AuthRequest {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
 
         if (responseBody["rsp"] == true) {
-          bloc.getUserType(body["user_type"]);
+        
+          Map<String, int> userTypeMap = {
+            "individual": 3,
+            "producer": 4,
+            "trader": 5
+          };
+          int type = userTypeMap[responseBody["user_type"]] ?? 6;
+          bloc.getUserType(type);
+
           print("userType ----- ${bloc.user_type}");
 
           isOnOtp ? null : bloc.getUserType(body["user_type"]);
@@ -72,6 +80,7 @@ class AuthRequest {
                       context: context,
                       email: body["email"],
                       phoneNumber: body["phonenumber"],
+                      isWareHouse: bloc.user_type == 6,
                     ),
                   ),
                 );
@@ -308,6 +317,7 @@ class AuthRequest {
   // OTP verification request
   static Future<void> ResendOtp({
     required BuildContext context,
+    required bool isWarehouse,
   }) async {
     final appBloc bloc = context.read<appBloc>();
     final Uri url = Uri.parse("$main_url/user/otp");
@@ -343,7 +353,11 @@ class AuthRequest {
 
           // Delay navigation for a few seconds for better UX
           Future.delayed(Duration(seconds: 3));
-          Globals.switchScreens(context: context, screen: GlobalsHomePage());
+          Globals.switchScreens(
+              context: context,
+              screen: GlobalsHomePage(
+              
+              ));
 
           bloc.changeIsLoading(false); // Stop loading after success
         } else {
@@ -422,7 +436,9 @@ class AuthRequest {
             Globals.switchScreens(
                 context: context,
                 screen: isRegistered
-                    ? Warehousehomepage()
+                    ? GlobalsHomePage(
+                       
+                      )
                     : Commodities(
                         isWareHouse: true,
                       ));
@@ -431,7 +447,9 @@ class AuthRequest {
             Globals.switchScreens(
                 context: context,
                 screen: isRegistered
-                    ? GlobalsHomePage()
+                    ? GlobalsHomePage(
+                    
+                      )
                     : Commodities(
                         isWareHouse: false,
                       ));
@@ -528,6 +546,7 @@ class AuthRequest {
                 email: email,
                 phoneNumber: null,
                 isRegistered: true,
+                isWareHouse: bloc.user_type == 6,
               ));
 
           print("Login successful: ${responseBody["message"]}");
@@ -652,7 +671,13 @@ class AuthRequest {
 
           if (responseBody["rsp"] == true) {
             print("Registration successful: ${responseBody["message"]}");
-            bloc.getUserType(responseBody["user_type"]);
+              Map<String, int> userTypeMap = {
+            "individual": 3,
+            "producer": 4,
+            "trader": 5
+          };
+          int type = userTypeMap[responseBody["user_type"]] ?? 6;
+            bloc.getUserType(type);
             bloc.changeIsLoading(false);
             Navigator.pushReplacement(
               context,
@@ -662,6 +687,7 @@ class AuthRequest {
                   context: context,
                   email: user.email!,
                   phoneNumber: user.phoneNumber,
+                  isWareHouse: bloc.user_type == 6,
                 ),
               ),
             );

@@ -5,7 +5,9 @@ import 'package:itx/Contracts/Contracts.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/requests/HomepageRequest.dart';
+import 'package:itx/state/AppBloc.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
 
 class HomepageContractsWidget extends StatefulWidget {
   final int displayCount;
@@ -35,6 +37,7 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
     return CommodityService.getContracts(
       context: context,
       isWatchList: false,
+      isWareHouse:      Provider.of<appBloc>(context, listen: false).user_type==6
     );
   }
 
@@ -86,7 +89,8 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
           onPressed: () {
             PersistentNavBarNavigator.pushNewScreen(
               context,
-              screen: Contracts(filtered: false, showAppbarAndSearch: true),
+              screen: Contracts(filtered: false, showAppbarAndSearch: true,
+              isWareHouse:context.watch<appBloc>().user_type==6,),
             );
           },
           style: ElevatedButton.styleFrom(
@@ -141,6 +145,7 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
                 screen: Contracts(
                   filtered: false,
                   showAppbarAndSearch: true,
+                  isWareHouse:  Provider.of<appBloc>(context, listen: false).user_type==6,
                 ),
               );
             },

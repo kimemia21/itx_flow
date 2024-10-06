@@ -5,7 +5,7 @@ import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
-void showAuthorizationAlert(BuildContext context) {
+void showAuthorizationStatusAlert(BuildContext context) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -35,11 +35,13 @@ void showAuthorizationAlert(BuildContext context) {
               ),
               onPressed: () {
                 Navigator.of(context).pop();
-                final bool isWareHouse = context.watch<appBloc>().user_id == 6;
-
+                final bool isWareHouse =
+                    Provider.of<appBloc>(context, listen: false).user_id == 6;
                 PersistentNavBarNavigator.pushNewScreen(
                   context,
-                  screen: Regulators(isWareHouse: isWareHouse,),
+                  screen: Regulators(
+                    isWareHouse: isWareHouse,
+                  ),
                   withNavBar: false,
                 );
                 // Close the dialog

@@ -16,13 +16,14 @@ class Verification extends StatefulWidget {
   final String email;
   final String? phoneNumber;
   final bool isRegistered;
+  final bool isWareHouse;
 
   const Verification(
       {super.key,
       required this.context,
       required this.email,
       this.phoneNumber,
-      required this.isRegistered});
+      required this.isRegistered, required this.isWareHouse});
 
   @override
   State<Verification> createState() => _VerificationState();
@@ -86,7 +87,7 @@ class _VerificationState extends State<Verification> {
       });
       // Proceed to OTP verification
       AuthRequest.otp(
-        isRegistered:widget.isRegistered,
+        isRegistered: widget.isRegistered,
         context: context,
         email: widget.email,
         otp: _otpCode.toUpperCase(),
@@ -100,9 +101,9 @@ class _VerificationState extends State<Verification> {
       appBar: AppBar(
         automaticallyImplyLeading: true,
         leading: IconButton(
-          onPressed: () =>
-              Globals.switchScreens(context: context, screen:widget.isRegistered?
-               MainLoginScreen():MainSignup()),
+          onPressed: () => Globals.switchScreens(
+              context: context,
+              screen: widget.isRegistered ? MainLoginScreen() : MainSignup()),
           icon: const Icon(Icons.arrow_back),
         ),
       ),
@@ -144,9 +145,10 @@ class _VerificationState extends State<Verification> {
                 ),
               ),
             const SizedBox(height: 10),
-            
-            CustomOtpTextField( // Use the custom OTP widget here
-              textStyle: GoogleFonts.abel(fontSize: 20, fontWeight: FontWeight.w600),
+            CustomOtpTextField(
+              // Use the custom OTP widget here
+              textStyle:
+                  GoogleFonts.abel(fontSize: 20, fontWeight: FontWeight.w600),
               fieldHeight: 65,
               fieldWidth: 50,
               borderRadius: BorderRadius.circular(10),
@@ -168,7 +170,6 @@ class _VerificationState extends State<Verification> {
                 _validateOtp(); // Trigger validation on submit
               },
             ),
-            
             if (!_isOtpValid)
               Padding(
                 padding: const EdgeInsets.only(top: 10),
@@ -187,7 +188,7 @@ class _VerificationState extends State<Verification> {
             TextButton(
               onPressed: _canResendOtp
                   ? () {
-                      AuthRequest.ResendOtp(context: context);
+                      AuthRequest.ResendOtp(context: context, isWarehouse: widget.isWareHouse);
                       _resetState();
                     }
                   : null,

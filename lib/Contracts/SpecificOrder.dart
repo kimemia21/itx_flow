@@ -418,23 +418,7 @@ class _SpecificorderState extends State<Specificorder> {
                         context,
                         screen: ContractLiveBid(contract: widget.contract));
                   } else {
-                    showAuthorizationAlert(context);
-                    //                  showDialog(
-                    //   context: context,
-                    //   builder: (BuildContext context) {
-                    //     return TradingAlert(
-                    //       onUploadClick: () {
-                    //         Navigator.pop(context); // Close the alert
-                    //         PersistentNavBarNavigator.
-                    //         pushNewScreen(
-                    //            context,
-                    //           screen: Regulators(),
-                    //           withNavBar: true,
-                    //         );
-                    //       },
-                    //     );
-                    //   },
-                    // );
+                    showAuthorizationStatusAlert(context);
                   }
                 } catch (e) {
                   print("error on specific order $e");

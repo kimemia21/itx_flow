@@ -2,40 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 import 'package:itx/Serializers/CommCert.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/requests/Requests.dart';
-import 'package:itx/warehouse/WareHouseHomepage.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:itx/uploadCerts/Authorization.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
-import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:itx/Commodities.dart/Commodites.dart';
-import 'package:itx/authentication/Authorization.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/globals.dart';
-import 'package:itx/requests/HomepageRequest.dart';
 
 class Regulators extends StatelessWidget {
-  final List<CommoditiesCert>? commCerts; // List of CommoditiesCert objects
+  final List<CommoditiesCert>? commCerts;
   final bool isWareHouse;
-  Regulators({Key? key, this.commCerts, required this.isWareHouse})
-      : super(key: key);
 
-  void navigateToCertificateForm(
-      BuildContext context, CommoditiesCert certificate) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CertificateFormScreen(certificate: certificate),
-      ),
-    );
-  }
+  Regulators({Key? key, this.commCerts, required this.isWareHouse}) : super(key: key);
 
-  Widget _buildNoCommoditiesMessage(context) {
+  Widget _buildNoCommoditiesMessage(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             "Please Select Commodities to be able to upload certs",
@@ -50,10 +38,9 @@ class Regulators extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               Globals.switchScreens(
-                  context: context,
-                  screen: Commodities(
-                    isWareHouse: false,
-                  ));
+                context: context,
+                screen: Commodities(isWareHouse: false),
+              );
             },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
@@ -64,10 +51,7 @@ class Regulators extends StatelessWidget {
             ),
             child: const Text(
               "Select Commodities",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.white),
             ),
           ),
         ],
@@ -78,86 +62,58 @@ class Regulators extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.green,
-          centerTitle: true,
-          title: Text('Regulators',
-              style: GoogleFonts.poppins(color: Colors.white)),
-        ),
-        body: SingleChildScrollView(
-          child: commCerts != null
-              ? Column(
-                  children: [
-                    ListView.builder(
-                      shrinkWrap:
-                          true, // Prevent ListView from taking infinite height
-                      physics:
-                          NeverScrollableScrollPhysics(), // Disable ListView scrolling
-                      itemCount: commCerts!.length,
-                      itemBuilder: (context, index) {
-                        CommoditiesCert cert = commCerts![index];
-                        return ListTile(
-                          title: Text(
-                              cert.certificateName ?? 'Unnamed Certificate'),
-                          subtitle:
-                              Text(cert.authorityName ?? 'Unknown Authority'),
-                          onTap: () => navigateToCertificateForm(context, cert),
-                        );
-                      },
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    TextButton(
-                        onPressed: () {
-                          PersistentNavBarNavigator.pushNewScreen(context,
-                              screen: isWareHouse
-                                  ? Warehousehomepage()
-                                  : GlobalsHomePage());
-                        },
-                        child: Text("Skip"))
-                  ],
-                )
-              : _buildNoCommoditiesMessage(context),
-        ));
+      appBar: AppBar(
+        backgroundColor: Colors.green,
+        centerTitle: true,
+        title: Text('Regulators', style: GoogleFonts.poppins(color: Colors.white)),
+      ),
+      body: commCerts != null
+          ? CertificateFormScreen(certificates: commCerts!, isWareHouse: isWareHouse)
+          : _buildNoCommoditiesMessage(context),
+    );
   }
 }
 
 class CertificateFormScreen extends StatefulWidget {
-  final CommoditiesCert certificate;
+  final List<CommoditiesCert> certificates;
+  final bool isWareHouse;
 
-  CertificateFormScreen({required this.certificate});
+  CertificateFormScreen({required this.certificates, required this.isWareHouse});
 
   @override
   _CertificateFormScreenState createState() => _CertificateFormScreenState();
 }
 
 class _CertificateFormScreenState extends State<CertificateFormScreen> {
-  final _formKey = GlobalKey<FormState>(); // Key for form validation
-  String? _expiryDate;
-  String? _selectedCertificateFile;
-  String? _selectedProofOfPaymentFile;
+  final List<GlobalKey<FormState>> _formKeys = [];
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
 
-  // Collect form data in this map
-  Map<String, dynamic> _formData = {};
+  Map<int, String?> _expiryDates = {};
+  Map<int, String?> _selectedCertificateFiles = {};
+  Map<int, String?> _selectedProofOfPaymentFiles = {};
 
-  // Function to pick a file
-  Future<void> _pickFile(String fileType) async {
+  @override
+  void initState() {
+    super.initState();
+    _formKeys.addAll(List.generate(widget.certificates.length, (index) => GlobalKey<FormState>()));
+  }
+
+  Future<void> _pickFile(int certificateId, String fileType) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
     if (result != null) {
       String? filePath = result.files.single.path;
       setState(() {
         if (fileType == 'certificate') {
-          _selectedCertificateFile = filePath;
+          _selectedCertificateFiles[certificateId] = filePath;
         } else if (fileType == 'proofOfPayment') {
-          _selectedProofOfPaymentFile = filePath;
+          _selectedProofOfPaymentFiles[certificateId] = filePath;
         }
       });
     }
   }
 
-  // Function to pick an expiry date
-  Future<void> _pickExpiryDate(BuildContext context) async {
+  Future<void> _pickExpiryDate(BuildContext context, int certificateId) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -166,162 +122,239 @@ class _CertificateFormScreenState extends State<CertificateFormScreen> {
     );
     if (pickedDate != null) {
       setState(() {
-        _expiryDate =
-            "${pickedDate.toLocal()}".split(' ')[0]; // Formatting the date
+        _expiryDates[certificateId] = "${pickedDate.toLocal()}".split(' ')[0];
       });
     }
   }
 
-  // Function to handle form submission and upload
-  Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save(); // Save form fields
-
-      _formData = {
-        'expiryDate': _expiryDate,
-        'certificateFile': _selectedCertificateFile,
-        'proofOfPaymentFile': _selectedProofOfPaymentFile,
-        'authorityName': widget.certificate.authorityName,
-        'certificateName': widget.certificate.certificateName,
-        'certificateFee': widget.certificate.certificateFee,
-        'certificateTtl': widget.certificate.certificateTtl,
-      };
+  Future<void> _submitForm(CommoditiesCert certificate) async {
+    final formKey = _formKeys[_currentPage];
+    if (formKey.currentState!.validate()) {
+      formKey.currentState!.save();
 
       try {
-        // Create the multipart request for uploading files
         var request = http.MultipartRequest(
           'POST',
           Uri.parse('${AuthRequest.main_url}/user/upload'),
         );
 
-        // Add form fields to the request
         request.fields.addAll({
-          'user':
-              Provider.of<appBloc>(context, listen: false).user_id.toString(),
-          'expiry': _expiryDate!,
-          'commodity_id': widget.certificate.commodityId.toString(),
-          'certificate_id': widget.certificate.certificateId
-              .toString(), // Removed leading space
-          'authority_id': widget.certificate.authorityId.toString(),
+          'user': Provider.of<appBloc>(context, listen: false).user_id.toString(),
+          'expiry': _expiryDates[certificate.certificateId] ?? '',
+          'commodity_id': certificate.commodityId.toString(),
+          'certificate_id': certificate.certificateId.toString(),
+          'authority_id': certificate.authorityId.toString(),
         });
 
-        // Add files to the request if selected
-        if (_selectedCertificateFile != null) {
+        if (_selectedCertificateFiles[certificate.certificateId] != null) {
           request.files.add(await http.MultipartFile.fromPath(
             'certificate',
-            _selectedCertificateFile!,
+            _selectedCertificateFiles[certificate.certificateId]!,
           ));
         }
 
-        if (_selectedProofOfPaymentFile != null) {
+        if (_selectedProofOfPaymentFiles[certificate.certificateId] != null) {
           request.files.add(await http.MultipartFile.fromPath(
             'payment_proof',
-            _selectedProofOfPaymentFile!,
+            _selectedProofOfPaymentFiles[certificate.certificateId]!,
           ));
         }
 
-        // Sending the request
         http.StreamedResponse response = await request.send();
 
-        // Handle the response
         if (response.statusCode == 200) {
           String responseString = await response.stream.bytesToString();
-          print('Upload successful: $responseString');
+          print('Upload successful for certificate ${certificate.certificateId}: $responseString');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Certificate uploaded successfully')),
+          );
+          
+          // Move to the next certificate or finish if it's the last one
+          if (_currentPage < widget.certificates.length - 1) {
+            _pageController.nextPage(duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+          } else {
+            PersistentNavBarNavigator.pushNewScreen(
+              context,
+              screen: AuthorizationStatus(isWareHouse: widget.isWareHouse),
+            );
+          }
         } else {
           String responseString = await response.stream.bytesToString();
-          print(
-              'Upload failed: ${response.statusCode} - ${response.reasonPhrase}');
+          print('Upload failed for certificate ${certificate.certificateId}: ${response.statusCode} - ${response.reasonPhrase}');
           print('Server response: $responseString');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to upload certificate')),
+          );
         }
       } catch (e) {
         print('Error: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('An error occurred while uploading certificate')),
+        );
       }
     }
+  }
+
+  Widget _buildCertificateSection(CommoditiesCert certificate, int index) {
+    return Form(
+      key: _formKeys[index],
+      child: Card(
+        elevation: 4,
+        margin: EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                certificate.certificateName ?? 'Unnamed Certificate',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              Text(certificate.authorityName ?? 'Unknown Authority', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+              SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () => _pickFile(certificate.certificateId!, 'certificate'),
+                icon: Icon(Icons.upload_file),
+                label: Text('Upload ${certificate.certificateName ?? 'Certificate'}'),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+              if (_selectedCertificateFiles[certificate.certificateId] != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text("Selected file: ${_selectedCertificateFiles[certificate.certificateId]}", style: TextStyle(color: Colors.green)),
+                ),
+              if (_selectedCertificateFiles[certificate.certificateId] == null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text('Certificate file is required', style: TextStyle(color: Colors.red)),
+                ),
+
+              if (certificate.proofOfPaymentRequired == 1) ...[
+                SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: () => _pickFile(certificate.certificateId!, 'proofOfPayment'),
+                  icon: Icon(Icons.attach_money),
+                  label: Text('Upload Proof of Payment' + (certificate.certificateFee != null ? ' (Fee: ${certificate.certificateFee})' : '')),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
+                if (_selectedProofOfPaymentFiles[certificate.certificateId] != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text("Selected file: ${_selectedProofOfPaymentFiles[certificate.certificateId]}", style: TextStyle(color: Colors.green)),
+                  ),
+                if (_selectedProofOfPaymentFiles[certificate.certificateId] == null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text('Proof of payment file is required', style: TextStyle(color: Colors.red)),
+                  ),
+              ],
+
+              SizedBox(height: 24),
+              TextFormField(
+                readOnly: true,
+                decoration: InputDecoration(
+                  labelText: 'Expiry Date',
+                  suffixIcon: Icon(Icons.calendar_today),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                ),
+                onTap: () => _pickExpiryDate(context, certificate.certificateId!),
+                validator: (value) {
+                  if (_expiryDates[certificate.certificateId] == null) {
+                    return 'Please pick an expiry date';
+                  }
+                  return null;
+                },
+                controller: TextEditingController(text: _expiryDates[certificate.certificateId]),
+              ),
+
+              if (certificate.certificateTtl != null) ...[
+                SizedBox(height: 16),
+                Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.access_time, color: Colors.blue),
+                      SizedBox(width: 8),
+                      Text('Time to Live: ${certificate.certificateTtl} ${certificate.certificateTtlUnits ?? ''}', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.green,
-        title:
-            Text(widget.certificate.certificateName ?? 'Certificate Details'),
+      body: PageView.builder(
+        physics: NeverScrollableScrollPhysics(),
+        controller: _pageController,
+        itemCount: widget.certificates.length,
+        onPageChanged: (index) {
+          setState(() {
+            _currentPage = index;
+          });
+        },
+        itemBuilder: (context, index) {
+          return SingleChildScrollView(
+            child: _buildCertificateSection(widget.certificates[index], index),
+          );
+        },
       ),
-      body: SingleChildScrollView(
+      bottomNavigationBar: BottomAppBar(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey, // Wrap the form in Form widget
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Authority: ${widget.certificate.authorityName ?? 'Unknown'}',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton(
+                onPressed: () {
+                  if (_currentPage > 0) {
+                    _pageController.previousPage(duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+                  } else {
+                    Navigator.pop(context);
+                  }
+                },
+                child: Text(_currentPage > 0 ? 'Back' : 'Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () => _submitForm(widget.certificates[_currentPage]),
+                child: Text('Submit'),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                SizedBox(height: 16),
-
-                // Certificate File Picker
-                ElevatedButton(
-                  onPressed: () => _pickFile('certificate'),
-                  child: Text(
-                      'Browse ${widget.certificate.certificateName ?? 'Certificate'}'),
-                ),
-                if (_selectedCertificateFile != null)
-                  Text("Selected file: $_selectedCertificateFile"),
-
-                if (widget.certificate.proofOfPaymentRequired == 1) ...[
-                  SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed: () => _pickFile('proofOfPayment'),
-                    child: Text(
-                      'Browse Proof of Payment' +
-                          (widget.certificate.certificateFee != null
-                              ? ' (Fee: ${widget.certificate.certificateFee})'
-                              : ''),
-                    ),
-                  ),
-                  if (_selectedProofOfPaymentFile != null)
-                    Text("Selected file: $_selectedProofOfPaymentFile"),
-                ],
-
-                SizedBox(height: 16),
-
-                // Expiry Date Picker with Validation
-                TextFormField(
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'Expiry Date',
-                    suffixIcon: Icon(Icons.calendar_today),
-                  ),
-                  onTap: () => _pickExpiryDate(context),
-                  validator: (value) {
-                    if (_expiryDate == null) {
-                      return 'Please pick an expiry date';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _formData['expiryDate'] = _expiryDate;
-                  },
-                  controller: TextEditingController(text: _expiryDate),
-                ),
-
-                if (widget.certificate.certificateTtl != null) ...[
-                  SizedBox(height: 16),
-                  Text(
-                      'Time to Live: ${widget.certificate.certificateTtl} ${widget.certificate.certificateTtlUnits ?? ''}'),
-                ],
-
-                SizedBox(height: 24),
-
-                // Submit button
-                ElevatedButton(
-                  onPressed: _submitForm,
-                  child: Text('Submit'),
-                ),
-              ],
-            ),
+              ),
+              TextButton(
+                onPressed: () {
+                  if (_currentPage < widget.certificates.length - 1) {
+                    _pageController.nextPage(duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+                  } else {
+                    PersistentNavBarNavigator.pushNewScreen(
+                      context,
+                      screen: AuthorizationStatus(isWareHouse: widget.isWareHouse),
+                    );
+                  }
+                },
+                child: Text(_currentPage < widget.certificates.length - 1 ? 'Skip' : 'Finish'),
+              ),
+            ],
           ),
         ),
       ),
