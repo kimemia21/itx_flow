@@ -416,6 +416,9 @@ class AuthRequest {
               "checkwarehouse-------------------${bloc.user_type}--------------");
 
           if (bloc.user_type == 6) {
+            print("true is warehouse  ${bloc.user_type}");
+
+            bloc.changeIsLoading(false); // Stop loading after success
             Globals.switchScreens(
                 context: context,
                 screen: isRegistered
@@ -423,16 +426,16 @@ class AuthRequest {
                     : Commodities(
                         isWareHouse: true,
                       ));
+          } else {
+            bloc.changeIsLoading(false); // Stop loading after success
+            Globals.switchScreens(
+                context: context,
+                screen: isRegistered
+                    ? GlobalsHomePage()
+                    : Commodities(
+                        isWareHouse: false,
+                      ));
           }
-
-          Globals.switchScreens(
-              context: context,
-              screen: isRegistered
-                  ? GlobalsHomePage()
-                  : Commodities(
-                      isWareHouse: false,
-                    ));
-          bloc.changeIsLoading(false); // Stop loading after success
         } else {
           // Show an authentication error if OTP fails
           Globals.warningsAlerts(
@@ -689,12 +692,5 @@ class AuthRequest {
     } finally {
       bloc.changeIsLoading(false);
     }
-
   }
-
-
-
-
-
-  
 }

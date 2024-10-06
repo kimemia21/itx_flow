@@ -7,8 +7,9 @@ import 'package:itx/Commodities.dart/Grade.dart';
 import 'package:itx/Contracts/CreateContract/CustomDropDown.dart';
 import 'package:itx/Contracts/CreateContract/WareHouseDropDown.dart';
 import 'package:itx/Serializers/CommParams.dart';
-import 'package:itx/state/AppBloc.dart';
 import 'package:itx/requests/HomepageRequest.dart';
+import 'package:itx/state/AppBloc.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 class CreateContract extends StatefulWidget {
@@ -31,15 +32,28 @@ class _CreateContractState extends State<CreateContract>
   final descriptionController = TextEditingController();
   final quantityController = TextEditingController();
   final metricController = TextEditingController();
+  String selectedTabName = 'Futures';
 
   late TabController _tabController;
   List<DeliveryMilestone> deliveryMilestones = [];
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 5, vsync: this);
+    _tabController.addListener(() {
+      setState(() {
+        selectedTabName = getTabName(_tabController.index);
+      });
+    });
     _fetchParams();
+  }
+
+  String getTabName(int index) {
+    List<String> tabNames = ['Futures', 'Forwards', 'Options', 'Swaps', 'Spot'];
+    return tabNames[index];
   }
 
   Future<void> _fetchParams() async {
@@ -122,223 +136,324 @@ class _CreateContractState extends State<CreateContract>
       );
     } else {
       return Scrollbar(
-        child: ListView(
-          padding: EdgeInsets.all(16),
-          children: [
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    spreadRadius: 5,
-                    offset: Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Add Contract info',
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black,
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: EdgeInsets.all(16),
+            children: [
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      spreadRadius: 5,
+                      offset: Offset(0, 5),
                     ),
-                  ),
-                  SizedBox(height: 10,),
-                  CommodityDropdown(
-                    onCommoditySelected: (commodity) {
-                      setState(() {
-                        selectedCommodityId = int.parse(commodity.toString());
-                      });
-                    },
-                  ),
-                  if (selectedCommodityId != null) ...[
-                    SizedBox(height: 16),
-                    GradeDropdown(
-                      onGradeSelected: (onGradeSelected) {
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Add $selectedTabName Contract info ',
+                      style: GoogleFonts.poppins(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    CommodityDropdown(
+                      onCommoditySelected: (commodity) {
                         setState(() {
-                          selectedQuality = onGradeSelected;
+                          selectedCommodityId = int.parse(commodity.toString());
                         });
                       },
                     ),
-                    SizedBox(height: 16),
-                    buildTextField(
-                      controller: priceController,
-                      title: 'Enter Price',
-                      icon: Icons.attach_money,
-                      isTextField: false,
-                    ),
-                    SizedBox(height: 16),
-                    buildTextField(
-                      controller: descriptionController,
-                      title: 'Description',
-                      icon: Icons.description,
-                      maxLines: 4,
-                      isTextField: true,
-                    ),
-                  ],
-                  SizedBox(height: 20),
-                  WarehouseSearchDropdown(
-                    onWarehouseSelected: (WareHouseId) {
-                      setState(() {
-                        selectedWareHouseId = WareHouseId;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: 16),
-            buildDeliveryMilestoneWidget(),
-            SizedBox(height: 16),
-
-            Column(
-              children: deliveryMilestones
-                  .map(
-                    (milestone) => ListTile(
-                      contentPadding: EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 16.0),
-                      tileColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      title: Text(
-                        'Date: ${DateFormat('yyyy-MM-dd').format(milestone.date)}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Quantity: ${milestone.quantity}',
-                              style: TextStyle(color: Colors.grey[600]),
-                            ),
-                            SizedBox(height: 4.0),
-                            Text(
-                              'Metric: ${milestone.metric}',
-                              style: TextStyle(color: Colors.grey[600]),
-                            ),
-                          ],
-                        ),
-                      ),
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete, color: Colors.redAccent),
-                        onPressed: () {
+                    if (selectedCommodityId != null) ...[
+                      SizedBox(height: 16),
+                      GradeDropdown(
+                        onGradeSelected: (onGradeSelected) {
                           setState(() {
-                            deliveryMilestones.remove(milestone);
+                            selectedQuality = onGradeSelected;
                           });
                         },
                       ),
+                      SizedBox(height: 16),
+                      buildTextField(
+                        controller: priceController,
+                        title: 'Enter Price',
+                        icon: Icons.attach_money,
+                        isTextField: false,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a price';
+                          }
+                          if (double.tryParse(value) == null) {
+                            return 'Please enter a valid number';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 16),
+                      buildTextField(
+                        controller: descriptionController,
+                        title: 'Description',
+                        icon: Icons.description,
+                        maxLines: 4,
+                        isTextField: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a description';
+                          }
+                          if (value.length < 10) {
+                            return 'Description should be at least 10 characters long';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                    SizedBox(height: 20),
+                    WarehouseSearchDropdown(
+                      onWarehouseSelected: (WareHouseId) {
+                        setState(() {
+                          selectedWareHouseId = WareHouseId;
+                        });
+                      },
                     ),
-                  )
-                  .toList(),
-            ),
-
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _submitForm,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green, // Background color
-                // onPrimary: Colors.white, // Text color
-                padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0), // Rounded corners
+                  ],
                 ),
               ),
-              child: Text(
-                'Submit',
-                style: TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
+              SizedBox(height: 16),
+              buildDeliveryMilestoneWidget(),
+              SizedBox(height: 16),
+              Column(
+                children: deliveryMilestones
+                    .map(
+                      (milestone) => ListTile(
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 16.0),
+                        tileColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        title: Text(
+                          'Date: ${DateFormat('yyyy-MM-dd').format(milestone.date)}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Quantity: ${milestone.quantity}',
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                              SizedBox(height: 4.0),
+                              Text(
+                                'Metric: ${milestone.metric}',
+                                style: TextStyle(color: Colors.grey[600]),
+                              ),
+                            ],
+                          ),
+                        ),
+                        trailing: IconButton(
+                          icon: Icon(Icons.delete, color: Colors.redAccent),
+                          onPressed: () {
+                            setState(() {
+                              deliveryMilestones.remove(milestone);
+                            });
+                          },
+                        ),
+                      ),
+                    )
+                    .toList(),
               ),
-            ),
-
-            SizedBox(height: 100), // Add extra space at the bottom
-          ],
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _submitForm();
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  padding:
+                      EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                ),
+                child: context.watch<appBloc>().isLoading
+                    ? LoadingAnimationWidget.staggeredDotsWave(
+                        color: Colors.white, size: 20)
+                    : Text(
+                        'Submit',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+              ),
+              SizedBox(height: 100),
+            ],
+          ),
         ),
       );
     }
   }
 
-  Widget _buildParamField(CommParams param) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-      child: TextField(
-        controller: controllers[param.id],
-        decoration: InputDecoration(
-          labelText: param.name,
-          hintText: 'Enter ${param.name}',
-          labelStyle: TextStyle(
-            color: Colors.blueGrey[800],
-            fontWeight: FontWeight.w600,
-            fontSize: 16.0,
-          ),
-          hintStyle: TextStyle(
-            color: Colors.grey[400],
-            fontSize: 14.0,
-          ),
-          filled: true,
-          fillColor: Colors.grey[100],
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
-            borderSide: BorderSide(color: Colors.blueGrey[200]!),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12.0),
-            borderSide: BorderSide(color: Colors.blue),
-          ),
-          contentPadding:
-              EdgeInsets.symmetric(vertical: 18.0, horizontal: 16.0),
-        ),
-        style: TextStyle(fontSize: 16.0, color: Colors.black87),
-        keyboardType: param.inputDataType == 'number'
-            ? TextInputType.numberWithOptions(decimal: true)
-            : TextInputType.text,
-      ),
+  Widget buildTextField({
+    required TextEditingController controller,
+    required String title,
+    int maxLines = 1,
+    IconData? icon,
+    required bool isTextField,
+    String? Function(String?)? validator,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenWidth = MediaQuery.of(context).size.width;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                fontSize: screenWidth * 0.04,
+              ),
+            ),
+            SizedBox(height: 8),
+            TextFormField(
+              keyboardType:
+                  isTextField ? TextInputType.name : TextInputType.phone,
+              controller: controller,
+              maxLines: maxLines,
+              inputFormatters:
+                  isTextField ? [] : [FilteringTextInputFormatter.digitsOnly],
+              style: GoogleFonts.poppins(
+                fontSize: screenWidth * 0.04,
+              ),
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                filled: true,
+                fillColor: Colors.grey[200],
+                prefixIcon: icon != null
+                    ? Icon(
+                        icon,
+                        color: Colors.green,
+                        size: screenWidth * 0.06,
+                      )
+                    : null,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.03,
+                  vertical: 12,
+                ),
+              ),
+              validator: validator,
+            ),
+            SizedBox(height: 16),
+          ],
+        );
+      },
     );
   }
 
-  Widget buildDropdownButton({
-    required String title,
-    required String? value,
-    required List items,
-    required ValueChanged<String?> onChanged,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-        SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          value: value,
-          onChanged: onChanged,
-          items: items
-              .map((item) =>
-                  DropdownMenuItem<String>(value: item, child: Text(item)))
-              .toList(),
-          decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            filled: true,
-            fillColor: Colors.grey[200],
-            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+  Widget buildDeliveryMilestoneWidget() {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            spreadRadius: 5,
+            offset: Offset(0, 5),
           ),
-          style: GoogleFonts.poppins(),
-        ),
-        SizedBox(height: 16),
-      ],
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Add Delivery Milestone',
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.black,
+            ),
+          ),
+          SizedBox(height: 16),
+          buildDatePicker(
+            title: 'Delivery Date',
+            selectedDate: selectedDate,
+            onDateSelected: (date) => setState(() => selectedDate = date),
+          ),
+          SizedBox(height: 16),
+          buildTextField(
+            controller: quantityController,
+            title: 'Quantity',
+            icon: Icons.production_quantity_limits,
+            isTextField: false,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter a quantity';
+              }
+              if (double.tryParse(value) == null) {
+                return 'Please enter a valid number';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 16),
+          MetricDropDown(
+            onSelectMetric: (metric) {
+              setState(() {
+                selectedMetric = metric;
+              });
+            },
+          ),
+          SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                _addDeliveryMilestone();
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+              padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+              elevation: 5,
+            ),
+            child: Text(
+              'Click to Add Milestone',
+              style: TextStyle(
+                fontSize: 16.0,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -401,154 +516,28 @@ class _CreateContractState extends State<CreateContract>
     );
   }
 
-  Widget buildTextField(
-      {required TextEditingController controller,
-      required String title,
-      int maxLines = 1,
-      IconData? icon,
-      required isTextField}) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final screenWidth = MediaQuery.of(context).size.width;
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w600,
-                fontSize: screenWidth * 0.04, // Responsive font size
-              ),
-            ),
-            SizedBox(height: 8),
-            TextField(
-              keyboardType:
-                  isTextField ? TextInputType.name : TextInputType.phone,
-              controller: controller,
-              maxLines: maxLines,
-              inputFormatters: isTextField
-                  ? []
-                  : [
-                      FilteringTextInputFormatter.digitsOnly
-                    ], // Restrict input to digits
-
-              style: GoogleFonts.poppins(
-                fontSize: screenWidth * 0.04, // Responsive text field font size
-              ),
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                filled: true,
-                fillColor: Colors.grey[200],
-                prefixIcon: icon != null
-                    ? Icon(
-                        icon,
-                        color: Colors.green,
-                        size: screenWidth * 0.06, // Responsive icon size
-                      )
-                    : null,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.03, // Responsive padding
-                  vertical: 12,
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget buildDeliveryMilestoneWidget() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            spreadRadius: 5,
-            offset: Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Add Delivery Milestone',
-            style: GoogleFonts.poppins(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: Colors.black,
-            ),
-          ),
-          SizedBox(height: 16),
-          buildDatePicker(
-            title: 'Delivery Date',
-            selectedDate: selectedDate,
-            onDateSelected: (date) => setState(() => selectedDate = date),
-          ),
-          SizedBox(height: 16),
-          buildTextField(
-            controller: quantityController,
-            title: 'Quantity',
-            icon: Icons.production_quantity_limits,
-            isTextField: false,
-          ),
-          SizedBox(height: 16),
-          MetricDropDown(
-            onSelectMetric: (metric) {
-              setState(() {
-                selectedMetric = metric;
-              });
-            },
-          ),
-          SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _addDeliveryMilestone,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green, // Button color
-              padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0), // Rounded corners
-              ),
-              elevation: 5, // Button shadow
-            ),
-            child: Text(
-              'Click to Add Milestone',
-              style: TextStyle(
-                fontSize: 16.0,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _addDeliveryMilestone() {
-    if (selectedDate != null && quantityController.text.isNotEmpty) {
+    if (selectedDate != null &&
+        quantityController.text.isNotEmpty &&
+        selectedMetric != null) {
       setState(() {
         deliveryMilestones.add(DeliveryMilestone(
-          metric: selectedMetric!,
           date: selectedDate!,
           quantity: double.parse(quantityController.text),
+          metric: selectedMetric!,
         ));
         selectedDate = null;
         quantityController.clear();
+        selectedMetric = null;
       });
     }
   }
 
   void _submitForm() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     print('Form submitted');
     params.forEach((param) {
       print('${param.name}: ${controllers[param.id]?.text}');
@@ -556,8 +545,9 @@ class _CreateContractState extends State<CreateContract>
     print('Delivery Milestones:');
     deliveryMilestones.forEach((milestone) {
       print(
-          'Date: ${DateFormat('yyyy-MM-dd').format(milestone.date)}, Quantity: ${milestone.quantity}');
+          'Date: ${DateFormat('yyyy-MM-dd').format(milestone.date)}, Quantity: ${milestone.quantity}, Metric: ${milestone.metric}');
     });
+
     Map<int, int> tabToContractTypeId = {
       0: 1, // Futures
       1: 2, // Forwards
@@ -567,7 +557,6 @@ class _CreateContractState extends State<CreateContract>
     };
     int contractTypeId = tabToContractTypeId[_tabController.index] ?? 1;
 
-    // Parse the price and units
     double price = double.tryParse(priceController.text) ?? 0.0;
     double units = 0.0;
     for (var param in params) {
@@ -578,7 +567,6 @@ class _CreateContractState extends State<CreateContract>
       }
     }
 
-    // Get the delivery start and end dates
     DateTime? deliveryStartDate;
     DateTime? deliveryEndDate;
     if (deliveryMilestones.isNotEmpty) {
@@ -590,7 +578,6 @@ class _CreateContractState extends State<CreateContract>
           .reduce((a, b) => a.isAfter(b) ? a : b);
     }
 
-    // Create the map
     Map<String, dynamic> contractData = {
       "contract_type_id": contractTypeId,
       "commodity_id": selectedCommodityId,
@@ -608,16 +595,26 @@ class _CreateContractState extends State<CreateContract>
                 "value": milestone.quantity
               })
           .toList(),
-      "params": [
-        {"param_id": 1, "param_value": 100}
-      ]
+      "params": params
+          .map((param) => {
+                "param_id": param.id,
+                "param_value": controllers[param.id]?.text ?? ''
+              })
+          .toList(),
     };
-    print(" createContract-------------${contractData}-----");
 
-    CommodityService.CreateContract(context, contractData);
-
-    // Print the map (you can replace this with sending to an API or other operations)
-    print(contractData);
+    try {
+      await CommodityService.CreateContract(context, contractData);
+      // Show success message or navigate to a new screen
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Contract created successfully')),
+      );
+    } catch (e) {
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error creating contract: $e')),
+      );
+    }
   }
 
   @override
@@ -636,6 +633,9 @@ class DeliveryMilestone {
   final double quantity;
   final String metric;
 
-  DeliveryMilestone(
-      {required this.date, required this.quantity, required this.metric});
+  DeliveryMilestone({
+    required this.date,
+    required this.quantity,
+    required this.metric,
+  });
 }

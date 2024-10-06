@@ -383,28 +383,34 @@ class CommodityService {
       "Content-Type": "application/json",
       "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
     };
+    final appBloc bloc = context.read<appBloc>();
+    try {
+      bloc.changeIsLoading(true);
+      final http.Response response =
+          await http.post(uri, headers: headers, body: jsonEncode(body));
 
-    final http.Response response =
-        await http.post(uri, headers: headers, body: jsonEncode(body));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
+        if (responseData['rsp'] == true) {
+          bloc.changeIsLoading(false);
 
-      if (responseData['rsp'] == true) {
-        // Navigator.push(context,
-        //     MaterialPageRoute(builder: (context) => GlobalsHomePage()));
-        PersistentNavBarNavigator.pushNewScreen(
-          withNavBar: false,
-          context,
-            screen: GlobalsHomePage());
-        CherryToast.success(
-          title: Text("sucess"),
-        ).show(context);
+          PersistentNavBarNavigator.pushNewScreen(
+              withNavBar: false, context, screen: GlobalsHomePage());
+          CherryToast.success(
+            title: Text("sucess"),
+          ).show(context);
+        } else {
+          bloc.changeIsLoading(false);
+          throw Exception('Failed to create contract: ${responseData['msg']}');
+        }
       } else {
-        throw Exception('Failed to create contract: ${responseData['msg']}');
+        bloc.changeIsLoading(false);
+        throw Exception('Failed to create contract');
       }
-    } else {
-      throw Exception('Failed to create contract');
+    } catch (e) {
+      bloc.changeIsLoading(false);
+      print("error creating contract $e");
     }
   }
 
