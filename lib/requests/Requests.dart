@@ -19,6 +19,7 @@ import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/myOrders.dart/MyOrders.dart';
 import 'package:itx/uploadCerts/WareHouseUploads.dart';
+import 'package:itx/web/HomePageWeb.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -54,7 +55,6 @@ class AuthRequest {
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
 
         if (responseBody["rsp"] == true) {
-        
           Map<String, int> userTypeMap = {
             "individual": 3,
             "producer": 4,
@@ -353,11 +353,7 @@ class AuthRequest {
 
           // Delay navigation for a few seconds for better UX
           Future.delayed(Duration(seconds: 3));
-          Globals.switchScreens(
-              context: context,
-              screen: GlobalsHomePage(
-              
-              ));
+          Globals.switchScreens(context: context, screen: GlobalsHomePage());
 
           bloc.changeIsLoading(false); // Stop loading after success
         } else {
@@ -433,23 +429,31 @@ class AuthRequest {
             print("true is warehouse  ${bloc.user_type}");
 
             bloc.changeIsLoading(false); // Stop loading after success
+            context.watch<appBloc>().platform;
             Globals.switchScreens(
                 context: context,
                 screen: isRegistered
-                    ? GlobalsHomePage(
-                       
-                      )
+                    ? GlobalsHomePage()
                     : Commodities(
                         isWareHouse: true,
                       ));
           } else {
             bloc.changeIsLoading(false); // Stop loading after success
+            String platform =
+                Provider.of<appBloc>(context, listen: false).platform;
+          
+
+            if (platform == "web") {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => HomePageWeb(title: "WebView")));
+            }
+
             Globals.switchScreens(
                 context: context,
                 screen: isRegistered
-                    ? GlobalsHomePage(
-                    
-                      )
+                    ? GlobalsHomePage()
                     : Commodities(
                         isWareHouse: false,
                       ));
@@ -671,12 +675,12 @@ class AuthRequest {
 
           if (responseBody["rsp"] == true) {
             print("Registration successful: ${responseBody["message"]}");
-              Map<String, int> userTypeMap = {
-            "individual": 3,
-            "producer": 4,
-            "trader": 5
-          };
-          int type = userTypeMap[responseBody["user_type"]] ?? 6;
+            Map<String, int> userTypeMap = {
+              "individual": 3,
+              "producer": 4,
+              "trader": 5
+            };
+            int type = userTypeMap[responseBody["user_type"]] ?? 6;
             bloc.getUserType(type);
             bloc.changeIsLoading(false);
             Navigator.pushReplacement(

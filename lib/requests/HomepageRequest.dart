@@ -75,12 +75,13 @@ class CommodityService {
       required bool isWatchList,
 
       required isWareHouse,
-      dynamic name
+      dynamic name, required bool isSpot
       }) async {
     print(isWatchList);
     final int userId = Provider.of<appBloc>(context, listen: false).user_id;
 
-    final Uri uri = isWatchList
+    final Uri uri = isSpot?Uri.parse("$mainUri/contracts/list?contract_type_id=5"): 
+     isWatchList
         ? Uri.parse("$mainUri/contracts/list?this_user_liked=1")
         : isWareHouse
             ? Uri.parse("$mainUri/contracts/list?warehouse_id=$userId")

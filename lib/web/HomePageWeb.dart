@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 
 import 'package:easy_sidemenu/easy_sidemenu.dart';
 import 'package:flutter/material.dart';
+import 'package:itx/Contracts/Contracts.dart';
+import 'package:itx/Contracts/CreateContract/CreateContract.dart';
+import 'package:itx/Contracts/SpotTrader.dart';
+import 'package:itx/myOrders.dart/MyOrders.dart';
 import 'package:itx/web/DocumentScreen.dart';
 import 'package:itx/web/contracts/Contract.dart';
 import 'package:itx/web/uplaodDocs.dart/GlobalExchange.dart';
@@ -96,16 +100,12 @@ class _MyHomePageWebState extends State<HomePageWeb> {
                 tooltipContent: "This is a tooltip for Dashboard item",
               ),
               SideMenuItem(
-
-
-
                 title: 'Market',
                 onTap: (index, _) {
                   sideMenu.changePage(index);
                 },
                 // icon: const Icon(Icons.supervisor_account),
               ),
-
               SideMenuItem(
                 title: 'Orders',
                 onTap: (index, _) {
@@ -127,7 +127,7 @@ class _MyHomePageWebState extends State<HomePageWeb> {
                 },
                 // icon: const Icon(Icons.supervisor_account),
               ),
-                   SideMenuItem(
+              SideMenuItem(
                 builder: (context, displayMode) {
                   return const Divider(
                     endIndent: 8,
@@ -135,7 +135,6 @@ class _MyHomePageWebState extends State<HomePageWeb> {
                   );
                 },
               ),
-
               SideMenuItem(
                 title: 'Settings',
                 onTap: (index, _) {
@@ -149,7 +148,6 @@ class _MyHomePageWebState extends State<HomePageWeb> {
                 },
                 // icon: const Icon(Icons.download),
               ),
-         
               SideMenuItem(
                 title: 'FeedBack',
                 onTap: (index, _) {
@@ -157,7 +155,6 @@ class _MyHomePageWebState extends State<HomePageWeb> {
                 },
                 // icon: const Icon(Icons.settings),
               ),
-       
             ],
           ),
           const VerticalDivider(
@@ -167,38 +164,30 @@ class _MyHomePageWebState extends State<HomePageWeb> {
             child: PageView(
               controller: pageController,
               children: [
+                Container(color: Colors.white, child: Metatrading()),
+
                 Container(
                   color: Colors.white,
-                  child:Metatrading()
-                ),
-                Container(
-                  color: Colors.white,
-                  child:  Center(
-                    child:   WebContracts(filtered: false,isWareHouse: false,showAppbarAndSearch: true,)
-                  ),
-                ),
-                Container(
-                  color: Colors.white,
-                  child:  Center(
-                    child: NewContractPage()
-                  ),
+                  child: Center(child: Spottrader()),
                 ),
 
-              
                 Container(
                   color: Colors.white,
-                  child:  Center(
-                    child: DocumentsScreen()
-                  ),
+                  child: UserOrdersScreen(),
+                ),
+
+                Container(
+                  color: Colors.white,
+                  child: Center(
+                      child: Contracts(
+                          isSpot: false,
+                          filtered: false,
+                          showAppbarAndSearch: true,
+                          isWareHouse: false)),
                 ),
                 Container(
                   color: Colors.white,
-                  child: const Center(
-                    child: Text(
-                      'Settings',
-                      style: TextStyle(fontSize: 35),
-                    ),
-                  ),
+                  child: Center(child: DocumentsScreen()),
                 ),
                 Container(
                   color: Colors.white,
@@ -209,7 +198,7 @@ class _MyHomePageWebState extends State<HomePageWeb> {
                     ),
                   ),
                 ),
-                     Container(
+                Container(
                   color: Colors.white,
                   child: const Center(
                     child: Text(
@@ -220,7 +209,6 @@ class _MyHomePageWebState extends State<HomePageWeb> {
                 ),
 
                 // this is for SideMenuItem with builder (divider)
-           
               ],
             ),
           ),

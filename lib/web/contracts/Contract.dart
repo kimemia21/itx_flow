@@ -39,6 +39,8 @@ class _WebContractsState extends State<WebContracts> {
   Future<void> fetchContracts() async {
     setState(() {
       contracts = CommodityService.getContracts(
+        
+        isSpot: false,
         context: context,
         isWatchList: widget.filtered,
         isWareHouse: widget.isWareHouse,

@@ -26,6 +26,7 @@ class appBloc extends ChangeNotifier {
   Map<String, dynamic> userDetails = {};
   List<CommoditiesCert> commcert = [];
   String isAuthorized = "";
+  String _platform = "";
 
   int get currentIndex => _currentIndex;
   bool get navIsVisible => _navIsVisible;
@@ -43,6 +44,7 @@ class appBloc extends ChangeNotifier {
   List<int> get userCommoditiesIds => _userCommoditesIds;
   int _user_id = 0;
   int get user_id => _user_id;
+  String get platform => _platform;
 
   void changeCurrentIndex({required int index}) {
     _currentIndex = index;
@@ -128,6 +130,11 @@ class appBloc extends ChangeNotifier {
 
   void changeIsAuthorized(int status) {
     isAuthorized = status == 0 ? "no" : "yes";
+    notifyListeners();
+  }
+
+  void changePlatform(String platform) {
+    _platform = platform;
     notifyListeners();
   }
 }

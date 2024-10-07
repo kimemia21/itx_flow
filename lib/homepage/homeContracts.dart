@@ -35,6 +35,7 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
 
   Future<List<ContractsModel>> fetchContracts() async {
     return CommodityService.getContracts(
+      isSpot: false,
       context: context,
       isWatchList: false,
       isWareHouse:      Provider.of<appBloc>(context, listen: false).user_type==6
@@ -89,7 +90,7 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
           onPressed: () {
             PersistentNavBarNavigator.pushNewScreen(
               context,
-              screen: Contracts(filtered: false, showAppbarAndSearch: true,
+              screen: Contracts( isSpot: false, filtered: false, showAppbarAndSearch: true,
               isWareHouse:context.watch<appBloc>().user_type==6,),
             );
           },
@@ -143,6 +144,7 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
               PersistentNavBarNavigator.pushNewScreen(
                 context,
                 screen: Contracts(
+                  isSpot: false,
                   filtered: false,
                   showAppbarAndSearch: true,
                   isWareHouse:  Provider.of<appBloc>(context, listen: false).user_type==6,

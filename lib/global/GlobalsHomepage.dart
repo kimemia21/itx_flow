@@ -17,10 +17,8 @@ class GlobalsHomePage extends StatefulWidget {
   final int initialIndex;
   final Widget? newScreen;
 
-
   // Add default values for the constructor parameters
-  GlobalsHomePage(
-      {this.initialIndex = 0, this.newScreen});
+  GlobalsHomePage({this.initialIndex = 0, this.newScreen});
 
   @override
   _GlobalsHomePageState createState() => _GlobalsHomePageState();
@@ -57,11 +55,10 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
       Userhomepage(),
 
       Contracts(
-        filtered: true,
-        showAppbarAndSearch: true,
-         isWareHouse:  context.watch<appBloc>().user_type==6
-
-      ),
+          isSpot: false,
+          filtered: true,
+          showAppbarAndSearch: true,
+          isWareHouse: context.watch<appBloc>().user_type == 6),
 //
 
       Spottrader(),
@@ -104,11 +101,12 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return context.watch<appBloc>().user_type==6
+    return context.watch<appBloc>().user_type == 6
         ? Contracts(
+            isSpot: false,
             filtered: true,
             showAppbarAndSearch: true,
-            isWareHouse: context.watch<appBloc>().user_type==6,
+            isWareHouse: context.watch<appBloc>().user_type == 6,
           )
         : PersistentTabView(
             context,

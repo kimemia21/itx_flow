@@ -11,8 +11,7 @@ import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/web/HomePageWeb.dart';
-import 'package:itx/web/authentication/SignUp.dart';
-import 'package:itx/web/authentication/SignInWeb.dart';
+import 'package:itx/web/authentication/WebLogin.dart';
 import 'package:itx/web/authentication/WebSplash.dart';
 import 'package:itx/web/state/Webbloc.dart';
 import 'package:provider/provider.dart';
@@ -33,7 +32,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => CurrentUserProvider()),
         ChangeNotifierProvider(create: (context) => appBloc()),
-        ChangeNotifierProvider(create: (context)=>Webbloc())
+        ChangeNotifierProvider(create: (context) => Webbloc())
       ],
       child: MaterialApp(home: GetPlatform()),
     );
@@ -50,21 +49,22 @@ class GetPlatform extends StatefulWidget {
 class _GetPlatformState extends State<GetPlatform> {
   @override
   Widget build(BuildContext context) {
-    final appBloc bloc = context.watch<appBloc>();
+    final appBloc appbloc = context.watch<appBloc>();
+    final appBloc setBloc = context.read<appBloc>();
     // Web platform
     if (kIsWeb) {
-      return  HomePageWeb(title: "title");
-      
-      
-      // bloc.token == "" ? SplashScreenWeb() :  SignInWeb();
+      setBloc.changePlatform("web");
+
+      return appbloc.token == "" ? Weblogin() : Weblogin();
     }
     // Android or iOS platform
     else if (Platform.isAndroid || Platform.isIOS) {
-      return bloc.token == "" ?   Splashscreen():GlobalsHomePage();
-    
-      // Regulators() : Regulators(); 
+      setBloc.changePlatform("android");
+      return appbloc.token == "" ? Splashscreen() : GlobalsHomePage();
+
+      // Regulators() : Regulators();
       // Splashscreen():GlobalsHomePage();
-      
+
       // Regulators() : Regulators();
     } else {
       // Fallback for unsupported platforms

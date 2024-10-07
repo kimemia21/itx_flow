@@ -18,10 +18,12 @@ class Contracts extends StatefulWidget {
       {super.key,
       required this.filtered,
       required this.showAppbarAndSearch,
-      required this.isWareHouse});
+      required this.isWareHouse,
+      required this.isSpot,});
   final bool filtered;
   final bool showAppbarAndSearch;
-  final isWareHouse;
+  final bool isWareHouse;
+  final bool isSpot; 
 
   @override
   State<Contracts> createState() => _ContractsState();
@@ -43,7 +45,9 @@ class _ContractsState extends State<Contracts> {
       contracts = CommodityService.getContracts(
           context: context,
           isWatchList: widget.filtered,
-          isWareHouse: widget.isWareHouse);
+          isWareHouse: widget.isWareHouse,
+          isSpot:widget.isSpot
+          );
     });
   }
 
@@ -371,6 +375,7 @@ class _ContractsState extends State<Contracts> {
               onChanged: (text) {
                 setState(() {
                   contracts = CommodityService.getContracts(
+                    isSpot: widget.isSpot,
                       context: context,
                       isWatchList: widget.filtered,
                       isWareHouse: widget.isWareHouse,
