@@ -396,11 +396,11 @@ class CommodityService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-
-        print("this is the response $responseData");
+                print("this is the response $responseData");
 
         if (responseData['rsp'] == true) {
           bloc.changeIsLoading(false);
+          
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Contract created successfully')),
           );

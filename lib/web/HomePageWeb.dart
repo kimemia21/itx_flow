@@ -3,26 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:easy_sidemenu/easy_sidemenu.dart';
 import 'package:flutter/material.dart';
 import 'package:itx/web/DocumentScreen.dart';
+import 'package:itx/web/contracts/Contract.dart';
 import 'package:itx/web/uplaodDocs.dart/GlobalExchange.dart';
 import 'package:itx/web/MetaTrading.dart';
-import 'package:itx/web/NewContract.dart';
+import 'package:itx/web/contracts/NewContract.dart';
 
-class MyHomepageWeb extends StatelessWidget {
-  const MyHomepageWeb({Key? key}) : super(key: key);
+class HomepageWeb extends StatelessWidget {
+  const HomepageWeb({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'easy_sidemenu Demo',
       theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: false),
-      home: const MyHomePageWeb(title: 'easy_sidemenu Demo'),
+      home: const HomePageWeb(title: 'easy_sidemenu Demo'),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
-class MyHomePageWeb extends StatefulWidget {
-  const MyHomePageWeb({Key? key, required this.title}) : super(key: key);
+class HomePageWeb extends StatefulWidget {
+  const HomePageWeb({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
@@ -30,7 +31,7 @@ class MyHomePageWeb extends StatefulWidget {
   _MyHomePageWebState createState() => _MyHomePageWebState();
 }
 
-class _MyHomePageWebState extends State<MyHomePageWeb> {
+class _MyHomePageWebState extends State<HomePageWeb> {
   PageController pageController = PageController();
   SideMenuController sideMenu = SideMenuController();
 
@@ -173,7 +174,7 @@ class _MyHomePageWebState extends State<MyHomePageWeb> {
                 Container(
                   color: Colors.white,
                   child:  Center(
-                    child: NewContractPage()
+                    child:   WebContracts(filtered: false,isWareHouse: false,showAppbarAndSearch: true,)
                   ),
                 ),
                 Container(
@@ -183,7 +184,7 @@ class _MyHomePageWebState extends State<MyHomePageWeb> {
                   ),
                 ),
 
-                ContractsPage(),
+              
                 Container(
                   color: Colors.white,
                   child:  Center(

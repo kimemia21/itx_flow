@@ -1,7 +1,7 @@
 import 'dart:async'; // Added for Timer functionality
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:itx/web/ContractsScreen.dart';
+import 'package:itx/web/HomePageWeb.dart';
 import 'package:itx/web/requests/AuthRequest.dart';
 import 'package:itx/web/state/Webbloc.dart';
 import 'package:itx/web/uplaodDocs.dart/GlobalExchange.dart';

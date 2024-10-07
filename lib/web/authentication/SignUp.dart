@@ -134,8 +134,6 @@ class _MainSignupWebState extends State<MainSignupWeb>
 
   @override
   Widget build(BuildContext context) {
-    _emailController.text = "bobbymbogo711@gmail.com";
-    _phoneController.text = "0769922984";
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

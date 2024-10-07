@@ -66,7 +66,7 @@ class ContractsModel {
       qualityGradeId: json['quality_grade_id'],
       deliveryDate: DateTime.parse(json['delivery_date']),
       price: (json['price'] as num).toDouble(),
-      description: json['description'],
+      description: json['contract_description'],
       closeDate: DateTime.parse(json['close_date']),
       postedOn: DateTime.parse(json['posted_on']),
       closedOn: json['closed_on'] != null ? DateTime.parse(json['closed_on']) : null,
