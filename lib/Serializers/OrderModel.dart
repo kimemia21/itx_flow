@@ -71,85 +71,39 @@ class UserOrders {
   factory UserOrders.fromJson(Map<String, dynamic> json) {
     print("[\\n order json $json]");
 
-    // Check for null values and print them
-    List<String> keysToCheck = [
-      'contract_id',
-      'bid_id',
-      'order_id',
-      'won_at',
-      'order_type',
-      'order_date',
-      'user_id',
-      'order_status',
-      'bid_price',
-      'bid_type',
-      'bid_date',
-      'max_price',
-      'session_open',
-      'is_highest_bid',
-      'session_close_at',
-      'contract_type_id',
-      'commodity_id',
-      'quality_grade_id',
-      'delivery_date',
-      'price',
-      'description',
-      'close_date',
-      'posted_on',
-      'closed',
-      'id',
-      'name',
-      'commodity_grade_id',
-      'commodity_type',
-      'icon_name',
-      'image_url',
-      'commodity_primary_packing_id',
-      'user_company_id'
-    ];
-
-    for (String key in keysToCheck) {
-      if (!json.containsKey(key) || json[key] == null) {
-        print("Null value found for key: $key");
-      }
-    }
-
     return UserOrders(
-      contractId: json['contract_id'],
-      bidId: json['bid_id'],
-      orderId: json['order_id'],
-      wonAt: json['won_at'].toDouble(),
-      orderType: json['order_type'],
-      orderDate: DateTime.parse(json['order_date']),
-      userId: json['user_id'],
-      orderStatus: json['order_status'],
-      bidPrice: json['bid_price'].toDouble(),
-      bidType: json['bid_type'],
-      bidDate: DateTime.parse(json['bid_date']),
-      maxPrice: json['max_price'] != null ? json['max_price'].toDouble() : 0.0,
-      sessionOpen: json['session_open'],
-      isHighestBid: json['is_highest_bid'],
-      sessionCloseAt: json['session_close_at'] != DateTime.now()
-          ? DateTime.parse(json['session_close_at'])
-          : DateTime.now(),
-      contractTypeId: json['contract_type_id'],
-      commodityId: json['commodity_id'],
-      qualityGradeId: json['quality_grade_id'],
-      deliveryDate: DateTime.parse(json['delivery_date']),
-      price: json['price'].toDouble(),
-      description: json['description'],
-      closeDate: json['close_date'] != null
-          ? DateTime.parse(json['close_date'])
-          : DateTime.now(),
-      postedOn: DateTime.parse(json['posted_on']),
-      closed: json['closed'],
-      id: json['id'],
-      name: json['name'],
+      contractId: json['contract_id'] ?? 0,
+      bidId: json['bid_id'] ?? 0,
+      orderId: json['order_id'] ?? 0,
+      wonAt: (json['won_at'] ?? 0).toDouble(),
+      orderType: json['order_type'] ?? '',
+      orderDate: json['order_date'] != null ? DateTime.parse(json['order_date']) : DateTime.now(),
+      userId: json['user_id'] ?? 0,
+      orderStatus: json['order_status'] ?? '',
+      bidPrice: (json['bid_price'] ?? 0).toDouble(),
+      bidType: json['bid_type'] ?? '',
+      bidDate: json['bid_date'] != null ? DateTime.parse(json['bid_date']) : DateTime.now(),
+      maxPrice: json['max_price']?.toDouble(),
+      sessionOpen: json['session_open'] ?? 0,
+      isHighestBid: json['is_highest_bid'] ?? 0,
+      sessionCloseAt: json['session_close_at'] != null ? DateTime.parse(json['session_close_at']) : null,
+      contractTypeId: json['contract_type_id'] ?? 0,
+      commodityId: json['commodity_id'] ?? 0,
+      qualityGradeId: json['quality_grade_id'] ?? 0,
+      deliveryDate: json['delivery_date'] != null ? DateTime.parse(json['delivery_date']) : DateTime.now(),
+      price: (json['price'] ?? 0).toDouble(),
+      description: json['description'] ?? '',
+      closeDate: json['close_date'] != null ? DateTime.parse(json['close_date']) : null,
+      postedOn: json['posted_on'] != null ? DateTime.parse(json['posted_on']) : DateTime.now(),
+      closed: json['closed'] ?? 0,
+      id: json['id'] ?? 0,
+      name: json['name'] ?? '',
       commodityGradeId: json['commodity_grade_id'],
-      commodityType: json['commodity_type'],
-      iconName: json['icon_name'],
-      imageUrl: json['image_url'],
-      commodityPrimaryPackingId: json['commodity_primary_packing_id'],
-      userCompanyId: json['user_company_id'],
+      commodityType: json['commodity_type'] ?? 0,
+      iconName: json['icon_name'] ?? '',
+      imageUrl: json['image_url'] ?? '',
+      commodityPrimaryPackingId: json['commodity_primary_packing_id'] ?? 0,
+      userCompanyId: json['user_company_id'] ?? 0,
     );
   }
 }

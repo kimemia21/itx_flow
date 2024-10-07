@@ -15,7 +15,10 @@ import 'package:provider/provider.dart';
 
 class Contracts extends StatefulWidget {
   const Contracts(
-      {super.key, required this.filtered, required this.showAppbarAndSearch,  required this.isWareHouse});
+      {super.key,
+      required this.filtered,
+      required this.showAppbarAndSearch,
+      required this.isWareHouse});
   final bool filtered;
   final bool showAppbarAndSearch;
   final isWareHouse;
@@ -38,7 +41,9 @@ class _ContractsState extends State<Contracts> {
   Future<void> fetchContracts() async {
     setState(() {
       contracts = CommodityService.getContracts(
-          context: context, isWatchList: widget.filtered, isWareHouse:widget.isWareHouse);
+          context: context,
+          isWatchList: widget.filtered,
+          isWareHouse: widget.isWareHouse);
     });
   }
 
@@ -245,8 +250,12 @@ class _ContractsState extends State<Contracts> {
           ? AppBar(
               centerTitle: true,
               automaticallyImplyLeading: true,
-              title: Text(widget.isWareHouse?"WareHouse Orders": 
-                widget.filtered ? "Watchlist" : "Contracts",
+              title: Text(
+                widget.isWareHouse
+                    ? "WareHouse Orders"
+                    : widget.filtered
+                        ? "Watchlist"
+                        : "Contracts",
                 style: GoogleFonts.poppins(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -298,16 +307,17 @@ class _ContractsState extends State<Contracts> {
                   child: FutureBuilder<List<ContractsModel>>(
                     future: contracts,
                     builder: (context, snapshot) {
-                       String name =
-                           widget.isWareHouse?"WareHouse Orders":  widget.filtered ? "Watchlist" : "Contracts";
+                      String name = widget.isWareHouse
+                          ? "WareHouse Orders"
+                          : widget.filtered
+                              ? "Watchlist"
+                              : "Contracts";
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(child: CircularProgressIndicator());
                       } else if (snapshot.hasError) {
-                       
                         return Globals.buildErrorState(
                             function: fetchContracts, items: name);
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                       
                         return Globals.buildNoDataState(
                             function: fetchContracts, item: name);
                       }
@@ -358,6 +368,15 @@ class _ContractsState extends State<Contracts> {
           Expanded(
             flex: 7,
             child: TextField(
+              onChanged: (text) {
+                setState(() {
+                  contracts = CommodityService.getContracts(
+                      context: context,
+                      isWatchList: widget.filtered,
+                      isWareHouse: widget.isWareHouse,
+                      name: text);
+                });
+              },
               controller: _searchController,
               decoration: InputDecoration(
                 border: InputBorder.none,
@@ -399,19 +418,13 @@ class _ContractsState extends State<Contracts> {
                           setState(() {
                             contracts = CommodityService.getAdvancedContracts(
                                 context,
+                                contractId,
+                                commodityId,
                                 date_from,
                                 date_to,
                                 price_from,
                                 price_to);
                           });
-                          // final contract
-
-                          // Future<void> fetchContracts() async {
-                          //   setState(() {
-                          //     contracts = CommodityService.getContracts(context,
-                          //         widget.filtered ? "this_user_liked=1" : "");
-                          //   });
-                          // }
 
                           print('Advanced search params: $searchParams');
                         },

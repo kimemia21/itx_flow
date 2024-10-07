@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:itx/Serializers/Commodity_types.dart';
+import 'package:itx/Serializers/ContractType.dart';
 import 'package:itx/state/AppBloc.dart';
+import 'package:itx/web/requests/HomeRequest/HomeReq.dart';
 import 'package:provider/provider.dart';
 
 class NewContractPage extends StatefulWidget {
@@ -8,11 +11,43 @@ class NewContractPage extends StatefulWidget {
 }
 
 class _NewContractPageState extends State<NewContractPage> {
-  String _contractType = 'Futures';
+  String? _contractType ;
   String _deliveryTime = '1 week';
   String _selectedCommodity = 'WTI Crude Oil';
   String _selectedCurrency = 'USD';
   TextEditingController _quantityController = TextEditingController();
+  List<ContractType> _contractTypes =
+      []; // List to store fetched contract types
+
+
+
+
+ ContractType? _selectedContractType; 
+  Future<List<ContractType>> _fetchContracts(BuildContext context) async {
+    try {
+      List<ContractType> contracts = await HomepageRequest.GetContracts(context: context);
+      return contracts;
+    } catch (e) {
+      print("Error fetching contract types: $e");
+      return []; // Return an empty list if an error occurs
+    }
+  }
+
+ 
+  Widget _buildRadioListTile({
+    required ContractType contractType,
+    required ContractType? selectedContractType,
+    required ValueChanged<ContractType?> onChanged,
+  }) {
+    return RadioListTile<ContractType>(
+      title: Text(contractType.contractType), 
+      value: contractType,
+      groupValue: selectedContractType,
+      onChanged: onChanged,
+      activeColor: Colors.green,
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +69,49 @@ class _NewContractPageState extends State<NewContractPage> {
               Text('Contract Type',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
-              _buildRadioListTile('Futures', 'Futures'),
-              _buildRadioListTile('Forwards', 'Forwards'),
-              _buildRadioListTile('Options', 'Options'),
+            FutureBuilder<List<ContractType>>(
+        future: _fetchContracts(context), // Fetch contracts when FutureBuilder runs
+        builder: (BuildContext context, AsyncSnapshot<List<ContractType>> snapshot) {
+          // Handle the loading state
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator()); // Show loading indicator
+          }
+
+          // Handle error
+          if (snapshot.hasError) {
+            return Center(child: Text('Error fetching contract types: ${snapshot.error}'));
+          }
+
+          // Handle empty list scenario
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No contract types available.'));
+          }
+
+          // Contracts successfully loaded
+          List<ContractType> contractTypes = snapshot.data!;
+          ContractType? selectedContractType;
+
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return ListView(
+                children: contractTypes.map((contractType) {
+                  return _buildRadioListTile(
+                    contractType: contractType,
+                    selectedContractType: selectedContractType,
+                    onChanged: (ContractType? newValue) {
+                      setState(() {
+                        selectedContractType = newValue; // Update the selected value
+                      });
+                    },
+                  );
+                }).toList(),
+              );
+            },
+          );
+        },
+      ),
+
+            
               SizedBox(height: 24),
               Text('Commodity',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -46,10 +121,10 @@ class _NewContractPageState extends State<NewContractPage> {
               Text('Delivery Time',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
-              _buildRadioListTile('1 week', '1 week'),
-              _buildRadioListTile('2 weeks', '2 weeks'),
-              _buildRadioListTile('3 weeks', '3 weeks'),
-              _buildRadioListTile('4 weeks', '4 weeks'),
+              // _buildRadioListTile('1 week', '1 week'),
+              // _buildRadioListTile('2 weeks', '2 weeks'),
+              // _buildRadioListTile('3 weeks', '3 weeks'),
+              // _buildRadioListTile('4 weeks', '4 weeks'),
               SizedBox(height: 24),
               Text('Quantity',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -104,23 +179,9 @@ class _NewContractPageState extends State<NewContractPage> {
     );
   }
 
-  Widget _buildRadioListTile(String title, String value) {
-    return RadioListTile<String>(
-      title: Text(title),
-      value: value,
-      groupValue: title.contains('week') ? _deliveryTime : _contractType,
-      onChanged: (newValue) {
-        setState(() {
-          if (title.contains('week')) {
-            _deliveryTime = newValue!;
-          } else {
-            _contractType = newValue!;
-          }
-        });
-      },
-      activeColor: Colors.green,
-    );
-  }
+  // Widget to build radio list tile for each contract type
+
+ 
 
   Widget _buildCommodityCard() {
     return Card(

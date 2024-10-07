@@ -595,7 +595,9 @@ class _CreateContractState extends State<CreateContract>
                 "value": milestone.quantity
               })
           .toList(),
-      "params": {"param_id": 1, "param_value": 100}
+      "params": [
+        {"param_id": 1, "param_value": 100}
+      ]
 
       // params
       //     .map((param) => {
@@ -606,7 +608,7 @@ class _CreateContractState extends State<CreateContract>
     };
     print("-------------------------------------");
     print(contractData);
-    
+
     print("-------------------------------------");
 
     try {

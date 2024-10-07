@@ -73,7 +73,10 @@ class CommodityService {
   static Future<List<ContractsModel>> getContracts(
       {required BuildContext context,
       required bool isWatchList,
-      required isWareHouse}) async {
+
+      required isWareHouse,
+      dynamic name
+      }) async {
     print(isWatchList);
     final int userId = Provider.of<appBloc>(context, listen: false).user_id;
 
@@ -81,7 +84,7 @@ class CommodityService {
         ? Uri.parse("$mainUri/contracts/list?this_user_liked=1")
         : isWareHouse
             ? Uri.parse("$mainUri/contracts/list?warehouse_id=$userId")
-            : Uri.parse("$mainUri/contracts/list?");
+            : name!=null?Uri.parse("$mainUri/contracts/list?search=$name"):Uri.parse("$mainUri/contracts/list?");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
       "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
@@ -277,13 +280,19 @@ class CommodityService {
     }
   }
 
-  static Future<List<ContractsModel>> getAdvancedContracts(BuildContext context,
-      String date_from, String date_to, String price_from, String price_to,
+  static Future<List<ContractsModel>> getAdvancedContracts(
+      BuildContext context,
+      String contractId,
+      String commodityId,
+      String date_from,
+      String date_to,
+      String price_from,
+      String price_to,
       [int? id]) async {
     print(
         "------------------------------------------${Provider.of<appBloc>(context, listen: false).user_id}----------------------------------");
     String filter =
-        "userid=${Provider.of<appBloc>(context, listen: false).user_id}&this_user_liked=-1&this_user_bought=-1&this_user_paid=-1&date_from=$date_from&date_to=$date_to&price_from=$price_from&price_to=$price_to";
+        "contract_type_id=1&userid=${Provider.of<appBloc>(context, listen: false).user_id}&this_user_liked=-1&this_user_bought=-1&this_user_paid=-1&date_from=$date_from&date_to=$date_to&price_from=$price_from&price_to=$price_to";
 
     print("------$mainUri/contracts/list?$filter-----------");
 
@@ -396,11 +405,11 @@ class CommodityService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-                print("this is the response $responseData");
+        print("this is the response $responseData");
 
         if (responseData['rsp'] == true) {
           bloc.changeIsLoading(false);
-          
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Contract created successfully')),
           );
