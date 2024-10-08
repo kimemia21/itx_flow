@@ -82,15 +82,15 @@ class WebAuthrequest {
               title: Text("OTP resent successfully"),
             ).show(context);
           } else {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => WebOtpVerification(
-                  isRegistered: false,
-                  phoneNumber: body["phonenumber"],
-                ),
-              ),
-            );
+            // Navigator.pushReplacement(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (context) => WebOtpVerification(
+            //       isRegistered: false,
+            //       phoneNumber: body["phonenumber"],
+            //     ),
+            //   ),
+            // );
           }
         } else {
           // Handle the failure response from backend
@@ -301,11 +301,11 @@ class WebAuthrequest {
 
           // Switch screens upon successful login
 
-          Globals.switchScreens(
-              context: context,
-              screen: WebOtpVerification(
-                isRegistered: true,
-              )
+          // Globals.switchScreens(
+          //     context: context,
+          //     screen: WebOtpVerification(
+          //       isRegistered: true,
+          //     )
 
               // Verification(
               //   context: context,
@@ -313,7 +313,7 @@ class WebAuthrequest {
               //   phoneNumber: null,
               //   isRegistered: true,
               // )
-              );
+              // );
 
           print("Login successful: ${responseBody["message"]}");
         } else {

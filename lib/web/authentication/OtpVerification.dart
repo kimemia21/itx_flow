@@ -1,32 +1,43 @@
-import 'dart:async'; // Added for Timer functionality
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:itx/web/HomePageWeb.dart';
-import 'package:itx/web/requests/AuthRequest.dart';
-import 'package:itx/web/state/Webbloc.dart';
-import 'package:itx/web/uplaodDocs.dart/GlobalExchange.dart';
+import 'package:itx/authentication/CustomOtp.dart';
+import 'package:itx/authentication/LoginScreen.dart';
+import 'package:itx/authentication/SignUp.dart';
+import 'package:itx/state/AppBloc.dart';
+import 'package:itx/global/globals.dart';
+import 'package:itx/requests/HomepageRequest.dart';
+import 'package:itx/requests/Requests.dart';
+import 'package:itx/web/global/WebGlobals.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
-class WebOtpVerification extends StatefulWidget {
+class WebVerification extends StatefulWidget {
+  final BuildContext context;
+  final String email;
   final String? phoneNumber;
   final bool isRegistered;
+  final bool isWareHouse;
 
-  const WebOtpVerification(
-      {super.key, this.phoneNumber, required this.isRegistered});
+  const WebVerification(
+      {super.key,
+      required this.context,
+      required this.email,
+      this.phoneNumber,
+      required this.isRegistered, required this.isWareHouse});
 
   @override
-  _WebOtpVerificationState createState() => _WebOtpVerificationState();
+  State<WebVerification> createState() => _WebVerificationState();
 }
 
-class _WebOtpVerificationState extends State<WebOtpVerification> {
-  // Timer logic variables
+class _WebVerificationState extends State<WebVerification> {
+  bool _isSubmitted = false;
+  String _otpCode = '';
+  bool _canResendOtp = false;
+  bool _isOtpValid = true; // For OTP validation
   late Timer _timer;
   int _start = 30;
-  bool _canResendOtp = false;
-  final TextEditingController otp = TextEditingController();
 
-  // Starts the OTP resend timer
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_start == 0) {
@@ -42,11 +53,13 @@ class _WebOtpVerificationState extends State<WebOtpVerification> {
     });
   }
 
-  // Resets the OTP verification state and restarts the timer
   void _resetState() {
     setState(() {
+      _isSubmitted = false;
+      _otpCode = '';
       _start = 30;
       _canResendOtp = false;
+      _isOtpValid = true;
       _startTimer();
     });
   }
@@ -54,166 +67,199 @@ class _WebOtpVerificationState extends State<WebOtpVerification> {
   @override
   void initState() {
     super.initState();
-    _startTimer(); // Start the timer when the widget initializes
+    _startTimer();
   }
 
   @override
   void dispose() {
-    _timer.cancel(); // Dispose the timer when the widget is removed
+    _timer.cancel();
     super.dispose();
+  }
+
+  void _validateOtp() {
+    if (_otpCode.isEmpty || _otpCode.length < 5) {
+      setState(() {
+        _isOtpValid = false; // Show error if OTP is not valid
+      });
+    } else {
+      setState(() {
+        _isOtpValid = true;
+        _isSubmitted = true;
+      });
+      // Proceed to OTP verification
+      AuthRequest.otp(
+        isRegistered: widget.isRegistered,
+        context: context,
+        email: widget.email,
+        otp: _otpCode.toUpperCase(),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    String displayPhoneNumber = widget.phoneNumber ?? 'your phone number';
-
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: true,
-        title: Padding(
-          padding: const EdgeInsets.only(left: 60),
-          child: Text(
-            'ITX Validation',
-            style: GoogleFonts.poppins(color: Colors.black),
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        actions: [
-          CircleAvatar(
-            backgroundColor: Colors.grey.shade200,
-            child: Icon(Icons.person, color: Colors.black),
-          ),
-          SizedBox(width: 16),
-        ],
-      ),
-      body: Container(
-        decoration: BoxDecoration(color: Colors.white),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 600),
-            child: Container(
-              margin: EdgeInsets.only(top: 80, left: 120),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Let's get you set up",
-                    style: GoogleFonts.poppins(
-                      textStyle: TextStyle(
-                        fontSize: 24.0,
+      // appBar: AppBar(
+      //   automaticallyImplyLeading: false,
+      //   // leading: IconButton(
+      //   //   onPressed: () => Globals.switchScreens(
+      //   //       context: context,
+      //   //       screen: widget.isRegistered ? MainLoginScreen() : MainSignup()),
+      //   //   icon: const Icon(Icons.arrow_back),
+      //   // ),
+      // ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SingleChildScrollView(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+        
+            children: [
+              SizedBox(
+                width: MediaQuery.of(context).size.width*0.25,
+                child: Webglobals.itxLogo()), 
+              SizedBox(
+                 width: MediaQuery.of(context).size.width*0.5,
+               
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 50),
+                    Text(
+                      widget.isRegistered ? "Verify Phone" : "Verify Login",
+                      style: GoogleFonts.poppins(
                         fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                        fontSize: 20,
                       ),
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  SizedBox(height: 20),
-                  TextField(
-                    controller: otp,
-                    decoration: InputDecoration(
-                      labelText: 'Enter the code sent to $displayPhoneNumber',
-                      filled: true,
-                      fillColor: Colors.grey.shade100,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    "We have sent a code to $displayPhoneNumber to verify it’s yours.",
-                    style: GoogleFonts.poppins(
-                      textStyle: TextStyle(
-                        fontSize: 14.0,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-
-                  // OTP Resend Logic
-                  TextButton(
-                    onPressed: _canResendOtp
-                        ? () {
-                            WebAuthrequest.WebResendOtp(context: context);
-                            // Trigger OTP resend function here
-                            // Example: AuthRequest.ResendOtp(context: context);
-                            _resetState();
-                          }
-                        : null,
-                    child: _canResendOtp
-                        ? Provider.of<Webbloc>(context, listen: false).isLoading
-                            ? LoadingAnimationWidget.staggeredDotsWave(
-                                color: Colors.blue, size: 20)
-                            : Text(
-                                "Resend Code",
-                                style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                    color: Colors.blue),
-                              )
-                        : Text(
-                            "Resend OTP in $_start seconds",
+                    const SizedBox(height: 5),
+                    if (widget.isRegistered)
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        child: RichText(
+                          text: TextSpan(
+                            text: "WebVerification code has been sent to ",
                             style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                              color: Colors.grey,
+                              fontSize: 14,
+                              color: Colors.black,
                             ),
+                            children: [
+                              TextSpan(
+                                text: widget.phoneNumber,
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Colors.blueAccent,
+                                ),
+                              ),
+                            ],
                           ),
-                  ),
-
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      padding: EdgeInsets.symmetric(vertical: 16.0),
-                      textStyle: TextStyle(fontSize: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                    const SizedBox(height: 10),
+                    CustomOtpTextField(
+                      // Use the custom OTP widget here
+                      textStyle:
+                          GoogleFonts.abel(fontSize: 20, fontWeight: FontWeight.w600),
+                      fieldHeight: 65,
+                      fieldWidth: 50,
+                      borderRadius: BorderRadius.circular(10),
+                      borderWidth: 2,
+                      borderColor: _isOtpValid ? Colors.black : Colors.red,
+                      focusedBorderColor: Colors.black54,
+                      numberOfFields: 5,
+                      onCodeChanged: (String code) {
+                        setState(() {
+                          _isSubmitted = false;
+                          _otpCode = code;
+                        });
+                      },
+                      onSubmit: (String verificationCode) {
+                        setState(() {
+                          _isSubmitted = true;
+                          _otpCode = verificationCode;
+                        });
+                        _validateOtp(); // Trigger validation on submit
+                      },
+                    ),
+                    if (!_isOtpValid)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Text(
+                          "Please enter a valid 5-digit OTP",
+                          style: TextStyle(color: Colors.red, fontSize: 14),
+                        ),
+                      ),
+                    const SizedBox(height: 10),
+                    Text(
+                      "Didn't get the OTP code?",
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600, fontSize: 20),
+                    ),
+                    const SizedBox(height: 5),
+                    TextButton(
+                      onPressed: _canResendOtp
+                          ? () {
+                              AuthRequest.ResendOtp(context: context, isWarehouse: widget.isWareHouse);
+                              _resetState();
+                            }
+                          : null,
+                      child: _canResendOtp
+                          ? Provider.of<appBloc>(context, listen: false).isLoading
+                              ? LoadingAnimationWidget.staggeredDotsWave(
+                                  color: Colors.blue, size: 20)
+                              : Text(
+                                  "Resend Code",
+                                  style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16,
+                                      color: Colors.blue),
+                                )
+                          : Text(
+                              "Resend otp in $_start seconds",
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                            ),
+                    ),
+                    const SizedBox(height: 20),
+                
+                    
+                
+                
+                
+                    GestureDetector(
+                      onTap: () {
+                        _validateOtp();
+                      },
+                      child: Container(
+                        alignment: Alignment.center,
+                        width: MediaQuery.of(context).size.width * 0.15,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade800,
+                          borderRadius: BorderRadiusDirectional.circular(10),
+                        ),
+                        child: context.watch<appBloc>().isLoading
+                            ? LoadingAnimationWidget.staggeredDotsWave(
+                                color: Colors.white, size: 25)
+                            : Text(
+                                _isSubmitted ? "Verify" : "Next",
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
                       ),
                     ),
-                    onPressed: () async {
-                      try {
-                        final String email =  Provider.of<Webbloc>(context,listen: false).userEmail;
-
-                        WebAuthrequest.WebOtp(
-                            context: context,
-                            email: email,
-                            otp: otp.text.trim().toUpperCase(),
-                            isRegistered: widget.isRegistered);
-                      } catch (e) {
-                        print("login error $e");
-                      }
-                    },
-                    child: context.watch<Webbloc>().isLoading
-                        ? LoadingAnimationWidget.staggeredDotsWave(
-                            color: Colors.white,
-                            size: 25,
-                          )
-                        : Center(
-                            child: Text(
-                              'Continue',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    "By continuing, you agree to the Commodity Exchange Privacy Policy and Terms of Service.",
-                    style: GoogleFonts.poppins(
-                      textStyle: TextStyle(
-                        fontSize: 12.0,
-                        color: Colors.black54,
-                      ),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),

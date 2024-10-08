@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Serializers/UserTypes.dart';
 import 'package:itx/requests/Requests.dart';
+import 'package:itx/web/authentication/WebLogin.dart';
 import 'package:provider/provider.dart';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -119,94 +120,95 @@ class _WebsignupState extends State<Websignup>
     ).show(context);
   }
 
-Widget _buildTextField({
-  required TextEditingController controller,
-  required String label,
-  required IconData icon,
-  bool isPassword = false,
-  TextInputType keyboardType = TextInputType.text,
-  String? Function(String?)? validator,
-}) {
-  return AnimatedBuilder(
-    animation: _fadeAnimation,
-    builder: (context, child) {
-      return Opacity(
-        opacity: _fadeAnimation.value,
-        child: Container(
-          padding: EdgeInsets.all(5),
-          height: 60, // Decreased height
-          width: MediaQuery.of(context).size.width*0.4,
-          margin: EdgeInsets.only(bottom: 15), // Reduced bottom margin
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12), // Adjusted radius for smaller size
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                spreadRadius: 1,
-                blurRadius: 3,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
-          child: TextFormField(
-            controller: controller,
-            obscureText: isPassword
-                ? (isPassword == true
-                    ? _obscurePassword
-                    : _obscureConfirmPassword)
-                : false,
-            keyboardType:
-                isPassword ? TextInputType.visiblePassword : keyboardType,
-            decoration: InputDecoration(
-              labelText: label,
-              labelStyle: GoogleFonts.poppins(
-                fontSize: 14, // Reduced font size for compact appearance
-                color: Colors.grey[600],
-              ),
-              prefixIcon: Icon(
-                icon, 
-                color: Colors.grey.shade600, 
-                size: 20, // Smaller icon size
-              ),
-              suffixIcon: isPassword
-                  ? IconButton(
-                      icon: Icon(
-                        isPassword == true
-                            ? (_obscurePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility)
-                            : (_obscureConfirmPassword
-                                ? Icons.visibility_off
-                                : Icons.visibility),
-                        color: Colors.grey.shade600,
-                        size: 20, // Smaller icon size
-                      ),
-                      onPressed: () => setState(() => isPassword == true
-                          ? _obscurePassword = !_obscurePassword
-                          : _obscureConfirmPassword =
-                              !_obscureConfirmPassword),
-                    )
-                  : null,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12), // Adjusted border radius
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              filled: true,
-              fillColor: Colors.white,
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool isPassword = false,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
+  }) {
+    return AnimatedBuilder(
+      animation: _fadeAnimation,
+      builder: (context, child) {
+        return Opacity(
+          opacity: _fadeAnimation.value,
+          child: Container(
+            padding: EdgeInsets.all(5),
+            height: 60, // Decreased height
+            width: MediaQuery.of(context).size.width * 0.4,
+            margin: EdgeInsets.only(bottom: 15), // Reduced bottom margin
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius:
+                  BorderRadius.circular(12), // Adjusted radius for smaller size
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  spreadRadius: 1,
+                  blurRadius: 3,
+                  offset: Offset(0, 2),
+                ),
+              ],
             ),
-            validator: validator,
+            child: TextFormField(
+              controller: controller,
+              obscureText: isPassword
+                  ? (isPassword == true
+                      ? _obscurePassword
+                      : _obscureConfirmPassword)
+                  : false,
+              keyboardType:
+                  isPassword ? TextInputType.visiblePassword : keyboardType,
+              decoration: InputDecoration(
+                labelText: label,
+                labelStyle: GoogleFonts.poppins(
+                  fontSize: 14, // Reduced font size for compact appearance
+                  color: Colors.grey[600],
+                ),
+                prefixIcon: Icon(
+                  icon,
+                  color: Colors.grey.shade600,
+                  size: 20, // Smaller icon size
+                ),
+                suffixIcon: isPassword
+                    ? IconButton(
+                        icon: Icon(
+                          isPassword == true
+                              ? (_obscurePassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility)
+                              : (_obscureConfirmPassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility),
+                          color: Colors.grey.shade600,
+                          size: 20, // Smaller icon size
+                        ),
+                        onPressed: () => setState(() => isPassword == true
+                            ? _obscurePassword = !_obscurePassword
+                            : _obscureConfirmPassword =
+                                !_obscureConfirmPassword),
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius:
+                      BorderRadius.circular(12), // Adjusted border radius
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                filled: true,
+                fillColor: Colors.white,
+              ),
+              validator: validator,
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
-
+        );
+      },
+    );
+  }
 
   Widget _buildRadioButton({required String text, required String value}) {
     return AnimatedBuilder(
@@ -216,7 +218,7 @@ Widget _buildTextField({
           opacity: _fadeAnimation.value,
           child: Container(
             margin: EdgeInsets.only(bottom: 15),
-            width: MediaQuery.of(context).size.width*0.4,
+            width: MediaQuery.of(context).size.width * 0.4,
             height: 60,
             alignment: Alignment.center,
             decoration: BoxDecoration(
@@ -224,7 +226,6 @@ Widget _buildTextField({
                   ? Colors.green.shade50
                   : Colors.white,
               borderRadius: BorderRadius.circular(15),
-
               boxShadow: [
                 BoxShadow(
                   color: Colors.green.withOpacity(0.1),
@@ -298,35 +299,32 @@ Widget _buildTextField({
               children: [
                 // Row for top-left ITX logo and centered form
                 Row(
-          // mainAxisAlignment: MainAxisAlignment.spa,
-          crossAxisAlignment: CrossAxisAlignment.start,
+                  // mainAxisAlignment: MainAxisAlignment.spa,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // ITX Text Logo
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 0.25,
-                      child:      Text(
-                                "ITX",
-                                style: GoogleFonts.abel(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 24,
-                                  foreground: Paint()
-                                    ..shader = LinearGradient(
-                                      colors: <Color>[
-                                        Colors.black,
-                                        Colors.black87
-                                      ],
-                                    ).createShader(
-                                        Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
-                                  shadows: [
-                                    Shadow(
-                                      offset: Offset(3.0, 3.0),
-                                      blurRadius: 8.0,
-                                      color: Colors.black.withOpacity(0.5),
-                                    ),
-                                  ],
-                                  letterSpacing: 4.0,
-                                ),
-                              ),
+                      child: Text(
+                        "ITX",
+                        style: GoogleFonts.abel(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                          foreground: Paint()
+                            ..shader = LinearGradient(
+                              colors: <Color>[Colors.black, Colors.black87],
+                            ).createShader(
+                                Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
+                          shadows: [
+                            Shadow(
+                              offset: Offset(3.0, 3.0),
+                              blurRadius: 8.0,
+                              color: Colors.black.withOpacity(0.5),
+                            ),
+                          ],
+                          letterSpacing: 4.0,
+                        ),
+                      ),
                     ),
                     // Spacer(),
                     // Centered Form taking 50% of width
@@ -419,7 +417,7 @@ Widget _buildTextField({
                                 style: GoogleFonts.poppins(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.green.shade800,
+                                  color: Colors.grey[600],
                                 ),
                               ),
                               SizedBox(height: 15),
@@ -432,8 +430,9 @@ Widget _buildTextField({
                                       ),
                                     )
                                   : SizedBox(
-                                    width: MediaQuery.of(context).size.width*0.5,
-                                    child: Column(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.5,
+                                      child: Column(
                                         children: _userTypes.map((userType) {
                                           return _buildRadioButton(
                                             text: userType.name,
@@ -441,10 +440,10 @@ Widget _buildTextField({
                                           );
                                         }).toList(),
                                       ),
-                                  ),
+                                    ),
                               SizedBox(height: 20),
                               SizedBox(
-                                width: MediaQuery.of(context).size.width*0.15,
+                                width: MediaQuery.of(context).size.width * 0.15,
                                 height: 40,
                                 child: ElevatedButton(
                                   onPressed: _handleSignup,
@@ -463,16 +462,31 @@ Widget _buildTextField({
                                           ),
                                         ),
                                   style: ElevatedButton.styleFrom(
-                                  
                                     backgroundColor: Colors.green.shade600,
                                     padding: EdgeInsets.symmetric(vertical: 16),
                                     shape: RoundedRectangleBorder(
-                                    
                                       borderRadius: BorderRadius.circular(15),
                                     ),
                                     elevation: 3,
                                   ),
                                 ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => Weblogin()));
+                                },
+                                child: Text("Already have an account?",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w300,
+                                      color: Colors.blue,
+                                    )),
                               ),
                             ],
                           ),
