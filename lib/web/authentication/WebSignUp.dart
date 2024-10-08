@@ -119,88 +119,94 @@ class _WebsignupState extends State<Websignup>
     ).show(context);
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    bool isPassword = false,
-    TextInputType keyboardType = TextInputType.text,
-    String? Function(String?)? validator,
-  }) {
-    return AnimatedBuilder(
-      animation: _fadeAnimation,
-      builder: (context, child) {
-        return Opacity(
-          opacity: _fadeAnimation.value,
-          child: Container(
-            height: 60,
-            margin: EdgeInsets.only(bottom: 20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  spreadRadius: 1,
-                  blurRadius: 3,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: TextFormField(
-              controller: controller,
-              obscureText: isPassword
-                  ? (isPassword == true
-                      ? _obscurePassword
-                      : _obscureConfirmPassword)
-                  : false,
-              keyboardType:
-                  isPassword ? TextInputType.visiblePassword : keyboardType,
-              decoration: InputDecoration(
-                labelText: label,
-                labelStyle: GoogleFonts.poppins(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                ),
-                prefixIcon: Icon(icon, color: Colors.grey.shade600, size: 22),
-                suffixIcon: isPassword
-                    ? IconButton(
-                        icon: Icon(
-                          isPassword == true
-                              ? (_obscurePassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility)
-                              : (_obscureConfirmPassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility),
-                          color: Colors.grey.shade600,
-                          size: 22,
-                        ),
-                        onPressed: () => setState(() => isPassword == true
-                            ? _obscurePassword = !_obscurePassword
-                            : _obscureConfirmPassword =
-                                !_obscureConfirmPassword),
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide: BorderSide.none,
-                ),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: BorderSide.none
-                    //  BorderSide(color: Colors.grey.shade600, width: 1),
-                    ),
-                filled: true,
-                fillColor: Colors.white,
+Widget _buildTextField({
+  required TextEditingController controller,
+  required String label,
+  required IconData icon,
+  bool isPassword = false,
+  TextInputType keyboardType = TextInputType.text,
+  String? Function(String?)? validator,
+}) {
+  return AnimatedBuilder(
+    animation: _fadeAnimation,
+    builder: (context, child) {
+      return Opacity(
+        opacity: _fadeAnimation.value,
+        child: Container(
+          padding: EdgeInsets.all(5),
+          height: 60, // Decreased height
+          width: MediaQuery.of(context).size.width*0.4,
+          margin: EdgeInsets.only(bottom: 15), // Reduced bottom margin
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12), // Adjusted radius for smaller size
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                spreadRadius: 1,
+                blurRadius: 3,
+                offset: Offset(0, 2),
               ),
-              validator: validator,
-            ),
+            ],
           ),
-        );
-      },
-    );
-  }
+          child: TextFormField(
+            controller: controller,
+            obscureText: isPassword
+                ? (isPassword == true
+                    ? _obscurePassword
+                    : _obscureConfirmPassword)
+                : false,
+            keyboardType:
+                isPassword ? TextInputType.visiblePassword : keyboardType,
+            decoration: InputDecoration(
+              labelText: label,
+              labelStyle: GoogleFonts.poppins(
+                fontSize: 14, // Reduced font size for compact appearance
+                color: Colors.grey[600],
+              ),
+              prefixIcon: Icon(
+                icon, 
+                color: Colors.grey.shade600, 
+                size: 20, // Smaller icon size
+              ),
+              suffixIcon: isPassword
+                  ? IconButton(
+                      icon: Icon(
+                        isPassword == true
+                            ? (_obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility)
+                            : (_obscureConfirmPassword
+                                ? Icons.visibility_off
+                                : Icons.visibility),
+                        color: Colors.grey.shade600,
+                        size: 20, // Smaller icon size
+                      ),
+                      onPressed: () => setState(() => isPassword == true
+                          ? _obscurePassword = !_obscurePassword
+                          : _obscureConfirmPassword =
+                              !_obscureConfirmPassword),
+                    )
+                  : null,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12), // Adjusted border radius
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: Colors.white,
+            ),
+            validator: validator,
+          ),
+        ),
+      );
+    },
+  );
+}
+
 
   Widget _buildRadioButton({required String text, required String value}) {
     return AnimatedBuilder(
@@ -210,11 +216,15 @@ class _WebsignupState extends State<Websignup>
           opacity: _fadeAnimation.value,
           child: Container(
             margin: EdgeInsets.only(bottom: 15),
+            width: MediaQuery.of(context).size.width*0.4,
+            height: 60,
+            alignment: Alignment.center,
             decoration: BoxDecoration(
               color: _selectedUserType == value
                   ? Colors.green.shade50
                   : Colors.white,
               borderRadius: BorderRadius.circular(15),
+
               boxShadow: [
                 BoxShadow(
                   color: Colors.green.withOpacity(0.1),
@@ -255,30 +265,30 @@ class _WebsignupState extends State<Websignup>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar: AppBar(
-        backgroundColor:Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        title: AnimatedTextKit(
-          animatedTexts: [
-            TypewriterAnimatedText(
-              'Sign Up',
-              textStyle: GoogleFonts.abel(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
-              ),
-              speed: Duration(milliseconds: 100),
-            ),
-          ],
-          totalRepeatCount: 1,
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Globals.switchScreens(
-              context: context, screen: MainLoginScreen()),
-        ),
-      ),
+      // appBar: AppBar(
+      //   backgroundColor:Colors.white,
+      //   elevation: 0,
+      //   centerTitle: true,
+      //   title: AnimatedTextKit(
+      //     animatedTexts: [
+      //       TypewriterAnimatedText(
+      //         'Sign Up',
+      //         textStyle: GoogleFonts.abel(
+      //           fontSize: 20,
+      //           fontWeight: FontWeight.w500,
+      //           color: Colors.white,
+      //         ),
+      //         speed: Duration(milliseconds: 100),
+      //       ),
+      //     ],
+      //     totalRepeatCount: 1,
+      //   ),
+      //   // leading: IconButton(
+      //   //   icon: Icon(Icons.arrow_back, color: Colors.white),
+      //   //   onPressed: () => Globals.switchScreens(
+      //   //       context: context, screen: MainLoginScreen()),
+      //   // ),
+      // ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.all(25),
@@ -288,28 +298,44 @@ class _WebsignupState extends State<Websignup>
               children: [
                 // Row for top-left ITX logo and centered form
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          // mainAxisAlignment: MainAxisAlignment.spa,
+          crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // ITX Text Logo
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 0.25,
-                      child: Text(
-                        "ITX",
-                        style: GoogleFonts.poppins(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green.shade800,
-                        ),
-                      ),
+                      child:      Text(
+                                "ITX",
+                                style: GoogleFonts.abel(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 24,
+                                  foreground: Paint()
+                                    ..shader = LinearGradient(
+                                      colors: <Color>[
+                                        Colors.black,
+                                        Colors.black87
+                                      ],
+                                    ).createShader(
+                                        Rect.fromLTWH(0.0, 0.0, 200.0, 70.0)),
+                                  shadows: [
+                                    Shadow(
+                                      offset: Offset(3.0, 3.0),
+                                      blurRadius: 8.0,
+                                      color: Colors.black.withOpacity(0.5),
+                                    ),
+                                  ],
+                                  letterSpacing: 4.0,
+                                ),
+                              ),
                     ),
-                    Spacer(),
+                    // Spacer(),
                     // Centered Form taking 50% of width
                     Container(
                       width: MediaQuery.of(context).size.width * 0.5,
                       child: Form(
                         key: _formKey,
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: AnimationConfiguration.toStaggeredList(
                             duration: const Duration(milliseconds: 600),
                             childAnimationBuilder: (widget) => SlideAnimation(
@@ -332,7 +358,7 @@ class _WebsignupState extends State<Websignup>
                                   color: Colors.grey[600],
                                 ),
                               ),
-                              SizedBox(height: 40),
+                              SizedBox(height: 20),
                               _buildTextField(
                                 controller: _emailController,
                                 label: "Email",
@@ -387,7 +413,7 @@ class _WebsignupState extends State<Websignup>
                                   return null;
                                 },
                               ),
-                              SizedBox(height: 30),
+                              SizedBox(height: 10),
                               Text(
                                 "Select your role",
                                 style: GoogleFonts.poppins(
@@ -405,17 +431,21 @@ class _WebsignupState extends State<Websignup>
                                         size: 50,
                                       ),
                                     )
-                                  : Column(
-                                      children: _userTypes.map((userType) {
-                                        return _buildRadioButton(
-                                          text: userType.name,
-                                          value: userType.id.toString(),
-                                        );
-                                      }).toList(),
-                                    ),
-                              SizedBox(height: 40),
+                                  : SizedBox(
+                                    width: MediaQuery.of(context).size.width*0.5,
+                                    child: Column(
+                                        children: _userTypes.map((userType) {
+                                          return _buildRadioButton(
+                                            text: userType.name,
+                                            value: userType.id.toString(),
+                                          );
+                                        }).toList(),
+                                      ),
+                                  ),
+                              SizedBox(height: 20),
                               SizedBox(
-                                width: double.infinity,
+                                width: MediaQuery.of(context).size.width*0.15,
+                                height: 40,
                                 child: ElevatedButton(
                                   onPressed: _handleSignup,
                                   child: context.watch<appBloc>().isLoading
@@ -433,9 +463,11 @@ class _WebsignupState extends State<Websignup>
                                           ),
                                         ),
                                   style: ElevatedButton.styleFrom(
+                                  
                                     backgroundColor: Colors.green.shade600,
                                     padding: EdgeInsets.symmetric(vertical: 16),
                                     shape: RoundedRectangleBorder(
+                                    
                                       borderRadius: BorderRadius.circular(15),
                                     ),
                                     elevation: 3,
@@ -447,7 +479,7 @@ class _WebsignupState extends State<Websignup>
                         ),
                       ),
                     ),
-                    Spacer(),
+                    // Spacer(),
                   ],
                 ),
               ],

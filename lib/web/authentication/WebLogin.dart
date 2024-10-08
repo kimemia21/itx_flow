@@ -24,7 +24,6 @@ class _WebloginState extends State<Weblogin> {
     _passwordController.dispose();
     super.dispose();
   }
-
 Widget _buildTextField({
   required TextEditingController controller,
   required String label,
@@ -35,23 +34,6 @@ Widget _buildTextField({
 }) {
   return Container(
     height: 60,
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),  // Slightly larger radius
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.2), // Soft shadow for depth
-          spreadRadius: 2,
-          blurRadius: 6,
-          offset: Offset(0, 3), // Horizontal and vertical shadow offset
-        ),
-      ],
-      gradient: LinearGradient(
-        colors: [Colors.white, Colors.grey.shade100],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-    ),
     child: TextFormField(
       scrollPadding: EdgeInsets.all(4),
       controller: controller,
@@ -64,20 +46,21 @@ Widget _buildTextField({
           fontSize: 16,
           fontWeight: FontWeight.w500, // Slightly bolder text
         ),
-        prefixIcon: Container(
+        prefixIcon: Padding(
           padding: EdgeInsets.all(10),
-          child: Icon(icon, color: Colors.green.shade500), // Customized icon color
+          child: Icon(icon, color: Colors.green.shade500),
         ),
         suffixIcon: suffixIcon,
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
-            color: Colors.transparent, // Remove outer border
+            color: Colors.grey.withOpacity(0.2), // Soft grey border
+            width: 2,
           ),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12), // Same as container's border radius
         ),
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
-            color: Colors.green.shade500, // Highlighted border when focused
+            color: Colors.green.shade500, // Green border when focused
             width: 2,
           ),
           borderRadius: BorderRadius.circular(12),
@@ -96,13 +79,15 @@ Widget _buildTextField({
           ),
           borderRadius: BorderRadius.circular(12),
         ),
-        border: InputBorder.none,
         contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        fillColor: Colors.white,
+        filled: true, // Add background color to TextField
       ),
       validator: validator,
     ),
   );
 }
+
 
   @override
   Widget build(BuildContext context) {
