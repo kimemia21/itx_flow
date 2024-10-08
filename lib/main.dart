@@ -11,6 +11,7 @@ import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/web/HomePageWeb.dart';
+import 'package:itx/web/authentication/ComOfInterest.dart';
 import 'package:itx/web/authentication/OtpVerification.dart';
 import 'package:itx/web/authentication/WebLogin.dart';
 import 'package:itx/web/authentication/WebSplash.dart';
@@ -56,7 +57,12 @@ class _GetPlatformState extends State<GetPlatform> {
     if (kIsWeb) {
       setBloc.changePlatform("web");
 
-      return  WebVerification(context: context, email: "email", isRegistered: false, isWareHouse: false);
+      return WebCommoditiesOfInterest(isWareHouse: false);
+      // WebVerification(
+      //     context: context,
+      //     email: "email",
+      //     isRegistered: false,
+      //     isWareHouse: false);
     }
     // Android or iOS platform
     else if (Platform.isAndroid || Platform.isIOS) {
