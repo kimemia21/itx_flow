@@ -6,7 +6,6 @@ import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:itx/authentication/Verification.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/state/AppBloc.dart';
-import 'package:itx/web/HomePageWeb.dart';
 import 'package:itx/web/authentication/OtpVerification.dart';
 import 'package:itx/web/state/Webbloc.dart';
 import 'package:itx/web/uplaodDocs.dart/GlobalExchange.dart';
@@ -461,19 +460,19 @@ class WebAuthrequest {
           // Delay navigation for a few seconds for better UX
           Future.delayed(Duration(seconds: 3));
 
-          if (bloc.user_type == 6) {
-            Globals.switchScreens(
-                context: context,
-                screen: isRegistered
-                    ? HomePageWeb(title: "Home")
-                    : TradeAuthorizationStatusScreen());
-          } else {
-            Globals.switchScreens(
-                context: context,
-                screen: isRegistered
-                    ? HomePageWeb(title: "Home")
-                    : TradeAuthorizationStatusScreen());
-          }
+          // if (bloc.user_type == 6) {
+          //   Globals.switchScreens(
+          //       context: context,
+          //       screen: isRegistered
+          //           ? HomePageWeb(title: "Home")
+          //           : TradeAuthorizationStatusScreen());
+          // } else {
+          //   Globals.switchScreens(
+          //       context: context,
+          //       screen: isRegistered
+          //           ? HomePageWeb(title: "Home")
+          //           : TradeAuthorizationStatusScreen());
+          // }
           bloc.changeIsLoading(false); // Stop loading after success
         } else {
           // Show an authentication error if OTP fails

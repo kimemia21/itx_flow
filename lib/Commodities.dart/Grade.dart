@@ -42,9 +42,7 @@ class _GradeDropdownState extends State<GradeDropdown> {
   Widget _buildGradeTypeDropdown() {
     if (_isLoading) {
       return Center(
-        child: CircularProgressIndicator(
-          
-        ),
+        child: CircularProgressIndicator(),
       );
     }
 
@@ -58,16 +56,20 @@ class _GradeDropdownState extends State<GradeDropdown> {
       value: _selectedGrade,
       items: _grades
           .map((grade) => DropdownMenuItem<String>(
-                value: grade['grade_id'].toString(),
-                child: Text(grade['grade']),
+                value: grade['id'].toString(),
+                child: Text(grade['grade_name']),
               ))
           .toList(),
       onChanged: (value) {
-        setState(() {
-          _selectedGrade = value;
-        });
-        widget.onGradeSelected(value);
-        print(value);
+        try {
+          setState(() {
+            _selectedGrade = value;
+          });
+          widget.onGradeSelected(value);
+          print(value);
+        } catch (e) {
+          print("grades error $e");
+        }
       },
     );
   }

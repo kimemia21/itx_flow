@@ -87,6 +87,7 @@ class _VerificationState extends State<Verification> {
       });
       // Proceed to OTP verification
       AuthRequest.otp(
+        isWeb: false,
         isRegistered: widget.isRegistered,
         context: context,
         email: widget.email,
@@ -188,7 +189,9 @@ class _VerificationState extends State<Verification> {
             TextButton(
               onPressed: _canResendOtp
                   ? () {
-                      AuthRequest.ResendOtp(context: context, isWarehouse: widget.isWareHouse);
+                      AuthRequest.ResendOtp(
+                        isWeb: false,
+                        context: context, isWarehouse: widget.isWareHouse);
                       _resetState();
                     }
                   : null,

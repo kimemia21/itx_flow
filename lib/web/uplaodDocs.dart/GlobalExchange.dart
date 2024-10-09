@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Commodities.dart/ComDropDown.dart';
-import 'package:itx/web/HomePageWeb.dart';
+import 'package:itx/web/homepage/WebHomepage.dart';
 
 class TradeAuthorizationStatusScreen extends StatefulWidget {
   @override
@@ -92,7 +92,7 @@ class _TradeAuthorizationStatusScreenState
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => HomePageWeb(title: "title")));
+                          builder: (context) => WebHomePage()));
                 },
               ),
             )

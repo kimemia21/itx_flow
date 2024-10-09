@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:itx/Serializers/CommCert.dart';
 import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:itx/authentication/SplashScreen.dart';
@@ -10,12 +11,14 @@ import 'package:itx/firebase_options.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/requests/HomepageRequest.dart';
-import 'package:itx/web/HomePageWeb.dart';
+
 import 'package:itx/web/authentication/ComOfInterest.dart';
 import 'package:itx/web/authentication/OtpVerification.dart';
 import 'package:itx/web/authentication/WebLogin.dart';
 import 'package:itx/web/authentication/WebSplash.dart';
+import 'package:itx/web/homepage/WebHomepage.dart';
 import 'package:itx/web/state/Webbloc.dart';
+import 'package:itx/web/uplaodDocs.dart/WebRegulators.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -56,8 +59,10 @@ class _GetPlatformState extends State<GetPlatform> {
     // Web platform
     if (kIsWeb) {
       setBloc.changePlatform("web");
+      //  List<CommoditiesCert> ITEMS = [];
+      return WebHomePage();
 
-      return WebCommoditiesOfInterest(isWareHouse: false);
+      // Webregulators(commCerts: ITEMS, isWareHouse: false);
       // WebVerification(
       //     context: context,
       //     email: "email",

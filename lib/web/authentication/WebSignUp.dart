@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Serializers/UserTypes.dart';
 import 'package:itx/requests/Requests.dart';
+import 'package:itx/web/authentication/OtpVerification.dart';
 import 'package:itx/web/authentication/WebLogin.dart';
 import 'package:provider/provider.dart';
 import 'package:cherry_toast/cherry_toast.dart';
@@ -85,6 +86,17 @@ class _WebsignupState extends State<Websignup>
   }
 
   void _handleSignup() {
+     Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => WebVerification(
+                    context: context,
+                    email: "email",
+                    isRegistered: false,
+                    isWareHouse: false)));
+
+
+                    
     if (_formKey.currentState!.validate()) {
       if (_passwordController.text != _confirmPasswordController.text) {
         _showErrorToast('Password Error',
@@ -100,12 +112,20 @@ class _WebsignupState extends State<Websignup>
         };
 
         context.read<appBloc>().changeUserDetails(body);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => WebVerification(
+                    context: context,
+                    email: "email",
+                    isRegistered: false,
+                    isWareHouse: false)));
 
-        AuthRequest.register(
-          body: body,
-          context: context,
-          isOnOtp: false,
-        );
+        // AuthRequest.register(
+        //   body: body,
+        //   context: context,
+        //   isOnOtp: false,
+        // );
       }
     }
   }

@@ -9,22 +9,21 @@ import 'package:itx/state/AppBloc.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
-class HomepageContractsWidget extends StatefulWidget {
+class WebHomepageContracts extends StatefulWidget {
   final int displayCount;
   final bool filtered;
 
-  const HomepageContractsWidget({
+  const WebHomepageContracts({
     Key? key,
     this.displayCount = 6,
     this.filtered = false,
   }) : super(key: key);
 
   @override
-  _HomepageContractsWidgetState createState() =>
-      _HomepageContractsWidgetState();
+  _WebHomepageContractsState createState() => _WebHomepageContractsState();
 }
 
-class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
+class _WebHomepageContractsState extends State<WebHomepageContracts> {
   late Future<List<ContractsModel>> _contractsFuture;
 
   @override
@@ -35,11 +34,11 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
 
   Future<List<ContractsModel>> fetchContracts() async {
     return CommodityService.getContracts(
-        isSpot: false,
-        context: context,
-        isWatchList: false,
-        isWareHouse:
-            Provider.of<appBloc>(context, listen: false).user_type == 6);
+      isSpot: false,
+      context: context,
+      isWatchList: false,
+      isWareHouse: Provider.of<appBloc>(context, listen: false).user_type == 6
+    );
   }
 
   @override
@@ -84,7 +83,7 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text('No contracts available'),
+        const Text('No Trades available'),
         const SizedBox(height: 20),
         ElevatedButton(
           onPressed: () {
@@ -107,7 +106,7 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
             elevation: 5,
           ),
           child: const Text(
-            'View Contracts',
+            'View Trades',
             style: TextStyle(
               fontSize: 18,
               color: Colors.white,
@@ -140,47 +139,33 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.w500,
-              color: Colors.green.shade800,
+              color: Colors.grey.shade600,
             ),
           ),
-          TextButton(
-            onPressed: () {
-              PersistentNavBarNavigator.pushNewScreen(
-                context,
-                screen: Contracts(
-                  isSpot: false,
-                  filtered: false,
-                  showAppbarAndSearch: true,
-                  isWareHouse:
-                      Provider.of<appBloc>(context, listen: false).user_type ==
-                          6,
-                ),
-              );
-            },
-            child: Text(
-              'See all',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: Colors.blue,
-              ),
-            ),
-          ),
+          // TextButton(
+          //   onPressed: () {
+          //     PersistentNavBarNavigator.pushNewScreen(
+          //       context,
+          //       screen: Contracts(
+          //         isSpot: false,
+          //         filtered: false,
+          //         showAppbarAndSearch: true,
+          //         isWareHouse: Provider.of<appBloc>(context, listen: false).user_type == 6,
+          //       ),
+          //     );
+          //   },
+          //   child: Text(
+          //     'See all',
+          //     style: GoogleFonts.poppins(
+          //       fontSize: 18,
+          //       fontWeight: FontWeight.w500,
+          //       color: Colors.blue,
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );
-  }
-
-  int _calculateCrossAxisCount(double width) {
-    if (width > 1200) {
-      return 4; // Extra large screens
-    } else if (width > 900) {
-      return 3; // Large screens
-    } else if (width > 600) {
-      return 2; // Medium screens
-    } else {
-      return 1; // Small screens
-    }
   }
 
   Widget _buildContractsGrid(List<ContractsModel> contracts) {
@@ -188,6 +173,7 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
       builder: (context, constraints) {
         final double width = constraints.maxWidth;
         final int crossAxisCount = _calculateCrossAxisCount(width);
+        final double aspectRatio = _calculateAspectRatio(width);
 
         return GridView.builder(
           shrinkWrap: true,
@@ -195,9 +181,9 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            childAspectRatio: 0.8,
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
+            childAspectRatio: aspectRatio,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
           ),
           itemCount: contracts.length > widget.displayCount
               ? widget.displayCount
@@ -211,6 +197,20 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
     );
   }
 
+  int _calculateCrossAxisCount(double width) {
+    if (width > 1200) return 4;
+    if (width > 900) return 3;
+    if (width > 600) return 2;
+    return 1;
+  }
+
+  double _calculateAspectRatio(double width) {
+    if (width > 1200) return 1.2;
+    if (width > 900) return 1.1;
+    if (width > 600) return 1.0;
+    return 0.9;
+  }
+
   Widget _buildContractItem(BuildContext context, ContractsModel contract) {
     return GestureDetector(
       onTap: () {
@@ -219,24 +219,19 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
           screen: Specificorder(contract: contract),
         );
       },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.green.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 4,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildContractImage(contract),
-            _buildContractDetails(contract),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: _buildContractDetails(contract),
+              ),
+            ),
           ],
         ),
       ),
@@ -250,7 +245,7 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
           borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
           child: Image.network(
             contract.imageUrl,
-            height: 80,
+            height: 120,
             width: double.infinity,
             fit: BoxFit.cover,
           ),
@@ -279,52 +274,65 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
   }
 
   Widget _buildContractDetails(ContractsModel contract) {
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            contract.name,
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              fontSize: 12,
-              color: Colors.green.shade800,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              contract.name,
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: Colors.green.shade800,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "\$${contract.price.toStringAsFixed(2)}",
+            const SizedBox(height: 4),
+            Text(
+              contract.description,
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 12,
+                color: Colors.black87,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "\$${contract.price.toStringAsFixed(2)}",
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.green.shade600,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                DateFormat('MMM d').format(contract.deliveryDate),
                 style: GoogleFonts.poppins(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.green.shade600,
+                  fontSize: 10,
+                  color: Colors.orange.shade800,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  DateFormat('MMM d').format(contract.deliveryDate),
-                  style: GoogleFonts.poppins(
-                    fontSize: 10,
-                    color: Colors.orange.shade800,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

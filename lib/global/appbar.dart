@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
@@ -12,9 +13,9 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.green[600],
       centerTitle: true,
-      title: const Text(
-        'ITX',
-        style: TextStyle(
+      title:  Text(
+        'iTea-X',
+        style: GoogleFonts.abel(
             fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
       ),
       leading: IconButton(

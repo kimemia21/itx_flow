@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/requests/Requests.dart';
+import 'package:itx/state/AppBloc.dart';
 import 'package:itx/web/authentication/WebSignUp.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
@@ -244,6 +246,12 @@ Widget _buildTextField({
                           GestureDetector(
                             onTap: () {
                               if (_formState.currentState!.validate()) {
+
+                                AuthRequest.login(
+                          isWeb: false,
+                            context: context,
+                            email: _emailController.text.trim(),
+                            password: _passwordController.text.trim());
                                 // Add your login logic here
                               }
                             },
@@ -254,7 +262,10 @@ Widget _buildTextField({
                                 color: Colors.green.shade500,
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: Text(
+                              child:  context.watch<appBloc>().isLoading
+                          ? LoadingAnimationWidget.staggeredDotsWave(
+                              color: Colors.white, size:20)
+                          :Text(
                                 "Login",
                                 style: GoogleFonts.poppins(
                                   color: Colors.white,

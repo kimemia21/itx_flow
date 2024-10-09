@@ -8,7 +8,6 @@ import 'package:itx/Serializers/ContractType.dart';
 import 'package:itx/authentication/Verification.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/state/AppBloc.dart';
-import 'package:itx/web/HomePageWeb.dart';
 import 'package:itx/web/authentication/OtpVerification.dart';
 import 'package:itx/web/state/Webbloc.dart';
 import 'package:itx/web/uplaodDocs.dart/GlobalExchange.dart';

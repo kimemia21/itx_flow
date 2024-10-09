@@ -284,7 +284,9 @@ class _WebCommoditiesOfInterestState extends State<WebCommoditiesOfInterest> {
       );
     } else {
       AuthRequest.UserCommodities(
+          
           isWarehouse: widget.isWareHouse,
+          isWeb:true,
           context: context,
           commodities: userItemsId.toList());
     }

@@ -36,8 +36,9 @@ class CommodityService {
       // print("token ${Provider.of<appBloc>(context, listen: false).token}");
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDgsImFwaSI6IldFQiIsImlhdCI6MTcyODM1MjE5MCwiZXhwIjoxNzI4MzcwMTkwfQ.dYQtYMHmDOHGdvFk56txFG1gqRL5-WSqvitbw4XqdQY"
-        
+        "x-auth-token":
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzI4Mzc4MTQzLCJleHAiOjE3MjgzOTYxNDN9.sUKTtbgaszFXjrsq6wwMtr3fisI9M0vz6bAl5r5Ho90",
+
         // Provider.of<appBloc>(context, listen: false).token,
         // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiQVBQIiwiaWF0IjoxNzI3MjUxMjAyLCJleHAiOjE3MjcyNjkyMDJ9.knE5b5EPyY_dwVbo9CgmkOIz_TwROiLnpR86E_rzTfs",
         // Provider.of<appBloc>(context, listen: false).token,
@@ -46,10 +47,12 @@ class CommodityService {
       final response = await http.get(uri, headers: headers);
 
       if (response.statusCode == 200) {
+        print("mems");
         print("success");
         final Map<String, dynamic> responseData = json.decode(response.body);
 
         if (responseData['rsp'] == true) {
+          print("mems");
           List<dynamic> commoditiesJson = responseData['data'];
           print(commoditiesJson);
           List<Commodity> commodities = commoditiesJson
@@ -75,22 +78,27 @@ class CommodityService {
   static Future<List<ContractsModel>> getContracts(
       {required BuildContext context,
       required bool isWatchList,
-
       required isWareHouse,
-      dynamic name, required bool isSpot
-      }) async {
+      dynamic name,
+      required bool isSpot}) async {
     print(isWatchList);
     final int userId = Provider.of<appBloc>(context, listen: false).user_id;
 
-    final Uri uri = isSpot?Uri.parse("$mainUri/contracts/list?contract_type_id=5"): 
-     isWatchList
-        ? Uri.parse("$mainUri/contracts/list?this_user_liked=1")
-        : isWareHouse
-            ? Uri.parse("$mainUri/contracts/list?warehouse_id=$userId")
-            : name!=null?Uri.parse("$mainUri/contracts/list?search=$name"):Uri.parse("$mainUri/contracts/list?");
+    final Uri uri = isSpot
+        ? Uri.parse("$mainUri/contracts/list?contract_type_id=5")
+        : isWatchList
+            ? Uri.parse("$mainUri/contracts/list?this_user_liked=1")
+            : isWareHouse
+                ? Uri.parse("$mainUri/contracts/list?warehouse_id=$userId")
+                : name != null
+                    ? Uri.parse("$mainUri/contracts/list?search=$name")
+                    : Uri.parse("$mainUri/contracts/list?");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
-      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      "x-auth-token":Provider.of<appBloc>(context, listen: false).token
+      //  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiV0VCIiwiaWF0IjoxNzI4NDQwNjE1LCJleHAiOjE3Mjg0NTg2MTV9.dEByi6Hhm1MZRKOrJCkg11QpkSME6zKYl9A1zHGCL_M",
+      
+      // Provider.of<appBloc>(context, listen: false).token,
     };
     final http.Response response = await http.get(uri, headers: headers);
     if (response.statusCode == 200) {
@@ -222,7 +230,10 @@ class CommodityService {
       final Uri uri = Uri.parse("$mainUri/user/orders");
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+        "x-auth-token": Provider.of<appBloc>(context, listen: false).token
+        // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiV0VCIiwiaWF0IjoxNzI4NDQwNjE1LCJleHAiOjE3Mjg0NTg2MTV9.dEByi6Hhm1MZRKOrJCkg11QpkSME6zKYl9A1zHGCL_M"
+        
+        // Provider.of<appBloc>(context, listen: false).token,
       };
       final http.Response response = await http.get(uri, headers: headers);
       print("start");

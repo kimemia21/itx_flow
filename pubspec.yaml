@@ -83,6 +83,7 @@ dependencies:
   flutter_typeahead: ^5.2.0
   get: ^4.6.6
   animated_custom_dropdown: ^3.1.1
+  flutter_dropzone: ^4.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

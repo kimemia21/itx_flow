@@ -229,6 +229,7 @@ class _MainLoginScreenState extends State<MainLoginScreen> {
                     onTap: () {
                       if (_formState.currentState!.validate()) {
                         AuthRequest.login(
+                          isWeb: false,
                             context: context,
                             email: _emailController.text.trim(),
                             password: _passwordController.text.trim());

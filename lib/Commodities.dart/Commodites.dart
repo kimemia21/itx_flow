@@ -269,6 +269,7 @@ class _CommoditiesState extends State<Commodities> {
       );
     } else {
       AuthRequest.UserCommodities(
+        isWeb: false,
           isWarehouse: widget.isWareHouse,
           context: context,
           commodities: userItemsId.toList());

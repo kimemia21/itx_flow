@@ -8,6 +8,7 @@ import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/requests/Requests.dart';
+import 'package:itx/web/authentication/ComOfInterest.dart';
 import 'package:itx/web/global/WebGlobals.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
@@ -24,7 +25,8 @@ class WebVerification extends StatefulWidget {
       required this.context,
       required this.email,
       this.phoneNumber,
-      required this.isRegistered, required this.isWareHouse});
+      required this.isRegistered,
+      required this.isWareHouse});
 
   @override
   State<WebVerification> createState() => _WebVerificationState();
@@ -86,8 +88,16 @@ class _WebVerificationState extends State<WebVerification> {
         _isOtpValid = true;
         _isSubmitted = true;
       });
+
+      // Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //         builder: (context) =>
+      //             WebCommoditiesOfInterest(isWareHouse: false)));
+
       // Proceed to OTP verification
       AuthRequest.otp(
+        isWeb:true,
         isRegistered: widget.isRegistered,
         context: context,
         email: widget.email,
@@ -113,14 +123,12 @@ class _WebVerificationState extends State<WebVerification> {
         child: SingleChildScrollView(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-        
             children: [
               SizedBox(
-                width: MediaQuery.of(context).size.width*0.25,
-                child: Webglobals.itxLogo()), 
+                  width: MediaQuery.of(context).size.width * 0.25,
+                  child: Webglobals.itxLogo()),
               SizedBox(
-                 width: MediaQuery.of(context).size.width*0.5,
-               
+                width: MediaQuery.of(context).size.width * 0.5,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -160,8 +168,8 @@ class _WebVerificationState extends State<WebVerification> {
                     const SizedBox(height: 10),
                     CustomOtpTextField(
                       // Use the custom OTP widget here
-                      textStyle:
-                          GoogleFonts.abel(fontSize: 20, fontWeight: FontWeight.w600),
+                      textStyle: GoogleFonts.abel(
+                          fontSize: 20, fontWeight: FontWeight.w600),
                       fieldHeight: 65,
                       fieldWidth: 50,
                       borderRadius: BorderRadius.circular(10),
@@ -201,12 +209,16 @@ class _WebVerificationState extends State<WebVerification> {
                     TextButton(
                       onPressed: _canResendOtp
                           ? () {
-                              AuthRequest.ResendOtp(context: context, isWarehouse: widget.isWareHouse);
+                              AuthRequest.ResendOtp(
+                                 isWeb:true,
+                                  context: context,
+                                  isWarehouse: widget.isWareHouse);
                               _resetState();
                             }
                           : null,
                       child: _canResendOtp
-                          ? Provider.of<appBloc>(context, listen: false).isLoading
+                          ? Provider.of<appBloc>(context, listen: false)
+                                  .isLoading
                               ? LoadingAnimationWidget.staggeredDotsWave(
                                   color: Colors.blue, size: 20)
                               : Text(
@@ -226,11 +238,6 @@ class _WebVerificationState extends State<WebVerification> {
                             ),
                     ),
                     const SizedBox(height: 20),
-                
-                    
-                
-                
-                
                     GestureDetector(
                       onTap: () {
                         _validateOtp();

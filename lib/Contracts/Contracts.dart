@@ -14,16 +14,17 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 class Contracts extends StatefulWidget {
-  const Contracts(
-      {super.key,
-      required this.filtered,
-      required this.showAppbarAndSearch,
-      required this.isWareHouse,
-      required this.isSpot,});
+  const Contracts({
+    super.key,
+    required this.filtered,
+    required this.showAppbarAndSearch,
+    required this.isWareHouse,
+    required this.isSpot,
+  });
   final bool filtered;
   final bool showAppbarAndSearch;
   final bool isWareHouse;
-  final bool isSpot; 
+  final bool isSpot;
 
   @override
   State<Contracts> createState() => _ContractsState();
@@ -46,8 +47,7 @@ class _ContractsState extends State<Contracts> {
           context: context,
           isWatchList: widget.filtered,
           isWareHouse: widget.isWareHouse,
-          isSpot:widget.isSpot
-          );
+          isSpot: widget.isSpot);
     });
   }
 
@@ -66,7 +66,7 @@ class _ContractsState extends State<Contracts> {
             screen: Specificorder(contract: contract));
       },
       child: Container(
-        height: 120,
+        height: 140,
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -83,17 +83,17 @@ class _ContractsState extends State<Contracts> {
         child: Row(
           children: [
             Container(
-              width: 120,
+              width: 100,
+              height: 100,
+              margin: EdgeInsets.all(2),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(15),
-                  bottomLeft: Radius.circular(15),
-                ),
-                image: DecorationImage(
-                  image: NetworkImage(contract.imageUrl),
-                  fit: BoxFit.cover,
-                ),
-              ),
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadiusDirectional.circular(50)),
+              child: Center(
+                  child: Text(
+                "Grade name",
+                style: GoogleFonts.poppins(color: Colors.grey.shade600),
+              )),
             ),
             Expanded(
               child: Padding(
@@ -106,11 +106,11 @@ class _ContractsState extends State<Contracts> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          contract.name,
+                          "Compay name",
                           style: GoogleFonts.poppins(
                             fontWeight: FontWeight.w700,
                             fontSize: 18,
-                            color: Colors.green.shade800,
+                            color: Colors.grey.shade600,
                           ),
                         ),
                         Container(
@@ -131,77 +131,93 @@ class _ContractsState extends State<Contracts> {
                         ),
                       ],
                     ),
-                    Text(
-                      contract.description,
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            Icon(Icons.grade, size: 16, color: Colors.amber),
-                            SizedBox(width: 4),
-                            Text(
-                              "Grade: ${contract.qualityGradeId}",
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                color: Colors.grey.shade700,
-                              ),
-                            ),
-                          ],
+                        Text(
+                          "contract metrics",
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        Row(
-                          children: [
-                            Icon(Icons.calendar_today,
-                                size: 16, color: Colors.green.shade600),
-                            SizedBox(width: 4),
-                            Text(
-                              "Delivery: ${DateFormat('MMM d, y').format(contract.deliveryDate)}",
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                color: Colors.grey.shade700,
-                              ),
-                            ),
-                          ],
-                        ),
+                         
+                      
+                     
                       ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          "Contract #${contract.contractId}",
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
                         Row(
                           children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.green.shade50,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                "\$${contract.price.toStringAsFixed(2)}",
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                  color: Colors.green.shade700,
-                                ),
-                              ),
+                            Icon(Icons.calendar_today,
+                                size: 16, color: Colors.green.shade600),
+                            SizedBox(
+                              width: 4,
                             ),
-                            SizedBox(width: 8),
+                            Text(
+                                "Delivery: ${DateFormat('MMM d, y').format(contract.deliveryDate)}",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade700,
+                                )),
+                            SizedBox(width: 4),
+                          ],
+                        ),
+                       
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Row(
+                          children: [
+                            Text(contract.canBid==1?
+                                  "Started at":"Price",
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade600,
+                              )
+                              ,
+                              
+                            ),
+                            SizedBox(width: 4,),
+                                 Text(
+                          "\$${contract.price.toStringAsFixed(2)}",
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: Colors.green.shade700,
+                          ),
+                        ),
+                          ],
+                        ),
+                   
+
+                        Row(
+                          children: [
+                            // Container(
+                            //   padding: EdgeInsets.symmetric(
+                            //       horizontal: 12, vertical: 6),
+                            //   decoration: BoxDecoration(
+                            //     color: Colors.green.shade50,
+                            //     borderRadius: BorderRadius.circular(20),
+                            //   ),
+                            //   child: Text(
+                            //     "\$${contract.price.toStringAsFixed(2)}",
+                            //     style: GoogleFonts.poppins(
+                            //       fontWeight: FontWeight.w600,
+                            //       fontSize: 16,
+                            //       color: Colors.green.shade700,
+                            //     ),
+                            //   ),
+                            // ),
+                            // SizedBox(width: 8),
                             LikeButton(
                               contractId: contract.contractId,
                               likes: contract.liked,
@@ -216,8 +232,39 @@ class _ContractsState extends State<Contracts> {
                             ),
                           ],
                         ),
+
                       ],
                     ),
+                         Visibility(
+                          visible: contract.canBid==1,
+                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                             children: [
+                              Text("Highest Bid",style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade600,
+                                )),
+                               Container(
+                                  
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.shade50,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      "\$${contract.price.toStringAsFixed(2)}",
+                                      style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 16,
+                                        color: Colors.green.shade700,
+                                      ),
+                                    ),
+                                  ),
+                             ],
+                           ),
+                         ),
                   ],
                 ),
               ),
@@ -375,7 +422,7 @@ class _ContractsState extends State<Contracts> {
               onChanged: (text) {
                 setState(() {
                   contracts = CommodityService.getContracts(
-                    isSpot: widget.isSpot,
+                      isSpot: widget.isSpot,
                       context: context,
                       isWatchList: widget.filtered,
                       isWareHouse: widget.isWareHouse,

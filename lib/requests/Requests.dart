@@ -19,7 +19,10 @@ import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/myOrders.dart/MyOrders.dart';
 import 'package:itx/uploadCerts/WareHouseUploads.dart';
-import 'package:itx/web/HomePageWeb.dart';
+import 'package:itx/web/authentication/ComOfInterest.dart';
+import 'package:itx/web/authentication/OtpVerification.dart';
+import 'package:itx/web/homepage/WebHomepage.dart';
+import 'package:itx/web/uplaodDocs.dart/WebRegulators.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -135,6 +138,7 @@ class AuthRequest {
     required BuildContext context,
     required List<int> commodities,
     required bool isWarehouse,
+    required bool isWeb,
   }) async {
     final appBloc bloc = context.read<appBloc>();
 
@@ -162,7 +166,9 @@ class AuthRequest {
         url,
         body: jsonEncode(body),
         headers: {
-          "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+          "x-auth-token":Provider.of<appBloc>(context, listen: false).token,
+              // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDgsImFwaSI6IldFQiIsImlhdCI6MTcyODM5MjE5NSwiZXhwIjoxNzI4NDEwMTk1fQ.yc2gtU2no7fGDgbe3u87oTcN_v_4xBKtcWlHbO8Fw-M",
+          //  Provider.of<appBloc>(context, listen: false).token,
           'Content-Type': 'application/json',
         },
       );
@@ -188,7 +194,9 @@ class AuthRequest {
 
           Globals.switchScreens(
               context: context,
-              screen: Regulators(commCerts: mapper, isWareHouse: isWarehouse));
+              screen: isWeb
+                  ? Webregulators(commCerts: mapper, isWareHouse: isWarehouse)
+                  : Regulators(commCerts: mapper, isWareHouse: isWarehouse));
         } else {
           // Handle specific failure
           _handleError(
@@ -318,6 +326,7 @@ class AuthRequest {
   static Future<void> ResendOtp({
     required BuildContext context,
     required bool isWarehouse,
+    required bool isWeb,
   }) async {
     final appBloc bloc = context.read<appBloc>();
     final Uri url = Uri.parse("$main_url/user/otp");
@@ -353,7 +362,9 @@ class AuthRequest {
 
           // Delay navigation for a few seconds for better UX
           Future.delayed(Duration(seconds: 3));
-          Globals.switchScreens(context: context, screen: GlobalsHomePage());
+          Globals.switchScreens(
+              context: context,
+              screen: isWeb ? WebHomePage() : GlobalsHomePage());
 
           bloc.changeIsLoading(false); // Stop loading after success
         } else {
@@ -387,6 +398,7 @@ class AuthRequest {
     required String email,
     required String otp,
     required bool isRegistered,
+    required bool isWeb,
   }) async {
     final appBloc bloc = context.read<appBloc>();
 
@@ -439,24 +451,17 @@ class AuthRequest {
                       ));
           } else {
             bloc.changeIsLoading(false); // Stop loading after success
-            String platform =
-                Provider.of<appBloc>(context, listen: false).platform;
-          
-
-            if (platform == "web") {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => HomePageWeb(title: "WebView")));
-            }
-
-            Globals.switchScreens(
-                context: context,
-                screen: isRegistered
-                    ? GlobalsHomePage()
-                    : Commodities(
-                        isWareHouse: false,
-                      ));
+            isWeb
+                ? Globals.switchScreens(
+                    context: context,
+                    screen: isRegistered
+                        ? WebHomePage()
+                        : WebCommoditiesOfInterest(isWareHouse: false))
+                : Globals.switchScreens(
+                    context: context,
+                    screen: isRegistered
+                        ? GlobalsHomePage()
+                        : Commodities(isWareHouse: false));
           }
         } else {
           // Show an authentication error if OTP fails
@@ -485,11 +490,11 @@ class AuthRequest {
   }
 
   // Login request
-  static Future<void> login({
-    required BuildContext context,
-    required String email,
-    required String password,
-  }) async {
+  static Future<void> login(
+      {required BuildContext context,
+      required String email,
+      required String password,
+      required bool isWeb}) async {
     final appBloc bloc = context.read<appBloc>();
     try {
       // Prepare the request body for login
@@ -545,13 +550,19 @@ class AuthRequest {
 
           Globals.switchScreens(
               context: context,
-              screen: Verification(
-                context: context,
-                email: email,
-                phoneNumber: null,
-                isRegistered: true,
-                isWareHouse: bloc.user_type == 6,
-              ));
+              screen: isWeb
+                  ? WebVerification(
+                      context: context,
+                      email: email,
+                      isRegistered: true,
+                      isWareHouse: bloc.user_type == 6)
+                  : Verification(
+                      context: context,
+                      email: email,
+                      phoneNumber: null,
+                      isRegistered: true,
+                      isWareHouse: bloc.user_type == 6,
+                    ));
 
           print("Login successful: ${responseBody["message"]}");
         } else {

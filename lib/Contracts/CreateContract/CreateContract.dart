@@ -23,7 +23,7 @@ class _CreateContractState extends State<CreateContract>
   Map<int, TextEditingController> controllers = {};
   bool isLoading = true;
   String? errorMessage;
-  int selectedCommodityId = 1;
+  int selectedCommodityId = 0;
   String? selectedQuality;
   DateTime? selectedDate;
   String? selectedMetric;
@@ -171,17 +171,21 @@ class _CreateContractState extends State<CreateContract>
                       onCommoditySelected: (commodity) {
                         setState(() {
                           selectedCommodityId = int.parse(commodity.toString());
+                          print(selectedCommodityId);
                         });
                       },
                     ),
                     if (selectedCommodityId != null) ...[
                       SizedBox(height: 16),
-                      GradeDropdown(
-                        onGradeSelected: (onGradeSelected) {
-                          setState(() {
-                            selectedQuality = onGradeSelected;
-                          });
-                        },
+                      Visibility(
+                        visible: context.watch<appBloc>().commId != 0,
+                        child: GradeDropdown(
+                          onGradeSelected: (onGradeSelected) {
+                            setState(() {
+                              selectedQuality = onGradeSelected;
+                            });
+                          },
+                        ),
                       ),
                       SizedBox(height: 16),
                       buildTextField(

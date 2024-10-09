@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:itx/Commodities.dart/ComRequest.dart';
+import 'package:itx/state/AppBloc.dart';
+import 'package:provider/provider.dart';
 
 class CommodityDropdown extends StatefulWidget {
   final Function(String?) onCommoditySelected;
@@ -62,11 +64,18 @@ class _CommodityDropdownState extends State<CommodityDropdown> {
               ))
           .toList(),
       onChanged: (value) {
-        setState(() {
-          _selectedCommodity = value;
-        });
-        widget.onCommoditySelected(value);
-        print(value);
+        try {
+          setState(() {
+            _selectedCommodity = value;
+          });
+          context.read<appBloc>().changeItemGradeId(int.parse(value!));
+
+          widget.onCommoditySelected(value);
+          print(value);
+         
+        } catch (e) {
+          print("Got this error in commDropDown $e");
+        }
       },
     );
   }

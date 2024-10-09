@@ -9,9 +9,13 @@ class GradeRequest {
   static String mainUri = "http://185.141.63.56:3067/api/v1";
 
   // Fetch only the 'id' and 'name' fields from the Grade
-  static Future<List<Map<String, dynamic>>> fetchGrade(BuildContext context) async {
+  static Future<List<Map<String, dynamic>>> fetchGrade(
+      BuildContext context) async {
     try {
-      final Uri uri = Uri.parse("$mainUri/commodities/grades");
+      // final commId = Provider.of<appBloc>(context, listen: false).commId;
+
+
+      final Uri uri = Uri.parse("$mainUri/commodities/grades/1");
       final Map<String, String> headers = {
         "Content-Type": "application/json",
         "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
@@ -26,12 +30,10 @@ class GradeRequest {
           List<dynamic> GradeTypeJson = responseData['data'];
 
           // Return only a list of maps with id and name
-          List<Map<String, dynamic>> GradeType = GradeTypeJson
-              .map((grade) => {
-                    "grade_id": grade["grade_id"],
-                    "grade": grade["grade"],
-                  })
-              .toList();
+          List<Map<String, dynamic>> GradeType = GradeTypeJson.map((grade) => {
+                "id": grade["id"],
+                "grade_name": grade["grade_name"],
+              }).toList();
 
           return GradeType;
         } else {
