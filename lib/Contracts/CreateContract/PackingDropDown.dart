@@ -4,7 +4,6 @@ import 'package:itx/Serializers/Packing.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:provider/provider.dart';
-
 class PackingDropdown extends StatefulWidget {
   final Function(String?, String?) onPackingSelected;
 
@@ -17,16 +16,8 @@ class PackingDropdown extends StatefulWidget {
 
 class _PackingDropdownState extends State<PackingDropdown> {
   String? _selectedCommodity;
-  late Future<List<Packing>> _packingsFuture;
 
-  @override
-  void initState() {
-    super.initState();
-    _packingsFuture = _fetchPacking();
-  }
-
-  Future<List<Packing>> _fetchPacking() async {
-    final commodityID = Provider.of<appBloc>(context, listen: false).commId;
+  Future<List<Packing>> _fetchPacking(int commodityID) async {
     return CommodityService.CommodityPacking(
       context: context,
       Id: commodityID,
@@ -35,8 +26,11 @@ class _PackingDropdownState extends State<PackingDropdown> {
 
   @override
   Widget build(BuildContext context) {
+    // Listen to changes in appBloc (with listen: true)
+    final commodityID = Provider.of<appBloc>(context).commId;
+
     return FutureBuilder<List<Packing>>(
-      future: _packingsFuture,
+      future: _fetchPacking(commodityID), // Fetch packing data with updated commodityID
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -82,7 +76,7 @@ class _PackingDropdownState extends State<PackingDropdown> {
             selectedPacking.packaging_name,
           );
 
-          context.read<appBloc>().changeItemGradeId(int.parse(value));
+   
         }
       },
     );

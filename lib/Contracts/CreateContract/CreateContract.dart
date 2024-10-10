@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:itx/Commodities.dart/ComDropDown.dart';
-import 'package:itx/Commodities.dart/Grade.dart';
+import 'package:itx/Contracts/CreateContract/Grade.dart';
 import 'package:itx/Contracts/CreateContract/CustomDropDown.dart';
 import 'package:itx/Contracts/CreateContract/PackingDropDown.dart';
 import 'package:itx/Contracts/CreateContract/WareHouseDropDown.dart';
@@ -34,6 +34,7 @@ class _CreateContractState extends State<CreateContract>
   final quantityController = TextEditingController();
   final metricController = TextEditingController();
   String selectedTabName = 'Futures';
+  String? _packingMetrics;
 
   late TabController _tabController;
   List<DeliveryMilestone> deliveryMilestones = [];
@@ -181,13 +182,23 @@ class _CreateContractState extends State<CreateContract>
                       Visibility(
                         visible: context.watch<appBloc>().commId != 0,
                         child: GradeDropdown(
-                          onGradeSelected: (onGradeSelected) {
+                          onGradeSelectedId: (onGradeSelected) {
                             setState(() {
                               selectedQuality = onGradeSelected;
                             });
                           },
                         ),
                       ),
+                      SizedBox(height: 16),
+                      PackingDropdown(
+                          onPackingSelected: (packingId, packingName) {
+                        setState(() {
+                          _packingMetrics = packingName;
+                        });
+                        final String packingVolume =
+                            '${quantityController.text} ${_packingMetrics ?? ''}';
+                        print(packingVolume);
+                      }),
                       SizedBox(height: 16),
                       buildTextField(
                         controller: priceController,
@@ -263,10 +274,10 @@ class _CreateContractState extends State<CreateContract>
                                 style: TextStyle(color: Colors.grey[600]),
                               ),
                               SizedBox(height: 4.0),
-                              Text(
-                                'Metric: ${milestone.metric}',
-                                style: TextStyle(color: Colors.grey[600]),
-                              ),
+                              // Text(
+                              //   'Metric: ${milestone.metric}',
+                              //   style: TextStyle(color: Colors.grey[600]),
+                              // ),
                             ],
                           ),
                         ),
@@ -425,17 +436,13 @@ class _CreateContractState extends State<CreateContract>
               return null;
             },
           ),
-          SizedBox(height: 16),
-          PackingDropdown(onPackingSelected: (packingId, packingName) {
-            print("$packingId, $packingName");
-          }),
-          MetricDropDown(
-            onSelectMetric: (metric) {
-              setState(() {
-                selectedMetric = metric;
-              });
-            },
-          ),
+          // MetricDropDown(
+          //   onSelectMetric: (metric) {
+          //     setState(() {
+          //       selectedMetric = metric;
+          //     });
+          //   },
+          // ),
           SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
@@ -526,13 +533,12 @@ class _CreateContractState extends State<CreateContract>
 
   void _addDeliveryMilestone() {
     if (selectedDate != null &&
-        quantityController.text.isNotEmpty &&
-        selectedMetric != null) {
+        quantityController.text.isNotEmpty ) {
       setState(() {
         deliveryMilestones.add(DeliveryMilestone(
           date: selectedDate!,
           quantity: double.parse(quantityController.text),
-          metric: selectedMetric!,
+   
         ));
         selectedDate = null;
         quantityController.clear();
@@ -553,7 +559,7 @@ class _CreateContractState extends State<CreateContract>
     print('Delivery Milestones:');
     deliveryMilestones.forEach((milestone) {
       print(
-          'Date: ${DateFormat('yyyy-MM-dd').format(milestone.date)}, Quantity: ${milestone.quantity}, Metric: ${milestone.metric}');
+          'Date: ${DateFormat('yyyy-MM-dd').format(milestone.date)}, Quantity: ${milestone.quantity}');
     });
 
     Map<int, int> tabToContractTypeId = {
@@ -586,6 +592,10 @@ class _CreateContractState extends State<CreateContract>
           .reduce((a, b) => a.isAfter(b) ? a : b);
     }
 
+    final String packingVolume =
+        '${quantityController.text}${_packingMetrics ?? ''}';
+    print(packingVolume);
+
     Map<String, dynamic> contractData = {
       "contract_type_id": contractTypeId,
       "commodity_id": selectedCommodityId,
@@ -593,14 +603,14 @@ class _CreateContractState extends State<CreateContract>
       "delivery_start_date": deliveryStartDate?.toIso8601String() ?? "",
       "delivery_end_date": deliveryEndDate?.toIso8601String() ?? "",
       "warehouse_id": selectedWareHouseId,
-      "packing": "100kg",
+      "packing": packingVolume,
       "price": price,
       "units": units,
       "description": descriptionController.text,
       "milestones": deliveryMilestones
           .map((milestone) => {
                 "date": DateFormat('yyyy-MM-dd').format(milestone.date),
-                "metric": milestone.metric,
+                "metric": packingVolume,
                 "value": milestone.quantity
               })
           .toList(),
@@ -645,11 +655,11 @@ class _CreateContractState extends State<CreateContract>
 class DeliveryMilestone {
   final DateTime date;
   final double quantity;
-  final String metric;
+  // final String metric;
 
   DeliveryMilestone({
     required this.date,
     required this.quantity,
-    required this.metric,
+    // required this.metric,
   });
 }

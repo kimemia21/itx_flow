@@ -17,6 +17,7 @@ import 'package:itx/web/authentication/OtpVerification.dart';
 import 'package:itx/web/authentication/WebLogin.dart';
 import 'package:itx/web/authentication/WebSplash.dart';
 import 'package:itx/web/homepage/WebHomepage.dart';
+import 'package:itx/web/homepage/WebNav.dart';
 import 'package:itx/web/state/Webbloc.dart';
 import 'package:itx/web/uplaodDocs.dart/WebRegulators.dart';
 import 'package:provider/provider.dart';
@@ -60,7 +61,10 @@ class _GetPlatformState extends State<GetPlatform> {
     if (kIsWeb) {
       setBloc.changePlatform("web");
       //  List<CommoditiesCert> ITEMS = [];
-      return WebHomePage();
+      return SizedBox(
+        height: MediaQuery.of(context).size.height*1,
+          width: MediaQuery.of(context).size.width*1,
+        child: WebNav());
 
       // Webregulators(commCerts: ITEMS, isWareHouse: false);
       // WebVerification(

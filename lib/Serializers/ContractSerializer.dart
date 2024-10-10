@@ -22,6 +22,7 @@ class ContractsModel {
   final String? companyName;
   final String? companyAddress;
   final String? companyContacts;
+  final String?  contract_packing;
   final int liked;
   final int bought;
   final int paid;
@@ -55,6 +56,7 @@ class ContractsModel {
     required this.bought,
     required this.paid,
     required this.closed,
+    required this.contract_packing
   });
 
   // Factory method to create an instance from JSON
@@ -69,7 +71,8 @@ class ContractsModel {
       description: json['contract_description'],
       closeDate: DateTime.parse(json['close_date']),
       postedOn: DateTime.parse(json['posted_on']),
-      closedOn: json['closed_on'] != null ? DateTime.parse(json['closed_on']) : null,
+      closedOn:
+          json['closed_on'] != null ? DateTime.parse(json['closed_on']) : null,
       id: json['id'],
       name: json['name'],
       commodityGradeId: json['commodity_grade_id'],
@@ -87,6 +90,7 @@ class ContractsModel {
       bought: json['bought'],
       paid: json['paid'],
       closed: json['closed'] == 1,
+      contract_packing: json["contract_packing"]??"1kg"
     );
   }
 }

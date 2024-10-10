@@ -17,7 +17,7 @@ class _WebHomePageState extends State<WebHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: ITXAppBar(),
+    //  appBar: ITXAppBar(),
       body: SingleChildScrollView(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween, // Ensure Row children don't stretch vertically
@@ -25,6 +25,10 @@ class _WebHomePageState extends State<WebHomePage> {
             // Bounded height example using SizedBox
             Container(
               margin: EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadiusDirectional.circular(20)
+              ),
               width: MediaQuery.of(context).size.width * 0.55,
               child: WebHomepageContracts(),
             ),
@@ -32,6 +36,7 @@ class _WebHomePageState extends State<WebHomePage> {
               
               margin: EdgeInsets.all(2),
               width: MediaQuery.of(context).size.width * 0.35,
+
               child: WebHomePageOrders(onOrderCountChanged: (onOrderCountChanged) {}),
             ),
           ],

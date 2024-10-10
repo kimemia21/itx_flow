@@ -141,7 +141,7 @@ class _ContractsState extends State<Contracts> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "contract metrics",
+                          contract.contract_packing??"not set yet",
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             color: Colors.grey.shade600,

@@ -10,7 +10,7 @@ import 'package:itx/requests/Requests.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
-Widget purchaseConfirmationAlert({
+Widget WebpurchaseConfirmationAlert({
   required BuildContext context,
   required ContractsModel contract,
   required String contactEmail,
