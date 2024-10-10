@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:itx/Commodities.dart/ComDropDown.dart';
 import 'package:itx/Commodities.dart/Grade.dart';
 import 'package:itx/Contracts/CreateContract/CustomDropDown.dart';
+import 'package:itx/Contracts/CreateContract/PackingDropDown.dart';
 import 'package:itx/Contracts/CreateContract/WareHouseDropDown.dart';
 import 'package:itx/Serializers/CommParams.dart';
 import 'package:itx/requests/HomepageRequest.dart';
@@ -425,6 +426,9 @@ class _CreateContractState extends State<CreateContract>
             },
           ),
           SizedBox(height: 16),
+          PackingDropdown(onPackingSelected: (packingId, packingName) {
+            print("$packingId, $packingName");
+          }),
           MetricDropDown(
             onSelectMetric: (metric) {
               setState(() {
@@ -589,6 +593,7 @@ class _CreateContractState extends State<CreateContract>
       "delivery_start_date": deliveryStartDate?.toIso8601String() ?? "",
       "delivery_end_date": deliveryEndDate?.toIso8601String() ?? "",
       "warehouse_id": selectedWareHouseId,
+      "packing": "100kg",
       "price": price,
       "units": units,
       "description": descriptionController.text,

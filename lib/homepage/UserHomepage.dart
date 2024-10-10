@@ -25,9 +25,10 @@ class _UserhomepageState extends State<Userhomepage> {
       appBar: ITXAppBar(),
       body: SingleChildScrollView(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
-                height: 400,
+                height:MediaQuery.of(context).size.height*0.45,
                 child: HomePageOrders(
                     onOrderCountChanged: (onOrderCountChanged) {})),
             HomepageContractsWidget(),

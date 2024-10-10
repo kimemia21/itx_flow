@@ -9,7 +9,10 @@ import 'package:itx/Serializers/CommoditesCerts.dart';
 import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:itx/Serializers/CompanySerializer.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
+import 'package:itx/Serializers/ContractSummary.dart';
+import 'package:itx/Serializers/ContractType.dart';
 import 'package:itx/Serializers/OrderModel.dart';
+import 'package:itx/Serializers/Packing.dart';
 import 'package:itx/Serializers/PriceHistory.dart';
 import 'package:itx/Serializers/WareHouseUsers.dart';
 import 'package:itx/global/globals.dart';
@@ -80,24 +83,27 @@ class CommodityService {
       required bool isWatchList,
       required isWareHouse,
       dynamic name,
+      dynamic contractTypeId,
       required bool isSpot}) async {
     print(isWatchList);
     final int userId = Provider.of<appBloc>(context, listen: false).user_id;
 
-    final Uri uri = isSpot
-        ? Uri.parse("$mainUri/contracts/list?contract_type_id=5")
-        : isWatchList
-            ? Uri.parse("$mainUri/contracts/list?this_user_liked=1")
-            : isWareHouse
-                ? Uri.parse("$mainUri/contracts/list?warehouse_id=$userId")
-                : name != null
-                    ? Uri.parse("$mainUri/contracts/list?search=$name")
-                    : Uri.parse("$mainUri/contracts/list?");
+    final Uri uri = contractTypeId != null
+        ? Uri.parse("$mainUri/contracts/list?contract_type_id=$contractTypeId")
+        : isSpot
+            ? Uri.parse("$mainUri/contracts/list?contract_type_id=5")
+            : isWatchList
+                ? Uri.parse("$mainUri/contracts/list?this_user_liked=1")
+                : isWareHouse
+                    ? Uri.parse("$mainUri/contracts/list?warehouse_id=$userId")
+                    : name != null
+                        ? Uri.parse("$mainUri/contracts/list?search=$name")
+                        : Uri.parse("$mainUri/contracts/list?");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
-      "x-auth-token":Provider.of<appBloc>(context, listen: false).token
+      "x-auth-token": Provider.of<appBloc>(context, listen: false).token
       //  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiV0VCIiwiaWF0IjoxNzI4NDQwNjE1LCJleHAiOjE3Mjg0NTg2MTV9.dEByi6Hhm1MZRKOrJCkg11QpkSME6zKYl9A1zHGCL_M",
-      
+
       // Provider.of<appBloc>(context, listen: false).token,
     };
     final http.Response response = await http.get(uri, headers: headers);
@@ -232,7 +238,7 @@ class CommodityService {
         "Content-Type": "application/json",
         "x-auth-token": Provider.of<appBloc>(context, listen: false).token
         // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiV0VCIiwiaWF0IjoxNzI4NDQwNjE1LCJleHAiOjE3Mjg0NTg2MTV9.dEByi6Hhm1MZRKOrJCkg11QpkSME6zKYl9A1zHGCL_M"
-        
+
         // Provider.of<appBloc>(context, listen: false).token,
       };
       final http.Response response = await http.get(uri, headers: headers);
@@ -567,4 +573,88 @@ class CommodityService {
       return [];
     }
   }
+
+  static Future<List<ContractSummary>> ContractsSummary(
+      {required BuildContext context}) async {
+    try {
+      final Uri uri = Uri.parse("$mainUri/contracts/summary");
+
+      final Map<String, String> headers = {
+        "Content-Type": "application/json",
+        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      };
+
+      final http.Response response = await http.get(uri, headers: headers);
+      print("sucess contacts type");
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+
+        if (responseData['rsp'] == true) {
+          print(responseData["data"]);
+          List<dynamic> ContractsJson = responseData['data'];
+          print("---------------$ContractsJson-------------------");
+          List<ContractSummary> _contractType =
+              ContractsJson.map((e) => ContractSummary.fromJson(e)).toList();
+          CherryToast.success(
+            title: Text(responseData['msg']),
+          );
+
+          return _contractType;
+        } else {
+          throw Exception(
+              'Failed to fetch contracttypes: ${responseData['msg']}');
+        }
+      } else {
+        throw Exception('Failed to fetch contractTypes');
+      }
+    } catch (e) {
+      // print("got this error $e");
+      throw Exception("contracttypes error $e");
+    }
+  }
+
+
+
+
+
+static Future<List<Packing>> CommodityPacking(
+      {required BuildContext context,required  int Id}) async {
+    try {
+      final Uri uri = Uri.parse("$mainUri/commodities/$Id/packaging");
+
+      final Map<String, String> headers = {
+        "Content-Type": "application/json",
+        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      };
+
+      final http.Response response = await http.get(uri, headers: headers);
+      print("sucess contacts type");
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+
+        if (responseData['rsp'] == true) {
+          print(responseData["data"]);
+          List<dynamic> PackingJson = responseData['data'];
+          print("---------------$PackingJson-------------------");
+          List<Packing> _packing =
+              PackingJson.map((e) => Packing.fromJson(e)).toList();
+          CherryToast.success(
+            title: Text(responseData['msg']),
+          );
+
+          return _packing;
+        } else {
+          throw Exception(
+              'Failed to fetch CommodityPacking: ${responseData['msg']}');
+        }
+      } else {
+        throw Exception('Failed to fetch CommodityPacking');
+      }
+    } catch (e) {
+      // print("got this error $e");
+      throw Exception("CommodityPacking error $e");
+    }
+  }
+
+
 }

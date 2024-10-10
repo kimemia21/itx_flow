@@ -14,17 +14,21 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 class Contracts extends StatefulWidget {
-  const Contracts({
+  const Contracts(
+   
+    {
     super.key,
     required this.filtered,
     required this.showAppbarAndSearch,
     required this.isWareHouse,
     required this.isSpot,
+    this.contractType,
   });
   final bool filtered;
   final bool showAppbarAndSearch;
   final bool isWareHouse;
   final bool isSpot;
+  final int? contractType;
 
   @override
   State<Contracts> createState() => _ContractsState();
@@ -47,6 +51,8 @@ class _ContractsState extends State<Contracts> {
           context: context,
           isWatchList: widget.filtered,
           isWareHouse: widget.isWareHouse,
+          contractTypeId: widget.contractType,
+          
           isSpot: widget.isSpot);
     });
   }
@@ -143,9 +149,6 @@ class _ContractsState extends State<Contracts> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                         
-                      
-                     
                       ],
                     ),
                     Row(
@@ -167,7 +170,6 @@ class _ContractsState extends State<Contracts> {
                             SizedBox(width: 4),
                           ],
                         ),
-                       
                       ],
                     ),
                     Row(
@@ -176,29 +178,27 @@ class _ContractsState extends State<Contracts> {
                       children: [
                         Row(
                           children: [
-                            Text(contract.canBid==1?
-                                  "Started at":"Price",
+                            Text(
+                              contract.canBid == 1 ? "Started at" : "Price",
                               style: GoogleFonts.poppins(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.grey.shade600,
-                              )
-                              ,
-                              
+                              ),
                             ),
-                            SizedBox(width: 4,),
-                                 Text(
-                          "\$${contract.price.toStringAsFixed(2)}",
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            color: Colors.green.shade700,
-                          ),
-                        ),
+                            SizedBox(
+                              width: 4,
+                            ),
+                            Text(
+                              "\$${contract.price.toStringAsFixed(2)}",
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                color: Colors.green.shade700,
+                              ),
+                            ),
                           ],
                         ),
-                   
-
                         Row(
                           children: [
                             // Container(
@@ -232,39 +232,38 @@ class _ContractsState extends State<Contracts> {
                             ),
                           ],
                         ),
-
                       ],
                     ),
-                         Visibility(
-                          visible: contract.canBid==1,
-                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                             children: [
-                              Text("Highest Bid",style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.grey.shade600,
-                                )),
-                               Container(
-                                  
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 6),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green.shade50,
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Text(
-                                      "\$${contract.price.toStringAsFixed(2)}",
-                                      style: GoogleFonts.poppins(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16,
-                                        color: Colors.green.shade700,
-                                      ),
-                                    ),
-                                  ),
-                             ],
-                           ),
-                         ),
+                    Visibility(
+                      visible: contract.canBid == 1,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Highest Bid",
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade600,
+                              )),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              "\$${contract.price.toStringAsFixed(2)}",
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                color: Colors.green.shade700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
