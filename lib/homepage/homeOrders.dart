@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
@@ -24,6 +26,8 @@ class _HomePageOrdersState extends State<HomePageOrders>
   Future<List<UserOrders>>? _futureOrders;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+
+  bool _isHovered = false;
 
   @override
   void initState() {
@@ -65,77 +69,101 @@ class _HomePageOrdersState extends State<HomePageOrders>
     return AnimatedBuilder(
       animation: _fadeAnimation,
       builder: (context, child) {
-        return Container(
-          padding: EdgeInsets.all(2),
-          width: MediaQuery.of(context).size.width*0.3,
-
-          child: Opacity(
-            opacity: _fadeAnimation.value,
-            child: Card(
-              elevation: 5,
-              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-              child: InkWell(
-                onTap: onTap,
-                borderRadius: BorderRadius.circular(15),
+        return Opacity(
+          opacity: _fadeAnimation.value,
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 0,
+                  blurRadius: 15,
+                  offset: Offset(0, 5),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.white.withOpacity(0.8),
+                    border: Border.all(color: Colors.white.withOpacity(0.2)),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                order.name,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
+                  child: InkWell(
+                    onTap: onTap,
+                    borderRadius: BorderRadius.circular(20),
+                    onHover: (isHovering) {
+                      setState(() {
+                        _isHovered = isHovering;
+                      });
+                    },
+                    splashColor: Colors.green.withOpacity(0.1),
+                    highlightColor: Colors.greenAccent.withOpacity(0.05),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  order.name,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                overflow: TextOverflow.ellipsis,
                               ),
+                              _buildStatusChip(order.orderStatus),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            order.contract_user ?? "company name",
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey.shade700,
                             ),
-                            _buildStatusChip(order.orderStatus),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Icon(Icons.attach_money,
-                                size: 18, color: Colors.green.shade600),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Bid Price: \$${order.bidPrice.toStringAsFixed(2)}',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: Colors.green.shade600,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 5),
+                          _buildInfoRow(
+                              "Grade", order.grade_name ?? "grade name"),
+                          const SizedBox(height: 2),
+                          _buildInfoRow(
+                              "Price", '\$${order.bidPrice.toStringAsFixed(2)}',
+                              isHighlighted: true),
+                          const SizedBox(height: 2),
+                          _buildInfoRow("Order Type", order.orderType),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Icon(Icons.calendar_today_outlined,
+                                  size: 20, color: Colors.black45),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Delivery: ${_formatDate(order.deliveryDate)}',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.black54,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Icon(Icons.calendar_today,
-                                size: 18, color: Colors.black54),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Delivery: ${_formatDate(order.deliveryDate)}',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: Colors.black54,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -147,32 +175,62 @@ class _HomePageOrdersState extends State<HomePageOrders>
     );
   }
 
+  Widget _buildInfoRow(String label, String value,
+      {bool isHighlighted = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey.shade600,
+          ),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: isHighlighted ? Colors.green.shade600 : Colors.black87,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildStatusChip(String status) {
     Color chipColor;
     switch (status.toLowerCase()) {
-      case 'pending':
-        chipColor = Colors.orange.shade300;
-        break;
-      case 'completed':
+      case 'active':
         chipColor = Colors.green;
         break;
-      case 'cancelled':
-        chipColor = Colors.red;
+      case 'pending':
+        chipColor = Colors.orange;
+        break;
+      case 'completed':
+        chipColor = Colors.blue;
         break;
       default:
-        chipColor = Colors.blue;
+        chipColor = Colors.grey;
     }
 
-    return Chip(
-      label: Text(
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: chipColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: chipColor.withOpacity(0.5)),
+      ),
+      child: Text(
         status,
         style: GoogleFonts.poppins(
-          fontSize: 12,
-          color: Colors.white,
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: chipColor,
         ),
       ),
-      backgroundColor: chipColor,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
     );
   }
 
@@ -192,9 +250,11 @@ class _HomePageOrdersState extends State<HomePageOrders>
           } else if (snapshot.hasError) {
             print("Orders error ${snapshot.error}");
 
-            return Globals.buildErrorState(function: _loadOrders,items: "Orders");
+            return Globals.buildErrorState(
+                function: _loadOrders, items: "Orders");
           } else if (snapshot.hasData && snapshot.data!.isEmpty) {
-            return Globals.buildNoDataState(function: _loadOrders,item: "Orders");
+            return Globals.buildNoDataState(
+                function: _loadOrders, item: "Orders");
           } else if (snapshot.hasData) {
             final myorders = snapshot.data!;
             final limitedOrders = myorders.take(3).toList();
@@ -233,7 +293,8 @@ class _HomePageOrdersState extends State<HomePageOrders>
               ],
             );
           } else {
-            return Globals.buildErrorState(function: _loadOrders,items: "Order");
+            return Globals.buildErrorState(
+                function: _loadOrders, items: "Order");
           }
         },
       ),
@@ -270,8 +331,4 @@ class _HomePageOrdersState extends State<HomePageOrders>
       ),
     );
   }
-
-
-
- 
 }
