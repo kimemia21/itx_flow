@@ -383,7 +383,7 @@ class _MainSignupState extends State<MainSignup>
                         : Column(
                             children: _userTypes.map((userType) {
                               return _buildRadioButton(
-                                text: userType.name,
+                                text: userType.name.toUpperCase(),
                                 value: userType.id.toString(),
                               );
                             }).toList(),

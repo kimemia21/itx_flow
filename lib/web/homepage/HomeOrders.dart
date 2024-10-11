@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
@@ -57,6 +59,7 @@ class _WebHomePageOrdersState extends State<WebHomePageOrders>
     return await CommodityService.getOrders(context: context);
   }
 
+
 Widget contractCard({
   required UserOrders order,
   required VoidCallback onTap,
@@ -66,117 +69,97 @@ Widget contractCard({
     builder: (context, child) {
       return Opacity(
         opacity: _fadeAnimation.value,
-        child: Card(
-          elevation: _isHovered ? 6 : 3, // Increase elevation on hover for depth
+        child: Container(
           margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15), // Softer corners for a modern feel
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.1),
+                spreadRadius: 0,
+                blurRadius: 15,
+                offset: Offset(0, 5),
+              ),
+            ],
           ),
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(15),
-            onHover: (isHovering) {
-              setState(() {
-                _isHovered = isHovering;
-              });
-            },
-            splashColor: Colors.green.withOpacity(0.1), // Soft splash effect
-            highlightColor: Colors.greenAccent.withOpacity(0.05), // Highlight on click
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Order Name with Status Chip
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          order.name,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.8),
+                  border: Border.all(color: Colors.white.withOpacity(0.2)),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: InkWell(
+                  onTap: onTap,
+                  borderRadius: BorderRadius.circular(20),
+                  onHover: (isHovering) {
+                    setState(() {
+                      _isHovered = isHovering;
+                    });
+                  },
+                  splashColor: Colors.green.withOpacity(0.1),
+                  highlightColor: Colors.greenAccent.withOpacity(0.05),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                order.name,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            _buildStatusChip(order.orderStatus),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          order.contract_user ?? "company name",
                           style: GoogleFonts.poppins(
-                            fontSize: 18, // Larger font for modern look
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey.shade700,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      _buildStatusChip(order.orderStatus),
-                    ],
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  // Company Name
-                  Text(
-                    "Company Name",
-                    style: GoogleFonts.poppins(
-                      fontSize: 16, // Adjusted for smaller size and clean look
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey.shade700,
+                        const SizedBox(height: 16),
+                        _buildInfoRow("Grade", order.grade_name ?? "grade name"),
+                        const SizedBox(height: 8),
+                        _buildInfoRow("Price", '\$${order.bidPrice.toStringAsFixed(2)}', isHighlighted: true),
+                        const SizedBox(height: 8),
+                        _buildInfoRow("Order Type", order.orderType),
+                        const SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Icon(Icons.calendar_today_outlined, size: 20, color: Colors.black45),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Delivery: ${_formatDate(order.deliveryDate)}',
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
-
-                  const SizedBox(height: 12),
-
-                  // Bid Price
-                  Row(
-                    children: [
-                      Icon(Icons.attach_money,
-                          size: 20, color: Colors.greenAccent.shade700),
-                      const SizedBox(width: 6),
-                      Text(
-                        '\$${order.bidPrice.toStringAsFixed(2)}',
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.green.shade600,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  // Delivery Date
-                  Row(
-                    children: [
-                      Icon(Icons.calendar_today_outlined,
-                          size: 18, color: Colors.black45),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Delivery Date: ${_formatDate(order.deliveryDate)}',
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // Optional Location Row (Can be uncommented if needed)
-                  // Row(
-                  //   children: [
-                  //     Icon(Icons.location_on_outlined,
-                  //         size: 18, color: Colors.blueAccent.shade400),
-                  //     const SizedBox(width: 6),
-                  //     Text(
-                  //       'Location: ${order.location}',
-                  //       style: GoogleFonts.poppins(
-                  //         fontSize: 14,
-                  //         fontWeight: FontWeight.w400,
-                  //         color: Colors.blueAccent.shade400,
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                ],
+                ),
               ),
             ),
           ),
@@ -186,35 +169,63 @@ Widget contractCard({
   );
 }
 
-
-  Widget _buildStatusChip(String status) {
-    Color chipColor;
-    if (status == 'Completed') {
-      chipColor = Colors.greenAccent.shade700;
-    } else if (status == 'Pending') {
-      chipColor = Colors.orangeAccent.shade700;
-    } else {
-      chipColor = Colors.redAccent.shade700;
-    }
-
-    return Container(
-      decoration: BoxDecoration(
-        color: chipColor.withOpacity(0.1), // Light background color
-        border: Border.all(color: chipColor),
-        borderRadius: BorderRadius.circular(50), // Rounded for a modern look
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-      child: Text(
-        status,
+Widget _buildInfoRow(String label, String value, {bool isHighlighted = false}) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(
+        label,
         style: GoogleFonts.poppins(
-          fontSize: 12,
+          fontSize: 16,
           fontWeight: FontWeight.w500,
-          color: chipColor,
+          color: Colors.grey.shade600,
         ),
       ),
-    );
+      Text(
+        value,
+        style: GoogleFonts.poppins(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: isHighlighted ? Colors.green.shade600 : Colors.black87,
+        ),
+      ),
+    ],
+  );
+}
+
+Widget _buildStatusChip(String status) {
+  Color chipColor;
+  switch (status.toLowerCase()) {
+    case 'active':
+      chipColor = Colors.green;
+      break;
+    case 'pending':
+      chipColor = Colors.orange;
+      break;
+    case 'completed':
+      chipColor = Colors.blue;
+      break;
+    default:
+      chipColor = Colors.grey;
   }
 
+  return Container(
+    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    decoration: BoxDecoration(
+      color: chipColor.withOpacity(0.1),
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(color: chipColor.withOpacity(0.5)),
+    ),
+    child: Text(
+      status,
+      style: GoogleFonts.poppins(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: chipColor,
+      ),
+    ),
+  );
+}
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }

@@ -32,6 +32,9 @@ class UserOrders {
   final int commodityPrimaryPackingId;
   final int userCompanyId;
 
+  final String grade_name;
+  final String? contract_user;
+
   UserOrders({
     required this.contractId,
     required this.bidId,
@@ -65,6 +68,8 @@ class UserOrders {
     required this.imageUrl,
     required this.commodityPrimaryPackingId,
     required this.userCompanyId,
+    required this.contract_user,
+    required this.grade_name,
   });
 
   // Factory method to create a `UserOrders` object from JSON data
@@ -77,24 +82,36 @@ class UserOrders {
       orderId: json['order_id'] ?? 0,
       wonAt: (json['won_at'] ?? 0).toDouble(),
       orderType: json['order_type'] ?? '',
-      orderDate: json['order_date'] != null ? DateTime.parse(json['order_date']) : DateTime.now(),
+      orderDate: json['order_date'] != null
+          ? DateTime.parse(json['order_date'])
+          : DateTime.now(),
       userId: json['user_id'] ?? 0,
       orderStatus: json['order_status'] ?? '',
       bidPrice: (json['bid_price'] ?? 0).toDouble(),
       bidType: json['bid_type'] ?? '',
-      bidDate: json['bid_date'] != null ? DateTime.parse(json['bid_date']) : DateTime.now(),
+      bidDate: json['bid_date'] != null
+          ? DateTime.parse(json['bid_date'])
+          : DateTime.now(),
       maxPrice: json['max_price']?.toDouble(),
       sessionOpen: json['session_open'] ?? 0,
       isHighestBid: json['is_highest_bid'] ?? 0,
-      sessionCloseAt: json['session_close_at'] != null ? DateTime.parse(json['session_close_at']) : null,
+      sessionCloseAt: json['session_close_at'] != null
+          ? DateTime.parse(json['session_close_at'])
+          : null,
       contractTypeId: json['contract_type_id'] ?? 0,
       commodityId: json['commodity_id'] ?? 0,
       qualityGradeId: json['quality_grade_id'] ?? 0,
-      deliveryDate: json['delivery_date'] != null ? DateTime.parse(json['delivery_date']) : DateTime.now(),
+      deliveryDate: json['delivery_date'] != null
+          ? DateTime.parse(json['delivery_date'])
+          : DateTime.now(),
       price: (json['price'] ?? 0).toDouble(),
       description: json['description'] ?? '',
-      closeDate: json['close_date'] != null ? DateTime.parse(json['close_date']) : null,
-      postedOn: json['posted_on'] != null ? DateTime.parse(json['posted_on']) : DateTime.now(),
+      closeDate: json['close_date'] != null
+          ? DateTime.parse(json['close_date'])
+          : null,
+      postedOn: json['posted_on'] != null
+          ? DateTime.parse(json['posted_on'])
+          : DateTime.now(),
       closed: json['closed'] ?? 0,
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
@@ -104,6 +121,8 @@ class UserOrders {
       imageUrl: json['image_url'] ?? '',
       commodityPrimaryPackingId: json['commodity_primary_packing_id'] ?? 0,
       userCompanyId: json['user_company_id'] ?? 0,
+      grade_name: json["grade_name"] ?? "Grade Name",
+      contract_user: json["contract_user"] ?? "user contract",
     );
   }
 }
