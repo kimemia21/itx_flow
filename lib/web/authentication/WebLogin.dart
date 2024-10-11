@@ -162,7 +162,7 @@ Widget _buildTextField({
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                "ITX",
+                                "ITea-X",
                                 style: GoogleFonts.abel(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 24,

@@ -96,7 +96,7 @@ class _ContractsState extends State<Contracts> {
                   color: Colors.grey.shade300,
                   borderRadius: BorderRadiusDirectional.circular(50)),
               child: Center(
-                  child: Text(
+                  child: Text(contract.grade_name??
                 "Grade name",
                 style: GoogleFonts.poppins(color: Colors.grey.shade600),
               )),
@@ -112,7 +112,7 @@ class _ContractsState extends State<Contracts> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Compay name",
+                          contract.contract_user?? "Compay name",
                           style: GoogleFonts.poppins(
                             fontWeight: FontWeight.w700,
                             fontSize: 18,

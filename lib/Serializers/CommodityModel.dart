@@ -14,6 +14,7 @@ class Commodity {
   final String? companyName;
   final String? companyAddress;
   final String? companyContacts;
+  
 
   Commodity({
     this.id,

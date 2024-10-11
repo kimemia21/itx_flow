@@ -101,7 +101,7 @@ class _WebContractsState extends State<WebContracts> {
             ),
             child: Center(
               child: Text(
-                "Grade name",
+                contract.grade_name??"Grade_name",
                 style: GoogleFonts.poppins(color: Colors.grey.shade600),
               ),
             ),
@@ -117,7 +117,7 @@ class _WebContractsState extends State<WebContracts> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Company name",
+                        contract.contract_user??"contract user",
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.w700,
                           fontSize: 18,
