@@ -144,6 +144,7 @@ Widget WebpurchaseConfirmationAlert({
                 onPressed: () async {
                   if (amt < 1) return;
                   await AuthRequest.createOrder(
+                    isWeb:true,
                     context,
                     {"order_price": amt, "order_type": "BUY"},
                     contract.contractId,

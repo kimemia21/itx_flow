@@ -631,7 +631,7 @@ class _CreateContractState extends State<CreateContract>
     print("-------------------------------------");
 
     try {
-      await CommodityService.CreateContract(context, contractData);
+      await CommodityService.CreateContract(context, contractData,isWeb: false);
       // Show success message or navigate to a new screen
     } catch (e) {
       // Show error message

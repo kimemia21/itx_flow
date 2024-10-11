@@ -536,7 +536,7 @@ void _showBidDialog({PricehistoryModel? existingBid}) {
             color: Colors.grey[600],
           ),
         ),
-        trailing: Row(
+        trailing:Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (isHighest)
@@ -544,11 +544,22 @@ void _showBidDialog({PricehistoryModel? existingBid}) {
                 label: Text('Highest', style: TextStyle(color: Colors.white)),
                 backgroundColor: Colors.green,
               ),
-            if (isUserBid)
+            if (isUserBid) ...[
               IconButton(
                 icon: Icon(Icons.edit, color: Colors.blue),
-                onPressed: () => _showBidDialog(existingBid: bid),
+                onPressed: () {
+                  _showBidDialog(existingBid: bid);
+
+                  // TODO: Implement edit functionality
+                },
               ),
+              // IconButton(
+              //   icon: Icon(Icons.delete, color: Colors.red),
+              //   onPressed: () {
+              //     // TODO: Implement delete functionality
+              //   },
+              // ),
+            ],
           ],
         ),
       ),

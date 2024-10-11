@@ -316,6 +316,7 @@ class _PaymentInfoFormState extends State<PaymentInfoForm> {
               print('Country: ${_countryController.text}');
               print('ZIP Code: ${_zipCodeController.text}');
               await AuthRequest.createOrder(
+                isWeb: false,
                 context,
                 {"order_price": widget.contract.price, "order_type": "BUY"},
                 widget.contract.contractId,

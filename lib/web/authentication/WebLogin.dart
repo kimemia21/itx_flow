@@ -248,7 +248,7 @@ Widget _buildTextField({
                               if (_formState.currentState!.validate()) {
 
                                 AuthRequest.login(
-                          isWeb: false,
+                          isWeb: true,
                             context: context,
                             email: _emailController.text.trim(),
                             password: _passwordController.text.trim());

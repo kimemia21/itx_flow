@@ -61,10 +61,7 @@ class _GetPlatformState extends State<GetPlatform> {
     if (kIsWeb) {
       setBloc.changePlatform("web");
       //  List<CommoditiesCert> ITEMS = [];
-      return SizedBox(
-        height: MediaQuery.of(context).size.height*1,
-          width: MediaQuery.of(context).size.width*1,
-        child: WebNav());
+      return Weblogin();
 
       // Webregulators(commCerts: ITEMS, isWareHouse: false);
       // WebVerification(

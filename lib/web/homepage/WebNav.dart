@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/state/AppBloc.dart';
+import 'package:itx/web/SpotPage/WebSpot.dart';
+import 'package:itx/web/contracts/Contract.dart';
 import 'package:itx/web/homepage/WebHomepage.dart';
+import 'package:itx/web/orders/orders.dart';
+import 'package:provider/provider.dart';
 
 class WebNav extends StatefulWidget {
   final int initialIndex;
@@ -22,9 +28,13 @@ class _WebNavState extends State<WebNav> {
   List<Widget> _buildScreens() {
     return [
       WebHomePage(),
-      Center(child: Text('Watchlist Page')),
-      Center(child: Text('Trades Page')),
-      Center(child: Text('Account Page')),
+      WebContracts(
+          isSpot: false,
+          filtered: true,
+          showAppbarAndSearch: true,
+          isWareHouse: context.watch<appBloc>().user_type == 6),
+      WebSpottrader(),
+      WebOrdersScreen()
     ];
   }
 
@@ -59,7 +69,7 @@ class _WebNavState extends State<WebNav> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.green.shade300,
+        color: Colors.green,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -76,12 +86,11 @@ class _WebNavState extends State<WebNav> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Web Navigation",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                'iTea-X',
+                style: GoogleFonts.abel(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
               ),
               if (isDesktop)
                 Row(

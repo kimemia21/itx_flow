@@ -6,8 +6,10 @@ import 'package:itx/global/globals.dart';
 import 'package:itx/myOrders.dart/MyOrders.dart';
 import 'package:itx/myOrders.dart/OrderDetails.dart';
 import 'package:itx/requests/HomepageRequest.dart';
+import 'package:itx/web/orders/orders.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+
 class WebHomePageOrders extends StatefulWidget {
   final Function(int) onOrderCountChanged;
 
@@ -23,6 +25,8 @@ class _WebHomePageOrdersState extends State<WebHomePageOrders>
   Future<List<UserOrders>>? _futureOrders;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+
+  bool _isHovered = false;
 
   @override
   void initState() {
@@ -63,14 +67,28 @@ class _WebHomePageOrdersState extends State<WebHomePageOrders>
         return Opacity(
           opacity: _fadeAnimation.value,
           child: Card(
-            elevation: 5,
+            elevation: 3, // Subtle shadow for a clean look
             margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(12), // Modern rounded corners
             ),
             child: InkWell(
               onTap: onTap,
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(12),
+              onHover: (isHovering) {
+                // Add hover animation
+                if (isHovering) {
+                  setState(() {
+                    _isHovered = true;
+                  });
+                } else {
+                  setState(() {
+                    _isHovered = false;
+                  });
+                }
+              },
+              splashColor:
+                  Colors.green.withOpacity(0.1), // Subtle ripple effect
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -84,8 +102,8 @@ class _WebHomePageOrdersState extends State<WebHomePageOrders>
                           child: Text(
                             order.name,
                             style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 18, // Slightly larger for modern look
+                              fontWeight: FontWeight.w600,
                               color: Colors.black87,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -98,12 +116,13 @@ class _WebHomePageOrdersState extends State<WebHomePageOrders>
                     Row(
                       children: [
                         Icon(Icons.attach_money,
-                            size: 18, color: Colors.green.shade600),
-                        const SizedBox(width: 4),
+                            size: 18, color: Colors.greenAccent.shade700),
+                        const SizedBox(width: 6),
                         Text(
-                          'Bid Price: \$${order.bidPrice.toStringAsFixed(2)}',
+                          '\$${order.bidPrice.toStringAsFixed(2)}',
                           style: GoogleFonts.poppins(
                             fontSize: 14,
+                            fontWeight: FontWeight.w500,
                             color: Colors.green.shade600,
                           ),
                         ),
@@ -112,18 +131,35 @@ class _WebHomePageOrdersState extends State<WebHomePageOrders>
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.calendar_today,
-                            size: 18, color: Colors.black54),
-                        const SizedBox(width: 4),
+                        Icon(Icons.calendar_today_outlined,
+                            size: 18, color: Colors.black45),
+                        const SizedBox(width: 6),
                         Text(
                           'Delivery: ${_formatDate(order.deliveryDate)}',
                           style: GoogleFonts.poppins(
                             fontSize: 14,
+                            fontWeight: FontWeight.w400,
                             color: Colors.black54,
                           ),
                         ),
                       ],
                     ),
+                    const SizedBox(height: 12),
+                    // Row(
+                    //   children: [
+                    //     Icon(Icons.location_on_outlined,
+                    //         size: 18, color: Colors.blueAccent.shade400),
+                    //     const SizedBox(width: 6),
+                    //     Text(
+                    //       order.,
+                    //       style: GoogleFonts.poppins(
+                    //         fontSize: 14,
+                    //         fontWeight: FontWeight.w400,
+                    //         color: Colors.blueAccent.shade400,
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
                   ],
                 ),
               ),
@@ -136,30 +172,29 @@ class _WebHomePageOrdersState extends State<WebHomePageOrders>
 
   Widget _buildStatusChip(String status) {
     Color chipColor;
-    switch (status.toLowerCase()) {
-      case 'pending':
-        chipColor = Colors.orange.shade300;
-        break;
-      case 'completed':
-        chipColor = Colors.green;
-        break;
-      case 'cancelled':
-        chipColor = Colors.red;
-        break;
-      default:
-        chipColor = Colors.blue;
+    if (status == 'Completed') {
+      chipColor = Colors.greenAccent.shade700;
+    } else if (status == 'Pending') {
+      chipColor = Colors.orangeAccent.shade700;
+    } else {
+      chipColor = Colors.redAccent.shade700;
     }
 
-    return Chip(
-      label: Text(
+    return Container(
+      decoration: BoxDecoration(
+        color: chipColor.withOpacity(0.1), // Light background color
+        border: Border.all(color: chipColor),
+        borderRadius: BorderRadius.circular(50), // Rounded for a modern look
+      ),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+      child: Text(
         status,
         style: GoogleFonts.poppins(
           fontSize: 12,
-          color: Colors.white,
+          fontWeight: FontWeight.w500,
+          color: chipColor,
         ),
       ),
-      backgroundColor: chipColor,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
     );
   }
 
@@ -171,15 +206,13 @@ class _WebHomePageOrdersState extends State<WebHomePageOrders>
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-         color: Colors.grey.shade100,
-         borderRadius: BorderRadius.circular(10)
-     
-      ),
+          color: Colors.grey.shade100, borderRadius: BorderRadius.circular(10)),
       child: Column(
         children: [
           _buildHeader(),
           SizedBox(
-           height: MediaQuery.of(context).size.height * 1, // Set a height constraint
+            height: MediaQuery.of(context).size.height *
+                1, // Set a height constraint
             child: FutureBuilder<List<UserOrders>>(
               future: _futureOrders,
               builder: (context, snapshot) {
@@ -193,14 +226,13 @@ class _WebHomePageOrdersState extends State<WebHomePageOrders>
                       function: _loadOrders, item: "Orders");
                 } else if (snapshot.hasData) {
                   final myorders = snapshot.data!;
-                  final limitedOrders = myorders.take(3).toList();
 
                   return AnimationLimiter(
                     child: ListView.builder(
                       physics: const BouncingScrollPhysics(),
-                      itemCount: limitedOrders.length,
+                      itemCount: myorders.length,
                       itemBuilder: (context, index) {
-                        final order = limitedOrders[index];
+                        final order = myorders[index];
                         return AnimationConfiguration.staggeredList(
                           position: index,
                           duration: const Duration(milliseconds: 375),
@@ -251,7 +283,7 @@ class _WebHomePageOrdersState extends State<WebHomePageOrders>
           TextButton(
             onPressed: () => PersistentNavBarNavigator.pushNewScreen(
               context,
-              screen: UserOrdersScreen(),
+              screen: WebOrdersScreen(),
             ),
             child: Text(
               'See all',

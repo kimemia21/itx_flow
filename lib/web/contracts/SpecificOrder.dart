@@ -13,7 +13,7 @@ import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/uploadCerts/Regulator.dart';
-import 'package:itx/web/contracts/ContractsBid.dart';
+import 'package:itx/web/contracts/LiveBid.dart';
 import 'package:itx/web/payments/PayNow.dart';
 import 'package:itx/web/payments/PurchaseAlert.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
@@ -407,7 +407,7 @@ Widget build(BuildContext context) {
                     context: context,
                     builder: (BuildContext context) {
                       return SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.8,
+                        width: MediaQuery.of(context).size.width * 0.4,
                         child: WebPaymentInfoForm(
                           contract: widget.contract,
                           contactEmail: "company.companyAddress",
@@ -421,7 +421,7 @@ Widget build(BuildContext context) {
                     context: context,
                     builder: (BuildContext context) {
                       return SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.8,
+                        width: MediaQuery.of(context).size.width * 0.4,
                         child: WebpurchaseConfirmationAlert(
                           context: context,
                           contract: widget.contract,

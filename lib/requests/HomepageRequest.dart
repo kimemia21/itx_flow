@@ -18,6 +18,8 @@ import 'package:itx/Serializers/WareHouseUsers.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
+import 'package:itx/web/homepage/WebHomepage.dart';
+import 'package:itx/web/homepage/WebNav.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -411,7 +413,7 @@ class CommodityService {
     }
   }
 
-  static Future CreateContract(BuildContext context, body) async {
+  static Future CreateContract(BuildContext context, body, {required bool isWeb}) async {
     final Uri uri = Uri.parse("$mainUri/contracts/create");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
@@ -435,7 +437,7 @@ class CommodityService {
           );
 
           PersistentNavBarNavigator.pushNewScreen(
-              withNavBar: false, context, screen: GlobalsHomePage());
+              withNavBar: false, context, screen:isWeb?WebNav(): GlobalsHomePage());
           CherryToast.success(
             title: Text("sucess"),
           ).show(context);

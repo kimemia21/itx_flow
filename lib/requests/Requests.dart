@@ -22,6 +22,8 @@ import 'package:itx/uploadCerts/WareHouseUploads.dart';
 import 'package:itx/web/authentication/ComOfInterest.dart';
 import 'package:itx/web/authentication/OtpVerification.dart';
 import 'package:itx/web/homepage/WebHomepage.dart';
+import 'package:itx/web/homepage/WebNav.dart';
+import 'package:itx/web/orders/orders.dart';
 import 'package:itx/web/uplaodDocs.dart/WebRegulators.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
@@ -231,7 +233,7 @@ class AuthRequest {
     );
   }
 
-  static Future createOrder(BuildContext context, bid, int id) async {
+  static Future createOrder(BuildContext context, bid, int id, {required bool isWeb}) async {
     final Uri uri = Uri.parse("$main_url/contracts/$id/order");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
@@ -261,7 +263,7 @@ class AuthRequest {
       ).show(context);
       Navigator.of(context).pop();
       PersistentNavBarNavigator.pushNewScreen(
-          withNavBar: true, context, screen: UserOrdersScreen());
+          withNavBar: true, context, screen: isWeb?WebOrdersScreen(): UserOrdersScreen());
 
       // if (responseBody.toString().contains("true")) {
       //   // Show an authentication error if OTP fails
@@ -455,7 +457,7 @@ class AuthRequest {
                 ? Globals.switchScreens(
                     context: context,
                     screen: isRegistered
-                        ? WebHomePage()
+                        ? WebNav()
                         : WebCommoditiesOfInterest(isWareHouse: false))
                 : Globals.switchScreens(
                     context: context,
