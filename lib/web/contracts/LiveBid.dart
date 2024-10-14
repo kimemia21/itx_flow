@@ -327,13 +327,23 @@ void _showBidDialog({PricehistoryModel? existingBid}) {
           ),
         ),
         SizedBox(height: 8),
-        Text(
-          'Item #${widget.contract.contractId}',
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            color: Colors.grey[600],
-          ),
-        ),
+        SizedBox(height: 5,),
+       Text("${widget.contract.name}, Grade ${widget.contract.grade_name} Bid History.",
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600, // Bold for emphasis
+              color: Colors.black54, // Strong color for focus
+              shadows: [
+                Shadow(
+                  offset: Offset(0, 2), // Subtle shadow
+                  blurRadius: 6.0,
+                  color: Colors.grey.shade300, // Light shadow for depth
+                ),
+              ],
+            ),
+          )
+          // .animate().fadeIn(duration: 500.ms).scale(curve: Curves.easeOutBack),
+    
       ],
     );
   }

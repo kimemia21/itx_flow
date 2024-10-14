@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:itx/Commodities.dart/Commodites.dart';
+import 'package:itx/Contracts/Contracts.dart';
 import 'package:itx/Serializers/CommCert.dart';
 import 'package:itx/Serializers/CommoditesCerts.dart';
 import 'package:itx/Serializers/UserTypes.dart';
@@ -21,6 +23,7 @@ import 'package:itx/myOrders.dart/MyOrders.dart';
 import 'package:itx/uploadCerts/WareHouseUploads.dart';
 import 'package:itx/web/authentication/ComOfInterest.dart';
 import 'package:itx/web/authentication/OtpVerification.dart';
+import 'package:itx/web/contracts/Contract.dart';
 import 'package:itx/web/homepage/WebHomepage.dart';
 import 'package:itx/web/homepage/WebNav.dart';
 import 'package:itx/web/orders/orders.dart';
@@ -63,12 +66,14 @@ class AuthRequest {
           Map<String, int> userTypeMap = {
             "individual": 3,
             "producer": 4,
-            "trader": 5
+            "trader": 5,
+            "warehouse": 6,
           };
           int type = userTypeMap[responseBody["user_type"]] ?? 6;
           bloc.getUserType(type);
 
-          print("userType ----- ${bloc.user_type}");
+          print(
+              "userType ----- ${Provider.of<appBloc>(context, listen: false).user_type}");
 
           isOnOtp ? null : bloc.getUserType(body["user_type"]);
 
@@ -85,7 +90,9 @@ class AuthRequest {
                       context: context,
                       email: body["email"],
                       phoneNumber: body["phonenumber"],
-                      isWareHouse: bloc.user_type == 6,
+                      isWareHouse: Provider.of<appBloc>(context, listen: false)
+                              .user_type ==
+                          6,
                     ),
                   ),
                 );
@@ -168,8 +175,8 @@ class AuthRequest {
         url,
         body: jsonEncode(body),
         headers: {
-          "x-auth-token":Provider.of<appBloc>(context, listen: false).token,
-              // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDgsImFwaSI6IldFQiIsImlhdCI6MTcyODM5MjE5NSwiZXhwIjoxNzI4NDEwMTk1fQ.yc2gtU2no7fGDgbe3u87oTcN_v_4xBKtcWlHbO8Fw-M",
+          "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+          // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDgsImFwaSI6IldFQiIsImlhdCI6MTcyODM5MjE5NSwiZXhwIjoxNzI4NDEwMTk1fQ.yc2gtU2no7fGDgbe3u87oTcN_v_4xBKtcWlHbO8Fw-M",
           //  Provider.of<appBloc>(context, listen: false).token,
           'Content-Type': 'application/json',
         },
@@ -233,7 +240,8 @@ class AuthRequest {
     );
   }
 
-  static Future createOrder(BuildContext context, bid, int id, {required bool isWeb}) async {
+  static Future createOrder(BuildContext context, bid, int id,
+      {required bool isWeb}) async {
     final Uri uri = Uri.parse("$main_url/contracts/$id/order");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
@@ -263,7 +271,9 @@ class AuthRequest {
       ).show(context);
       Navigator.of(context).pop();
       PersistentNavBarNavigator.pushNewScreen(
-          withNavBar: true, context, screen: isWeb?WebOrdersScreen(): UserOrdersScreen());
+          withNavBar: true,
+          context,
+          screen: isWeb ? WebOrdersScreen() : UserOrdersScreen());
 
       // if (responseBody.toString().contains("true")) {
       //   // Show an authentication error if OTP fails
@@ -395,102 +405,92 @@ class AuthRequest {
     }
   }
 
-  static Future<void> otp({
-    required BuildContext context,
-    required String email,
-    required String otp,
-    required bool isRegistered,
-    required bool isWeb,
-  }) async {
-    final appBloc bloc = context.read<appBloc>();
+static Future<void> otp({
+  required BuildContext context,
+  required String email,
+  required String otp,
+  required bool isRegistered,
+  required bool isWeb,
+}) async {
+  final Bloc = Provider.of<appBloc>(context, listen: false);
 
-    // Define the OTP verification endpoint
-    final Uri url = Uri.parse("$main_url/user/otpc");
+  final Uri url = Uri.parse("$main_url/user/otpc");
+  final Map<String, dynamic> body = {
+    "email": email,
+    "otp": otp,
+  };
 
-    // Prepare the request body for OTP verification
-    final Map<String, dynamic> body = {
-      "email": email,
-      "otp": otp,
-    };
+  try {
+    Bloc.changeIsLoading(true);
 
-    try {
-      // Start loading state
-      bloc.changeIsLoading(true);
+    final http.Response response = await http.post(
+      url,
+      body: jsonEncode(body),
+      headers: {'Content-Type': 'application/json'},
+    );
 
-      // Send POST request for OTP verification
-      final http.Response response = await http.post(
-        url,
-        body: jsonEncode(body),
-        headers: {'Content-Type': 'application/json'},
-      );
+    if (response.statusCode == 200) {
+      print("${response.body} success");
+      final Map responseBody = jsonDecode(response.body);
 
-      if (response.statusCode == 200) {
-        print("${response.body} success");
-        final Map responseBody = jsonDecode(response.body);
+      if (responseBody["rsp"]) {
+        final String token = responseBody["token"];
+        Bloc.changeToken(token);
 
-        if (responseBody["rsp"]) {
-          // On successful OTP verification, save the token and navigate to the home page
-          final String token = responseBody["token"];
-          context.read<appBloc>().changeToken(token);
+        await Future.delayed(Duration(seconds: 3));
 
-          // Delay navigation for a few seconds for better UX
-          Future.delayed(Duration(seconds: 3));
+        print("checkwarehouse-------------------${Bloc.user_type}--------------");
 
-          print(
-              "checkwarehouse-------------------${bloc.user_type}--------------");
-
-          if (bloc.user_type == 6) {
-            print("true is warehouse  ${bloc.user_type}");
-
-            bloc.changeIsLoading(false); // Stop loading after success
-            context.watch<appBloc>().platform;
-            Globals.switchScreens(
-                context: context,
-                screen: isRegistered
-                    ? GlobalsHomePage()
-                    : Commodities(
-                        isWareHouse: true,
-                      ));
-          } else {
-            bloc.changeIsLoading(false); // Stop loading after success
-            isWeb
-                ? Globals.switchScreens(
-                    context: context,
-                    screen: isRegistered
-                        ? WebNav()
-                        : WebCommoditiesOfInterest(isWareHouse: false))
-                : Globals.switchScreens(
-                    context: context,
-                    screen: isRegistered
-                        ? GlobalsHomePage()
-                        : Commodities(isWareHouse: false));
-          }
+        if (Bloc.user_id == 6) {
+          print("User is warehouse (user_id: 6)");
+          _navigateToScreen(context, isRegistered, true);
         } else {
-          // Show an authentication error if OTP fails
-          Globals.warningsAlerts(
-            title: "Authentication Error",
-            content: responseBody["rsp"],
-            context: context,
-          );
+          print("User is not warehouse (user_id: ${Bloc.user_id})");
+          _navigateToScreen(context, isRegistered, false);
         }
       } else {
-        // Show an authentication error for non-200 responses
-        Globals.warningsAlerts(
-          title: "Authentication Error",
-          content: response.body,
-          context: context,
-        );
-        print("${response.body} failed ");
+        print("Response not successful, navigating to default screens");
+        _navigateToScreen(context, isRegistered, false);
       }
-    } catch (e) {
-      // Handle errors during OTP request
-      print("Error during OTP verification: $e");
-    } finally {
-      // Stop loading state
-      bloc.changeIsLoading(false);
+    } else {
+      Globals.warningsAlerts(
+        title: "Authentication Error",
+        content: response.body,
+        context: context,
+      );
+      print("${response.body} failed ");
     }
+  } catch (e) {
+    print("Error during OTP verification: $e");
+  } finally {
+    Bloc.changeIsLoading(false);
   }
+}
 
+static void _navigateToScreen(BuildContext context, bool isRegistered, bool isWarehouse) {
+  if (!Platform.isAndroid) {
+    print("IS NOT ANDROID");
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
+      builder: (context) => isRegistered
+          ? (isWarehouse 
+              ? WebContracts(
+                  filtered: false,
+                  showAppbarAndSearch: true,
+                  isWareHouse: true,
+                  isSpot: false,
+                  contractName: "warehouse")
+              : WebNav())
+          : WebCommoditiesOfInterest(isWareHouse: isWarehouse),
+    ));
+  } else {
+    print("IS ANDROID");
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
+      builder: (context) => isRegistered
+          ? GlobalsHomePage()
+          : Commodities(isWareHouse: isWarehouse),
+    ));
+  }
+}
   // Login request
   static Future<void> login(
       {required BuildContext context,
@@ -557,13 +557,17 @@ class AuthRequest {
                       context: context,
                       email: email,
                       isRegistered: true,
-                      isWareHouse: bloc.user_type == 6)
+                      isWareHouse: Provider.of<appBloc>(context, listen: false)
+                              .user_type ==
+                          6)
                   : Verification(
                       context: context,
                       email: email,
                       phoneNumber: null,
                       isRegistered: true,
-                      isWareHouse: bloc.user_type == 6,
+                      isWareHouse: Provider.of<appBloc>(context, listen: false)
+                              .user_type ==
+                          6,
                     ));
 
           print("Login successful: ${responseBody["message"]}");
@@ -704,7 +708,9 @@ class AuthRequest {
                   context: context,
                   email: user.email!,
                   phoneNumber: user.phoneNumber,
-                  isWareHouse: bloc.user_type == 6,
+                  isWareHouse:
+                      Provider.of<appBloc>(context, listen: false).user_type ==
+                          6,
                 ),
               ),
             );

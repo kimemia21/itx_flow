@@ -32,6 +32,7 @@ class _WebNavState extends State<WebNav> {
           isSpot: false,
           filtered: true,
           showAppbarAndSearch: true,
+          contractName:"All" ,
           isWareHouse: context.watch<appBloc>().user_type == 6),
       WebSpottrader(),
       WebOrdersScreen()

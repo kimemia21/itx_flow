@@ -105,6 +105,7 @@ class _WebHomepageContractsState extends State<WebHomepageContracts> {
               isWareHouse: false,
               isSpot: false,
               contractType: contract.id,
+              contractName: contract.contractType,
             ));
       },
       child: Column(

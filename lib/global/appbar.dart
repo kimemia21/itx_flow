@@ -6,23 +6,30 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const ITXAppBar({Key? key}) : super(key: key);
+  final String title;
+  const ITXAppBar({Key? key, required this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.green[600],
       centerTitle: true,
-      title:  Text(
-        'iTea-X',
-        style: GoogleFonts.abel(
-            fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
-      ),
+      title: Text(title,
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 20,
+                ),
+              ),
       leading: IconButton(
         onPressed: () {
           _showLogoutConfirmationDialog(context);
         },
-        icon: Icon(Icons.login,color: Colors.white,size: 30,),
+        icon: Icon(
+          Icons.login,
+          color: Colors.white,
+          size: 30,
+        ),
       ),
     );
   }
@@ -39,7 +46,10 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
               Text('Logout Confirmation'),
             ],
           ),
-          content: Text('Are you sure you want to log out?',textAlign: TextAlign.center,),
+          content: Text(
+            'Are you sure you want to log out?',
+            textAlign: TextAlign.center,
+          ),
           actions: [
             TextButton(
               child: Text('Cancel'),

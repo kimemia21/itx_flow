@@ -88,7 +88,7 @@ class _WebSpottraderState extends State<WebSpottrader> with SingleTickerProvider
         controller: _tabController,
         children: [
           Center(child: Text('Minerals Content', style: GoogleFonts.poppins(fontSize: screenWidth < 600 ? 14 : 18))),
-          WebContracts(filtered: true, showAppbarAndSearch: false, isWareHouse: false, isSpot: true),
+          WebContracts(filtered: true, showAppbarAndSearch: false, isWareHouse: false, isSpot: true,contractName: "Spot",),
           Center(child: Text('Energy Content', style: GoogleFonts.poppins(fontSize: screenWidth < 600 ? 14 : 18))),
           Center(child: Text('Crafts Content', style: GoogleFonts.poppins(fontSize: screenWidth < 600 ? 14 : 18))),
         ],

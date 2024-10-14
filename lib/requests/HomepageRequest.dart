@@ -41,7 +41,8 @@ class CommodityService {
       // print("token ${Provider.of<appBloc>(context, listen: false).token}");
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiV0VCIiwiaWF0IjoxNzI4NTY0MDYyLCJleHAiOjE3Mjg1ODIwNjJ9.CUp49hlWZr8TUpuEL8eRgnRxmi1B7emgaiBcXTfYcLc",
+        "x-auth-token": Provider.of<appBloc>(context, listen: false).token
+        // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiV0VCIiwiaWF0IjoxNzI4NTY0MDYyLCJleHAiOjE3Mjg1ODIwNjJ9.CUp49hlWZr8TUpuEL8eRgnRxmi1B7emgaiBcXTfYcLc",
         //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzI4Mzc4MTQzLCJleHAiOjE3MjgzOTYxNDN9.sUKTtbgaszFXjrsq6wwMtr3fisI9M0vz6bAl5r5Ho90",
 
         // // Provider.of<appBloc>(context, listen: false).token,
@@ -413,7 +414,8 @@ class CommodityService {
     }
   }
 
-  static Future CreateContract(BuildContext context, body, {required bool isWeb}) async {
+  static Future CreateContract(BuildContext context, body,
+      {required bool isWeb}) async {
     final Uri uri = Uri.parse("$mainUri/contracts/create");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
@@ -437,7 +439,9 @@ class CommodityService {
           );
 
           PersistentNavBarNavigator.pushNewScreen(
-              withNavBar: false, context, screen:isWeb?WebNav(): GlobalsHomePage());
+              withNavBar: false,
+              context,
+              screen: isWeb ? WebNav() : GlobalsHomePage());
           CherryToast.success(
             title: Text("sucess"),
           ).show(context);
@@ -583,8 +587,7 @@ class CommodityService {
 
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": 
-        Provider.of<appBloc>(context, listen: false).token,
+        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
       };
 
       final http.Response response = await http.get(uri, headers: headers);
@@ -616,12 +619,8 @@ class CommodityService {
     }
   }
 
-
-
-
-
-static Future<List<Packing>> CommodityPacking(
-      {required BuildContext context,required  int Id}) async {
+  static Future<List<Packing>> CommodityPacking(
+      {required BuildContext context, required int Id}) async {
     try {
       final Uri uri = Uri.parse("$mainUri/commodities/$Id/packaging");
 
@@ -658,6 +657,4 @@ static Future<List<Packing>> CommodityPacking(
       throw Exception("CommodityPacking error $e");
     }
   }
-
-
 }

@@ -22,7 +22,7 @@ class _UserhomepageState extends State<Userhomepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: ITXAppBar(),
+      appBar: ITXAppBar(title: "ITX",),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
