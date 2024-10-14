@@ -198,30 +198,30 @@ class _SplashscreenState extends State<Splashscreen>
               SizedBox(
                 height: 20,
               ),
-              Container(
-                height: 50,
-                decoration: BoxDecoration(color: Colors.white),
-                child: Material(
-                  elevation: 5,
-                  shadowColor: Colors.grey, // This sets the color of the shadow
-                  borderRadius: BorderRadius.circular(10),
+              // Container(
+              //   height: 50,
+              //   decoration: BoxDecoration(color: Colors.white),
+              //   child: Material(
+              //     elevation: 5,
+              //     shadowColor: Colors.grey, // This sets the color of the shadow
+              //     borderRadius: BorderRadius.circular(10),
 
-                  child: GoogleAuthButton(
-                      onPressed: () async {
-                        // Authentication.signInWithGoogle(context: context);
-                      },
-                      themeMode: themeMode,
-                      isLoading: isLoading,
-                      style: AuthButtonStyle(
-                        width: MediaQuery.of(context).size.width * 0.75,
-                        height: 40,
-                        textStyle: GoogleFonts.poppins(
-                            color: Colors.black54, fontWeight: FontWeight.w600),
-                        buttonType: buttonType,
-                        iconType: iconType,
-                      )),
-                ),
-              ),
+              //     child: GoogleAuthButton(
+              //         onPressed: () async {
+              //           // Authentication.signInWithGoogle(context: context);
+              //         },
+              //         themeMode: themeMode,
+              //         isLoading: isLoading,
+              //         style: AuthButtonStyle(
+              //           width: MediaQuery.of(context).size.width * 0.75,
+              //           height: 40,
+              //           textStyle: GoogleFonts.poppins(
+              //               color: Colors.black54, fontWeight: FontWeight.w600),
+              //           buttonType: buttonType,
+              //           iconType: iconType,
+              //         )),
+              //   ),
+              // ),
               SizedBox(
                 height: 10,
               ),

@@ -90,6 +90,7 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
       onTap: () {
         PersistentNavBarNavigator.pushNewScreen(context,
             screen: Contracts(
+              contractName: contract.contractType,
               filtered: false,
               showAppbarAndSearch: true,
               isWareHouse: false,

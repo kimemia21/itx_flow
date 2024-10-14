@@ -61,9 +61,7 @@ class _GetPlatformState extends State<GetPlatform> {
     if (kIsWeb) {
       setBloc.changePlatform("web");
       //  List<CommoditiesCert> ITEMS = [];
-      return WebNav();
-
-      // Weblogin();
+      return Weblogin();
 
       // Webregulators(commCerts: ITEMS, isWareHouse: false);
       // WebVerification(
@@ -75,9 +73,7 @@ class _GetPlatformState extends State<GetPlatform> {
     // Android or iOS platform
     else if (Platform.isAndroid || Platform.isIOS) {
       setBloc.changePlatform("android");
-      return GlobalsHomePage();
-
-      // appbloc.token == "" ? Splashscreen() : GlobalsHomePage();
+      return appbloc.token == "" ? Splashscreen() : GlobalsHomePage();
 
       // Regulators() : Regulators();
       // Splashscreen():GlobalsHomePage();

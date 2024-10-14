@@ -55,6 +55,7 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
       Userhomepage(),
 
       Contracts(
+          contractName: "WatchList",
           isSpot: false,
           filtered: true,
           showAppbarAndSearch: true,
@@ -103,6 +104,7 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
   Widget build(BuildContext context) {
     return context.watch<appBloc>().user_type == 6
         ? Contracts(
+           contractName:"WareHouse",
             isSpot: false,
             filtered: true,
             showAppbarAndSearch: true,

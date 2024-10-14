@@ -90,7 +90,7 @@ class _SpottraderState extends State<Spottrader> with SingleTickerProviderStateM
         children: [
           // warehouse has no views 
           Center(child: Text('Minerals Content', style: GoogleFonts.poppins(fontSize: 18))),
-           Contracts(filtered: true,showAppbarAndSearch: false,isWareHouse: false,isSpot: true,), 
+           Contracts(filtered: true,showAppbarAndSearch: false,isWareHouse: false,isSpot: true,contractName: "Spot",), 
           Center(child: Text('Energy Content', style: GoogleFonts.poppins(fontSize: 18))),
           Center(child: Text('Crafts Content', style: GoogleFonts.poppins(fontSize: 18))),
         ],

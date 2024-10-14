@@ -82,7 +82,7 @@ class _LikeButtonState extends State<LikeButton>
             child: Icon(
               isLiked ? Icons.favorite : Icons.favorite_border,
               color: isLiked ? Colors.red : Colors.grey,
-              size: 30,
+              size: 25,
             ),
           );
         },

@@ -171,7 +171,7 @@ Widget _buildSearchBar(BuildContext context) {
       child: Container(
         // Responsive height
         height: MediaQuery.of(context).size.height *
-            0.2, // 20% of the screen height
+            0.25, // 20% of the screen height
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           color: Colors.white,

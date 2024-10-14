@@ -312,21 +312,29 @@ class _ContractLiveBidState extends State<ContractLiveBid>
               children: [
                 SizedBox(height: 24),
                 _buildPriceChart(),
-                Text(
-                  widget.contract.name,
-                  style: GoogleFonts.poppins(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                // Text(
+                //   widget.contract.name,
+                //   style: GoogleFonts.poppins(
+                //     fontSize: 24,
+                //     fontWeight: FontWeight.bold,
+                //   ),
+                // // ),
+                // SizedBox(height: 8),
+                SizedBox(height: 5,),
+       Text("${widget.contract.name}, Grade ${widget.contract.grade_name} Bid History.",
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600, // Bold for emphasis
+              color: Colors.black54, // Strong color for focus
+              shadows: [
+                Shadow(
+                  offset: Offset(0, 2), // Subtle shadow
+                  blurRadius: 6.0,
+                  color: Colors.grey.shade300, // Light shadow for depth
                 ),
-                SizedBox(height: 8),
-                Text(
-                  'Item #${widget.contract.contractId}',
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
+              ],
+            ),
+          ),
                 SizedBox(height: 16),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,

@@ -13,15 +13,18 @@ import 'package:itx/requests/Requests.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
+import 'package:data_table_2/data_table_2.dart';
+
+import 'package:timeago/timeago.dart' as timeago;
+
 class Contracts extends StatefulWidget {
-  const Contracts(
-   
-    {
+  const Contracts({
     super.key,
     required this.filtered,
     required this.showAppbarAndSearch,
     required this.isWareHouse,
     required this.isSpot,
+    required this.contractName,
     this.contractType,
   });
   final bool filtered;
@@ -29,6 +32,7 @@ class Contracts extends StatefulWidget {
   final bool isWareHouse;
   final bool isSpot;
   final int? contractType;
+  final String contractName;
 
   @override
   State<Contracts> createState() => _ContractsState();
@@ -52,7 +56,6 @@ class _ContractsState extends State<Contracts> {
           isWatchList: widget.filtered,
           isWareHouse: widget.isWareHouse,
           contractTypeId: widget.contractType,
-          
           isSpot: widget.isSpot);
     });
   }
@@ -63,215 +66,196 @@ class _ContractsState extends State<Contracts> {
     super.dispose();
   }
 
-  Widget _buildSearchItem({required ContractsModel contract}) {
-    return GestureDetector(
-      onTap: () {
-        PersistentNavBarNavigator.pushNewScreen(
-            withNavBar: true,
-            context,
-            screen: Specificorder(contract: contract));
-      },
-      child: Container(
-        height: 140,
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.green.withOpacity(0.1),
-              spreadRadius: 2,
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              margin: EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadiusDirectional.circular(50)),
-              child: Center(
-                  child: Text(contract.grade_name??
-                "Grade name",
-                style: GoogleFonts.poppins(color: Colors.grey.shade600),
-              )),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          contract.contract_user?? "Compay name",
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                        Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            contract.contractType,
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.blue.shade700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          contract.contract_packing??"not set yet",
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: Colors.grey.shade600,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.calendar_today,
-                                size: 16, color: Colors.green.shade600),
-                            SizedBox(
-                              width: 4,
-                            ),
-                            Text(
-                                "Delivery: ${DateFormat('MMM d, y').format(contract.deliveryDate)}",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  color: Colors.grey.shade700,
-                                )),
-                            SizedBox(width: 4),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              contract.canBid == 1 ? "Started at" : "Price",
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 4,
-                            ),
-                            Text(
-                              "\$${contract.price.toStringAsFixed(2)}",
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                                color: Colors.green.shade700,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            // Container(
-                            //   padding: EdgeInsets.symmetric(
-                            //       horizontal: 12, vertical: 6),
-                            //   decoration: BoxDecoration(
-                            //     color: Colors.green.shade50,
-                            //     borderRadius: BorderRadius.circular(20),
-                            //   ),
-                            //   child: Text(
-                            //     "\$${contract.price.toStringAsFixed(2)}",
-                            //     style: GoogleFonts.poppins(
-                            //       fontWeight: FontWeight.w600,
-                            //       fontSize: 16,
-                            //       color: Colors.green.shade700,
-                            //     ),
-                            //   ),
-                            // ),
-                            // SizedBox(width: 8),
-                            LikeButton(
-                              contractId: contract.contractId,
-                              likes: contract.liked,
-                              // data: data,
-                              onLikeChanged: (isLiked) async {
-                                await AuthRequest.likeunlike(context,
-                                    isLiked ? 1 : 0, contract.contractId);
+  TableRow _buildTableItem(
+      {required BuildContext context, required ContractsModel contract}) {
+    final String type = contract.contractType == "Futures"
+        ? "FT"
+        : contract.contractType == "Forwards"
+            ? "FW"
+            : contract.contractType == "Swaps"
+                ? "SW"
+                : "SP";
 
-                                print(
-                                    'Contract ${contract.contractId} is ${isLiked ? 'liked' : 'unliked'}');
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Visibility(
-                      visible: contract.canBid == 1,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Highest Bid",
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade600,
-                              )),
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.green.shade50,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              "\$${contract.price.toStringAsFixed(2)}",
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                                color: Colors.green.shade700,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+    String getFirstName(String fullName) {
+      List<String> nameParts = fullName.split(" ");
+      return nameParts[0];
+    }
+
+    String name = getFirstName(contract.contract_user!);
+
+    return TableRow(
+      children: [
+        TableCell(
+          child: InkWell(
+            onTap: () {
+              PersistentNavBarNavigator.pushNewScreen(
+                context,
+                screen: Specificorder(contract: contract),
+                withNavBar: true,
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                name ?? "name",
+                style: GoogleFonts.poppins(fontSize: 14),
               ),
             ),
-          ],
+          ),
         ),
-      ),
+        TableCell(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              contract.grade_name ?? "Grade name",
+              style: GoogleFonts.poppins(fontSize: 14),
+            ),
+          ),
+        ),
+        TableCell(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              type,
+              style: GoogleFonts.poppins(fontSize: 14),
+            ),
+          ),
+        ),
+        TableCell(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              DateFormat('MMM d, y').format(contract.deliveryDate),
+              style: GoogleFonts.poppins(fontSize: 14),
+            ),
+          ),
+        ),
+        TableCell(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              "\$${contract.price.toStringAsFixed(2)}",
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.green.shade700,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ),
+        TableCell(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: LikeButton(
+              contractId: contract.contractId,
+              likes: contract.liked,
+              onLikeChanged: (isLiked) async {
+                await AuthRequest.likeunlike(
+                  context,
+                  isLiked ? 1 : 0,
+                  contract.contractId,
+                );
+                print(
+                    'Contract ${contract.contractId} is ${isLiked ? 'liked' : 'unliked'}');
+              },
+            ),
+          ),
+        ),
+      ],
     );
+  }
+
+  Widget _buildContractsTable() {
+    return FutureBuilder<List<ContractsModel>>(
+      future: contracts,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Globals.buildErrorState(
+              function: fetchContracts, items: widget.contractName);
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(
+              child: Globals.buildNoDataState(
+                  function: fetchContracts, item: widget.contractName));
+        }
+
+        List<ContractsModel> contractsList = snapshot.data!;
+
+        return RefreshIndicator(
+          onRefresh: fetchContracts,
+          child: DataTable2(
+            columnSpacing: 10,
+            horizontalMargin: 10,
+            minWidth: 600,
+            columns: [
+              DataColumn2(
+                  fixedWidth: 55, label: Text('Company'), size: ColumnSize.S),
+              DataColumn2(
+                  fixedWidth: 50, label: Text('Grade'), size: ColumnSize.S),
+              DataColumn2(
+                  fixedWidth: 45, label: Text('Type'), size: ColumnSize.S),
+              DataColumn2(
+                  fixedWidth: 65, label: Text('Del. Date'), size: ColumnSize.S),
+              DataColumn2(
+                  fixedWidth: 65, label: Text('Price'), size: ColumnSize.S),
+              DataColumn2(
+                  fixedWidth: 45, label: Text('Action'), size: ColumnSize.S),
+            ],
+            rows: contractsList.map((contract) {
+              return DataRow(
+                cells: [
+                  DataCell(GestureDetector(
+                      onTap: () {
+                        PersistentNavBarNavigator.pushNewScreen(
+                          withNavBar: true,
+                          context,
+                            screen: Specificorder(contract: contract));
+                      },
+                      child: Text(getFirstName(contract.contract_user!)))),
+                  DataCell(Text(contract.grade_name ?? "N/A")),
+                  DataCell(Text(getContractTypeAbbr(contract.contractType))),
+                  DataCell(timeago
+                    
+                    Text(
+                      DateFormat('MMM d, y').format(contract.deliveryDate))),
+                  DataCell(Text("\$${contract.price.toStringAsFixed(2)}")),
+                  DataCell(LikeButton(
+                    contractId: contract.contractId,
+                    likes: contract.liked,
+                    onLikeChanged: (isLiked) async {
+                      await AuthRequest.likeunlike(
+                        context,
+                        isLiked ? 1 : 0,
+                        contract.contractId,
+                      );
+                    },
+                  )),
+                ],
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  String getFirstName(String fullName) {
+    List<String> nameParts = fullName.split(" ");
+    return nameParts[0];
+  }
+
+  String getContractTypeAbbr(String? contractType) {
+    switch (contractType) {
+      case "Futures":
+        return "FT";
+      case "Forwards":
+        return "FW";
+      case "Swaps":
+        return "SW";
+      default:
+        return "SP";
+    }
   }
 
   @override
@@ -305,7 +289,7 @@ class _ContractsState extends State<Contracts> {
                     ? "WareHouse Orders"
                     : widget.filtered
                         ? "Watchlist"
-                        : "Contracts",
+                        : widget.contractName,
                 style: GoogleFonts.poppins(
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -346,46 +330,83 @@ class _ContractsState extends State<Contracts> {
                 visible: widget.showAppbarAndSearch,
                 child: _buildSearchBar(context),
               ),
-              SizedBox(
-                height: 20,
-              ),
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () async {
-                    await fetchContracts(); // Fetch contracts when pulling down
-                  },
-                  child: FutureBuilder<List<ContractsModel>>(
-                    future: contracts,
-                    builder: (context, snapshot) {
-                      String name = widget.isWareHouse
-                          ? "WareHouse Orders"
-                          : widget.filtered
-                              ? "Watchlist"
-                              : "Contracts";
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        return Globals.buildErrorState(
-                            function: fetchContracts, items: name);
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return Globals.buildNoDataState(
-                            function: fetchContracts, item: name);
-                      }
+              SizedBox(height: 20),
+              Expanded(child: _buildContractsTable()),
+              // Expanded(
+              //   child: RefreshIndicator(
+              //     onRefresh: () async {
+              //       await fetchContracts();
+              //     },
+              //     child: FutureBuilder<List<ContractsModel>>(
+              //       future: contracts,
+              //       builder: (context, snapshot) {
+              //         String name = widget.isWareHouse
+              //             ? "WareHouse Orders"
+              //             : widget.filtered
+              //                 ? "Watchlist"
+              //                 : "Contracts";
+              //         if (snapshot.connectionState == ConnectionState.waiting) {
+              //           return Center(child: CircularProgressIndicator());
+              //         } else if (snapshot.hasError) {
+              //           return Globals.buildErrorState(
+              //               function: fetchContracts, items: name);
+              //         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              //           return Globals.buildNoDataState(
+              //               function: fetchContracts, item: name);
+              //         }
 
-                      List<ContractsModel> filteredContracts = snapshot.data!;
+              //         List<ContractsModel> filteredContracts = snapshot.data!;
 
-                      return ListView.builder(
-                        itemCount: filteredContracts.length,
-                        itemBuilder: (context, index) {
-                          ContractsModel contract = filteredContracts[index];
-                          return _buildSearchItem(contract: contract);
-                        },
-                      );
-                    },
-                  ),
-                ),
-              ),
+              //         return SingleChildScrollView(
+              //           scrollDirection: Axis.horizontal,
+              //           child: Table(
+              //             border: TableBorder.all(
+              //               color: Colors.green.shade200,
+              //               width: 1,
+              //               style: BorderStyle.solid,
+              //             ),
+              //             defaultColumnWidth: FixedColumnWidth(150.0),
+              //             children: [
+              //               TableRow(
+              //                 decoration: BoxDecoration(
+              //                   color: Colors.green.shade100,
+              //                 ),
+              //                 children: [
+              //                   _buildTableHeader("Company"),
+              //                   _buildTableHeader("Grade"),
+              //                   _buildTableHeader("Type"),
+              //                   _buildTableHeader("Delivery Date"),
+              //                   _buildTableHeader("Price"),
+              //                   _buildTableHeader("Action"),
+              //                 ],
+              //               ),
+              //               ...filteredContracts
+              //                   .map((contract) => _buildTableItem(
+              //                       context: context, contract: contract))
+              //                   .toList(),
+              //             ],
+              //           ),
+              //         );
+              //       },
+              //     ),
+              //   ),
+              // ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTableHeader(String text) {
+    return TableCell(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          text,
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
           ),
         ),
       ),

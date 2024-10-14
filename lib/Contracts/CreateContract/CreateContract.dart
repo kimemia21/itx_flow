@@ -532,17 +532,15 @@ class _CreateContractState extends State<CreateContract>
   }
 
   void _addDeliveryMilestone() {
-    if (selectedDate != null &&
-        quantityController.text.isNotEmpty ) {
+    if (selectedDate != null && quantityController.text.isNotEmpty) {
       setState(() {
         deliveryMilestones.add(DeliveryMilestone(
           date: selectedDate!,
           quantity: double.parse(quantityController.text),
-   
         ));
-        selectedDate = null;
-        quantityController.clear();
-        selectedMetric = null;
+        // selectedDate = null;
+        // quantityController.clear();
+        // selectedMetric = null;
       });
     }
   }
@@ -591,9 +589,8 @@ class _CreateContractState extends State<CreateContract>
           .map((m) => m.date)
           .reduce((a, b) => a.isAfter(b) ? a : b);
     }
-
     final String packingVolume =
-        '${quantityController.text}${_packingMetrics ?? ''}';
+        '${quantityController.text}${_packingMetrics?.isNotEmpty == true ? ' ' : ''}${_packingMetrics ?? ''}';
     print(packingVolume);
 
     Map<String, dynamic> contractData = {
@@ -631,7 +628,8 @@ class _CreateContractState extends State<CreateContract>
     print("-------------------------------------");
 
     try {
-      await CommodityService.CreateContract(context, contractData,isWeb: false);
+      await CommodityService.CreateContract(context, contractData,
+          isWeb: false);
       // Show success message or navigate to a new screen
     } catch (e) {
       // Show error message
