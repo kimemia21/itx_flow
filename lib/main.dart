@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:itx/Serializers/CommCert.dart';
+import 'package:itx/TestLab.dart';
 import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:itx/authentication/SplashScreen.dart';
@@ -34,14 +35,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (context) => CurrentUserProvider()),
-        ChangeNotifierProvider(create: (context) => appBloc()),
-        ChangeNotifierProvider(create: (context) => Webbloc())
-      ],
-      child: MaterialApp(home: GetPlatform()),
-    );
+    return TestLab();
+
+    // MultiProvider(
+    //   providers: [
+    //     ChangeNotifierProvider(create: (context) => CurrentUserProvider()),
+    //     ChangeNotifierProvider(create: (context) => appBloc()),
+    //     ChangeNotifierProvider(create: (context) => Webbloc())
+    //   ],
+    //   child: MaterialApp(home: GetPlatform()),
+    // );
   }
 }
 

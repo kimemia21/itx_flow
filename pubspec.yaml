@@ -85,6 +85,10 @@ dependencies:
   animated_custom_dropdown: ^3.1.1
   flutter_dropzone: ^4.0.3
   data_table_2: ^2.5.15
+  pdf: ^3.11.1
+  syncfusion_flutter_pdf: ^26.2.14
+  path_provider: ^2.0.9
+  permission_handler: ^10.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -114,6 +118,7 @@ flutter:
     - assets/gif/AnimationLogin.json
     - assets/gif/AnimationFiles.json
     - assets/gif/AnimationWelcome.json
+    - assets/pdf/ContractTemplate.pdf
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

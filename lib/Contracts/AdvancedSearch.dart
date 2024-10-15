@@ -14,7 +14,7 @@ class AdvancedSearchModal extends StatefulWidget {
 
 class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
   final _formKey = GlobalKey<FormState>();
-  String? commodityId;
+  int? commodityId;
   String? contractId;
   RangeValues _priceRange = RangeValues(0, 1000);
   DateTime? _deliveryDateStart;

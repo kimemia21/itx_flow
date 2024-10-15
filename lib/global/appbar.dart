@@ -15,8 +15,11 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       actions: [
         Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadiusDirectional.circular(5),
+            color: Colors.white),
           margin: EdgeInsets.all(10),
-          width: MediaQuery.of(context).size.width*0.3,
+          // width: MediaQuery.of(context).size.width*0.3,
           height: 20,
           child: CommodityDropdown(
               onCommoditySelected: (onCommoditySelected) {}, isForAppBar: true),
