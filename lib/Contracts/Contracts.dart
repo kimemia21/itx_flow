@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -11,6 +14,7 @@ import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/requests/Requests.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -43,131 +47,159 @@ class _ContractsState extends State<Contracts> {
   final TextEditingController _searchController = TextEditingController();
 
   late Future<List<ContractsModel>> contracts;
-
+  List<ContractsModel> currentContracts = [];
+  int currentIndex = 0;
+  Timer? _timer;
+  int _secondsRemaining = 120; // 2 minutes
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
-    fetchContracts();
-    print("userId  ${Provider.of<appBloc>(context, listen: false).user_id != 6}");
-    
-    timeago.setLocaleMessages('en', timeago.EnMessages());
-  }
 
-  Future<void> fetchContracts() async {
-    setState(() {
-      contracts = CommodityService.getContracts(
-          context: context,
-          isWatchList: widget.filtered,
-          isWareHouse: widget.isWareHouse,
-          contractTypeId: widget.contractType,
-          isSpot: widget.isSpot);
-    });
+    fetchContracts();
+
+    if (widget.isSpot) {
+      _startTimer();
+    } else {
+      print(
+          "-------------------------------is not spot---------------------------------");
+    }
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
-  // TableRow _buildTableItem(
-  //     {required BuildContext context, required ContractsModel contract}) {
-  //   final String type = contract.contractType == "Futures"
-  //       ? "FT"
-  //       : contract.contractType == "Forwards"
-  //           ? "FW"
-  //           : contract.contractType == "Swaps"
-  //               ? "SW"
-  //               : "SP";
+  Future<void> fetchContracts() async {
+    try {
+      final fetchedContracts = await CommodityService.getContracts(
+        context: context,
+        isWatchList: widget.filtered,
+        isWareHouse: widget.isWareHouse,
+        contractTypeId: widget.contractType,
+        isSpot: widget.isSpot,
+      );
 
-  //   String getFirstName(String fullName) {
-  //     List<String> nameParts = fullName.split(" ");
-  //     return nameParts[0];
-  //   }
+      setState(() {
+        isLoading = false;
+        contracts =
+            Future.value(fetchedContracts); // Set the fetched data here.
 
-  //   String name = getFirstName(contract.contract_user!);
+        if (widget.isSpot) {
+          _updateCurrentContracts();
+        } else {
+          currentContracts = fetchedContracts;
+        }
+      });
+    } catch (error) {
+      setState(() {
+        contracts = Future.error(error);
+      });
+    }
+  }
 
-  //   return TableRow(
-  //     children: [
-  //       TableCell(
-  //         child: InkWell(
-  //           onTap: () {
-  //             PersistentNavBarNavigator.pushNewScreen(
-  //               context,
-  //               screen: Specificorder(contract: contract),
-  //               withNavBar: true,
-  //             );
-  //           },
-  //           child: Padding(
-  //             padding: const EdgeInsets.all(8.0),
-  //             child: Text(
-  //               name ?? "name",
-  //               style: GoogleFonts.poppins(fontSize: 14),
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //       TableCell(
-  //         child: Padding(
-  //           padding: const EdgeInsets.all(8.0),H
-  //           child: Text(
-  //             contract.grade_name ?? "Grade name",
-  //             style: GoogleFonts.poppins(fontSize: 14),
-  //           ),
-  //         ),
-  //       ),
-  //       TableCell(
-  //         child: Padding(
-  //           padding: const EdgeInsets.all(8.0),
-  //           child: Text(
-  //             type,
-  //             style: GoogleFonts.poppins(fontSize: 14),
-  //           ),
-  //         ),
-  //       ),
-  //       TableCell(
-  //         child: Padding(
-  //           padding: const EdgeInsets.all(8.0),
-  //           child: Text(
-  //             DateFormat('MMM d, y').format(contract.deliveryDate),
-  //             style: GoogleFonts.poppins(fontSize: 14),
-  //           ),
-  //         ),
-  //       ),
-  //       TableCell(
-  //         child: Padding(
-  //           padding: const EdgeInsets.all(8.0),
-  //           child: Text(
-  //             "\$${contract.price.toStringAsFixed(2)}",
-  //             style: GoogleFonts.poppins(
-  //               fontSize: 14,
-  //               color: Colors.green.shade700,
-  //               fontWeight: FontWeight.w600,
-  //             ),
-  //           ),
-  //         ),
-  //       ),
-  //       TableCell(
-  //         child: Padding(
-  //           padding: const EdgeInsets.all(8.0),
-  //           child: LikeButton(
-  //             contractId: contract.contractId,
-  //             likes: contract.liked,
-  //             onLikeChanged: (isLiked) async {
-  //               await AuthRequest.likeunlike(
-  //                 context,
-  //                 isLiked ? 1 : 0,
-  //                 contract.contractId,
-  //               );
-  //               print(
-  //                   'Contract ${contract.contractId} is ${isLiked ? 'liked' : 'unliked'}');
-  //             },
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_secondsRemaining > 0) {
+          _secondsRemaining--;
+          print("Seconds Remaining: $_secondsRemaining");
+        } else {
+          _secondsRemaining = 120;
+          _updateCurrentContracts();
+        }
+      });
+    });
+  }
+
+  void _updateCurrentContracts() {
+    contracts.then((allContracts) {
+      if (allContracts.isEmpty) {
+        return; // If no contracts, do nothing
+      }
+
+      setState(() {
+        currentIndex = (currentIndex + 2) % allContracts.length;
+
+        currentContracts = allContracts.sublist(
+          currentIndex,
+          min(currentIndex + 2, allContracts.length),
+        );
+
+        if (currentContracts.length < 2) {
+          currentContracts +=
+              allContracts.sublist(0, 2 - currentContracts.length);
+        }
+      });
+    }).catchError((onError) {
+      print("--------------$onError-------------------");
+    });
+  }
+
+  Widget _buildDecoratedTimer() {
+    final minutes = _secondsRemaining ~/ 60;
+    final seconds = _secondsRemaining % 60;
+    final progress = 1 - (_secondsRemaining / 120);
+
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.green.shade50,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.green.withOpacity(0.1),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Next Update In',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: seconds < 30 ? Colors.red.shade300 : Colors.green.shade600,
+            ),
+          ),
+          SizedBox(height: 8),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                height: 40,
+                width: 80,
+                child: LinearProgressIndicator(
+                  value: progress,
+                  // strokeWidth: 8,
+                  backgroundColor:
+                      seconds < 30 ? Colors.white : Colors.green.shade200,
+                  valueColor: AlwaysStoppedAnimation<Color>(seconds < 30
+                      ? Colors.red.shade300
+                      : Colors.green.shade600),
+                ),
+              ),
+              Text(
+                '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildContractsTable() {
     return FutureBuilder<List<ContractsModel>>(
@@ -184,75 +216,77 @@ class _ContractsState extends State<Contracts> {
                   function: fetchContracts, item: widget.contractName));
         }
 
-        List<ContractsModel> contractsList = snapshot.data!;
+        List<ContractsModel> contractsList =
+            widget.isSpot ? currentContracts : snapshot.data!;
 
-        return RefreshIndicator(
-          onRefresh: fetchContracts,
-          child: DataTable2(
-            columnSpacing: 10,
-            horizontalMargin: 10,
-            minWidth: 600,
-            columns: [
-              DataColumn2(
-                  fixedWidth: 55, label: Text('Company'), size: ColumnSize.S),
-              DataColumn2(
-                  fixedWidth: 50, label: Text('Grade'), size: ColumnSize.S),
-              DataColumn2(
-                  fixedWidth: 40, label: Text('Type'), size: ColumnSize.S),
-              DataColumn2(
-                  fixedWidth: 75, label: Text('Del. Date'), size: ColumnSize.S),
-              DataColumn2(
-                  fixedWidth: 65, label: Text('Price'), size: ColumnSize.S),
-              DataColumn2(
-                  fixedWidth: 40, label: Text('Action'), size: ColumnSize.S),
-            ],
-            rows: contractsList.map((contract) {
-              String _formatDeliveryDate(DateTime deliveryDate) {
-                final now = DateTime.now();
-                final difference = deliveryDate.difference(now);
+        return Container(
+          width: MediaQuery.of(context).size.width * 1,
+          height: MediaQuery.of(context).size.height * 1,
+          child: RefreshIndicator(
+            onRefresh: fetchContracts,
+            child: DataTable2(
+              columnSpacing: 10,
+              horizontalMargin: 10,
+              minWidth: 600,
+              columns: [
+                DataColumn2(
+                    fixedWidth: 55, label: Text('Company'), size: ColumnSize.S),
+                DataColumn2(
+                    fixedWidth: 50, label: Text('Grade'), size: ColumnSize.S),
+                DataColumn2(
+                    fixedWidth: 40, label: Text('Type'), size: ColumnSize.S),
+                DataColumn2(
+                    fixedWidth: 75,
+                    label: Text('Del. Date'),
+                    size: ColumnSize.S),
+                DataColumn2(
+                    fixedWidth: 65, label: Text('Price'), size: ColumnSize.S),
+                DataColumn2(
+                    fixedWidth: 40, label: Text('Action'), size: ColumnSize.S),
+              ],
+              rows: contractsList.map((contract) {
+                String _formatDeliveryDate(DateTime deliveryDate) {
+                  final now = DateTime.now();
+                  final difference = deliveryDate.difference(now);
 
-                if (difference.isNegative) {
-                  return 'Delivered ${timeago.format(deliveryDate)} ago';
-                } else {
-                  return '${timeago.format(deliveryDate, allowFromNow: true)}';
+                  if (difference.isNegative) {
+                    return 'Delivered ${timeago.format(deliveryDate)} ago';
+                  } else {
+                    return '${timeago.format(deliveryDate, allowFromNow: true)}';
+                  }
                 }
-              }
 
-              final delivery = _formatDeliveryDate(contract.deliveryDate);
+                final delivery = _formatDeliveryDate(contract.deliveryDate);
 
-              return DataRow(
-                cells: [
-                  DataCell(GestureDetector(
-                      onTap: () {
-                        PersistentNavBarNavigator.pushNewScreen(
-                            withNavBar: true,
-                            context,
-                            screen: Specificorder(contract: contract));
+                return DataRow(
+                  cells: [
+                    DataCell(GestureDetector(
+                        onTap: () {
+                          PersistentNavBarNavigator.pushNewScreen(
+                              withNavBar: true,
+                              context,
+                              screen: Specificorder(contract: contract));
+                        },
+                        child: Text(getFirstName(contract.contract_user!)))),
+                    DataCell(Text(contract.grade_name ?? "N/A")),
+                    DataCell(Text(getContractTypeAbbr(contract.contractType))),
+                    DataCell(Text(delivery)),
+                    DataCell(Text("\$${contract.price.toStringAsFixed(2)}")),
+                    DataCell(LikeButton(
+                      contractId: contract.contractId,
+                      likes: contract.liked,
+                      onLikeChanged: (isLiked) async {
+                        await AuthRequest.likeunlike(
+                          context,
+                          isLiked ? 1 : 0,
+                          contract.contractId,
+                        );
                       },
-                      child: Text(getFirstName(contract.contract_user!)))),
-                  DataCell(Text(contract.grade_name ?? "N/A")),
-                  DataCell(Text(getContractTypeAbbr(contract.contractType))),
-                  DataCell(Text(delivery
-                      // timeago.format(contract.deliveryDate)
-
-                      // DateFormat('MMM d, y').format(contract.deliveryDate)
-
-                      )),
-                  DataCell(Text("\$${contract.price.toStringAsFixed(2)}")),
-                  DataCell(LikeButton(
-                    contractId: contract.contractId,
-                    likes: contract.liked,
-                    onLikeChanged: (isLiked) async {
-                      await AuthRequest.likeunlike(
-                        context,
-                        isLiked ? 1 : 0,
-                        contract.contractId,
-                      );
-                    },
-                  )),
-                ],
-              );
-            }).toList(),
+                    )),
+                  ],
+                );
+              }).toList(),
+            ),
           ),
         );
       },
@@ -300,115 +334,42 @@ class _ContractsState extends State<Contracts> {
               child: const Icon(Icons.add, color: Colors.white),
             ),
       appBar: widget.showAppbarAndSearch
-           ?ITXAppBar(title: widget.isWareHouse
-                    ? "WareHouse Orders"
-                    : widget.filtered
-                        ? "Watchlist"
-                        : widget.contractName,)
-          // AppBar(
-          //     centerTitle: true,
-          //     automaticallyImplyLeading: false,
-          //     leading: ,
-          //     title:
-          //     backgroundColor: Colors.green.shade600,
-          //     elevation: 4,
-          //     shape: RoundedRectangleBorder(
-          //       borderRadius: BorderRadius.vertical(
-          //         bottom: Radius.circular(20),
-          //       ),
-          //     ),
-          //     flexibleSpace: Container(
-          //       decoration: BoxDecoration(
-          //         gradient: LinearGradient(
-          //           colors: [Colors.green.shade500, Colors.green.shade700],
-          //           begin: Alignment.topCenter,
-          //           end: Alignment.bottomCenter,
-          //         ),
-          //       ),
-          //     ),
-          //   )
+          ? ITXAppBar(
+              title: widget.isWareHouse
+                  ? "WareHouse Orders"
+                  : widget.filtered
+                      ? "Watchlist"
+                      : widget.contractName,
+            )
           : null,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.green.shade50, Colors.white],
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Visibility(
-                visible: widget.showAppbarAndSearch,
-                child: _buildSearchBar(context),
+      body: context.watch<appBloc>().isLoading
+          ? LoadingAnimationWidget.staggeredDotsWave(
+              color: Colors.green, size: 20)
+          : Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.green.shade50, Colors.white],
+                ),
               ),
-              SizedBox(height: 20),
-              Expanded(child: _buildContractsTable()),
-              // Expanded(
-              //   child: RefreshIndicator(
-              //     onRefresh: () async {
-              //       await fetchContracts();
-              //     },
-              //     child: FutureBuilder<List<ContractsModel>>(
-              //       future: contracts,
-              //       builder: (context, snapshot) {
-              //         String name = widget.isWareHouse
-              //             ? "WareHouse Orders"
-              //             : widget.filtered
-              //                 ? "Watchlist"
-              //                 : "Contracts";
-              //         if (snapshot.connectionState == ConnectionState.waiting) {
-              //           return Center(child: CircularProgressIndicator());
-              //         } else if (snapshot.hasError) {
-              //           return Globals.buildErrorState(
-              //               function: fetchContracts, items: name);
-              //         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              //           return Globals.buildNoDataState(
-              //               function: fetchContracts, item: name);
-              //         }
-
-              //         List<ContractsModel> filteredContracts = snapshot.data!;
-
-              //         return SingleChildScrollView(
-              //           scrollDirection: Axis.horizontal,
-              //           child: Table(
-              //             border: TableBorder.all(
-              //               color: Colors.green.shade200,
-              //               width: 1,
-              //               style: BorderStyle.solid,
-              //             ),
-              //             defaultColumnWidth: FixedColumnWidth(150.0),
-              //             children: [
-              //               TableRow(
-              //                 decoration: BoxDecoration(
-              //                   color: Colors.green.shade100,
-              //                 ),
-              //                 children: [
-              //                   _buildTableHeader("Company"),
-              //                   _buildTableHeader("Grade"),
-              //                   _buildTableHeader("Type"),
-              //                   _buildTableHeader("Delivery Date"),
-              //                   _buildTableHeader("Price"),
-              //                   _buildTableHeader("Action"),
-              //                 ],
-              //               ),
-              //               ...filteredContracts
-              //                   .map((contract) => _buildTableItem(
-              //                       context: context, contract: contract))
-              //                   .toList(),
-              //             ],
-              //           ),
-              //         );
-              //       },
-              //     ),
-              //   ),
-              // ),
-            ],
-          ),
-        ),
-      ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Visibility(
+                      visible: widget.showAppbarAndSearch,
+                      child: _buildSearchBar(context),
+                    ),
+                    SizedBox(height: 20),
+                    Visibility(
+                        visible: widget.isSpot, child: _buildDecoratedTimer()),
+                    Flexible(child: _buildContractsTable()),
+                  ],
+                ),
+              ),
+            ),
     );
   }
 

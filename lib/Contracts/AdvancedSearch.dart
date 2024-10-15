@@ -54,7 +54,9 @@ class _AdvancedSearchModalState extends State<AdvancedSearchModal> {
                 ),
               ),
               SizedBox(height: 20),
-              CommodityDropdown(onCommoditySelected: (commodityid) {
+              CommodityDropdown(
+                isForAppBar: false,
+                onCommoditySelected: (commodityid) {
                 setState(() {
                   commodityId = commodityid;
                 });

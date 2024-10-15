@@ -30,7 +30,9 @@ class _TradeAuthorizationStatusScreenState
             Text(
                 'Complete the form below to verify your identity. This is required to trade on Global Exchange.'),
             SizedBox(height: 20),
-            CommodityDropdown(onCommoditySelected: (selectedComId) {}),
+            CommodityDropdown(
+              isForAppBar: false,
+              onCommoditySelected: (selectedComId) {}),
             SizedBox(height: 10),
             Text("Required Regulatory Document"),
             SizedBox(height: 10),

@@ -94,7 +94,7 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
               filtered: false,
               showAppbarAndSearch: true,
               isWareHouse: false,
-              isSpot: false,
+              isSpot: contract.contractType=="Spot",
               contractType: contract.id,
             ));
       },

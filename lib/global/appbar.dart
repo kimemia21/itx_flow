@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/Commodities.dart/ComDropDown.dart';
 import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
@@ -12,15 +13,25 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      actions: [
+        Container(
+          margin: EdgeInsets.all(10),
+          width: MediaQuery.of(context).size.width*0.3,
+          height: 20,
+          child: CommodityDropdown(
+              onCommoditySelected: (onCommoditySelected) {}, isForAppBar: true),
+        )
+      ],
       backgroundColor: Colors.green[600],
       centerTitle: true,
-      title: Text(title,
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  fontSize: 20,
-                ),
-              ),
+      title: Text(
+        title,
+        style: GoogleFonts.poppins(
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+          fontSize: 20,
+        ),
+      ),
       leading: IconButton(
         onPressed: () {
           _showLogoutConfirmationDialog(context);

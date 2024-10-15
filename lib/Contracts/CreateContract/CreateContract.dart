@@ -4,9 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:itx/Commodities.dart/ComDropDown.dart';
 import 'package:itx/Contracts/CreateContract/Grade.dart';
-import 'package:itx/Contracts/CreateContract/CustomDropDown.dart';
+import 'package:itx/DropDowns.dart/CustomDropDown.dart';
 import 'package:itx/Contracts/CreateContract/PackingDropDown.dart';
-import 'package:itx/Contracts/CreateContract/WareHouseDropDown.dart';
+import 'package:itx/DropDowns.dart/WareHouseDropDown.dart';
 import 'package:itx/Serializers/CommParams.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/state/AppBloc.dart';
@@ -170,6 +170,7 @@ class _CreateContractState extends State<CreateContract>
                     ),
                     SizedBox(height: 10),
                     CommodityDropdown(
+                      isForAppBar: false,
                       onCommoditySelected: (commodity) {
                         setState(() {
                           selectedCommodityId = int.parse(commodity.toString());
