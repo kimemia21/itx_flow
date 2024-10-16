@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,6 +13,7 @@ import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/requests/Requests.dart';
 import 'package:itx/web/CreateContract%20copy/WebCreateContract.dart';
 import 'package:itx/web/contracts/SpecificOrder.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 import 'package:timeago/timeago.dart' as timeago;
@@ -40,28 +44,161 @@ class _WebContractsState extends State<WebContracts> {
 
   late Future<List<ContractsModel>> contracts;
 
+  List<ContractsModel> currentContracts = [];
+  int currentIndex = 0;
+  Timer? _timer;
+  int _secondsRemaining = 6; // 2 minutes
+  bool isLoading = false;
   @override
   void initState() {
     super.initState();
+
     fetchContracts();
+
+    if (!widget.isSpot) {
+      _startTimer();
+    } else {
+      //  _startTimer();
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _timer?.cancel();
+    super.dispose();
   }
 
   Future<void> fetchContracts() async {
-    setState(() {
-      contracts = CommodityService.getContracts(
+    try {
+      final fetchedContracts = await CommodityService.getContracts(
         context: context,
         isWatchList: widget.filtered,
         isWareHouse: widget.isWareHouse,
         contractTypeId: widget.contractType,
         isSpot: widget.isSpot,
       );
+
+      setState(() {
+        isLoading = false;
+        contracts =
+            Future.value(fetchedContracts); // Set the fetched data here.
+
+        if (widget.isSpot) {
+          _updateCurrentContracts();
+        } else {
+          currentContracts = fetchedContracts;
+        }
+      });
+    } catch (error) {
+      setState(() {
+        contracts = Future.error(error);
+      });
+    }
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_secondsRemaining > 0) {
+          _secondsRemaining--;
+          print("Seconds Remaining: $_secondsRemaining");
+        } else {
+          _secondsRemaining = 6;
+          _updateCurrentContracts();
+        }
+      });
     });
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  void _updateCurrentContracts() {
+    print("called");
+
+    contracts.then((allContracts) {
+      if (allContracts.isEmpty) {
+        print("empty");
+        return;
+      }
+      print("contracts length is ${allContracts.length}");
+      setState(() {
+        currentIndex = (currentIndex + 2) % allContracts.length;
+
+        currentContracts = allContracts.sublist(
+          currentIndex,
+          min(currentIndex + 2, allContracts.length),
+        );
+
+        if (currentContracts.length < 2) {
+          print("length is less than 2");
+          currentContracts +=
+              allContracts.sublist(0, 2 - currentContracts.length);
+        }
+      });
+    }).catchError((onError) {
+      print("--------------$onError-------------------");
+    });
+  }
+
+  Widget _buildDecoratedTimer() {
+    final minutes = _secondsRemaining ~/ 60;
+    final seconds = _secondsRemaining % 60;
+    final progress = 1 - (_secondsRemaining / 6);
+
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.green.shade50,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.green.withOpacity(0.1),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Next Update In',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: seconds < 3 ? Colors.red.shade300 : Colors.green.shade600,
+            ),
+          ),
+          SizedBox(height: 8),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                height: 70,
+                width: 70,
+                child: CircularProgressIndicator(
+                  value: progress,
+                  strokeWidth: 8,
+                  backgroundColor:
+                      seconds < 3 ? Colors.white : Colors.green.shade200,
+                  valueColor: AlwaysStoppedAnimation<Color>(seconds < 3
+                      ? Colors.red.shade300
+                      : Colors.green.shade600),
+                ),
+              ),
+              Text(
+                '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildSearchBar(BuildContext context) {
@@ -361,6 +498,10 @@ class _WebContractsState extends State<WebContracts> {
   }
 
   Widget _buildContractsTable() {
+      if (contracts == null) {
+      return LoadingAnimationWidget.staggeredDotsWave(
+          color: Colors.white, size: 30);
+    }
     return FutureBuilder<List<ContractsModel>>(
       future: contracts,
       builder: (context, snapshot) {
@@ -375,7 +516,8 @@ class _WebContractsState extends State<WebContracts> {
                   function: fetchContracts, item: widget.contractName));
         }
 
-        List<ContractsModel> contractsList = snapshot.data!;
+        List<ContractsModel> contractsList =
+            widget.isSpot ? currentContracts : snapshot.data!;
 
         return RefreshIndicator(
           onRefresh: fetchContracts,
@@ -577,7 +719,10 @@ class _WebContractsState extends State<WebContracts> {
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             child: _buildSearchBar(context)),
                       ),
-                      Expanded(child: _buildContractsTable()),
+                      Visibility(
+                          visible: widget.isSpot,
+                          child: _buildDecoratedTimer()),
+                      Flexible(child: _buildContractsTable()),
                     ],
                   ),
                 ),

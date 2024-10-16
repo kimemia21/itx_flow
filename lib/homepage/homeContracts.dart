@@ -66,7 +66,7 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
   Widget _buildContractGrid(List<ContractSummary> contracts) {
     return Container(
       width: MediaQuery.of(context).size.width * 1,
-      height: MediaQuery.of(context).size.height * 0.4,
+      height: MediaQuery.of(context).size.height * 0.45,
       margin: EdgeInsets.only(top: 5),
       child: GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -94,7 +94,9 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
               filtered: false,
               showAppbarAndSearch: true,
               isWareHouse: false,
-              isSpot: contract.contractType=="Spot",
+              isSpot: contract.contractType == "Spot",
+              // true,
+
               contractType: contract.id,
             ));
       },

@@ -50,7 +50,7 @@ class _ContractsState extends State<Contracts> {
   List<ContractsModel> currentContracts = [];
   int currentIndex = 0;
   Timer? _timer;
-  int _secondsRemaining = 120; // 2 minutes
+  int _secondsRemaining = 6; // 2 minutes
   bool isLoading = false;
   @override
   void initState() {
@@ -61,8 +61,7 @@ class _ContractsState extends State<Contracts> {
     if (widget.isSpot) {
       _startTimer();
     } else {
-      print(
-          "-------------------------------is not spot---------------------------------");
+      //  _startTimer();
     }
   }
 
@@ -85,12 +84,12 @@ class _ContractsState extends State<Contracts> {
 
       setState(() {
         isLoading = false;
-        contracts =
-            Future.value(fetchedContracts); // Set the fetched data here.
+        contracts =Future.value(fetchedContracts); 
 
         if (widget.isSpot) {
           _updateCurrentContracts();
-        } else {
+        }
+         else {
           currentContracts = fetchedContracts;
         }
       });
@@ -108,7 +107,7 @@ class _ContractsState extends State<Contracts> {
           _secondsRemaining--;
           print("Seconds Remaining: $_secondsRemaining");
         } else {
-          _secondsRemaining = 120;
+          _secondsRemaining = 6;
           _updateCurrentContracts();
         }
       });
@@ -116,11 +115,14 @@ class _ContractsState extends State<Contracts> {
   }
 
   void _updateCurrentContracts() {
+    print("called");
+
     contracts.then((allContracts) {
       if (allContracts.isEmpty) {
-        return; // If no contracts, do nothing
+        print("empty");
+        return;
       }
-
+      print("contracts length is ${allContracts.length}");
       setState(() {
         currentIndex = (currentIndex + 2) % allContracts.length;
 
@@ -130,6 +132,7 @@ class _ContractsState extends State<Contracts> {
         );
 
         if (currentContracts.length < 2) {
+          print("length is less than 2");
           currentContracts +=
               allContracts.sublist(0, 2 - currentContracts.length);
         }
@@ -142,7 +145,7 @@ class _ContractsState extends State<Contracts> {
   Widget _buildDecoratedTimer() {
     final minutes = _secondsRemaining ~/ 60;
     final seconds = _secondsRemaining % 60;
-    final progress = 1 - (_secondsRemaining / 120);
+    final progress = 1 - (_secondsRemaining / 6);
 
     return Container(
       padding: EdgeInsets.all(16),
@@ -166,7 +169,7 @@ class _ContractsState extends State<Contracts> {
             style: GoogleFonts.poppins(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: seconds < 30 ? Colors.red.shade300 : Colors.green.shade600,
+              color: seconds < 3 ? Colors.red.shade300 : Colors.green.shade600,
             ),
           ),
           SizedBox(height: 8),
@@ -174,14 +177,14 @@ class _ContractsState extends State<Contracts> {
             alignment: Alignment.center,
             children: [
               SizedBox(
-                height: 40,
-                width: 80,
-                child: LinearProgressIndicator(
+                height: 70,
+                width: 70,
+                child: CircularProgressIndicator(
                   value: progress,
-                  // strokeWidth: 8,
+                  strokeWidth: 8,
                   backgroundColor:
-                      seconds < 30 ? Colors.white : Colors.green.shade200,
-                  valueColor: AlwaysStoppedAnimation<Color>(seconds < 30
+                      seconds < 3 ? Colors.white : Colors.green.shade200,
+                  valueColor: AlwaysStoppedAnimation<Color>(seconds < 3
                       ? Colors.red.shade300
                       : Colors.green.shade600),
                 ),
@@ -191,7 +194,7 @@ class _ContractsState extends State<Contracts> {
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Colors.black,
                 ),
               ),
             ],
@@ -202,6 +205,10 @@ class _ContractsState extends State<Contracts> {
   }
 
   Widget _buildContractsTable() {
+    if (contracts == null) {
+      return LoadingAnimationWidget.staggeredDotsWave(
+          color: Colors.white, size: 30);
+    }
     return FutureBuilder<List<ContractsModel>>(
       future: contracts,
       builder: (context, snapshot) {

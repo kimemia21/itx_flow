@@ -34,6 +34,7 @@ class _WebHomepageContractsState extends State<WebHomepageContracts> {
 
   @override
   Widget build(BuildContext context) {
+    
     return FutureBuilder<List<ContractSummary>>(
       future: _contractsFuture,
       builder: (context, snapshot) {
@@ -103,7 +104,7 @@ class _WebHomepageContractsState extends State<WebHomepageContracts> {
               filtered: false,
               showAppbarAndSearch: true,
               isWareHouse: false,
-              isSpot: false,
+              isSpot: contract.contractType=="Spot",
               contractType: contract.id,
               contractName: contract.contractType,
             ));

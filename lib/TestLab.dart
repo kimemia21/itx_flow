@@ -33,7 +33,6 @@ Future<void> fillPdfWithData(String sellerName, String buyerName, String contrac
     // File path to save the PDF
     String filePath = p.join(downloadsFolder.path,'filled_contract.pdf');
     File file = File(filePath);
-
     // Save PDF
     await file.writeAsBytes(document.saveSync());
     document.dispose();

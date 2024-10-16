@@ -1,11 +1,13 @@
 import 'dart:ui';
 
+import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Serializers/OrderModel.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/requests/HomepageRequest.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class WebOrdersScreen extends StatefulWidget {
   const WebOrdersScreen({Key? key}) : super(key: key);
@@ -14,7 +16,8 @@ class WebOrdersScreen extends StatefulWidget {
   State<WebOrdersScreen> createState() => _WebOrdersScreenState();
 }
 
-class _WebOrdersScreenState extends State<WebOrdersScreen> with SingleTickerProviderStateMixin {
+class _WebOrdersScreenState extends State<WebOrdersScreen>
+    with SingleTickerProviderStateMixin {
   Future<List<UserOrders>>? _futureOrders;
   bool _isGridView = false; // State to track layout
 
@@ -26,7 +29,7 @@ class _WebOrdersScreenState extends State<WebOrdersScreen> with SingleTickerProv
   void initState() {
     super.initState();
     _futureOrders = loadOrders();
-        _animationController = AnimationController(
+    _animationController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
@@ -38,145 +41,76 @@ class _WebOrdersScreenState extends State<WebOrdersScreen> with SingleTickerProv
   Future<List<UserOrders>> loadOrders() async {
     return await CommodityService.getOrders(context: context);
   }
-   String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
 
-  Widget deliveryInfo({
-    required UserOrders order,
-    required VoidCallback onTap,
+
+  Widget deliveryInfoTable({
+    required List<UserOrders> orders,
+    required Function(UserOrders) onTap,
   }) {
-    return AnimatedBuilder(
-      animation: _fadeAnimation,
-      builder: (context, child) {
-        return Opacity(
-          opacity: _fadeAnimation.value,
-          child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  spreadRadius: 0,
-                  blurRadius: 15,
-                  offset: Offset(0, 5),
+    return Container(
+      width: MediaQuery.of(context).size.width * 1,
+      height: MediaQuery.of(context).size.height * 1,
+      child: DataTable2(
+        columnSpacing: 10,
+        horizontalMargin: 10,
+        minWidth: 600,
+        columns: [
+          // DataColumn2(label: Text('Name'), size: ColumnSize.L),
+          DataColumn2(label: Text('Company'), size: ColumnSize.M),
+          DataColumn2(label: Text('Grade'), size: ColumnSize.S),
+          DataColumn2(label: Text('Price'), size: ColumnSize.S),
+          DataColumn2(label: Text('Type'), size: ColumnSize.S),
+          DataColumn2(label: Text('Delivery'), size: ColumnSize.M),
+          DataColumn2(label: Text('Status'), size: ColumnSize.S),
+        ],
+        rows: orders.map((order) {
+          return DataRow(
+            cells: [
+              // DataCell(Text(
+              //   order.name,
+              //   style: GoogleFonts.poppins(
+              //     fontSize: 16,
+              //     fontWeight: FontWeight.w600,
+              //     color: Colors.black87,
+              //   ),
+              // )),
+              DataCell(Text(
+                order.contract_user ?? "company name",
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey.shade700,
                 ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.8),
-                    border: Border.all(color: Colors.white.withOpacity(0.2)),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: InkWell(
-                    onTap: onTap,
-                    borderRadius: BorderRadius.circular(20),
-                    onHover: (isHovering) {
-                      setState(() {
-                        _isHovered = isHovering;
-                      });
-                    },
-                    splashColor: Colors.green.withOpacity(0.1),
-                    highlightColor: Colors.greenAccent.withOpacity(0.05),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  order.name,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black87,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              _buildStatusChip(order.orderStatus),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            order.contract_user ?? "company name",
-                            style: GoogleFonts.poppins(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey.shade700,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 16),
-                          _buildInfoRow(
-                              "Grade", order.grade_name ?? "grade name"),
-                          const SizedBox(height: 8),
-                          _buildInfoRow(
-                              "Price", '\$${order.bidPrice.toStringAsFixed(2)}',
-                              isHighlighted: true),
-                          const SizedBox(height: 8),
-                          _buildInfoRow("Order Type", order.orderType),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Icon(Icons.calendar_today_outlined,
-                                  size: 20, color: Colors.black45),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Delivery: ${_formatDate(order.deliveryDate)}',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+              )),
+              DataCell(Text(
+                order.grade_name ?? "grade name",
+                style: GoogleFonts.poppins(fontSize: 14),
+              )),
+              DataCell(Text(
+                '\$${order.bidPrice.toStringAsFixed(2)}',
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.green.shade600,
                 ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value,
-      {bool isHighlighted = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey.shade600,
-          ),
-        ),
-        Text(
-          value,
-          style: GoogleFonts.poppins(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: isHighlighted ? Colors.green.shade600 : Colors.black87,
-          ),
-        ),
-      ],
+              )),
+              DataCell(Text(
+                order.orderType,
+                style: GoogleFonts.poppins(fontSize: 14),
+              )),
+              DataCell(Text(
+                _formatDate(order.deliveryDate),
+                style: GoogleFonts.poppins(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
+              )),
+              DataCell(_buildStatusChip(order.orderStatus)),
+            ],
+            // onTap: () => onTap(order),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -197,16 +131,16 @@ class _WebOrdersScreenState extends State<WebOrdersScreen> with SingleTickerProv
     }
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: chipColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: chipColor.withOpacity(0.5)),
       ),
       child: Text(
         status,
         style: GoogleFonts.poppins(
-          fontSize: 14,
+          fontSize: 12,
           fontWeight: FontWeight.w600,
           color: chipColor,
         ),
@@ -214,62 +148,59 @@ class _WebOrdersScreenState extends State<WebOrdersScreen> with SingleTickerProv
     );
   }
 
- Widget buildOrderList(List<UserOrders> orders) {
-  return LayoutBuilder(
-    builder: (context, constraints) {
-      if (_isGridView) {
-        // Calculate the number of columns based on screen width
-        int crossAxisCount = constraints.maxWidth ~/ 300; // Assume each card is roughly 300 wide
-        crossAxisCount = crossAxisCount.clamp(1, 4); // Limit to between 1 and 4 columns
+  String _formatDate(DateTime date) {
+    return timeago.format(date, allowFromNow: true);
+  }
 
-        return GridView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: 0.75,
-          ),
-          itemCount: orders.length,
-          itemBuilder: (context, index) {
-            final order = orders[index];
-            return deliveryInfo(
-              order: order,
-              onTap: () {
-                // Action on tap
-              },
-            );
-          },
-        );
-      } else {
-        return ListView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
-          itemCount: orders.length,
-          itemBuilder: (context, index) {
-            final order = orders[index];
-            return deliveryInfo(
-              order: order,
-              onTap: () {
-                // Action on tap
-              },
-            );
-          },
-        );
-      }
-    },
-  );
-}
+  Widget buildOrderList(List<UserOrders> orders) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (_isGridView) {
+          // Calculate the number of columns based on screen width
+          int crossAxisCount = constraints.maxWidth ~/
+              300; // Assume each card is roughly 300 wide
+          crossAxisCount =
+              crossAxisCount.clamp(1, 4); // Limit to between 1 and 4 columns
+
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 0.75,
+            ),
+            itemCount: orders.length,
+            itemBuilder: (context, index) {
+              final order = orders[index];
+              return deliveryInfoTable(orders: orders, onTap: (order){});
+            },
+          );
+        } else {
+          return ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            itemCount: orders.length,
+            itemBuilder: (context, index) {
+              final order = orders[index];
+              return  deliveryInfoTable(orders: orders, onTap: (order) {});
+          
+            },
+          );
+        }
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
         elevation: 0,
         backgroundColor: Colors.green,
         title: Text(

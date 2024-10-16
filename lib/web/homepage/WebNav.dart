@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/Commodities.dart/ComDropDown.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:itx/web/SpotPage/WebSpot.dart';
 import 'package:itx/web/contracts/Contract.dart';
@@ -93,6 +94,12 @@ class _WebNavState extends State<WebNav> {
                     fontWeight: FontWeight.bold,
                     color: Colors.white),
               ),
+
+              Container(
+                width: MediaQuery.of(context).size.width*0.3,
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadiusDirectional.circular(20)),
+                child: CommodityDropdown(onCommoditySelected: (onCommoditySelected){}, isForAppBar: true),),
               if (isDesktop)
                 Row(
                   mainAxisSize: MainAxisSize.min,

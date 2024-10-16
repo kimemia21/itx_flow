@@ -62,8 +62,8 @@ class _MainLoginScreenState extends State<MainLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    _emailController.text = "meshak1@gmail.com";
-    _passwordController.text = "1234567";
+    // _emailController.text = "meshak1@gmail.com";
+    // _passwordController.text = "1234567";
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
 

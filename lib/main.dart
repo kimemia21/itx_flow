@@ -35,16 +35,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TestLab();
+    return 
+    // TestLab();
 
-    // MultiProvider(
-    //   providers: [
-    //     ChangeNotifierProvider(create: (context) => CurrentUserProvider()),
-    //     ChangeNotifierProvider(create: (context) => appBloc()),
-    //     ChangeNotifierProvider(create: (context) => Webbloc())
-    //   ],
-    //   child: MaterialApp(home: GetPlatform()),
-    // );
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => CurrentUserProvider()),
+        ChangeNotifierProvider(create: (context) => appBloc()),
+        ChangeNotifierProvider(create: (context) => Webbloc())
+      ],
+      child: MaterialApp(home: GetPlatform()),
+    );
   }
 }
 
