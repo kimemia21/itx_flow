@@ -2,6 +2,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Commodities.dart/ComRequest.dart';
+import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:provider/provider.dart';
 
@@ -81,6 +82,8 @@ class _CommodityDropdownState extends State<CommodityDropdown> {
             context.read<appBloc>().changeCommodityName(value!.commodityName);
 
             context.read<appBloc>().changeItemGradeId(value!.commodityId);
+            context.read<appBloc>().changeCommoditySummary(
+                CommodityService.ContractsSummary(context: context,commodityId: value.commodityId));
 
             widget.onCommoditySelected(value.commodityId);
             print(value.commodityName);

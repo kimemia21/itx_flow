@@ -4,7 +4,9 @@ import 'package:itx/Contracts/Contracts.dart';
 import 'package:itx/Serializers/ContractSummary.dart';
 import 'package:itx/Commodities.dart/ComRequest.dart';
 import 'package:itx/requests/HomepageRequest.dart';
+import 'package:itx/state/AppBloc.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
 
 class HomepageContractsWidget extends StatefulWidget {
   final int displayCount;
@@ -20,22 +22,24 @@ class HomepageContractsWidget extends StatefulWidget {
 }
 
 class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
-  late Future<List<ContractSummary>> _contractsFuture;
+  // late Future<List<ContractSummary>> _contractsFuture;
 
   @override
   void initState() {
     super.initState();
-    _contractsFuture = fetchContracts();
+     fetchContracts();
   }
 
-  Future<List<ContractSummary>> fetchContracts() async {
-    return CommodityService.ContractsSummary(context: context);
+ fetchContracts() async {
+    context.read<appBloc>().changeCommoditySummary(
+        CommodityService.ContractsSummary(context: context));
+   
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<ContractSummary>>(
-      future: _contractsFuture,
+      future: context.watch<appBloc>().commoditySummary,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());

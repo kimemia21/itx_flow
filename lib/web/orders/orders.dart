@@ -56,8 +56,9 @@ class _WebOrdersScreenState extends State<WebOrdersScreen>
         minWidth: 600,
         columns: [
           // DataColumn2(label: Text('Name'), size: ColumnSize.L),
-          DataColumn2(label: Text('Company'), size: ColumnSize.M),
+          DataColumn2(label: Text('Company'), size: ColumnSize.S),
           DataColumn2(label: Text('Grade'), size: ColumnSize.S),
+          DataColumn2(label: Text("Contract"), size: ColumnSize.S),
           DataColumn2(label: Text('Price'), size: ColumnSize.S),
           DataColumn2(label: Text('Type'), size: ColumnSize.S),
           DataColumn2(label: Text('Delivery'), size: ColumnSize.M),
@@ -84,6 +85,10 @@ class _WebOrdersScreenState extends State<WebOrdersScreen>
               )),
               DataCell(Text(
                 order.grade_name ?? "grade name",
+                style: GoogleFonts.poppins(fontSize: 14),
+              )),
+                 DataCell(Text(
+                order.orderType ?? "grade name",
                 style: GoogleFonts.poppins(fontSize: 14),
               )),
               DataCell(Text(

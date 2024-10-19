@@ -584,7 +584,7 @@ class CommodityService {
       {required BuildContext context, dynamic commodityId}) async {
     try {
       final Uri uri = commodityId != null
-          ? Uri.parse("$mainUri/contracts/summary?commodity=1$commodityId")
+          ? Uri.parse("$mainUri/contracts/summary?commodity=$commodityId")
           : Uri.parse("$mainUri/contracts/summary");
 
       final Map<String, String> headers = {
