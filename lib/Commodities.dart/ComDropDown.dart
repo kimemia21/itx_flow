@@ -24,7 +24,7 @@ class CommodityDropdown extends StatefulWidget {
 
 class _CommodityDropdownState extends State<CommodityDropdown> {
   String? _selectedCommodity;
-  List<model> _commodities = []; 
+  List<model> _commodities = [];
   bool _isLoading = true;
 
   @override
@@ -61,7 +61,6 @@ class _CommodityDropdownState extends State<CommodityDropdown> {
         hint: Text(
           'Select commodity',
           style: GoogleFonts.poppins(
-            
             fontSize: 14,
             color: Theme.of(context).hintColor,
           ),
@@ -77,19 +76,18 @@ class _CommodityDropdownState extends State<CommodityDropdown> {
                   ),
                 ))
             .toList(),
-         onChanged: (value) {
-        try {
-          setState(() {
-            _selectedCommodity = value!.commodityName.toString();
-          });
-          context.read<appBloc>().changeItemGradeId(value!.commodityId);
+        onChanged: (value) {
+          try {
+            context.read<appBloc>().changeCommodityName(value!.commodityName);
 
-          widget.onCommoditySelected(value.commodityId);
-          print(value);
-        } catch (e) {
-          print("Got this error in commDropDown $e");
-        }
-      },
+            context.read<appBloc>().changeItemGradeId(value!.commodityId);
+
+            widget.onCommoditySelected(value.commodityId);
+            print(value.commodityName);
+          } catch (e) {
+            print("Got this error in commDropDown $e");
+          }
+        },
         buttonStyleData: const ButtonStyleData(
           padding: EdgeInsets.symmetric(horizontal: 16),
           height: 40,

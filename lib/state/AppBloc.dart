@@ -1,33 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:itx/Serializers/CommCert.dart';
-import 'package:itx/Serializers/CommoditesCerts.dart';
+import 'package:itx/Serializers/ContractSummary.dart';
 import 'package:itx/fromWakulima/widgets/contant.dart';
 import 'package:itx/global/globals.dart';
-import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/io_client.dart';
-
-import 'package:flutter/foundation.dart';
 
 class appBloc extends ChangeNotifier {
   int _currentIndex = 1;
   bool _navIsVisible = true;
   bool _isLoading = false;
-  String _token = " eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzI5MDYwMTE3LCJleHAiOjE3MjkwNzgxMTd9.0MmOsnzv20R_MTE7s08BFc3b2OKFsXxNrKSjvEqvnA0";
+  String _token =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzI5MzE1NTgzLCJleHAiOjE3MjkzMzM1ODN9.CUmW9DCpB-qTZuhQiuSiKQrAY-6Uvs7tQAanXYSTR5A";
   int _user_type = 0;
   Map<int, dynamic> _watchList = {};
   String _userEmail = "";
+  String? _commodityName;
   List _userCommoditesCerts = [];
   List<int> _userCommoditesIds = [];
   Map<String, dynamic> userDetails = {};
   List<CommoditiesCert> commcert = [];
   String isAuthorized = "yes";
   String _platform = "";
-  int _commId=0;
+  int _commId = 0;
+  Future<List<ContractSummary>>? commoditySummary;
 
   int get currentIndex => _currentIndex;
   bool get navIsVisible => _navIsVisible;
@@ -47,6 +45,7 @@ class appBloc extends ChangeNotifier {
   int get user_id => _user_id;
   String get platform => _platform;
   int get commId => _commId;
+  String? get commodityName => _commodityName;
 
   void changeCurrentIndex({required int index}) {
     _currentIndex = index;
@@ -142,6 +141,16 @@ class appBloc extends ChangeNotifier {
 
   void changeItemGradeId(int commId) {
     _commId = commId;
+    notifyListeners();
+  }
+
+  void changeCommodityName(String commodity) {
+    _commodityName = commodity;
+    notifyListeners();
+  }
+
+  void changeCommoditySummary(Future<List<ContractSummary>> summary) {
+    commoditySummary = summary;
     notifyListeners();
   }
 }

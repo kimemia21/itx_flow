@@ -33,7 +33,7 @@ class _WebNavState extends State<WebNav> {
           isSpot: false,
           filtered: true,
           showAppbarAndSearch: true,
-          contractName:"All" ,
+          contractName: "All",
           isWareHouse: context.watch<appBloc>().user_type == 6),
       WebSpottrader(),
       WebOrdersScreen()
@@ -87,19 +87,36 @@ class _WebNavState extends State<WebNav> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'iTea-X',
-                style: GoogleFonts.abel(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'iTea-X',
+                    style: GoogleFonts.abel(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
+                  ),
+                  Container(
+                    child: Text(
+                        style: GoogleFonts.poppins(
+                            color: Colors.white, fontWeight: FontWeight.w300),
+                        context.watch<appBloc>().commodityName != null
+                            ? context.watch<appBloc>().commodityName!
+                            : "Please Select Commodity"),
+                  ),
+                ],
               ),
-
               Container(
-                width: MediaQuery.of(context).size.width*0.3,
+                width: MediaQuery.of(context).size.width * 0.3,
                 padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadiusDirectional.circular(20)),
-                child: CommodityDropdown(onCommoditySelected: (onCommoditySelected){}, isForAppBar: true),),
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadiusDirectional.circular(20)),
+                child: CommodityDropdown(
+                    onCommoditySelected: (onCommoditySelected) {},
+                    isForAppBar: true),
+              ),
               if (isDesktop)
                 Row(
                   mainAxisSize: MainAxisSize.min,

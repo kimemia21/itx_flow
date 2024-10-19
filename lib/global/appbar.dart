@@ -14,26 +14,45 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       actions: [
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadiusDirectional.circular(5),
-            color: Colors.white),
-          margin: EdgeInsets.all(10),
-          // width: MediaQuery.of(context).size.width*0.3,
-          height: 20,
-          child: CommodityDropdown(
-              onCommoditySelected: (onCommoditySelected) {}, isForAppBar: true),
+        Row(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadiusDirectional.circular(5),
+                  color: Colors.white),
+              margin: EdgeInsets.all(10),
+              // width: MediaQuery.of(context).size.width*0.3,
+              height: 20,
+              child: CommodityDropdown(
+                  onCommoditySelected: (onCommoditySelected) {},
+                  isForAppBar: true),
+            ),
+          ],
         )
       ],
       backgroundColor: Colors.green[600],
       centerTitle: true,
-      title: Text(
-        title,
-        style: GoogleFonts.poppins(
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-          fontSize: 20,
-        ),
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
+          ),
+          Container(
+            child: Text(
+                style: GoogleFonts.poppins(
+                    color: Colors.white, fontWeight: FontWeight.w300),
+                context.watch<appBloc>().commodityName != null
+                    ? context.watch<appBloc>().commodityName!
+                    : ""),
+          ),
+        ],
       ),
       leading: IconButton(
         onPressed: () {

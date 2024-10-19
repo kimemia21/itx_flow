@@ -1,22 +1,9 @@
-// ignore_for_file: prefer_const_constructors
-
-// import 'package:widgets/CurrentUserProvider.dart';
-// import 'package:widgets/authentication/ForgotPassword.dart';
-// import 'package:widgets/authentication/Signup.dart';
-// import 'package:widgets/firebase_functions/firebase_fun.dart';
-
 import 'dart:async';
-import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/authentication/SignUp.dart';
 import 'package:itx/authentication/SplashScreen.dart';
-import 'package:itx/fromWakulima/FirebaseFunctions/FirebaseFunctions.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/globals.dart';
 import 'package:itx/requests/Requests.dart';
@@ -24,9 +11,6 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:auth_buttons/auth_buttons.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-
-// import 'package:or/or.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class MainLoginScreen extends StatefulWidget {
   const MainLoginScreen({super.key});
@@ -49,7 +33,7 @@ class _MainLoginScreenState extends State<MainLoginScreen> {
   bool visibility = true;
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
-
+  
   final Connectivity _connectivity = Connectivity();
 
   @override
@@ -62,8 +46,8 @@ class _MainLoginScreenState extends State<MainLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // _emailController.text = "meshak1@gmail.com";
-    // _passwordController.text = "1234567";
+    _emailController.text = "meshak1@gmail.com";
+    _passwordController.text = "1234567";
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
 

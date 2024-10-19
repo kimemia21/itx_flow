@@ -581,9 +581,11 @@ class CommodityService {
   }
 
   static Future<List<ContractSummary>> ContractsSummary(
-      {required BuildContext context}) async {
+      {required BuildContext context, dynamic commodityId}) async {
     try {
-      final Uri uri = Uri.parse("$mainUri/contracts/summary");
+      final Uri uri = commodityId != null
+          ? Uri.parse("$mainUri/contracts/summary?commodity=1$commodityId")
+          : Uri.parse("$mainUri/contracts/summary");
 
       final Map<String, String> headers = {
         "Content-Type": "application/json",
