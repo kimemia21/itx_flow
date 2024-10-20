@@ -441,18 +441,20 @@ static Future<void> otp({
 
         print("checkwarehouse-------------------${Bloc.user_type}--------------");
 
-        if (Bloc.user_id == 6) {
+        if (Bloc.user_type == 6) {
           print("User is warehouse (user_id: 6)");
-          _navigateToScreen(context, isRegistered, true);
+          _navigateToScreen(context, isRegistered,Bloc.user_type == 6);
         } else {
           print("User is not warehouse (user_id: ${Bloc.user_id})");
+
           _navigateToScreen(context, isRegistered, false);
         }
       } else {
         print("Response not successful, navigating to default screens");
         _navigateToScreen(context, isRegistered, false);
       }
-    } else {
+    }
+     else {
       Globals.warningsAlerts(
         title: "Authentication Error",
         content: response.body,

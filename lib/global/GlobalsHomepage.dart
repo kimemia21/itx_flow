@@ -106,7 +106,7 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
         ? Contracts(
            contractName:"WareHouse",
             isSpot: false,
-            filtered: true,
+            filtered: false,
             showAppbarAndSearch: true,
             isWareHouse: context.watch<appBloc>().user_type == 6,
           )

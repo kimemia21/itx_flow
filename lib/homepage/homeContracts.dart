@@ -7,6 +7,7 @@ import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class HomepageContractsWidget extends StatefulWidget {
   final int displayCount;
@@ -31,6 +32,21 @@ class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
   }
 
  fetchContracts() async {
+var headers = {
+  'x-auth-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiV0VCIiwiaWF0IjoxNzI5MzE2ODc1LCJleHAiOjE3MjkzMzQ4NzV9.1ELWL_Jm5HXQpKVb-933rg3igdVAsRY7xVqsq9NXfZI'
+};
+var request = http.Request('GET', Uri.parse('http://185.141.63.56:3067/api/v1/contracts/list?warehouse_id=48'));
+request.body = '''''';
+request.headers.addAll(headers);
+
+http.StreamedResponse response = await request.send();
+
+if (response.statusCode == 200) {
+  print(await response.stream.bytesToString());
+}
+else {
+  print(response.reasonPhrase);
+}
     context.read<appBloc>().changeCommoditySummary(
         CommodityService.ContractsSummary(context: context));
    

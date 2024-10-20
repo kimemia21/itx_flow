@@ -66,7 +66,7 @@ class _MainLoginScreenState extends State<MainLoginScreen> {
           decoration: BoxDecoration(
             color: Colors.grey.shade300,
             borderRadius: BorderRadius.circular(20),
-          ),
+          ),  
           child: IconButton(
             onPressed: () {
               Globals.switchScreens(context: context, screen: Splashscreen());
