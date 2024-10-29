@@ -46,7 +46,7 @@ class Contracts extends StatefulWidget {
 class _ContractsState extends State<Contracts> {
   final TextEditingController _searchController = TextEditingController();
 
-  late Future<List<ContractsModel>> contracts;
+  Future<List<ContractsModel>>? contracts; // Changed to nullable Future
   List<ContractsModel> currentContracts = [];
   int currentIndex = 0;
   Timer? _timer;
@@ -84,12 +84,11 @@ class _ContractsState extends State<Contracts> {
 
       setState(() {
         isLoading = false;
-        contracts =Future.value(fetchedContracts); 
+        contracts = Future.value(fetchedContracts);
 
         if (widget.isSpot) {
           _updateCurrentContracts();
-        }
-         else {
+        } else {
           currentContracts = fetchedContracts;
         }
       });
@@ -117,7 +116,7 @@ class _ContractsState extends State<Contracts> {
   void _updateCurrentContracts() {
     print("called");
 
-    contracts.then((allContracts) {
+    contracts?.then((allContracts) {
       if (allContracts.isEmpty) {
         print("empty");
         return;
@@ -449,7 +448,7 @@ class _ContractsState extends State<Contracts> {
             child: Expanded(
               flex: 3,
               child: ElevatedButton(
-                onPressed: () {
+   onPressed: () {
                   showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,

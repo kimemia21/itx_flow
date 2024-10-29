@@ -23,63 +23,59 @@ class HomepageContractsWidget extends StatefulWidget {
 }
 
 class _HomepageContractsWidgetState extends State<HomepageContractsWidget> {
-  // late Future<List<ContractSummary>> _contractsFuture;
+  late Future<List<ContractSummary>> _contractsFuture;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-     fetchContracts();
+    fetchContracts();
   }
 
- fetchContracts() async {
-var headers = {
-  'x-auth-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiV0VCIiwiaWF0IjoxNzI5MzE2ODc1LCJleHAiOjE3MjkzMzQ4NzV9.1ELWL_Jm5HXQpKVb-933rg3igdVAsRY7xVqsq9NXfZI'
-};
-var request = http.Request('GET', Uri.parse('http://185.141.63.56:3067/api/v1/contracts/list?warehouse_id=48'));
-request.body = '''''';
-request.headers.addAll(headers);
-
-http.StreamedResponse response = await request.send();
-
-if (response.statusCode == 200) {
-  print(await response.stream.bytesToString());
-}
-else {
-  print(response.reasonPhrase);
-}
-    context.read<appBloc>().changeCommoditySummary(
-        CommodityService.ContractsSummary(context: context));
-   
+  Future fetchContracts() async {
+    _contractsFuture = CommodityService.ContractsSummary(context: context);
+    setState(() {
+      isLoading = false;
+    });
   }
+
+  
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<ContractSummary>>(
-      future: context.watch<appBloc>().commoditySummary,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('No contracts available'));
-        } else {
-          return Container(
-            margin: EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Available Trades",
-                  style: GoogleFonts.poppins(
-                      fontWeight: FontWeight.bold, color: Colors.grey.shade600),
-                ),
-                _buildContractGrid(snapshot.data!),
-              ],
+    return RefreshIndicator(
+      onRefresh: () => fetchContracts(),
+      child: isLoading
+          ? Center(
+            child: CircularProgressIndicator())
+          : FutureBuilder<List<ContractSummary>>(
+              future: context.watch<appBloc>().commoditySummary,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('No contracts available'));
+                } else {
+                  return Container(
+                    margin: EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Available Trades",
+                          style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey.shade600),
+                        ),
+                        _buildContractGrid(snapshot.data!),
+                      ],
+                    ),
+                  );
+                }
+              },
             ),
-          );
-        }
-      },
     );
   }
 

@@ -26,6 +26,10 @@ class _MainSignupState extends State<MainSignup>
   final TextEditingController _confirmPasswordController =
       TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _LocationController = TextEditingController();
+  final TextEditingController _capacityController = TextEditingController();
+  final TextEditingController _rateController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
@@ -70,7 +74,7 @@ class _MainSignupState extends State<MainSignup>
         roleType.clear();
 
         for (var userType in _userTypes) {
-           print(userType); 
+          print(userType);
           roleType.add(userType.name);
         }
         print("--------------- $roleType ---------------");
@@ -91,17 +95,34 @@ class _MainSignupState extends State<MainSignup>
       } else if (_selectedUserType == null) {
         _showErrorToast('Role Error', 'Please select a user role');
       } else {
-        final Map<String, dynamic> body = {
+        final Map<String, dynamic> userBody = {
           "email": _emailController.text,
           "password": _passwordController.text.trim(),
           "phonenumber": _phoneNumberController.text.trim(),
           "user_type": int.parse(_selectedUserType!),
         };
 
-        context.read<appBloc>().changeUserDetails(body);
+// name, location, capacity, rate 
+// POST /user/warehouse
+
+        final warehouseBody = {
+        "email": _emailController.text,
+          "password": _passwordController.text.trim(),
+          "phonenumber": _phoneNumberController.text.trim(),
+          "user_type": int.parse(_selectedUserType!),
+           "name": _nameController.text,
+          "location": _LocationController.text.trim(),
+          "capacity": _capacityController.text.trim(),
+          "rate":_rateController.text.trim(),
+         
+
+
+        };
+
+        context.read<appBloc>().changeUserDetails(_selectedUserType=="6"?warehouseBody:userBody);
 
         AuthRequest.register(
-          body: body,
+          body:_selectedUserType=="6"?warehouseBody:userBody,
           context: context,
           isOnOtp: false,
         );
@@ -187,10 +208,10 @@ class _MainSignupState extends State<MainSignup>
                   borderSide: BorderSide.none,
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
-                  borderSide:BorderSide.none
-                  //  BorderSide(color: Colors.grey.shade600, width: 1),
-                ),
+                    borderRadius: BorderRadius.circular(15),
+                    borderSide: BorderSide.none
+                    //  BorderSide(color: Colors.grey.shade600, width: 1),
+                    ),
                 filled: true,
                 fillColor: Colors.white,
               ),
@@ -201,6 +222,7 @@ class _MainSignupState extends State<MainSignup>
       },
     );
   }
+
   Widget _buildRadioButton({required String text, required String value}) {
     return AnimatedBuilder(
       animation: _fadeAnimation,
@@ -208,7 +230,7 @@ class _MainSignupState extends State<MainSignup>
         return Opacity(
           opacity: _fadeAnimation.value,
           child: Container(
-            margin: EdgeInsets.only(bottom: 15),
+            margin: EdgeInsets.only(bottom: 5),
             decoration: BoxDecoration(
               color: _selectedUserType == value
                   ? Colors.green.shade50
@@ -234,10 +256,13 @@ class _MainSignupState extends State<MainSignup>
                   )),
               value: value,
               groupValue: _selectedUserType,
-              onChanged: (String? value) =>
-                  setState(() => _selectedUserType = value),
+              onChanged: (String? value) {
+                print(value);
+                setState(() => _selectedUserType = value);
+              },
               activeColor: Colors.green.shade700,
-              contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15)),
               tileColor:
@@ -248,13 +273,77 @@ class _MainSignupState extends State<MainSignup>
       },
     );
   }
+
+  Widget buildWareHouseFields() {
+    return Column(
+      children: [
+        _buildTextField(
+          controller: _nameController,
+          label: "WareHouse Name",
+          icon: Icons.email_outlined,
+          keyboardType: TextInputType.name,
+          validator: (value) {
+            if (value == null || value.isEmpty)
+              return "wareHouse name  is required";
+            // if (!RegExp(
+            //         r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+            //     .hasMatch(value)) return "Enter a valid email";
+            // return null;
+          },
+        ),
+        _buildTextField(
+          controller: _LocationController,
+          label: "WareHouse Location",
+          icon: Icons.email_outlined,
+          keyboardType: TextInputType.name,
+          validator: (value) {
+            if (value == null || value.isEmpty)
+              return "wareHouse location is required";
+            // if (!RegExp(
+            //         r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+            //     .hasMatch(value)) return "Enter a valid email";
+            // return null;
+          },
+        ),
+        _buildTextField(
+          controller: _capacityController,
+          label: "storage capacity interms of kg",
+          icon: Icons.email_outlined,
+          keyboardType: TextInputType.number,
+          validator: (value) {
+            if (value == null || value.isEmpty)
+              return "wareHouse storage capacity is required";
+            // if (!RegExp(
+            //         r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+            //     .hasMatch(value)) return "Enter a valid email";
+            // return null;
+          },
+        ),
+        _buildTextField(
+          controller: _rateController,
+          label: "Storage rate for kilo per day in kshs",
+          icon: Icons.email_outlined,
+          keyboardType: TextInputType.number,
+          validator: (value) {
+            if (value == null || value.isEmpty)
+              return "WareHouse Storage rate is required";
+            // if (!RegExp(
+            //         r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+            //     .hasMatch(value)) return "Enter a valid email";
+            // return null;
+          },
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // _emailController.text = "mimeki5@ofionk.com";
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      appBar:AppBar(
+      appBar: AppBar(
         backgroundColor: Colors.green,
         elevation: 0,
         centerTitle: true,
@@ -278,7 +367,7 @@ class _MainSignupState extends State<MainSignup>
               context: context, screen: MainLoginScreen()),
         ),
       ),
-         body: SafeArea(
+      body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.all(25),
           child: AnimationLimiter(
@@ -297,8 +386,7 @@ class _MainSignupState extends State<MainSignup>
                       "Join as a ${roleType.join(", ")}",
                       style: GoogleFonts.poppins(
                         fontSize: 22,
-              
-                      color:  Colors.black,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+                        color: Colors.black,
                       ),
                     ),
                     SizedBox(height: 10),
@@ -309,7 +397,35 @@ class _MainSignupState extends State<MainSignup>
                         color: Colors.grey[600],
                       ),
                     ),
-                    SizedBox(height: 40),
+                    SizedBox(height: 15),
+                    Text(
+                      "Select your role",
+                      style: GoogleFonts.poppins(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.green.shade800,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    _isLoading
+                        ? Center(
+                            child: LoadingAnimationWidget.staggeredDotsWave(
+                              color: Colors.green.shade700,
+                              size: 50,
+                            ),
+                          )
+                        : Column(
+                            children: _userTypes.map((userType) {
+                              return _buildRadioButton(
+                                text: userType.name.toUpperCase(),
+                                value: userType.id.toString(),
+                              );
+                            }).toList(),
+                          ),
+                    SizedBox(height: 20),
+                    Visibility(
+                        visible: _selectedUserType == "6",
+                        child: buildWareHouseFields()),
                     _buildTextField(
                       controller: _emailController,
                       label: "Email",
@@ -363,31 +479,6 @@ class _MainSignupState extends State<MainSignup>
                         return null;
                       },
                     ),
-                    SizedBox(height: 30),
-                    Text(
-                      "Select your role",
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.green.shade800,
-                      ),
-                    ),
-                    SizedBox(height: 15),
-                    _isLoading
-                        ? Center(
-                            child: LoadingAnimationWidget.staggeredDotsWave(
-                              color: Colors.green.shade700,
-                              size: 50,
-                            ),
-                          )
-                        : Column(
-                            children: _userTypes.map((userType) {
-                              return _buildRadioButton(
-                                text: userType.name.toUpperCase(),
-                                value: userType.id.toString(),
-                              );
-                            }).toList(),
-                          ),
                     SizedBox(height: 40),
                     SizedBox(
                       width: double.infinity,

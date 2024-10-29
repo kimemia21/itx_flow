@@ -24,8 +24,8 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 class CommodityService {
-  static String mainUri = "http://185.141.63.56:3067/api/v1";
-
+  static String mainUri = "http://192.168.100.56:3000/api/v1";
+//  grace http://192.168.100.56:3000/api/v1
   // "http://192.168.100.8:3000/api/v1";
   // "http://185.141.63.56:3067/api/v1";
 
@@ -91,21 +91,22 @@ class CommodityService {
     print(isWatchList);
     final int userId = Provider.of<appBloc>(context, listen: false).user_id;
     print("isWarehouse $isWareHouse");
-    final Uri uri = 
+    final Uri uri =
 
-
-    // Uri.parse("$mainUri/contracts/list?warehouse_id=$userId");
-    contractTypeId != null
-        ? Uri.parse("$mainUri/contracts/list?contract_type_id=$contractTypeId")
-        : isSpot
-            ? Uri.parse("$mainUri/contracts/list?contract_type_id=5")
-            : isWatchList
-                ? Uri.parse("$mainUri/contracts/list?this_user_liked=1")
-                : isWareHouse
-                    ? Uri.parse("$mainUri/contracts/list?warehouse_id=$userId")
-                    : name != null
-                        ? Uri.parse("$mainUri/contracts/list?search=$name")
-                        : Uri.parse("$mainUri/contracts/list?");
+        // Uri.parse("$mainUri/contracts/list?warehouse_id=$userId");
+        contractTypeId != null
+            ? Uri.parse(
+                "$mainUri/contracts/list?contract_type_id=$contractTypeId")
+            : isSpot
+                ? Uri.parse("$mainUri/contracts/list?contract_type_id=5")
+                : isWatchList
+                    ? Uri.parse("$mainUri/contracts/list?this_user_liked=1")
+                    : isWareHouse
+                        ? Uri.parse(
+                            "$mainUri/contracts/list?warehouse_id=$userId")
+                        : name != null
+                            ? Uri.parse("$mainUri/contracts/list?search=$name")
+                            : Uri.parse("$mainUri/contracts/list?");
 
     print("this is the uri that we are using $uri");
     final Map<String, String> headers = {
@@ -176,31 +177,42 @@ class CommodityService {
   }
 
   static Future PostContracts(BuildContext context) async {
-    final Uri uri = Uri.parse("$mainUri/user/interests");
-    final Map<String, String> headers = {
-      "Content-Type": "application/json",
-      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
-    };
-    final Map<String, String> body = {
-      "commodities": Provider.of<appBloc>(context, listen: false)
-          .userCommoditiesIds
-          .join(","),
-    };
+    try {
+      final Uri uri = Uri.parse("$mainUri/user/interests");
+      final Map<String, String> headers = {
+        "Content-Type": "application/json",
+        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      };
+      final Map<String, String> body = {
+        "commodities": Provider.of<appBloc>(context, listen: false)
+            .userCommoditiesIds
+            .join(","),
+      };
 
-    final http.Response response =
-        await http.post(uri, headers: headers, body: body);
+      print("------------------this is the body ${jsonEncode(body)}");
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseData = json.decode(response.body);
+      final http.Response response =
+          await http.post(uri, headers: headers, body: jsonEncode(body));
 
-      if (responseData['rsp'] == true) {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => GlobalsHomePage()));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+
+        if (responseData['rsp'] == true) {
+          print("Success");
+          // Navigator.push(context,
+          //     MaterialPageRoute(builder: (context) => GlobalsHomePage()));
+        } else {
+          throw Exception('Failed to submit Docs: ${responseData['msg']}');
+        }
       } else {
-        throw Exception('Failed to submit  Docs: ${responseData['msg']}');
+        throw Exception('Failed to fetch commodities');
       }
-    } else {
-      throw Exception('Failed to fetch commodities');
+    } catch (error) {
+      print("Error occurred: $error");
+      // Optionally show an error message to the user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred: $error")),
+      );
     }
   }
 
@@ -574,6 +586,7 @@ class CommodityService {
 
       if (response.statusCode == 200 && body["rsp"]) {
         List<dynamic> data = body["data"];
+        print("warehouse-- $data");
         return data.map((json) => WarehouseNames.fromJson(json)).toList();
       } else {
         throw Exception("Failed to load warehouse data");
@@ -603,6 +616,7 @@ class CommodityService {
 
         if (responseData['rsp'] == true) {
           print(responseData["data"]);
+
           List<dynamic> ContractsJson = responseData['data'];
           print("---------------$ContractsJson-------------------");
           List<ContractSummary> _contractType =

@@ -202,13 +202,29 @@ class _CreateContractState extends State<CreateContract>
                       }),
                       SizedBox(height: 16),
                       buildTextField(
+                        controller: quantityController,
+                        title: 'Quantity',
+                        icon: Icons.production_quantity_limits,
+                        isTextField: false,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a quantity';
+                          }
+                          if (double.tryParse(value) == null) {
+                            return 'Please enter a valid number';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 16),
+                      buildTextField(
                         controller: priceController,
-                        title: 'Enter Price',
+                        title: 'Enter Price Per Unit',
                         icon: Icons.attach_money,
                         isTextField: false,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter a price';
+                            return 'Please enter a  price';
                           }
                           if (double.tryParse(value) == null) {
                             return 'Please enter a valid number';
@@ -219,7 +235,7 @@ class _CreateContractState extends State<CreateContract>
                       SizedBox(height: 16),
                       buildTextField(
                         controller: descriptionController,
-                        title: 'Description',
+                        title: 'Description (Additional info)',
                         icon: Icons.description,
                         maxLines: 4,
                         isTextField: true,
@@ -421,22 +437,22 @@ class _CreateContractState extends State<CreateContract>
             selectedDate: selectedDate,
             onDateSelected: (date) => setState(() => selectedDate = date),
           ),
-          SizedBox(height: 16),
-          buildTextField(
-            controller: quantityController,
-            title: 'Quantity',
-            icon: Icons.production_quantity_limits,
-            isTextField: false,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter a quantity';
-              }
-              if (double.tryParse(value) == null) {
-                return 'Please enter a valid number';
-              }
-              return null;
-            },
-          ),
+          // SizedBox(height: 16),
+          // buildTextField(
+          //   controller: quantityController,
+          //   title: 'Quantity',
+          //   icon: Icons.production_quantity_limits,
+          //   isTextField: false,
+          //   validator: (value) {
+          //     if (value == null || value.isEmpty) {
+          //       return 'Please enter a quantity';
+          //     }
+          //     if (double.tryParse(value) == null) {
+          //       return 'Please enter a valid number';
+          //     }
+          //     return null;
+          //   },
+          // ),
           // MetricDropDown(
           //   onSelectMetric: (metric) {
           //     setState(() {

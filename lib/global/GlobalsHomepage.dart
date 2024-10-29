@@ -9,6 +9,7 @@ import 'package:itx/global/WatchList.dart';
 import 'package:itx/homepage/UserHomepage.dart';
 import 'package:itx/myOrders.dart/MyOrders.dart';
 import 'package:itx/requests/HomepageRequest.dart';
+import 'package:itx/rss/RSSFEED.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
@@ -63,7 +64,8 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
 //
 
       Spottrader(),
-      UserOrdersScreen()
+      UserOrdersScreen(),
+      RSSFeedView()
     ];
   }
 
@@ -98,13 +100,19 @@ class _GlobalsHomePageState extends State<GlobalsHomePage> {
           activeColorPrimary: Colors.indigo,
           inactiveColorPrimary: Colors.grey,
         ),
+          PersistentBottomNavBarItem(
+          icon: const Icon(Icons.library_books),
+          title: "News",
+          activeColorPrimary: Colors.red,
+          inactiveColorPrimary: Colors.grey,
+        ),
       ];
 
   @override
   Widget build(BuildContext context) {
     return context.watch<appBloc>().user_type == 6
         ? Contracts(
-           contractName:"WareHouse",
+            contractName: "WareHouse",
             isSpot: false,
             filtered: false,
             showAppbarAndSearch: true,

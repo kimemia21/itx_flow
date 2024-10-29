@@ -48,7 +48,7 @@ class _PackingDropdownState extends State<PackingDropdown> {
   Widget _buildCommodityTypeDropdown(List<Packing> packings) {
     return DropdownButtonFormField<String>(
       decoration: InputDecoration(
-        labelText: 'Packing Type',
+        labelText: 'Unit of Measure',
         border: OutlineInputBorder(),
         filled: true,
         fillColor: Colors.grey.shade100,

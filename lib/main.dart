@@ -1,11 +1,11 @@
 import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:itx/Serializers/CommCert.dart';
 import 'package:itx/TestLab.dart';
 import 'package:itx/authentication/LoginScreen.dart';
+import 'package:itx/authentication/SignUp.dart';
+import 'package:itx/rss/RSSFEED.dart';
 import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:itx/authentication/SplashScreen.dart';
 import 'package:itx/firebase_options.dart';
@@ -13,22 +13,17 @@ import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 
-import 'package:itx/web/authentication/ComOfInterest.dart';
-import 'package:itx/web/authentication/OtpVerification.dart';
-import 'package:itx/web/authentication/WebLogin.dart';
-import 'package:itx/web/authentication/WebSplash.dart';
-import 'package:itx/web/homepage/WebHomepage.dart';
 import 'package:itx/web/homepage/WebNav.dart';
 import 'package:itx/web/state/Webbloc.dart';
-import 'package:itx/web/uplaodDocs.dart/WebRegulators.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(const MyApp());
-  
+  // runApp(TestLab());
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -36,10 +31,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return 
-    // TestLab();
+    return
+        // TestLab();
 
-    MultiProvider(
+        MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => CurrentUserProvider()),
         ChangeNotifierProvider(create: (context) => appBloc()),
@@ -78,7 +73,10 @@ class _GetPlatformState extends State<GetPlatform> {
     // Android or iOS platform
     else if (Platform.isAndroid || Platform.isIOS) {
       setBloc.changePlatform("android");
-      return Splashscreen();
+      return
+          // MainSignup();
+
+          Splashscreen();
       //  appbloc.token == "" ? Splashscreen() : GlobalsHomePage();
 
       // Regulators() : Regulators();

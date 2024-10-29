@@ -117,8 +117,66 @@ class _WarehouseSearchDropdownState extends State<WarehouseSearchDropdown> {
       },
       listItemBuilder: (context, item, isSelected, onItemSelect) {
         return ListTile(
-          title: Text(item.username,
-              style: GoogleFonts.poppins(color: Colors.black)),
+          contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+          selectedTileColor: Colors.green.withOpacity(0.1),
+          selectedColor: Colors.green,
+          tileColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            side: BorderSide(
+                color: isSelected ? Colors.green : Colors.grey.shade300),
+          ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                item.name, // name of the warehouse
+                style: GoogleFonts.poppins(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(Icons.location_on, size: 16, color: Colors.grey),
+                  SizedBox(width: 4),
+                  Text(
+                    item.location,
+                    style:
+                        GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
+                  ),
+                ],
+              ),
+              SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(Icons.storage, size: 16, color: Colors.grey),
+                  SizedBox(width: 4),
+                  Text(
+                    'Capacity: ${item.capacity} kg',
+                    style:
+                        GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
+                  ),
+                ],
+              ),
+              SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(Icons.attach_money, size: 16, color: Colors.grey),
+                  SizedBox(width: 4),
+                  Text(
+                    'Rate: ${item.rate} per kg/day',
+                    style:
+                        GoogleFonts.poppins(color: Colors.grey, fontSize: 14),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          trailing:
+              isSelected ? Icon(Icons.check_circle, color: Colors.green) : null,
           selected: isSelected,
           onTap: onItemSelect,
         );

@@ -13,6 +13,7 @@ import 'package:itx/Contracts/Contracts.dart';
 import 'package:itx/Serializers/CommCert.dart';
 import 'package:itx/Serializers/CommoditesCerts.dart';
 import 'package:itx/Serializers/UserTypes.dart';
+import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/warehouse/WareHouseHomepage.dart';
 import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:itx/authentication/Verification.dart';
@@ -28,12 +29,16 @@ import 'package:itx/web/homepage/WebHomepage.dart';
 import 'package:itx/web/homepage/WebNav.dart';
 import 'package:itx/web/orders/orders.dart';
 import 'package:itx/web/uplaodDocs.dart/WebRegulators.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
+import 'package:path/path.dart' as p;
+import 'package:permission_handler/permission_handler.dart';
+
 class AuthRequest {
   // Base URL for the API
-  static const main_url = "http://185.141.63.56:3067/api/v1";
+  static const main_url = "http://192.168.100.56:3000/api/v1";
 // grace  // "http://192.168.100.56:3000/api/v1"
   // "http://192.168.100.8:3000/api/v1"
   // "http://185.141.63.56:3067/api/v1";
@@ -143,94 +148,89 @@ class AuthRequest {
     );
   }
 
-  static Future<List<CommoditiesCert>> UserCommodities({
-    required BuildContext context,
-    required List<int> commodities,
-    required bool isWarehouse,
-    required bool isWeb,
-  }) async {
-    final appBloc bloc = context.read<appBloc>();
+ static Future<List<CommoditiesCert>> UserCommodities({
+  required BuildContext context,
+  required List<int> commodities,
+  required bool isWarehouse,
+  required bool isWeb,
+}) async {
+  final appBloc bloc = context.read<appBloc>();
+  List<CommoditiesCert> mapper = [];
+  
+  bloc.changeIsLoading(true); // Start loading state at the beginning
 
-    List<CommoditiesCert> mapper = [];
-    bloc.changeIsLoading(true);
-    // Start loading state at the beginning
-
+  try {
+    // Attempt to post contracts, and if an error occurs, handle it and return early
     try {
-      int user_type = Provider.of<appBloc>(context, listen: false).user_type;
-      print("user_type --------------------------$user_type");
-      // Prepare the request body
-      final Map<String, dynamic> body = {
-        "commodities": commodities.join(","),
-        "user_type_id": user_type
-      };
-
-      bloc.changeUserCommoditesIds(commodities);
-
-      final Uri url = Uri.parse("$main_url/commodities/certs");
-      print(Provider.of<appBloc>(context, listen: false).token);
-      // Send POST request to the API
-
-      // editted token for testing
-      final http.Response response = await http.post(
-        url,
-        body: jsonEncode(body),
-        headers: {
-          "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
-          // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDgsImFwaSI6IldFQiIsImlhdCI6MTcyODM5MjE5NSwiZXhwIjoxNzI4NDEwMTk1fQ.yc2gtU2no7fGDgbe3u87oTcN_v_4xBKtcWlHbO8Fw-M",
-          //  Provider.of<appBloc>(context, listen: false).token,
-          'Content-Type': 'application/json',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        // Parse the response body
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
-
-        if (responseBody["rsp"] == true) {
-          print("Success: ${responseBody["data"]}");
-          final List<dynamic> body = responseBody["data"];
-
-          mapper =
-              body.map((element) => CommoditiesCert.fromJson(element)).toList();
-// getting the commodity response and saving it to state when this enpoint is called
-
-          bloc.changeCommCert(mapper);
-
-          bloc.getUserType(user_type);
-          bloc.changeUserCommoditesCert(responseBody["data"]);
-          print(" this is user bloc ${bloc.UserCommoditesCerts}");
-          bloc.changeIsLoading(false);
-
-          Globals.switchScreens(
-              context: context,
-              screen: isWeb
-                  ? Webregulators(commCerts: mapper, isWareHouse: isWarehouse)
-                  : Regulators(commCerts: mapper, isWareHouse: isWarehouse));
-        } else {
-          // Handle specific failure
-          _handleError(
-              context, "commodities select Error", responseBody["message"]);
-        }
-      } else {
-        // Handle other HTTP status codes
-        bloc.changeIsLoading(false);
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
-        String errorMessage =
-            responseBody["message"] ?? "An unknown error occurred";
-
-        _handleError(context, "Commodites of interest", errorMessage);
-      }
+      await CommodityService.PostContracts(context);
     } catch (e) {
-      // Handle exceptions during the request or response parsing
-      print("Error during commodites of interest : $e");
-      _handleError(context, "Commodites  Error", "$e");
-    } finally {
-      // Ensure that loading is stopped regardless of success or failure
-      bloc.changeIsLoading(false);
+      _handleError(context, "Contract Posting Error", "Failed to post contracts: $e");
+      bloc.changeIsLoading(false); // Ensure loading is stopped
+      return []; // Early return if there's an error in posting contracts
     }
 
-    return mapper;
+    int user_type = Provider.of<appBloc>(context, listen: false).user_type;
+    print("user_type --------------------------$user_type");
+
+    // Prepare the request body
+    final Map<String, dynamic> body = {
+      "commodities": commodities.join(","),
+      "user_type_id": user_type,
+    };
+
+    bloc.changeUserCommoditesIds(commodities);
+
+    final Uri url = Uri.parse("$main_url/commodities/certs");
+    print(Provider.of<appBloc>(context, listen: false).token);
+
+    // Send POST request to the API
+    final http.Response response = await http.post(
+      url,
+      body: jsonEncode(body),
+      headers: {
+        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+      if (responseBody["rsp"] == true) {
+        print("Success: ${responseBody["data"]}");
+        final List<dynamic> body = responseBody["data"];
+
+        mapper = body.map((element) => CommoditiesCert.fromJson(element)).toList();
+        bloc.changeCommCert(mapper);
+        bloc.getUserType(user_type);
+        bloc.changeUserCommoditesCert(responseBody["data"]);
+        print(" this is user bloc ${bloc.UserCommoditesCerts}");
+        bloc.changeIsLoading(false);
+
+        Globals.switchScreens(
+          context: context,
+          screen: isWeb
+              ? Webregulators(commCerts: mapper, isWareHouse: isWarehouse)
+              : Regulators(commCerts: mapper, isWareHouse: isWarehouse),
+        );
+      } else {
+        _handleError(context, "commodities select Error", responseBody["message"]);
+      }
+    } else {
+      bloc.changeIsLoading(false);
+      final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      String errorMessage = responseBody["message"] ?? "An unknown error occurred";
+      _handleError(context, "Commodites of interest", errorMessage);
+    }
+  } catch (e) {
+    print("Error during commodites of interest : $e");
+    _handleError(context, "Commodites Error", "$e");
+  } finally {
+    bloc.changeIsLoading(false); // Ensure loading stops regardless of success or failure
   }
+
+  return mapper;
+}
 
   static void _handleError(BuildContext context, String title, String content) {
     Globals.warningsAlerts(
@@ -405,94 +405,96 @@ class AuthRequest {
     }
   }
 
-static Future<void> otp({
-  required BuildContext context,
-  required String email,
-  required String otp,
-  required bool isRegistered,
-  required bool isWeb,
-}) async {
-  final Bloc = Provider.of<appBloc>(context, listen: false);
+  static Future<void> otp({
+    required BuildContext context,
+    required String email,
+    required String otp,
+    required bool isRegistered,
+    required bool isWeb,
+  }) async {
+    final Bloc = Provider.of<appBloc>(context, listen: false);
 
-  final Uri url = Uri.parse("$main_url/user/otpc");
-  final Map<String, dynamic> body = {
-    "email": email,
-    "otp": otp,
-  };
+    final Uri url = Uri.parse("$main_url/user/otpc");
+    final Map<String, dynamic> body = {
+      "email": email,
+      "otp": otp,
+    };
 
-  try {
-    Bloc.changeIsLoading(true);
+    try {
+      Bloc.changeIsLoading(true);
 
-    final http.Response response = await http.post(
-      url,
-      body: jsonEncode(body),
-      headers: {'Content-Type': 'application/json'},
-    );
+      final http.Response response = await http.post(
+        url,
+        body: jsonEncode(body),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    if (response.statusCode == 200) {
-      print("${response.body} success");
-      final Map responseBody = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        print("${response.body} success");
+        final Map responseBody = jsonDecode(response.body);
 
-      if (responseBody["rsp"]) {
-        final String token = responseBody["token"];
-        Bloc.changeToken(token);
+        if (responseBody["rsp"]) {
+          final String token = responseBody["token"];
+          Bloc.changeToken(token);
 
-        await Future.delayed(Duration(seconds: 3));
+          await Future.delayed(Duration(seconds: 3));
 
-        print("checkwarehouse-------------------${Bloc.user_type}--------------");
+          print(
+              "checkwarehouse-------------------${Bloc.user_type}--------------");
 
-        if (Bloc.user_type == 6) {
-          print("User is warehouse (user_id: 6)");
-          _navigateToScreen(context, isRegistered,Bloc.user_type == 6);
+          if (Bloc.user_type == 6) {
+            print("User is warehouse (user_id: 6)");
+            _navigateToScreen(context, isRegistered, Bloc.user_type == 6);
+          } else {
+            print("User is not warehouse (user_id: ${Bloc.user_id})");
+
+            _navigateToScreen(context, isRegistered, false);
+          }
         } else {
-          print("User is not warehouse (user_id: ${Bloc.user_id})");
-
+          print("Response not successful, navigating to default screens");
           _navigateToScreen(context, isRegistered, false);
         }
       } else {
-        print("Response not successful, navigating to default screens");
-        _navigateToScreen(context, isRegistered, false);
+        Globals.warningsAlerts(
+          title: "Authentication Error",
+          content: response.body,
+          context: context,
+        );
+        print("${response.body} failed ");
       }
+    } catch (e) {
+      print("Error during OTP verification: $e");
+    } finally {
+      Bloc.changeIsLoading(false);
     }
-     else {
-      Globals.warningsAlerts(
-        title: "Authentication Error",
-        content: response.body,
-        context: context,
-      );
-      print("${response.body} failed ");
-    }
-  } catch (e) {
-    print("Error during OTP verification: $e");
-  } finally {
-    Bloc.changeIsLoading(false);
   }
-}
 
-static void _navigateToScreen(BuildContext context, bool isRegistered, bool isWarehouse) {
-  if (!Platform.isAndroid) {
-    print("IS NOT ANDROID");
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (context) => isRegistered
-          ? (isWarehouse 
-              ? WebContracts(
-                  filtered: false,
-                  showAppbarAndSearch: true,
-                  isWareHouse: true,
-                  isSpot: false,
-                  contractName: "warehouse")
-              : WebNav())
-          : WebCommoditiesOfInterest(isWareHouse: isWarehouse),
-    ));
-  } else {
-    print("IS ANDROID");
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (context) => isRegistered
-          ? GlobalsHomePage()
-          : Commodities(isWareHouse: isWarehouse),
-    ));
+  static void _navigateToScreen(
+      BuildContext context, bool isRegistered, bool isWarehouse) {
+    if (!Platform.isAndroid) {
+      print("IS NOT ANDROID");
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => isRegistered
+            ? (isWarehouse
+                ? WebContracts(
+                    filtered: false,
+                    showAppbarAndSearch: true,
+                    isWareHouse: true,
+                    isSpot: false,
+                    contractName: "warehouse")
+                : WebNav())
+            : WebCommoditiesOfInterest(isWareHouse: isWarehouse),
+      ));
+    } else {
+      print("IS ANDROID");
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => isRegistered
+            ? GlobalsHomePage()
+            : Commodities(isWareHouse: isWarehouse),
+      ));
+    }
   }
-}
+
   // Login request
   static Future<void> login(
       {required BuildContext context,
@@ -742,6 +744,105 @@ static void _navigateToScreen(BuildContext context, bool isRegistered, bool isWa
           "An unexpected error occurred during registration. Please try again later.");
     } finally {
       bloc.changeIsLoading(false);
+    }
+  }
+
+  static Future<void> sendPdfToServer(String assetPath) async {
+    try {
+      // Step 1: Load the PDF from assets
+      final ByteData data = await rootBundle.load(assetPath);
+      final Uint8List pdfBytes = data.buffer.asUint8List();
+
+      // Step 2: Save the PDF to a temporary directory
+      Directory tempDir = await getTemporaryDirectory();
+      String tempFilePath = p.join(tempDir.path, 'ContractTemplate.pdf');
+      File tempFile = File(tempFilePath);
+      await tempFile.writeAsBytes(pdfBytes);
+
+      print('PDF saved temporarily at: $tempFilePath');
+
+      // Step 3: Prepare the replacements data
+      final Map<String, String> replacements = {
+        '[Name of Seller]': 'John Doe',
+        '[Name of Buyer]': 'Jane Smith',
+        '[Contract Date]': '2023-12-01'
+      };
+
+      // Step 4: Create and send multipart request
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('http://127.0.0.1:8002/replace_text'),
+      );
+
+      // Add the PDF file
+      request.files.add(
+        await http.MultipartFile.fromPath('pdf', tempFilePath),
+      );
+
+      // Add the replacements as a form field
+      request.fields['replacements'] = jsonEncode(replacements);
+
+      // Step 5: Send the request and get response
+      try {
+        var response = await request.send();
+        var responseBody = await http.Response.fromStream(response);
+
+        if (response.statusCode == 200) {
+          // Step 6: Save the edited PDF
+          await _saveEditedPdf(responseBody.bodyBytes);
+        } else {
+          print('Server Error: ${response.statusCode}');
+          print('Error Details: ${responseBody.body}');
+          throw Exception('Failed to process PDF: ${responseBody.body}');
+        }
+      } catch (e) {
+        print('Network Error: $e');
+        throw Exception('Network error occurred: $e');
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+      rethrow;
+    }
+  }
+
+  static Future<void> _saveEditedPdf(List<int> pdfBytes) async {
+    try {
+      // Request storage permission
+      await requestStoragePermission();
+
+      // Get the downloads directory
+      Directory? downloadsDirectory = await getExternalStorageDirectory();
+      if (downloadsDirectory == null) {
+        throw Exception('Could not access downloads directory');
+      }
+
+      // Create the file path
+      String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+      String editedPdfPath = p.join(
+        downloadsDirectory.path,
+        'FilledContract_$timestamp.pdf',
+      );
+
+      // Save the file
+      File editedPdfFile = File(editedPdfPath);
+      await editedPdfFile.writeAsBytes(pdfBytes);
+
+      print('Edited PDF saved at: $editedPdfPath');
+    } catch (e) {
+      print('Error saving PDF: $e');
+      throw Exception('Failed to save edited PDF: $e');
+    }
+  }
+
+  static Future<void> requestStoragePermission() async {
+    // Implement your permission request logic here
+    // For example, using permission_handler package:
+
+    if (Platform.isAndroid) {
+      var status = await Permission.storage.status;
+      if (!status.isGranted) {
+        await Permission.storage.request();
+      }
     }
   }
 }

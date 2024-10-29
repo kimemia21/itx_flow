@@ -78,8 +78,7 @@ class _AuthorizationStatusState extends State<AuthorizationStatus> {
 
   @override
   Widget build(BuildContext context) {
-    final authStatus =
-        Provider.of<appBloc>(context, listen: false).isAuthorized;
+    final authStatus =Provider.of<appBloc>(context, listen: false).isAuthorized;
     final bool isWareHouse = context.watch<appBloc>().user_id == 6;
 
     return Scaffold(
