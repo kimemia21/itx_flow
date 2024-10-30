@@ -196,7 +196,7 @@ class _SplashscreenState extends State<Splashscreen>
                     )),
               ),
               SizedBox(
-                height: 20,
+                height: 5,
               ),
               // Container(
               //   height: 50,

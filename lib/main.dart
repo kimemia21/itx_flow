@@ -12,6 +12,7 @@ import 'package:itx/firebase_options.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/requests/HomepageRequest.dart';
+import 'package:itx/web/authentication/WebLogin.dart';
 
 import 'package:itx/web/homepage/WebNav.dart';
 import 'package:itx/web/state/Webbloc.dart';
@@ -61,7 +62,9 @@ class _GetPlatformState extends State<GetPlatform> {
     if (kIsWeb) {
       setBloc.changePlatform("web");
       //  List<CommoditiesCert> ITEMS = [];
-      return WebNav();
+      return Weblogin();
+
+      // WebNav();
 
       // Webregulators(commCerts: ITEMS, isWareHouse: false);
       // WebVerification(

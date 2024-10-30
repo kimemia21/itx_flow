@@ -90,10 +90,10 @@ class _MainSignupState extends State<MainSignup>
   void _handleSignup() {
     if (_formKey.currentState!.validate()) {
       if (_passwordController.text != _confirmPasswordController.text) {
-        _showErrorToast('Password Error',
-            'Make sure the password and confirm password match');
+        Globals.showErrorToast('Password Error',
+            'Make sure the password and confirm password match', context);
       } else if (_selectedUserType == null) {
-        _showErrorToast('Role Error', 'Please select a user role');
+        Globals.showErrorToast('Role Error', 'Please select a user role',context);
       } else {
         final Map<String, dynamic> userBody = {
           "email": _emailController.text,
@@ -122,6 +122,7 @@ class _MainSignupState extends State<MainSignup>
         context.read<appBloc>().changeUserDetails(_selectedUserType=="6"?warehouseBody:userBody);
 
         AuthRequest.register(
+          isWeb: false,
           body:_selectedUserType=="6"?warehouseBody:userBody,
           context: context,
           isOnOtp: false,
@@ -130,15 +131,7 @@ class _MainSignupState extends State<MainSignup>
     }
   }
 
-  void _showErrorToast(String title, String message) {
-    CherryToast.warning(
-      title:
-          Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
-      description: Text(message, style: GoogleFonts.abel()),
-      animationDuration: Duration(milliseconds: 200),
-      animationCurve: Curves.easeInOut,
-    ).show(context);
-  }
+ 
 
   Widget _buildTextField({
     required TextEditingController controller,
@@ -423,7 +416,7 @@ class _MainSignupState extends State<MainSignup>
                             }).toList(),
                           ),
                     SizedBox(height: 20),
-                    Visibility(
+                Visibility(
                         visible: _selectedUserType == "6",
                         child: buildWareHouseFields()),
                     _buildTextField(

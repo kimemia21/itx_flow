@@ -24,7 +24,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 FirebaseAuth _auth = _auth;
 User? user;
 String _getErrorMessage(String errorCode) {
-  return Globals.authErrors[errorCode] ?? "an  undefined error happened";
+  return "an  undefined error happened";
 }
 
 var alertStyle = AlertStyle(

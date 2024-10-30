@@ -89,7 +89,7 @@ class _DocsverificationState extends State<Docsverification>
   Future<void> SaveDoc({required BuildContext context}) async {
     String? authUserEmail = Globals.auth.currentUser?.email;
     if (_fileBytes != null && _fileExtention != null && _fileName != null) {
-      final mimeType = Globals().getMimeType(_fileExtention);
+      final mimeType =" Globals().getMimeType(_fileExtention)";
       final metaData = SettableMetadata(contentType: mimeType);
       context.read<CurrentUserProvider>().changeIsLoading();
       try {

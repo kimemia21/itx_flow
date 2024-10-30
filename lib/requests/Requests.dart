@@ -47,7 +47,8 @@ class AuthRequest {
   static Future<void> register(
       {required BuildContext context,
       required Map<String, dynamic> body,
-      required bool isOnOtp}) async {
+      required bool isOnOtp,
+      required bool isWeb}) async {
     final appBloc bloc = Provider.of<appBloc>(context, listen: false);
     print(body);
 
@@ -77,7 +78,8 @@ class AuthRequest {
           int type = userTypeMap[responseBody["user_type"]] ?? 6;
           int user_id = responseBody["user_id"];
 
-          print("this is the userId----------------------$user_id---------------");
+          print(
+              "this is the userId----------------------$user_id---------------");
           bloc.getUserType(type);
           bloc.changeCurrentUserID(id: user_id);
 
@@ -94,15 +96,26 @@ class AuthRequest {
               : Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => Verification(
-                      isRegistered: false,
-                      context: context,
-                      email: body["email"],
-                      phoneNumber: body["phonenumber"],
-                      isWareHouse: Provider.of<appBloc>(context, listen: false)
-                              .user_type ==
-                          6,
-                    ),
+                    builder: (context) => isWeb
+                        ? WebVerification(
+                            context: context,
+                            email: body["email"],
+                            isRegistered: false,
+                            isWareHouse:
+                                Provider.of<appBloc>(context, listen: false)
+                                        .user_type ==
+                                    6,
+                          )
+                        : Verification(
+                            isRegistered: false,
+                            context: context,
+                            email: body["email"],
+                            phoneNumber: body["phonenumber"],
+                            isWareHouse:
+                                Provider.of<appBloc>(context, listen: false)
+                                        .user_type ==
+                                    6,
+                          ),
                   ),
                 );
         } else {
