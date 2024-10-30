@@ -115,7 +115,6 @@ class appBloc extends ChangeNotifier {
 
   void changeCurrentUserID({required int id}) {
     _user_id = id;
-
     notifyListeners();
   }
 

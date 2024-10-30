@@ -38,7 +38,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 class AuthRequest {
   // Base URL for the API
-  static const main_url = "http://192.168.100.56:3000/api/v1";
+  static const main_url = "http://185.141.63.56:3067/api/v1";
 // grace  // "http://192.168.100.56:3000/api/v1"
   // "http://192.168.100.8:3000/api/v1"
   // "http://185.141.63.56:3067/api/v1";
@@ -75,7 +75,11 @@ class AuthRequest {
             "warehouse": 6,
           };
           int type = userTypeMap[responseBody["user_type"]] ?? 6;
+          int user_id = responseBody["user_id"];
+
+          print("this is the userId----------------------$user_id---------------");
           bloc.getUserType(type);
+          bloc.changeCurrentUserID(id: user_id);
 
           print(
               "userType ----- ${Provider.of<appBloc>(context, listen: false).user_type}");
@@ -148,89 +152,94 @@ class AuthRequest {
     );
   }
 
- static Future<List<CommoditiesCert>> UserCommodities({
-  required BuildContext context,
-  required List<int> commodities,
-  required bool isWarehouse,
-  required bool isWeb,
-}) async {
-  final appBloc bloc = context.read<appBloc>();
-  List<CommoditiesCert> mapper = [];
-  
-  bloc.changeIsLoading(true); // Start loading state at the beginning
+  static Future<List<CommoditiesCert>> UserCommodities({
+    required BuildContext context,
+    required List<int> commodities,
+    required bool isWarehouse,
+    required bool isWeb,
+  }) async {
+    final appBloc bloc = context.read<appBloc>();
+    List<CommoditiesCert> mapper = [];
 
-  try {
-    // Attempt to post contracts, and if an error occurs, handle it and return early
+    bloc.changeIsLoading(true); // Start loading state at the beginning
+
     try {
-      await CommodityService.PostContracts(context);
-    } catch (e) {
-      _handleError(context, "Contract Posting Error", "Failed to post contracts: $e");
-      bloc.changeIsLoading(false); // Ensure loading is stopped
-      return []; // Early return if there's an error in posting contracts
-    }
-
-    int user_type = Provider.of<appBloc>(context, listen: false).user_type;
-    print("user_type --------------------------$user_type");
-
-    // Prepare the request body
-    final Map<String, dynamic> body = {
-      "commodities": commodities.join(","),
-      "user_type_id": user_type,
-    };
-
-    bloc.changeUserCommoditesIds(commodities);
-
-    final Uri url = Uri.parse("$main_url/commodities/certs");
-    print(Provider.of<appBloc>(context, listen: false).token);
-
-    // Send POST request to the API
-    final http.Response response = await http.post(
-      url,
-      body: jsonEncode(body),
-      headers: {
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
-        'Content-Type': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseBody = jsonDecode(response.body);
-
-      if (responseBody["rsp"] == true) {
-        print("Success: ${responseBody["data"]}");
-        final List<dynamic> body = responseBody["data"];
-
-        mapper = body.map((element) => CommoditiesCert.fromJson(element)).toList();
-        bloc.changeCommCert(mapper);
-        bloc.getUserType(user_type);
-        bloc.changeUserCommoditesCert(responseBody["data"]);
-        print(" this is user bloc ${bloc.UserCommoditesCerts}");
-        bloc.changeIsLoading(false);
-
-        Globals.switchScreens(
-          context: context,
-          screen: isWeb
-              ? Webregulators(commCerts: mapper, isWareHouse: isWarehouse)
-              : Regulators(commCerts: mapper, isWareHouse: isWarehouse),
-        );
-      } else {
-        _handleError(context, "commodities select Error", responseBody["message"]);
+      // Attempt to post contracts, and if an error occurs, handle it and return early
+      try {
+        await CommodityService.PostContracts(context);
+      } catch (e) {
+        _handleError(
+            context, "Contract Posting Error", "Failed to post contracts: $e");
+        bloc.changeIsLoading(false); // Ensure loading is stopped
+        return []; // Early return if there's an error in posting contracts
       }
-    } else {
-      bloc.changeIsLoading(false);
-      final Map<String, dynamic> responseBody = jsonDecode(response.body);
-      String errorMessage = responseBody["message"] ?? "An unknown error occurred";
-      _handleError(context, "Commodites of interest", errorMessage);
-    }
-  } catch (e) {
-    print("Error during commodites of interest : $e");
-    _handleError(context, "Commodites Error", "$e");
-  } finally {
-    bloc.changeIsLoading(false); // Ensure loading stops regardless of success or failure
-  }
 
-  return mapper;
-}
+      int user_type = Provider.of<appBloc>(context, listen: false).user_type;
+      print("user_type --------------------------$user_type");
+
+      // Prepare the request body
+      final Map<String, dynamic> body = {
+        "commodities": commodities.join(","),
+        "user_type_id": user_type,
+      };
+
+      bloc.changeUserCommoditesIds(commodities);
+
+      final Uri url = Uri.parse("$main_url/commodities/certs");
+      print(Provider.of<appBloc>(context, listen: false).token);
+
+      // Send POST request to the API
+      final http.Response response = await http.post(
+        url,
+        body: jsonEncode(body),
+        headers: {
+          "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+        if (responseBody["rsp"] == true) {
+          print("Success: ${responseBody["data"]}");
+          final List<dynamic> body = responseBody["data"];
+
+          mapper =
+              body.map((element) => CommoditiesCert.fromJson(element)).toList();
+          bloc.changeCommCert(mapper);
+          bloc.getUserType(user_type);
+          bloc.changeUserCommoditesCert(responseBody["data"]);
+          print(" this is user bloc ${bloc.UserCommoditesCerts}");
+          bloc.changeIsLoading(false);
+
+          Globals.switchScreens(
+            context: context,
+            screen: isWeb
+                ? Webregulators(commCerts: mapper, isWareHouse: isWarehouse)
+                : Regulators(commCerts: mapper, isWareHouse: isWarehouse),
+          );
+        } else {
+          _handleError(
+              context, "commodities select Error", responseBody["message"]);
+        }
+      } else {
+        bloc.changeIsLoading(false);
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        String errorMessage =
+            responseBody["message"] ?? "An unknown error occurred";
+        _handleError(context, "Commodites of interest", errorMessage);
+      }
+    } catch (e) {
+      print("Error during commodites of interest : $e");
+      _handleError(context, "Commodites Error", "$e");
+    } finally {
+      bloc.changeIsLoading(
+          false); // Ensure loading stops regardless of success or failure
+    }
+
+    return mapper;
+  }
 
   static void _handleError(BuildContext context, String title, String content) {
     Globals.warningsAlerts(

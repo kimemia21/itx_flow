@@ -24,7 +24,7 @@ import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 class CommodityService {
-  static String mainUri = "http://192.168.100.56:3000/api/v1";
+  static String mainUri = "http://185.141.63.56:3067/api/v1";
 //  grace http://192.168.100.56:3000/api/v1
   // "http://192.168.100.8:3000/api/v1";
   // "http://185.141.63.56:3067/api/v1";
@@ -42,12 +42,7 @@ class CommodityService {
       final Map<String, String> headers = {
         "Content-Type": "application/json",
         "x-auth-token": Provider.of<appBloc>(context, listen: false).token
-        // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiV0VCIiwiaWF0IjoxNzI4NTY0MDYyLCJleHAiOjE3Mjg1ODIwNjJ9.CUp49hlWZr8TUpuEL8eRgnRxmi1B7emgaiBcXTfYcLc",
-        //     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzI4Mzc4MTQzLCJleHAiOjE3MjgzOTYxNDN9.sUKTtbgaszFXjrsq6wwMtr3fisI9M0vz6bAl5r5Ho90",
-
-        // // Provider.of<appBloc>(context, listen: false).token,
-        // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiQVBQIiwiaWF0IjoxNzI3MjUxMjAyLCJleHAiOjE3MjcyNjkyMDJ9.knE5b5EPyY_dwVbo9CgmkOIz_TwROiLnpR86E_rzTfs",
-        // Provider.of<appBloc>(context, listen: false).token,
+ 
       };
 
       final response = await http.get(uri, headers: headers);

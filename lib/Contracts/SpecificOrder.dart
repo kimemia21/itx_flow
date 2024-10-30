@@ -99,6 +99,7 @@ class _SpecificorderState extends State<Specificorder> {
 
   @override
   Widget build(BuildContext context) {
+    int bloc = Provider.of<appBloc>(context, listen: false).user_type;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -135,169 +136,182 @@ class _SpecificorderState extends State<Specificorder> {
   }
 
   Widget buildHeader() {
-  double priceChange = calculatePriceChange();
-  double percentageChange = calculatePercentageChange();
-  bool isPositive = priceChange >= 0;
+    double priceChange = calculatePriceChange();
+    double percentageChange = calculatePercentageChange();
+    bool isPositive = priceChange >= 0;
 
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      // Contract Name
-   Text("${widget.contract.name}",
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w600, // Bold for emphasis
-              color: Colors.black54, // Strong color for focus
-              shadows: [
-                Shadow(
-                  offset: Offset(0, 2), // Subtle shadow
-                  blurRadius: 6.0,
-                  color: Colors.grey.shade300, // Light shadow for depth
-                ),
-              ],
-            ),
-          ).animate().fadeIn(duration: 500.ms).scale(curve: Curves.easeOutBack),
-      
-      const SizedBox(height: 8),
-
-      // Grade Name
-   Text(widget.contract.grade_name,
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w600, // Bold for emphasis
-              color: Colors.black54, // Strong color for focus
-              shadows: [
-                Shadow(
-                  offset: Offset(0, 2), // Subtle shadow
-                  blurRadius: 6.0,
-                  color: Colors.grey.shade300, // Light shadow for depth
-                ),
-              ],
-            ),
-          ).animate().fadeIn(duration: 500.ms).scale(curve: Curves.easeOutBack),
-      
-      // Contract Description
-      const SizedBox(height: 8),
-       Text(widget.contract.description,
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w600, // Bold for emphasis
-              color: Colors.black54, // Strong color for focus
-              shadows: [
-                Shadow(
-                  offset: Offset(0, 2), // Subtle shadow
-                  blurRadius: 6.0,
-                  color: Colors.grey.shade300, // Light shadow for depth
-                ),
-              ],
-            ),
-          ).animate().fadeIn(duration: 500.ms).scale(curve: Curves.easeOutBack),
-      
-      const SizedBox(height: 10),
-
-      // Delivery Date
-      Text(
-        "Delivery date: ${DateFormat('MM/dd/yy').format(widget.contract.deliveryDate)}",
-        style: GoogleFonts.poppins(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: Colors.black54,
-        ),
-      ).animate().fadeIn(duration: 400.ms).slideX(curve: Curves.easeInOut),
-      
-      const SizedBox(height: 15),
-
-      // Price and Percentage Change
-      Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Price
-          Text(
-            '\$${widget.contract.price.toStringAsFixed(2)}',
-            style: GoogleFonts.poppins(
-              fontSize: 25,
-              fontWeight: FontWeight.w700, // Bold for emphasis
-              color: Colors.black, // Strong color for focus
-              shadows: [
-                Shadow(
-                  offset: Offset(0, 2), // Subtle shadow
-                  blurRadius: 6.0,
-                  color: Colors.grey.shade300, // Light shadow for depth
-                ),
-              ],
-            ),
-          ).animate().fadeIn(duration: 500.ms).scale(curve: Curves.easeOutBack),
-          
-          const SizedBox(width: 12),
-
-          // Price Change & Percentage
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '${isPositive ? '+' : ''}${priceChange.toStringAsFixed(2)} (${percentageChange.toStringAsFixed(2)}%)',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  color: isPositive ? Colors.green.shade600 : Colors.red.shade600, // Accent based on value
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Contract Name
+        Text(
+          "${widget.contract.name}",
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+            fontWeight: FontWeight.w600, // Bold for emphasis
+            color: Colors.black54, // Strong color for focus
+            shadows: [
+              Shadow(
+                offset: Offset(0, 2), // Subtle shadow
+                blurRadius: 6.0,
+                color: Colors.grey.shade300, // Light shadow for depth
               ),
-              if (isPositive)
-                Container(
-                  margin: const EdgeInsets.only(top: 4),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.green.shade100.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    'Price Increased',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.green.shade700,
-                    ),
-                  ),
-                ).animate().fadeIn(duration: 300.ms).scale(),
-              if (!isPositive)
-                Container(
-                  margin: const EdgeInsets.only(top: 4),
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade100.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    'Price Decreased',
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.red.shade700,
-                    ),
-                  ),
-                ).animate().fadeIn(duration: 300.ms).scale(),
             ],
-          ).animate().fadeIn(duration: 500.ms).slideY(curve: Curves.easeIn),
-        ],
-      ),
-      SizedBox(height: 5,),
-       Text("${widget.contract.name}, Grade ${widget.contract.grade_name} Price History.",
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w600, // Bold for emphasis
-              color: Colors.black54, // Strong color for focus
-              shadows: [
-                Shadow(
-                  offset: Offset(0, 2), // Subtle shadow
-                  blurRadius: 6.0,
-                  color: Colors.grey.shade300, // Light shadow for depth
+          ),
+        ).animate().fadeIn(duration: 500.ms).scale(curve: Curves.easeOutBack),
+
+        const SizedBox(height: 8),
+
+        // Grade Name
+        Text(
+          widget.contract.grade_name,
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+            fontWeight: FontWeight.w600, // Bold for emphasis
+            color: Colors.black54, // Strong color for focus
+            shadows: [
+              Shadow(
+                offset: Offset(0, 2), // Subtle shadow
+                blurRadius: 6.0,
+                color: Colors.grey.shade300, // Light shadow for depth
+              ),
+            ],
+          ),
+        ).animate().fadeIn(duration: 500.ms).scale(curve: Curves.easeOutBack),
+
+        // Contract Description
+        const SizedBox(height: 8),
+        Text(
+          widget.contract.description,
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+            fontWeight: FontWeight.w600, // Bold for emphasis
+            color: Colors.black54, // Strong color for focus
+            shadows: [
+              Shadow(
+                offset: Offset(0, 2), // Subtle shadow
+                blurRadius: 6.0,
+                color: Colors.grey.shade300, // Light shadow for depth
+              ),
+            ],
+          ),
+        ).animate().fadeIn(duration: 500.ms).scale(curve: Curves.easeOutBack),
+
+        const SizedBox(height: 10),
+
+        // Delivery Date
+        Text(
+          "Delivery date: ${DateFormat('MM/dd/yy').format(widget.contract.deliveryDate)}",
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.black54,
+          ),
+        ).animate().fadeIn(duration: 400.ms).slideX(curve: Curves.easeInOut),
+
+        const SizedBox(height: 15),
+
+        // Price and Percentage Change
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Price
+            Text(
+              '\$${widget.contract.price.toStringAsFixed(2)}',
+              style: GoogleFonts.poppins(
+                fontSize: 25,
+                fontWeight: FontWeight.w700, // Bold for emphasis
+                color: Colors.black, // Strong color for focus
+                shadows: [
+                  Shadow(
+                    offset: Offset(0, 2), // Subtle shadow
+                    blurRadius: 6.0,
+                    color: Colors.grey.shade300, // Light shadow for depth
+                  ),
+                ],
+              ),
+            )
+                .animate()
+                .fadeIn(duration: 500.ms)
+                .scale(curve: Curves.easeOutBack),
+
+            const SizedBox(width: 12),
+
+            // Price Change & Percentage
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${isPositive ? '+' : ''}${priceChange.toStringAsFixed(2)} (${percentageChange.toStringAsFixed(2)}%)',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: isPositive
+                        ? Colors.green.shade600
+                        : Colors.red.shade600, // Accent based on value
+                  ),
                 ),
+                if (isPositive)
+                  Container(
+                    margin: const EdgeInsets.only(top: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade100.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      'Price Increased',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.green.shade700,
+                      ),
+                    ),
+                  ).animate().fadeIn(duration: 300.ms).scale(),
+                if (!isPositive)
+                  Container(
+                    margin: const EdgeInsets.only(top: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade100.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      'Price Decreased',
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.red.shade700,
+                      ),
+                    ),
+                  ).animate().fadeIn(duration: 300.ms).scale(),
               ],
-            ),
-          ).animate().fadeIn(duration: 500.ms).scale(curve: Curves.easeOutBack),
-    ],
-  );
-}
+            ).animate().fadeIn(duration: 500.ms).slideY(curve: Curves.easeIn),
+          ],
+        ),
+        SizedBox(
+          height: 5,
+        ),
+        Text(
+          "${widget.contract.name}, Grade ${widget.contract.grade_name} Price History.",
+          style: GoogleFonts.poppins(
+            fontSize: 16,
+            fontWeight: FontWeight.w600, // Bold for emphasis
+            color: Colors.black54, // Strong color for focus
+            shadows: [
+              Shadow(
+                offset: Offset(0, 2), // Subtle shadow
+                blurRadius: 6.0,
+                color: Colors.grey.shade300, // Light shadow for depth
+              ),
+            ],
+          ),
+        ).animate().fadeIn(duration: 500.ms).scale(curve: Curves.easeOutBack),
+      ],
+    );
+  }
 
   double calculatePriceChange() {
     if (priceHistorySpots.length < 2) return 0;
@@ -446,6 +460,7 @@ class _SpecificorderState extends State<Specificorder> {
   }
 
   Widget buildTradeOptions() {
+    int userType = Provider.of<appBloc>(context, listen: false).user_type;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -459,14 +474,12 @@ class _SpecificorderState extends State<Specificorder> {
         ).animate().fadeIn(duration: 500.ms).slideX(),
         SizedBox(height: 10),
         Visibility(
-          visible: widget.contract!.canBid == 0,
+          visible: widget.contract.canBid == 0 || userType!=4 || userType!=6,
           child: GestureDetector(
               onTap: () {
-                final userType =
-                    Provider.of<appBloc>(context, listen: false).user_type;
                 print(userType);
-                if (userType == "individual") {
-                  print("true");
+                if (userType == 3) {
+                 print("true");
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {

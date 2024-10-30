@@ -344,7 +344,8 @@ class Globals {
     );
   }
 
-  static Widget buildErrorState({required void Function() function,required String items}) {
+  static Widget buildErrorState(
+      {required void Function() function, required String items}) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -376,56 +377,79 @@ class Globals {
     );
   }
 
-
-   static  Widget buildNoDataState({required void Function() function ,required String item}) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.info_outline, size: 48, color: Colors.black54),
-          const SizedBox(height: 10),
-          Text(
-            'No $item available',
-            style: GoogleFonts.poppins(fontSize: 18, color: Colors.black54),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: function,
-            child:  Text('Refresh',style: GoogleFonts.poppins(color: Colors.white),),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green.shade400,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
+static Widget buildNoDataState({
+  required void Function() function,
+  required String item,
+}) {
+  return Center(
+    child: Card(
+      margin: EdgeInsets.symmetric(horizontal: 20),
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.info_outline, size: 60, color: Colors.blueGrey.shade400),
+            const SizedBox(height: 15),
+            Text(
+              'No ${item == "WareHouse" ? "Orders Placed" : "$item available"}',
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                color: Colors.blueGrey.shade600,
+                fontWeight: FontWeight.w500,
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 25),
+            ElevatedButton.icon(
+              onPressed: function,
+              icon: Icon(Icons.refresh, color: Colors.white),
+              label: Text(
+                'Refresh',
+                style: GoogleFonts.poppins(color: Colors.white, fontSize: 16),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green.shade400,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                elevation: 2,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+  static void showOperationInProgressSnackBar(BuildContext context) {
+    final snackBar = SnackBar(
+      content: Row(
+        children: [
+          CircularProgressIndicator(), // Spinner icon
+          SizedBox(width: 20), // Space between spinner and text
+          Expanded(
+            child: Text(
+              'An operation is currently happening, please be patient...',
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
             ),
           ),
         ],
       ),
+      backgroundColor: Colors.blueAccent,
+      duration: Duration(seconds: 5), // SnackBar duration
     );
-  }
-  static void showOperationInProgressSnackBar(BuildContext context) {
-  final snackBar = SnackBar(
-    content: Row(
-      children: [
-        CircularProgressIndicator(), // Spinner icon
-        SizedBox(width: 20), // Space between spinner and text
-        Expanded(
-          child: Text(
-            'An operation is currently happening, please be patient...',
-            style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
-          ),
-        ),
-      ],
-    ),
-    backgroundColor: Colors.blueAccent,
-    duration: Duration(seconds: 5), // SnackBar duration
-  );
 
-  // Show the SnackBar
-  ScaffoldMessenger.of(context).showSnackBar(snackBar);
-}
+    // Show the SnackBar
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
 
   static Map authErrors = {
     "admin-restricted-operation":

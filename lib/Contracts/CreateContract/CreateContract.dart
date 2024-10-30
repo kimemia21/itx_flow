@@ -201,36 +201,42 @@ class _CreateContractState extends State<CreateContract>
                         print(packingVolume);
                       }),
                       SizedBox(height: 16),
-                      buildTextField(
-                        controller: quantityController,
-                        title: 'Quantity',
-                        icon: Icons.production_quantity_limits,
-                        isTextField: false,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a quantity';
-                          }
-                          if (double.tryParse(value) == null) {
-                            return 'Please enter a valid number';
-                          }
-                          return null;
-                        },
+                      Visibility(
+                        visible: _packingMetrics != null,
+                        child: buildTextField(
+                          controller: quantityController,
+                          title: 'Quantity in ${_packingMetrics}s',
+                          icon: Icons.production_quantity_limits,
+                          isTextField: false,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a quantity';
+                            }
+                            if (double.tryParse(value) == null) {
+                              return 'Please enter a valid number';
+                            }
+                            return null;
+                          },
+                        ),
                       ),
                       SizedBox(height: 16),
-                      buildTextField(
-                        controller: priceController,
-                        title: 'Enter Price Per Unit',
-                        icon: Icons.attach_money,
-                        isTextField: false,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a  price';
-                          }
-                          if (double.tryParse(value) == null) {
-                            return 'Please enter a valid number';
-                          }
-                          return null;
-                        },
+                      Visibility(
+                        visible: _packingMetrics != null,
+                        child: buildTextField(
+                          controller: priceController,
+                          title: 'Enter Price Per $_packingMetrics',
+                          icon: Icons.attach_money,
+                          isTextField: false,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter a  price';
+                            }
+                            if (double.tryParse(value) == null) {
+                              return 'Please enter a valid number';
+                            }
+                            return null;
+                          },
+                        ),
                       ),
                       SizedBox(height: 16),
                       buildTextField(

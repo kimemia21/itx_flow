@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:itx/Contracts/AdvancedSearch.dart';
 import 'package:itx/Contracts/CreateContract/CreateContract.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
@@ -208,94 +207,105 @@ class _ContractsState extends State<Contracts> {
       return LoadingAnimationWidget.staggeredDotsWave(
           color: Colors.white, size: 30);
     }
-    return FutureBuilder<List<ContractsModel>>(
-      future: contracts,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Globals.buildErrorState(
-              function: fetchContracts, items: widget.contractName);
-        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(
-              child: Globals.buildNoDataState(
-                  function: fetchContracts, item: widget.contractName));
-        }
+    return RefreshIndicator(
+      // Wrap the entire FutureBuilder
+      onRefresh: fetchContracts,
+      child: FutureBuilder<List<ContractsModel>>(
+        future: contracts,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Globals.buildErrorState(
+                function: fetchContracts, items: widget.contractName);
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(
+                child: Globals.buildNoDataState(
+                    function: fetchContracts, item: widget.contractName));
+          }
 
-        List<ContractsModel> contractsList =
-            widget.isSpot ? currentContracts : snapshot.data!;
+          List<ContractsModel> contractsList =
+              widget.isSpot ? currentContracts : snapshot.data!;
 
-        return Container(
-          width: MediaQuery.of(context).size.width * 1,
-          height: MediaQuery.of(context).size.height * 1,
-          child: RefreshIndicator(
-            onRefresh: fetchContracts,
-            child: DataTable2(
-              columnSpacing: 10,
-              horizontalMargin: 10,
-              minWidth: 600,
-              columns: [
-                DataColumn2(
-                    fixedWidth: 55, label: Text('Company'), size: ColumnSize.S),
-                DataColumn2(
-                    fixedWidth: 50, label: Text('Grade'), size: ColumnSize.S),
-                DataColumn2(
-                    fixedWidth: 40, label: Text('Type'), size: ColumnSize.S),
-                DataColumn2(
-                    fixedWidth: 75,
-                    label: Text('Del. Date'),
-                    size: ColumnSize.S),
-                DataColumn2(
-                    fixedWidth: 65, label: Text('Price'), size: ColumnSize.S),
-                DataColumn2(
-                    fixedWidth: 40, label: Text('Action'), size: ColumnSize.S),
-              ],
-              rows: contractsList.map((contract) {
-                String _formatDeliveryDate(DateTime deliveryDate) {
-                  final now = DateTime.now();
-                  final difference = deliveryDate.difference(now);
+          return SingleChildScrollView(
+            // Ensures the table can be scrolled for refresh
+            //  
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Container(
+              width: MediaQuery.of(context).size.width * 1,
+              height: MediaQuery.of(context).size.height * 1,
+              child: DataTable2(
+                columnSpacing: 10,
+                horizontalMargin: 10,
+                minWidth: 600,
+                columns: [
+                  DataColumn2(
+                      fixedWidth: 55,
+                      label: Text('Company'),
+                      size: ColumnSize.S),
+                  DataColumn2(
+                      fixedWidth: 50, label: Text('Grade'), size: ColumnSize.S),
+                  DataColumn2(
+                      fixedWidth: 40, label: Text('Type'), size: ColumnSize.S),
+                  DataColumn2(
+                      fixedWidth: 75,
+                      label: Text('Del. Date'),
+                      size: ColumnSize.S),
+                  DataColumn2(
+                      fixedWidth: 65, label: Text('Price'), size: ColumnSize.S),
+                  DataColumn2(
+                      fixedWidth: 40,
+                      label: Text('Action'),
+                      size: ColumnSize.S),
+                ],
+                rows: contractsList.map((contract) {
+                  String _formatDeliveryDate(DateTime deliveryDate) {
+                    final now = DateTime.now();
+                    final difference = deliveryDate.difference(now);
 
-                  if (difference.isNegative) {
-                    return 'Delivered ${timeago.format(deliveryDate)} ago';
-                  } else {
-                    return '${timeago.format(deliveryDate, allowFromNow: true)}';
+                    if (difference.isNegative) {
+                      return 'Delivered ${timeago.format(deliveryDate)} ago';
+                    } else {
+                      return '${timeago.format(deliveryDate, allowFromNow: true)}';
+                    }
                   }
-                }
 
-                final delivery = _formatDeliveryDate(contract.deliveryDate);
+                  final delivery = _formatDeliveryDate(contract.deliveryDate);
 
-                return DataRow(
-                  cells: [
-                    DataCell(GestureDetector(
-                        onTap: () {
-                          PersistentNavBarNavigator.pushNewScreen(
-                              withNavBar: true,
-                              context,
-                              screen: Specificorder(contract: contract));
+                  return DataRow(
+                    cells: [
+                      DataCell(GestureDetector(
+                          onTap: () {
+                            PersistentNavBarNavigator.pushNewScreen(
+                                withNavBar: true,
+                                context,
+                                screen: Specificorder(contract: contract));
+                          },
+                          child: Text(getFirstName(contract.contract_user!)))),
+                      DataCell(Text(contract.grade_name ?? "N/A")),
+                      DataCell(
+                          Text(getContractTypeAbbr(contract.contractType))),
+                      DataCell(Text(delivery)),
+                      DataCell(Text("\$${contract.price.toStringAsFixed(2)}")),
+                      DataCell(LikeButton(
+                        contractId: contract.contractId,
+                        likes: contract.liked,
+                        onLikeChanged: (isLiked) async {
+                          await AuthRequest.likeunlike(
+                            context,
+                            isLiked ? 1 : 0,
+                            contract.contractId,
+                          );
                         },
-                        child: Text(getFirstName(contract.contract_user!)))),
-                    DataCell(Text(contract.grade_name ?? "N/A")),
-                    DataCell(Text(getContractTypeAbbr(contract.contractType))),
-                    DataCell(Text(delivery)),
-                    DataCell(Text("\$${contract.price.toStringAsFixed(2)}")),
-                    DataCell(LikeButton(
-                      contractId: contract.contractId,
-                      likes: contract.liked,
-                      onLikeChanged: (isLiked) async {
-                        await AuthRequest.likeunlike(
-                          context,
-                          isLiked ? 1 : 0,
-                          contract.contractId,
-                        );
-                      },
-                    )),
-                  ],
-                );
-              }).toList(),
+                      )),
+                    ],
+                  );
+                }).toList(),
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -322,7 +332,7 @@ class _ContractsState extends State<Contracts> {
     print("${Provider.of<appBloc>(context, listen: false).token} token");
 
     return Scaffold(
-      floatingActionButton: widget.filtered
+      floatingActionButton: widget.filtered || widget.isWareHouse
           ? null
           : FloatingActionButton(
               onPressed: () {
@@ -448,7 +458,7 @@ class _ContractsState extends State<Contracts> {
             child: Expanded(
               flex: 3,
               child: ElevatedButton(
-   onPressed: () {
+                onPressed: () {
                   showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,
