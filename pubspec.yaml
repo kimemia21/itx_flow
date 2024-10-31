@@ -92,6 +92,7 @@ dependencies:
   url_launcher: ^6.3.1
   webfeed_revised: ^0.8.0
   html: ^0.15.4
+  easy_stepper: ^0.8.3
 
 dev_dependencies:
   flutter_test:

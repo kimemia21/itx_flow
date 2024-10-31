@@ -251,11 +251,7 @@ class _WebsignupState extends State<Websignup> {
             isRegistered: false,
             isWareHouse: false);
 
-         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> WebVerification(
-            context: context,
-            email: "email",
-            isRegistered: false,
-            isWareHouse: false)));   
+       
 
             
     if (_formKey.currentState!.validate()) {
@@ -295,12 +291,12 @@ class _WebsignupState extends State<Websignup> {
             isRegistered: false,
             isWareHouse: false);
 
-        // AuthRequest.register(
-        //   isWeb: true,
-        //   body: _selectedUserType == "6" ? warehouseBody : userBody,
-        //   context: context,
-        //   isOnOtp: false,
-        // );
+        AuthRequest.register(
+          isWeb: true,
+          body: _selectedUserType == "6" ? warehouseBody : userBody,
+          context: context,
+          isOnOtp: false,
+        );
       }
     }
   }

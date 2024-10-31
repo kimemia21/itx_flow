@@ -191,7 +191,7 @@ class _CertificateFormScreenState extends State<CertificateFormScreen> {
             context.read<appBloc>().changeIsAuthorized(1);
             PersistentNavBarNavigator.pushNewScreen(
               context,
-              screen: AuthorizationStatus(isWareHouse: widget.isWareHouse),
+              screen: AuthorizationStatus(isWareHouse: widget.isWareHouse,isWeb: false,),
             );
           }
         } else {
@@ -470,6 +470,7 @@ class _CertificateFormScreenState extends State<CertificateFormScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => AuthorizationStatus(
+                            isWeb: false,
                               isWareHouse: widget.isWareHouse),
                         ),
                       );

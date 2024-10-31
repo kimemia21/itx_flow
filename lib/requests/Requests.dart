@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:cherry_toast/resources/arrays.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -493,7 +494,7 @@ class AuthRequest {
 
   static void _navigateToScreen(
       BuildContext context, bool isRegistered, bool isWarehouse) {
-    if (!Platform.isAndroid) {
+    if (kIsWeb) {
       print("IS NOT ANDROID");
       Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (context) => isRegistered

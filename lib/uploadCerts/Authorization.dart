@@ -12,73 +12,137 @@ import 'package:provider/provider.dart';
 
 class AuthorizationStatus extends StatefulWidget {
   final bool isWareHouse;
-  const AuthorizationStatus({super.key, required this.isWareHouse});
+  final bool isWeb;
+  
+  const AuthorizationStatus({
+    super.key,
+    required this.isWareHouse,
+    required this.isWeb,
+  });
 
   @override
   State<AuthorizationStatus> createState() => _AuthorizationStatusState();
 }
 
 class _AuthorizationStatusState extends State<AuthorizationStatus> {
- Widget infoTiles({
-  required String title,
-  required String subtitle,
-  required bool status,
-}) {
-  return Container(
-    width: MediaQuery.of(context).size.width * 0.4,
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: Colors.black12, width: 1.5),
-      color: Colors.white, // Clean background
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black12,
-          offset: Offset(2, 2),
-          blurRadius: 6, // Subtle shadow for modern touch
-        ),
-      ],
-    ),
-    height: 120,
-    margin: const EdgeInsets.only(right: 8),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
+  Widget infoTile({
+    required String title,
+    required String subtitle,
+    required bool status,
+  }) {
+    return Container(
+      width: widget.isWeb ? 400 : MediaQuery.of(context).size.width * 0.4,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.black12, width: 1),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            offset: Offset(4, 4),
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      height: 120,
+      margin: const EdgeInsets.only(right: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Center(
+            child: Icon(
+              status ? Icons.check_circle_outline : Icons.error_outline,
+              size: 30,
+              color: status ? Colors.green : Colors.redAccent,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w400,
+              fontSize: 14,
+              color: Colors.grey.shade600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent(bool isAuthorized) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Center(
-          child: Icon(
-            status ? Icons.check_circle_outline : Icons.error_outline,
-            size: 28,
-            color: status ? Colors.green : Colors.red,
+        const SizedBox(height: 20),
+        Icon(
+          isAuthorized ? Icons.check_circle : Icons.error,
+          color: isAuthorized ? Colors.green : Colors.redAccent,
+          size: 100,
+        ),
+        const SizedBox(height: 20),
+        Text(
+          isAuthorized ? "You're authorized to trade!" : "Authorization Pending",
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            color: isAuthorized ? Colors.green : Colors.redAccent,
           ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 20),
         Text(
-          title,
+          isAuthorized
+              ? "Congratulations! You have met all the requirements and can now start trading on iTx."
+              : "Please complete all necessary steps to gain trading authorization.",
+          textAlign: TextAlign.center,
+          style: GoogleFonts.poppins(fontSize: 16),
+        ),
+        const SizedBox(height: 40),
+        _buildActionButton(isAuthorized),
+      ],
+    );
+  }
+
+  Widget _buildActionButton(bool isAuthorized) {
+    return GestureDetector(
+      onTap: () => PersistentNavBarNavigator.pushNewScreen(
+        context,
+        screen: isAuthorized ? GlobalsHomePage() : Commodities(isWareHouse: widget.isWareHouse),
+      ),
+      child: Container(
+        alignment: Alignment.center,
+        width: MediaQuery.of(context).size.width * 0.8,
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.green.shade800,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          isAuthorized ? "Start Trading" : "Continue",
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.w600,
-            fontSize: 16,
-            color: Colors.black87,
+            color: Colors.white,
+            fontSize: 20,
           ),
         ),
-        const SizedBox(height: 4),
-        Text(
-          subtitle,
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w400,
-            fontSize: 14,
-            color: Colors.grey.shade600,
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final authStatus =Provider.of<appBloc>(context, listen: false).isAuthorized;
+    final bool isAuthorized = Provider.of<appBloc>(context, listen: false).isAuthorized == 'yes';
     final bool isWareHouse = context.watch<appBloc>().user_id == 6;
 
     return Scaffold(
@@ -86,131 +150,52 @@ class _AuthorizationStatusState extends State<AuthorizationStatus> {
         backgroundColor: Colors.green,
         leading: IconButton(
           onPressed: () => Globals.switchScreens(
-              context: context,
-              screen: Regulators(
-                isWareHouse: isWareHouse,
-              )),
-          icon: Icon(Icons.arrow_back),
+            context: context,
+            screen: Regulators(isWareHouse: isWareHouse),
+          ),
+          icon: const Icon(Icons.arrow_back),
         ),
         centerTitle: true,
-        title: Text("Trading Authorization Status",style: GoogleFonts.poppins(
-          fontWeight: FontWeight.w500,
-          color: Colors.white),),
+        title: Text(
+          "Trading Authorization Status",
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w500,
+            color: Colors.white,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Container(
-          padding: EdgeInsets.all(10),
-          child: authStatus == 'yes'
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (isAuthorized)
+                _buildContent(isAuthorized)
+              else
+                Column(
                   children: [
-                    SizedBox(height: 20),
-                    Icon(Icons.check_circle, color: Colors.green, size: 100),
-                    SizedBox(height: 20),
-                    Text(
-                      "You're authorized to trade!",
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                        color: Colors.green,
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      "Congratulations! You have met all the requirements and can now start trading on iTx.",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(fontSize: 16),
-                    ),
-                    SizedBox(height: 40),
-                    GestureDetector(
-                      onTap: () => PersistentNavBarNavigator.pushNewScreen(
-                          withNavBar: true, context, screen: GlobalsHomePage()),
-                      child: Container(
-                        alignment: Alignment.center,
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade800,
-                          borderRadius: BorderRadiusDirectional.circular(10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        infoTile(
+                          title: "Personal Info",
+                          subtitle: "Complete to trade on iTx",
+                          status: true,
                         ),
-                        child: Text(
-                          "Start Trading",
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                            fontSize: 20,
-                          ),
+                        infoTile(
+                          title: "Regulator Status",
+                          subtitle: "We need a few more details",
+                          status: isAuthorized,
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                )
-              : Column(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.all(10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          infoTiles(
-                            title: "Personal info",
-                            subtitle: "Complete to trade on iTx",
-                            status: true,
-                          ),
-                          infoTiles(
-                            status: authStatus == 'yes',
-                            title: "Regulator status",
-                            subtitle: "We need a few more details",
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(top: 10, bottom: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Regulator status"),
-                          TextButton(
-                            onPressed: () {
-                              PersistentNavBarNavigator.pushNewScreen(context,
-                                  screen: Regulators(isWareHouse: isWareHouse));
-                            },
-                            child: Text("Continue"),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      "Your regulator status helps us understand your investment experience",
-                    ),
-                    SizedBox(height: 20),
-                    GestureDetector(
-                      onTap: () => PersistentNavBarNavigator.pushNewScreen(
-                          context,
-                          screen: isWareHouse
-                              ? Commodities(isWareHouse: isWareHouse)
-                              : GlobalsHomePage()),
-                      child: Container(
-                        alignment: Alignment.center,
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade800,
-                          borderRadius: BorderRadiusDirectional.circular(10),
-                        ),
-                        child: Text(
-                          "Continue",
-                          style: GoogleFonts.poppins(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ),
-                    ),
+                    const SizedBox(height: 20),
+                    _buildContent(isAuthorized),
                   ],
                 ),
+            ],
+          ),
         ),
       ),
     );

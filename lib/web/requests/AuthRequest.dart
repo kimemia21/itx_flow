@@ -355,148 +355,148 @@ class WebAuthrequest {
     }
   }
 
-  static Future<void> WebResendOtp({
-    required BuildContext context,
-  }) async {
-    final Webbloc bloc = context.read<Webbloc>();
-    final Uri url = Uri.parse("$main_url/user/otp");
-    final String token = Provider.of<Webbloc>(context, listen: false).token;
+  // static Future<void> WebResendOtp({
+  //   required BuildContext context,
+  // }) async {
+  //   final Webbloc bloc = context.read<Webbloc>();
+  //   final Uri url = Uri.parse("$main_url/user/otp");
+  //   final String token = Provider.of<Webbloc>(context, listen: false).token;
 
-    final Map<String, dynamic> body =
-        Provider.of<Webbloc>(context, listen: false).userDetails;
-    print(body);
+  //   final Map<String, dynamic> body =
+  //       Provider.of<Webbloc>(context, listen: false).userDetails;
+  //   print(body);
 
-    try {
-      // Start loading state
-      bloc.changeIsLoading(true);
+  //   try {
+  //     // Start loading state
+  //     bloc.changeIsLoading(true);
 
-      // Send get  request for OTP verification
-      final http.Response response = await http.get(
-        url,
-        headers: {"x-auth-token": token, 'Content-Type': 'application/json'},
-      );
+  //     // Send get  request for OTP verification
+  //     final http.Response response = await http.get(
+  //       url,
+  //       headers: {"x-auth-token": token, 'Content-Type': 'application/json'},
+  //     );
 
-      if (response.statusCode == 200) {
-        print("${response.body} success");
-        final Map responseBody = jsonDecode(response.body);
+  //     if (response.statusCode == 200) {
+  //       print("${response.body} success");
+  //       final Map responseBody = jsonDecode(response.body);
 
-        if (responseBody["rsp"]) {
-          Globals().successAlerts(
-              title: "Verification",
-              content: "Code is being Sent",
-              context: context);
+  //       if (responseBody["rsp"]) {
+  //         Globals().successAlerts(
+  //             title: "Verification",
+  //             content: "Code is being Sent",
+  //             context: context);
 
-          final String token = responseBody["token"];
-          context.read<Webbloc>().changeToken(token);
+  //         final String token = responseBody["token"];
+  //         context.read<Webbloc>().changeToken(token);
 
-          // Delay navigation for a few seconds for better UX
-          Future.delayed(Duration(seconds: 3));
-          // Globals.switchScreens(context: context, screen: GlobalsHomePage());
+  //         // Delay navigation for a few seconds for better UX
+  //         Future.delayed(Duration(seconds: 3));
+  //         // Globals.switchScreens(context: context, screen: GlobalsHomePage());
 
-          bloc.changeIsLoading(false); // Stop loading after success
-        } else {
-          // Show an authentication error if OTP fails
-          Globals.warningsAlerts(
-            title: "Otp Error",
-            content: responseBody["rsp"],
-            context: context,
-          );
-        }
-      } else {
-        // Show an authentication error for non-200 responses
-        Globals.warningsAlerts(
-          title: "Authentication Error",
-          content: response.body,
-          context: context,
-        );
-        print("${response.body} failed ");
-      }
-    } catch (e) {
-      // Handle errors during OTP request
-      print("Error during OTP verification: $e");
-    } finally {
-      // Stop loading state
-      bloc.changeIsLoading(false);
-    }
-  }
+  //         bloc.changeIsLoading(false); // Stop loading after success
+  //       } else {
+  //         // Show an authentication error if OTP fails
+  //         Globals.warningsAlerts(
+  //           title: "Otp Error",
+  //           content: responseBody["rsp"],
+  //           context: context,
+  //         );
+  //       }
+  //     } else {
+  //       // Show an authentication error for non-200 responses
+  //       Globals.warningsAlerts(
+  //         title: "Authentication Error",
+  //         content: response.body,
+  //         context: context,
+  //       );
+  //       print("${response.body} failed ");
+  //     }
+  //   } catch (e) {
+  //     // Handle errors during OTP request
+  //     print("Error during OTP verification: $e");
+  //   } finally {
+  //     // Stop loading state
+  //     bloc.changeIsLoading(false);
+  //   }
+  // }
 
-  static Future<void> WebOtp({
-    required BuildContext context,
-    required String email,
-    required String otp,
-    required bool isRegistered,
-  }) async {
-    final Webbloc bloc = context.read<Webbloc>();
+  // static Future<void> WebOtp({
+  //   required BuildContext context,
+  //   required String email,
+  //   required String otp,
+  //   required bool isRegistered,
+  // }) async {
+  //   final Webbloc bloc = context.read<Webbloc>();
 
-    // Define the OTP verification endpoint
-    final Uri url = Uri.parse("$main_url/user/otpc");
+  //   // Define the OTP verification endpoint
+  //   final Uri url = Uri.parse("$main_url/user/otpc");
 
-    // Prepare the request body for OTP verification
-    final Map<String, dynamic> body = {
-      "email": email,
-      "otp": otp,
-    };
+  //   // Prepare the request body for OTP verification
+  //   final Map<String, dynamic> body = {
+  //     "email": email,
+  //     "otp": otp,
+  //   };
 
-    try {
-      // Start loading state
-      bloc.changeIsLoading(true);
+  //   try {
+  //     // Start loading state
+  //     bloc.changeIsLoading(true);
 
-      // Send POST request for OTP verification
-      final http.Response response = await http.post(
-        url,
-        body: jsonEncode(body),
-        headers: {'Content-Type': 'application/json'},
-      );
+  //     // Send POST request for OTP verification
+  //     final http.Response response = await http.post(
+  //       url,
+  //       body: jsonEncode(body),
+  //       headers: {'Content-Type': 'application/json'},
+  //     );
 
-      if (response.statusCode == 200) {
-        print("${response.body} success");
-        final Map responseBody = jsonDecode(response.body);
+  //     if (response.statusCode == 200) {
+  //       print("${response.body} success");
+  //       final Map responseBody = jsonDecode(response.body);
 
-        if (responseBody["rsp"]) {
-          // On successful OTP verification, save the token and navigate to the home page
-          final String token = responseBody["token"];
-          context.read<Webbloc>().changeToken(token);
+  //       if (responseBody["rsp"]) {
+  //         // On successful OTP verification, save the token and navigate to the home page
+  //         final String token = responseBody["token"];
+  //         context.read<Webbloc>().changeToken(token);
 
-          // Delay navigation for a few seconds for better UX
-          Future.delayed(Duration(seconds: 3));
+  //         // Delay navigation for a few seconds for better UX
+  //         Future.delayed(Duration(seconds: 3));
 
-          // if (bloc.user_type == 6) {
-          //   Globals.switchScreens(
-          //       context: context,
-          //       screen: isRegistered
-          //           ? HomePageWeb(title: "Home")
-          //           : TradeAuthorizationStatusScreen());
-          // } else {
-          //   Globals.switchScreens(
-          //       context: context,
-          //       screen: isRegistered
-          //           ? HomePageWeb(title: "Home")
-          //           : TradeAuthorizationStatusScreen());
-          // }
-          bloc.changeIsLoading(false); // Stop loading after success
-        } else {
-          // Show an authentication error if OTP fails
-          Globals.warningsAlerts(
-            title: "Authentication Error",
-            content: responseBody["rsp"],
-            context: context,
-          );
-        }
-      } else {
-        // Show an authentication error for non-200 responses
-        Globals.warningsAlerts(
-          title: "Authentication Error",
-          content: response.body,
-          context: context,
-        );
-        print("${response.body} failed ");
-      }
-    } catch (e) {
-      // Handle errors during OTP request
-      print("Error during OTP verification: $e");
-    } finally {
-      // Stop loading state
-      bloc.changeIsLoading(false);
-    }
-  }
+  //         // if (bloc.user_type == 6) {
+  //         //   Globals.switchScreens(
+  //         //       context: context,
+  //         //       screen: isRegistered
+  //         //           ? HomePageWeb(title: "Home")
+  //         //           : TradeAuthorizationStatusScreen());
+  //         // } else {
+  //         //   Globals.switchScreens(
+  //         //       context: context,
+  //         //       screen: isRegistered
+  //         //           ? HomePageWeb(title: "Home")
+  //         //           : TradeAuthorizationStatusScreen());
+  //         // }
+  //         bloc.changeIsLoading(false); // Stop loading after success
+  //       } else {
+  //         // Show an authentication error if OTP fails
+  //         Globals.warningsAlerts(
+  //           title: "Authentication Error",
+  //           content: responseBody["rsp"],
+  //           context: context,
+  //         );
+  //       }
+  //     } else {
+  //       // Show an authentication error for non-200 responses
+  //       Globals.warningsAlerts(
+  //         title: "Authentication Error",
+  //         content: response.body,
+  //         context: context,
+  //       );
+  //       print("${response.body} failed ");
+  //     }
+  //   } catch (e) {
+  //     // Handle errors during OTP request
+  //     print("Error during OTP verification: $e");
+  //   } finally {
+  //     // Stop loading state
+  //     bloc.changeIsLoading(false);
+  //   }
+  // }
 }

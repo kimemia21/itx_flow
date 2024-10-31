@@ -12,6 +12,7 @@ import 'package:itx/uploadCerts/Authorization.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:itx/global/globals.dart';
 import 'dart:typed_data';
+import 'package:easy_stepper/easy_stepper.dart';
 
 class Webregulators extends StatelessWidget {
   final List<CommoditiesCert> commCerts;
@@ -80,7 +81,8 @@ class CertificateFormScreen extends StatefulWidget {
   final List<CommoditiesCert> certificates;
   final bool isWareHouse;
 
-  CertificateFormScreen({required this.certificates, required this.isWareHouse});
+  CertificateFormScreen(
+      {required this.certificates, required this.isWareHouse});
 
   @override
   _CertificateFormScreenState createState() => _CertificateFormScreenState();
@@ -103,6 +105,56 @@ class _CertificateFormScreenState extends State<CertificateFormScreen> {
     super.initState();
     _formKeys.addAll(List.generate(
         widget.certificates.length, (index) => GlobalKey<FormState>()));
+  }
+
+  Widget _buildStepper() {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 20),
+      child: EasyStepper(
+        activeStep: _currentPage,
+        // lineLength: 50,
+        stepShape: StepShape.circle,
+        stepBorderRadius: 12,
+        borderThickness: 2,
+        padding: EdgeInsets.all(12),
+        stepRadius: 28,
+        finishedStepBorderColor: Colors.green,
+        finishedStepTextColor: Colors.green,
+        finishedStepBackgroundColor: Colors.green,
+        activeStepIconColor: Colors.green,
+        showLoadingAnimation: false,
+        steps: List.generate(
+          widget.certificates.length,
+          (index) => EasyStep(
+            customStep: Container(
+              child: index <= _currentPage
+                  ? Icon(
+                      index == _currentPage
+                          ? Icons.edit_document
+                          : Icons.check_circle,
+                      color:index == _currentPage? Colors.green:Colors.green,
+                    )
+                  : Text(
+                      '${index + 1}',
+                      style: TextStyle(color: Colors.black),
+                    ),
+            ),
+            title: widget.certificates[index].certificateName ??
+                'Certificate ${index + 1}',
+            topTitle: true,
+          ),
+        ),
+        onStepReached: (index) {
+          if (!context.read<appBloc>().isLoading) {
+            _pageController.animateToPage(
+              index,
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }
+        },
+      ),
+    );
   }
 
   Future<void> _handleFileDrop(dynamic event, int certificateId,
@@ -133,7 +185,8 @@ class _CertificateFormScreenState extends State<CertificateFormScreen> {
           'url': url,
           'bytes': bytes,
         };
-        print('Proof of Payment file added for ID $certificateId'); // Debug print
+        print(
+            'Proof of Payment file added for ID $certificateId'); // Debug print
       }
     });
   }
@@ -212,7 +265,9 @@ class _CertificateFormScreenState extends State<CertificateFormScreen> {
             context.read<appBloc>().changeIsAuthorized(1);
             PersistentNavBarNavigator.pushNewScreen(
               context,
-              screen: AuthorizationStatus(isWareHouse: widget.isWareHouse),
+              screen: AuthorizationStatus(
+                 isWeb: true,
+                isWareHouse: widget.isWareHouse),
             );
           }
         } else {
@@ -243,8 +298,8 @@ class _CertificateFormScreenState extends State<CertificateFormScreen> {
     Uint8List bytes = file['bytes'];
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final imageWidth = screenWidth * 0.3; // 30% of screen width
-    final imageHeight = screenHeight * 0.2; // 20% of screen height
+    final imageWidth = screenWidth * 0.3; 
+    final imageHeight = screenHeight * 0.2;
 
     if (fileType == 'image') {
       return Image.memory(
@@ -280,22 +335,21 @@ class _CertificateFormScreenState extends State<CertificateFormScreen> {
     return Stack(
       children: [
         DropzoneView(
-          operation: DragOperation.copy,
-          cursor: CursorType.grab,
-          onCreated: (DropzoneViewController ctrl) =>
-              fileType == 'certificate'
-                  ? _certificateController = ctrl
-                  : _proofOfPaymentController = ctrl,
-          onLoaded: () => print('Zone loaded'),
-          onError: (String? ev) => print('Error: $ev'),
-          onDrop: (dynamic ev) {
-            DropzoneViewController controller = fileType == 'certificate'
-                ? _certificateController
-                : _proofOfPaymentController;
+            operation: DragOperation.copy,
+            cursor: CursorType.grab,
+            onCreated: (DropzoneViewController ctrl) =>
+                fileType == 'certificate'
+                    ? _certificateController = ctrl
+                    : _proofOfPaymentController = ctrl,
+            onLoaded: () => print('Zone loaded'),
+            onError: (String? ev) => print('Error: $ev'),
+            onDrop: (dynamic ev) {
+              DropzoneViewController controller = fileType == 'certificate'
+                  ? _certificateController
+                  : _proofOfPaymentController;
 
-            _handleFileDrop(ev, certificateId, fileType, controller);
-          }
-        ),
+              _handleFileDrop(ev, certificateId, fileType, controller);
+            }),
         Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -316,7 +370,8 @@ class _CertificateFormScreenState extends State<CertificateFormScreen> {
 
                   if (events.isEmpty) return;
 
-                  await _handleFileDrop(events.first, certificateId, fileType, controller);
+                  await _handleFileDrop(
+                      events.first, certificateId, fileType, controller);
                 },
                 child: Text("Select $label"),
               ),
@@ -328,119 +383,278 @@ class _CertificateFormScreenState extends State<CertificateFormScreen> {
   }
 
   Widget _buildCertificateSection(CommoditiesCert certificate, int index) {
-    return Form(
-      key: _formKeys[index],
-      child: Card(
-        elevation: 4,
-        margin: EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                certificate.certificateName ?? 'Unnamed Certificate',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              Text(certificate.authorityName ?? 'Unknown Authority',
-                  style: TextStyle(fontSize: 16, color: Colors.grey[600])),
-              SizedBox(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.4,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: _buildDropZone(certificate.certificateId!,
-                        'certificate', 'Certificate'),
-                  ),
-                  if (certificate.proofOfPaymentRequired == 1)
-                    Container(
-                      width: MediaQuery.of(context).size.width * 0.4,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildDropZone(certificate.certificateId!,
-                          'proofOfPayment', 'Proof of Payment'),
-                    ),
-                ],
-              ),
-              if (_selectedCertificateFiles[certificate.certificateId] != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: _buildFilePreview(
-                      _selectedCertificateFiles[certificate.certificateId]),
-                ),
-              if (_selectedCertificateFiles[certificate.certificateId] == null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text('Certificate file is required',
-                      style: TextStyle(color: Colors.red)),
-                ),
-              if (certificate.proofOfPaymentRequired == 1) ...[
-                SizedBox(height: 16),
-                if (_selectedProofOfPaymentFiles[certificate.certificateId] != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: _buildFilePreview(_selectedProofOfPaymentFiles[
-                        certificate.certificateId]),
-                  ),
-                if (_selectedProofOfPaymentFiles[certificate.certificateId] == null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text('Proof of payment file is required',
-                        style: TextStyle(color: Colors.red)),
-                  ),
-              ],
-              SizedBox(height: 24),
-              TextFormField(
-                readOnly: true,
-                decoration: InputDecoration(
-                  labelText: 'Expiry Date',
-                  suffixIcon: Icon(Icons.calendar_today),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-                ),
-                onTap: () =>
-                    _pickExpiryDate(context, certificate.certificateId!),
-                validator: (value) {
-                  if (_expiryDates[certificate.certificateId] == null) {
-                    return 'Please pick an expiry date';
-                  }
-                  return null;
-                },
-                controller: TextEditingController(
-                    text: _expiryDates[certificate.certificateId]),
-              ),
-              if (certificate.certificateTtl != null) ...[
-                SizedBox(height: 16),
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * 0.5,
+      child: Form(
+        key: _formKeys[index],
+        child: Card(
+          elevation: 30,
+          shadowColor: Colors.black.withOpacity(0.2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+            ),
+            padding: EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Certificate Header
                 Container(
-                  padding: EdgeInsets.all(12),
+                  padding: EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    border: Border(
+                      bottom: BorderSide(color: Colors.grey.shade200),
+                    ),
                   ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.access_time, color: Colors.blue),
-                      SizedBox(width: 8),
                       Text(
-                          'Time to Live: ${certificate.certificateTtl} ${certificate.certificateTtlUnits ?? ''}',
-                          style: TextStyle(fontWeight: FontWeight.bold)),
+                        certificate.certificateName ?? 'Unnamed Certificate',
+                        style: GoogleFonts.poppins(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        certificate.authorityName ?? 'Unknown Authority',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          color: Colors.grey.shade600,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ],
                   ),
                 ),
+                SizedBox(height: 32),
+
+                // Drop Zones Section
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: _buildDropZone(
+                            certificate.certificateId!,
+                            'certificate',
+                            'Certificate',
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (certificate.proofOfPaymentRequired == 1) ...[
+                      SizedBox(width: 20),
+                      Expanded(
+                        child: Container(
+                          height: 200,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: _buildDropZone(
+                              certificate.certificateId!,
+                              'proofOfPayment',
+                              'Proof of Payment',
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+
+                // File Preview Section
+                if (_selectedCertificateFiles[certificate.certificateId] !=
+                    null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.green.shade200),
+                      ),
+                      child: _buildFilePreview(
+                        _selectedCertificateFiles[certificate.certificateId],
+                      ),
+                    ),
+                  ),
+                if (_selectedCertificateFiles[certificate.certificateId] ==
+                    null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Row(
+                      children: [
+                        Icon(Icons.warning_amber_rounded,
+                            size: 20, color: Colors.red.shade400),
+                        SizedBox(width: 8),
+                        Text(
+                          'Certificate file is required',
+                          style: GoogleFonts.poppins(
+                            color: Colors.red.shade400,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // Proof of Payment Preview
+                if (certificate.proofOfPaymentRequired == 1) ...[
+                  SizedBox(height: 16),
+                  if (_selectedProofOfPaymentFiles[certificate.certificateId] !=
+                      null)
+                    Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.green.shade200),
+                      ),
+                      child: _buildFilePreview(
+                        _selectedProofOfPaymentFiles[certificate.certificateId],
+                      ),
+                    ),
+                  if (_selectedProofOfPaymentFiles[certificate.certificateId] ==
+                      null)
+                    Row(
+                      children: [
+                        Icon(Icons.warning_amber_rounded,
+                            size: 20, color: Colors.red.shade400),
+                        SizedBox(width: 8),
+                        Text(
+                          'Proof of payment file is required',
+                          style: GoogleFonts.poppins(
+                            color: Colors.red.shade400,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+
+                SizedBox(height: 32),
+
+                // Expiry Date Field
+                TextFormField(
+                  readOnly: true,
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: 'Expiry Date',
+                    labelStyle: GoogleFonts.poppins(
+                      color: Colors.grey.shade600,
+                      fontSize: 14,
+                    ),
+                    suffixIcon: Icon(Icons.calendar_today,
+                        color: Colors.green.shade400),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: Colors.grey.shade200),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: Colors.grey.shade200),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: Colors.green.shade400),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: Colors.red.shade400),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  ),
+                  onTap: () =>
+                      _pickExpiryDate(context, certificate.certificateId!),
+                  validator: (value) {
+                    if (_expiryDates[certificate.certificateId] == null) {
+                      return 'Please select an expiry date';
+                    }
+                    return null;
+                  },
+                  controller: TextEditingController(
+                      text: _expiryDates[certificate.certificateId]),
+                ),
+
+                // Time to Live Section
+                if (certificate.certificateTtl != null) ...[
+                  SizedBox(height: 24),
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.blue.shade100),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade100,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(Icons.access_time,
+                              color: Colors.blue.shade700, size: 24),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Time to Live',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  color: Colors.blue.shade700,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Text(
+                                '${certificate.certificateTtl} ${certificate.certificateTtlUnits ?? ''}',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  color: Colors.blue.shade900,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -450,176 +664,192 @@ class _CertificateFormScreenState extends State<CertificateFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageView.builder(
-        physics: NeverScrollableScrollPhysics(),
-        controller: _pageController,
-        itemCount: widget.certificates.length,
-        onPageChanged: (index) {
-          setState(() {
-            _currentPage = index;
-          });
-        },
-        itemBuilder: (context, index) {
-          return SingleChildScrollView(
-            child: _buildCertificateSection(widget.certificates[index], index),
-          );
-        },
-      ),
-        bottomNavigationBar: BottomAppBar(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Back/Cancel Button
-              TextButton(
-                onPressed: () {
-                  final status =
-                      Provider.of<appBloc>(context, listen: false).isLoading;
-                  if (status) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text('Please wait, upload in progress')),
-                    );
-                  } else if (_currentPage > 0) {
-                    _pageController.previousPage(
-                      duration: Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                  } else {
-                    Navigator.pop(context);
-                  }
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.blue.shade700,
-                  backgroundColor: Colors.blue.shade50,
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    side: BorderSide(color: Colors.blue.shade200),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      _currentPage > 0 ? Icons.arrow_back : Icons.cancel,
-                      size: 18,
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      _currentPage > 0 ? 'Back' : 'Cancel',
-                      style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-              ),
+        backgroundColor: Colors.grey.shade200,
+        body: Column(
+          children: [
+            _buildStepper(), // Add
 
-              // Submit Button
-              ElevatedButton(
-                onPressed: () {
-                  final status =
-                      Provider.of<appBloc>(context, listen: false).isLoading;
-                  if (status) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text('Please wait, upload in progress')),
-                    );
-                  } else {
-                    _submitForm(widget.certificates[_currentPage]);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colors.green.shade600,
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  elevation: 2,
-                ),
-                child: context.watch<appBloc>().isLoading
-                    ? LoadingAnimationWidget.staggeredDotsWave(
-                        color: Colors.white,
-                        size: 20,
-                      )
-                    : Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.check_circle, size: 18),
-                          SizedBox(width: 4),
-                          Text(
-                            'Submit',
-                            style: TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w600),
-                          ),
-                        ],
-                      ),
-              ),
-
-              // Skip/Finish Button
-              TextButton(
-                onPressed: () {
-                  final status =
-                      Provider.of<appBloc>(context, listen: false).isLoading;
-                  if (status) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text('Please wait, upload in progress')),
-                    );
-                  } else if (_currentPage < widget.certificates.length - 1) {
-                    _pageController.nextPage(
-                      duration: Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                  } else {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AuthorizationStatus(
-                            isWareHouse: widget.isWareHouse),
-                      ),
-                    );
-                  }
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.orange.shade700,
-                  backgroundColor: Colors.orange.shade50,
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    side: BorderSide(color: Colors.orange.shade200),
+            Expanded(
+              child: Center(
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.4,
+                  child: PageView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    controller: _pageController,
+                    itemCount: widget.certificates.length,
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentPage = index;
+                      });
+                    },
+                    itemBuilder: (context, index) {
+                      return SingleChildScrollView(
+                        child: _buildCertificateSection(
+                            widget.certificates[index], index),
+                      );
+                    },
                   ),
                 ),
-                child: context.watch<appBloc>().isLoading
-                    ? LoadingAnimationWidget.staggeredDotsWave(
-                        color: Colors.orange.shade700,
-                        size: 20,
-                      )
-                    : Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            _currentPage < widget.certificates.length - 1
-                                ? Icons.skip_next
-                                : Icons.done_all,
-                            size: 18,
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            _currentPage < widget.certificates.length - 1
-                                ? 'Skip'
-                                : 'Finish',
-                            style: TextStyle(
-                                fontSize: 14, fontWeight: FontWeight.w600),
-                          ),
-                        ],
-                      ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ));}}
+        bottomNavigationBar: BottomAppBar(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Back/Cancel Button
+                TextButton(
+                  onPressed: () {
+                    final status =
+                        Provider.of<appBloc>(context, listen: false).isLoading;
+                    if (status) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text('Please wait, upload in progress')),
+                      );
+                    } else if (_currentPage > 0) {
+                      _pageController.previousPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    } else {
+                      Navigator.pop(context);
+                    }
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.blue.shade700,
+                    backgroundColor: Colors.blue.shade50,
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(color: Colors.blue.shade200),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _currentPage > 0 ? Icons.arrow_back : Icons.cancel,
+                        size: 18,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        _currentPage > 0 ? 'Back' : 'Cancel',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
 
+                // Submit Button
+                ElevatedButton(
+                  onPressed: () {
+                    final status =
+                        Provider.of<appBloc>(context, listen: false).isLoading;
+                    if (status) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text('Please wait, upload in progress')),
+                      );
+                    } else {
+                      _submitForm(widget.certificates[_currentPage]);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.green.shade600,
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    elevation: 2,
+                  ),
+                  child: context.watch<appBloc>().isLoading
+                      ? LoadingAnimationWidget.staggeredDotsWave(
+                          color: Colors.white,
+                          size: 20,
+                        )
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.check_circle, size: 18),
+                            SizedBox(width: 4),
+                            Text(
+                              'Submit',
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                ),
 
+                // Skip/Finish Button
+                TextButton(
+                  onPressed: () {
+                    final status =
+                        Provider.of<appBloc>(context, listen: false).isLoading;
+                    if (status) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text('Please wait, upload in progress')),
+                      );
+                    } else if (_currentPage < widget.certificates.length - 1) {
+                      _pageController.nextPage(
+                        duration: Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AuthorizationStatus(
+                             isWeb: true,
+                              isWareHouse: widget.isWareHouse),
+                        ),
+                      );
+                    }
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.orange.shade700,
+                    backgroundColor: Colors.orange.shade50,
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(color: Colors.orange.shade200),
+                    ),
+                  ),
+                  child: context.watch<appBloc>().isLoading
+                      ? LoadingAnimationWidget.staggeredDotsWave(
+                          color: Colors.orange.shade700,
+                          size: 20,
+                        )
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              _currentPage < widget.certificates.length - 1
+                                  ? Icons.skip_next
+                                  : Icons.done_all,
+                              size: 18,
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              _currentPage < widget.certificates.length - 1
+                                  ? 'Skip'
+                                  : 'Finish',
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                ),
+              ],
+            ),
+          ),
+        ));
+  }
+}

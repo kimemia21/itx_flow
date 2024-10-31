@@ -14,7 +14,7 @@ class appBloc extends ChangeNotifier {
   bool _navIsVisible = true;
   bool _isLoading = false;
   String _token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNzI5MzE1NTgzLCJleHAiOjE3MjkzMzM1ODN9.CUmW9DCpB-qTZuhQiuSiKQrAY-6Uvs7tQAanXYSTR5A";
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiV0VCIiwiaWF0IjoxNzMwMzU1OTk2LCJleHAiOjE3MzAzNzM5OTZ9.oqk-sTSpv1qV-t4ALJvjKee8gtuHNCAxi5vEKeWeMU8";
   int _user_type = 0;
   Map<int, dynamic> _watchList = {};
   String _userEmail = "";

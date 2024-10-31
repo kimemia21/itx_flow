@@ -121,6 +121,7 @@ class _WarehouseDocumentsState extends State<WarehouseDocuments> {
         Globals.switchScreens(
             context: context,
             screen: AuthorizationStatus(
+               isWeb: false,
               isWareHouse: true,
             ));
       } else {
