@@ -27,7 +27,7 @@ class _RSSFeedViewState extends State<RSSFeedView> {
 
   Future<void> _fetchFeed() async {
     try {
-      final response = await http.get(Uri.parse("https://rss.app/feeds/tFEefBPPdWdLhUuS.xml"));
+      final response = await http.get(Uri.parse(" https://worldteanews.com/rss.xml"));
       
       if (response.statusCode == 200) {
         final feed = RssFeed.parse(response.body);

@@ -93,6 +93,8 @@ dependencies:
   webfeed_revised: ^0.8.0
   html: ^0.15.4
   easy_stepper: ^0.8.3
+  flutter_spinkit: ^5.2.1
+  socket_io_client: ^3.0.1
 
 dev_dependencies:
   flutter_test:
@@ -124,6 +126,9 @@ flutter:
     - assets/gif/AnimationFiles.json
     - assets/gif/AnimationWelcome.json
     - assets/pdf/ContractTemplate.pdf
+
+   
+    - assets/images/mems.jpg 
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

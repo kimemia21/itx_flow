@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:itx/TestLab.dart';
 import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/authentication/SignUp.dart';
+import 'package:itx/chatbox/ChatBox.dart';
 import 'package:itx/rss/RSSFEED.dart';
 import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:itx/authentication/SplashScreen.dart';
@@ -63,7 +64,8 @@ class _GetPlatformState extends State<GetPlatform> {
     if (kIsWeb) {
       setBloc.changePlatform("web");
       //  List<CommoditiesCert> ITEMS = [];
-      return WebCommoditiesOfInterest(isWareHouse: false);
+      return Weblogin();
+      // WebCommoditiesOfInterest(isWareHouse: false);
 
       // WebNav();
 
@@ -77,10 +79,10 @@ class _GetPlatformState extends State<GetPlatform> {
     // Android or iOS platform
     else if (Platform.isAndroid || Platform.isIOS) {
       setBloc.changePlatform("android");
-      return
-          // MainSignup();
+      return ChatScreen();
+      // MainSignup();
 
-          Splashscreen();
+      Splashscreen();
       //  appbloc.token == "" ? Splashscreen() : GlobalsHomePage();
 
       // Regulators() : Regulators();

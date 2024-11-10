@@ -97,8 +97,8 @@ class _WebloginState extends State<Weblogin> {
 
   @override
   Widget build(BuildContext context) {
-    _emailController.text = "meshak1@gmail.com";
-    _passwordController.text = "1234567";
+    _emailController.text = "test23@gmail.com";
+    _passwordController.text = "12345678";
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -111,15 +111,7 @@ class _WebloginState extends State<Weblogin> {
           return Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              image: DecorationImage(
-                image: NetworkImage(
-                    "https://live.staticflickr.com/4073/4749322886_e81a8ba878_b.jpg"),
-                fit: BoxFit.cover,
-                colorFilter: ColorFilter.mode(
-                  Colors.white.withOpacity(0.0),
-                  BlendMode.darken,
-                ),
-              ),
+             
             ),
             child: Center(
               child: Container(
@@ -145,8 +137,8 @@ class _WebloginState extends State<Weblogin> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   image: DecorationImage(
-                                    image: NetworkImage(
-                                        "https://live.staticflickr.com/65535/49859907217_53e2e5b861_b.jpg"),
+                                    image:AssetImage( "images/mems.jpg"),
+                                    
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -173,7 +165,7 @@ class _WebloginState extends State<Weblogin> {
                                     ),
                                     SizedBox(height: 8),
                                     Text(
-                                      "Login to your ITX account",
+                                      "Login to your EACX account",
                                       style: GoogleFonts.poppins(
                                         fontSize: 16,
                                         color: Colors.grey.shade600,

@@ -127,7 +127,9 @@ class _SpecificorderState extends State<Specificorder> {
                     SizedBox(height: 20),
                     buildCompanyInfoSection(),
                     SizedBox(height: 20),
-                    buildTradeOptions(),
+                    Visibility(
+                      visible: false,
+                      child:buildTradeOptions() )  ,
                   ],
                 ),
               ),
@@ -479,7 +481,7 @@ class _SpecificorderState extends State<Specificorder> {
               onTap: () {
                 print(userType);
                 if (userType == 3) {
-                 print("true");
+             
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
