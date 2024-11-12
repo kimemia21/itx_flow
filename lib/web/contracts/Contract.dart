@@ -441,6 +441,7 @@ class _WebContractsState extends State<WebContracts> {
                           ],
                         ),
                         LikeButton(
+                          isWarehouse: widget.isWareHouse,
                           contractId: contract.contractId,
                           likes: contract.liked,
                           onLikeChanged: (isLiked) async {
@@ -603,6 +604,7 @@ class _WebContractsState extends State<WebContracts> {
                       )),
                   DataCell(Text("\$${contract.price.toStringAsFixed(2)}")),
                   DataCell(LikeButton(
+                    isWarehouse: widget.isWareHouse,
                     contractId: contract.contractId,
                     likes: contract.liked,
                     onLikeChanged: (isLiked) async {

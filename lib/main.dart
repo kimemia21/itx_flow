@@ -2,10 +2,11 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:itx/TestLab.dart';
+import 'package:itx/testlab/TestLab.dart';
 import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/authentication/SignUp.dart';
 import 'package:itx/chatbox/ChatBox.dart';
+import 'package:itx/chatbox/ChatList.dart';
 import 'package:itx/rss/RSSFEED.dart';
 import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:itx/authentication/SplashScreen.dart';
@@ -61,7 +62,7 @@ class _GetPlatformState extends State<GetPlatform> {
     final appBloc appbloc = context.watch<appBloc>();
     final appBloc setBloc = context.read<appBloc>();
     // Web platform
-    if (kIsWeb) {
+    if (kIsWeb || Platform.isWindows) {
       setBloc.changePlatform("web");
       //  List<CommoditiesCert> ITEMS = [];
       return Weblogin();
@@ -79,10 +80,12 @@ class _GetPlatformState extends State<GetPlatform> {
     // Android or iOS platform
     else if (Platform.isAndroid || Platform.isIOS) {
       setBloc.changePlatform("android");
-      return ChatScreen();
-      // MainSignup();
+      return  Splashscreen();
+          // ChatScreen();
+          // MainSignup();
+          // ChatListScreen();
 
-      Splashscreen();
+   
       //  appbloc.token == "" ? Splashscreen() : GlobalsHomePage();
 
       // Regulators() : Regulators();

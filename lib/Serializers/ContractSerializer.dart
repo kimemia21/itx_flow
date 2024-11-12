@@ -65,6 +65,7 @@ class ContractsModel {
 
   // Factory method to create an instance from JSON
   factory ContractsModel.fromJson(Map<String, dynamic> json) {
+
     return ContractsModel(
         contractId: json['contract_id'],
         contractTypeId: json['contract_type_id'],

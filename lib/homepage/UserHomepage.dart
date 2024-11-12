@@ -51,7 +51,7 @@ class _UserhomepageState extends State<Userhomepage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: ITXAppBar(
-        title: "ITX",
+        title: "EACX",
       ),
       body: SingleChildScrollView(
         child: Column(

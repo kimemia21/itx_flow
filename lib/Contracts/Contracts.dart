@@ -8,6 +8,7 @@ import 'package:itx/Contracts/CreateContract/CreateContract.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/Contracts/AnimatedButton.dart';
+import 'package:itx/chatbox/ChatBox.dart';
 import 'package:itx/global/appbar.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/globals.dart';
@@ -229,7 +230,7 @@ class _ContractsState extends State<Contracts> {
 
           return SingleChildScrollView(
             // Ensures the table can be scrolled for refresh
-            //  
+            //
             physics: const AlwaysScrollableScrollPhysics(),
             child: Container(
               width: MediaQuery.of(context).size.width * 1,
@@ -255,7 +256,11 @@ class _ContractsState extends State<Contracts> {
                       fixedWidth: 65, label: Text('Price'), size: ColumnSize.S),
                   DataColumn2(
                       fixedWidth: 40,
-                      label: Text('Action'),
+                      label: Text(widget.isWareHouse ? 'Status' : "Action"),
+                      size: ColumnSize.S),
+                  DataColumn2(
+                      fixedWidth: 40,
+                      label: Text('Message'),
                       size: ColumnSize.S),
                 ],
                 rows: contractsList.map((contract) {
@@ -289,6 +294,7 @@ class _ContractsState extends State<Contracts> {
                       DataCell(Text("\$${contract.price.toStringAsFixed(2)}")),
                       DataCell(LikeButton(
                         contractId: contract.contractId,
+                        isWarehouse: widget.isWareHouse,
                         likes: contract.liked,
                         onLikeChanged: (isLiked) async {
                           await AuthRequest.likeunlike(
@@ -298,6 +304,16 @@ class _ContractsState extends State<Contracts> {
                           );
                         },
                       )),
+                      DataCell(IconButton(
+                          onPressed: () =>
+                              PersistentNavBarNavigator.pushNewScreen(
+                                  withNavBar: true,
+                                  context,
+                                  screen: ChatScreen()),
+                          icon: Icon(
+                            Icons.message,
+                            color: Colors.grey,
+                          ))),
                     ],
                   );
                 }).toList(),
@@ -329,61 +345,139 @@ class _ContractsState extends State<Contracts> {
 
   @override
   Widget build(BuildContext context) {
-    print("${Provider.of<appBloc>(context, listen: false).token} token");
-
     return Scaffold(
       floatingActionButton: widget.filtered || widget.isWareHouse
           ? null
-          : FloatingActionButton(
+          : FloatingActionButton.extended(
               onPressed: () {
                 PersistentNavBarNavigator.pushNewScreen(
                     withNavBar: true, context, screen: CreateContract());
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     duration: Duration(seconds: 1),
-                    content: Text('Creating new contract...'),
+                    content: Row(
+                      children: [
+                        Icon(Icons.add_circle_outline, color: Colors.white),
+                        SizedBox(width: 8),
+                        Text('Creating new contract...'),
+                      ],
+                    ),
                     backgroundColor: Colors.green.shade600,
                   ),
                 );
               },
               backgroundColor: Colors.green.shade600,
-              child: const Icon(Icons.add, color: Colors.white),
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: Text('New Contract',
+                  style: GoogleFonts.poppins(color: Colors.white)),
+              elevation: 4,
             ),
       appBar: widget.showAppbarAndSearch
           ? ITXAppBar(
               title: widget.isWareHouse
-                  ? "WareHouse Orders"
+                  ? "WareHouse "
                   : widget.filtered
                       ? "Watchlist"
                       : widget.contractName,
             )
           : null,
       body: context.watch<appBloc>().isLoading
-          ? LoadingAnimationWidget.staggeredDotsWave(
-              color: Colors.green, size: 20)
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  LoadingAnimationWidget.staggeredDotsWave(
+                      color: Colors.green, size: 40),
+                  SizedBox(height: 16),
+                  Text(
+                    'Loading Contracts...',
+                    style: GoogleFonts.poppins(
+                      color: Colors.green.shade600,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            )
           : Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [Colors.green.shade50, Colors.white],
+                  stops: [0.0, 0.6],
                 ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Visibility(
-                      visible: widget.showAppbarAndSearch,
-                      child: _buildSearchBar(context),
+              child: CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (widget.showAppbarAndSearch) ...[
+                            _buildSearchBar(context),
+                            SizedBox(height: 20),
+                          ],
+                          if (widget.isSpot) ...[
+                            Container(
+                              width: double.infinity,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Live Market Updates',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.green.shade800,
+                                    ),
+                                  ),
+                                  _buildDecoratedTimer(),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            Divider(color: Colors.green.shade100, thickness: 1),
+                            SizedBox(height: 16),
+                          ],
+                        ],
+                      ),
                     ),
-                    SizedBox(height: 20),
-                    Visibility(
-                        visible: widget.isSpot, child: _buildDecoratedTimer()),
-                    Flexible(child: _buildContractsTable()),
-                  ],
-                ),
+                  ),
+                  SliverFillRemaining(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          topRight: Radius.circular(30),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.green.shade100.withOpacity(0.5),
+                            spreadRadius: 1,
+                            blurRadius: 10,
+                            offset: Offset(0, -5),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          topRight: Radius.circular(30),
+                        ),
+                        child: _buildContractsTable(),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
     );

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -97,8 +98,11 @@ class _WebloginState extends State<Weblogin> {
 
   @override
   Widget build(BuildContext context) {
-    _emailController.text = "test23@gmail.com";
-    _passwordController.text = "12345678";
+    if (kDebugMode) {
+     _emailController.text = "kikuyu1@gmail.com";
+    _passwordController.text = "1234567";
+    }
+ 
 
     return Scaffold(
       backgroundColor: Colors.white,
