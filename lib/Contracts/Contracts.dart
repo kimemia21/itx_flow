@@ -284,7 +284,7 @@ class _ContractsState extends State<Contracts> {
                             PersistentNavBarNavigator.pushNewScreen(
                                 withNavBar: true,
                                 context,
-                                screen: Specificorder(contract: contract));
+                                screen: Specificorder(contract: contract, isWarehouse: widget.isWareHouse,));
                           },
                           child: Text(getFirstName(contract.contract_user!)))),
                       DataCell(Text(contract.grade_name ?? "N/A")),
@@ -309,7 +309,7 @@ class _ContractsState extends State<Contracts> {
                               PersistentNavBarNavigator.pushNewScreen(
                                   withNavBar: true,
                                   context,
-                                  screen: ChatScreen()),
+                                  screen: ChatScreen(model:contract)),
                           icon: Icon(
                             Icons.message,
                             color: Colors.grey,

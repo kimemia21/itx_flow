@@ -120,6 +120,9 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
                     'messages', 'Messages', Icons.message_outlined),
                 _buildPopupMenuItem('logout', 'Log Out', Icons.logout_rounded,
                     isDestructive: true),
+                    
+                _buildPopupMenuItem(' ChangeRole', 'Role', Icons.person,
+                    isDestructive: true),
               ],
             ),
           ),

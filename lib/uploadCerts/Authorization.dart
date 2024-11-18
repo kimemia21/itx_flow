@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 class AuthorizationStatus extends StatefulWidget {
   final bool isWareHouse;
   final bool isWeb;
-  
+
   const AuthorizationStatus({
     super.key,
     required this.isWareHouse,
@@ -30,53 +30,54 @@ class _AuthorizationStatusState extends State<AuthorizationStatus> {
     required String subtitle,
     required bool status,
   }) {
-    return Container(
-      width: widget.isWeb ? 400 : MediaQuery.of(context).size.width * 0.4,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.black12, width: 1),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            offset: Offset(4, 4),
-            blurRadius: 10,
-          ),
-        ],
-      ),
-      height: 120,
-      margin: const EdgeInsets.only(right: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Center(
-            child: Icon(
-              status ? Icons.check_circle_outline : Icons.error_outline,
-              size: 30,
-              color: status ? Colors.green : Colors.redAccent,
+    return Expanded(
+      child: Container(
+        width: widget.isWeb ? 400 : MediaQuery.of(context).size.width * 0.4,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(color: Colors.black12, width: 1),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              offset: Offset(4, 4),
+              blurRadius: 10,
             ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-              color: Colors.black87,
+          ],
+        ),
+        margin: const EdgeInsets.only(right: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: Icon(
+                status ? Icons.check_circle_outline : Icons.error_outline,
+                size: 30,
+                color: status ? Colors.green : Colors.redAccent,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w400,
-              fontSize: 14,
-              color: Colors.grey.shade600,
+            const SizedBox(height: 10),
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                color: Colors.black87,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w400,
+                fontSize: 14,
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -93,7 +94,9 @@ class _AuthorizationStatusState extends State<AuthorizationStatus> {
         ),
         const SizedBox(height: 20),
         Text(
-          isAuthorized ? "You're authorized to trade!" : "Authorization Pending",
+          isAuthorized
+              ? "You're authorized to trade!"
+              : "Authorization Pending",
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             fontSize: 24,
@@ -118,7 +121,9 @@ class _AuthorizationStatusState extends State<AuthorizationStatus> {
     return GestureDetector(
       onTap: () => PersistentNavBarNavigator.pushNewScreen(
         context,
-        screen: isAuthorized ? GlobalsHomePage() : Commodities(isWareHouse: widget.isWareHouse),
+        screen: isAuthorized
+            ? GlobalsHomePage()
+            : Commodities(isWareHouse: widget.isWareHouse),
       ),
       child: Container(
         alignment: Alignment.center,
@@ -142,7 +147,8 @@ class _AuthorizationStatusState extends State<AuthorizationStatus> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isAuthorized = Provider.of<appBloc>(context, listen: false).isAuthorized == 'yes';
+    final bool isAuthorized =
+        Provider.of<appBloc>(context, listen: false).isAuthorized == 'yes';
     final bool isWareHouse = context.watch<appBloc>().user_id == 6;
 
     return Scaffold(
@@ -192,6 +198,18 @@ class _AuthorizationStatusState extends State<AuthorizationStatus> {
                     ),
                     const SizedBox(height: 20),
                     _buildContent(isAuthorized),
+                    const SizedBox(height: 20),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => GlobalsHomePage()));
+                        },
+                        child: Text(
+                          "Skip",
+                          style: GoogleFonts.poppins(color: Colors.blue),
+                        ))
                   ],
                 ),
             ],

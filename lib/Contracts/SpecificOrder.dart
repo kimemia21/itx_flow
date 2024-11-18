@@ -4,6 +4,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:itx/Contracts/ContLiveBid.dart';
+import 'package:itx/Serializers/Reasons.dart';
+import 'package:itx/chatbox/ChatBox.dart';
 import 'package:itx/global/NoAuthorized.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:itx/payments/PayNow.dart';
@@ -18,10 +20,9 @@ import 'package:provider/provider.dart';
 
 class Specificorder extends StatefulWidget {
   final ContractsModel contract;
+  final bool isWarehouse;
 
-  Specificorder({
-    required this.contract,
-  });
+  Specificorder({required this.contract, required this.isWarehouse});
 
   @override
   _SpecificorderState createState() => _SpecificorderState();
@@ -32,12 +33,14 @@ class _SpecificorderState extends State<Specificorder> {
   List<FlSpot> priceHistorySpots = [];
   bool isLoading = true;
   String? errorMessage;
+  String? selectedReason;
+  TextEditingController _otherReasonController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
 
-    if (widget.contract.commodityId != null) {
+    if (!widget.isWarehouse && widget.contract.commodityId != null) {
       fetchCompanyAndPriceHistory();
     } else {
       setState(() {
@@ -47,23 +50,21 @@ class _SpecificorderState extends State<Specificorder> {
   }
 
   Future<void> fetchCompanyAndPriceHistory() async {
+    if (widget.isWarehouse) return;
+
     setState(() {
-      isLoading = true; // Start loading
+      isLoading = true;
     });
 
     try {
-      // Fetch commodity info
       final CommodityResponse response =
           await CommodityService.fetchCommodityInfo(
               context, int.parse(widget.contract.userCompanyId.toString()));
 
-      // Handle the case where response or data is null or empty
       if (response != null) {
         setState(() {
-          // Set company if data is not empty, otherwise null
           company = response.data.isNotEmpty ? response.data.first : null;
 
-          // Handle empty price history and convert it to list of FlSpot
           if (response.priceHistory != null &&
               response.priceHistory.isNotEmpty) {
             priceHistorySpots = response.priceHistory
@@ -73,14 +74,11 @@ class _SpecificorderState extends State<Specificorder> {
                     ))
                 .toList();
           } else {
-            priceHistorySpots =
-                []; // Set empty if priceHistory is null or empty
+            priceHistorySpots = [];
           }
-
-          isLoading = false; // Loading is complete
+          isLoading = false;
         });
       } else {
-        // Handle case where response is null
         setState(() {
           company = null;
           priceHistorySpots = [];
@@ -89,13 +87,432 @@ class _SpecificorderState extends State<Specificorder> {
         });
       }
     } catch (e) {
-      // Handle any errors and update the state accordingly
       setState(() {
         errorMessage = "Error loading data: $e";
         isLoading = false;
       });
     }
   }
+
+  Widget buildWarehouseInfo() {
+    final warehouseStatus =
+        widget.contract.warehouse_status?.toLowerCase() ?? 'n/a';
+
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      // Status Card
+      _buildStatusBanner(),
+      SizedBox(height: 20),
+      Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.green.shade50,
+                Colors.green.shade100,
+              ],
+            ),
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: Offset(0, 5),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  _showReasonBottomSheet();
+                  // Add your onPressed logic here
+                  print('Button pressed');
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Change Contract Status',
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.green.shade700,
+                      ),
+                    ),
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color:
+                            _getStatusColor(warehouseStatus).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: _getStatusColor(warehouseStatus),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Text(
+                        widget.contract.warehouse_status ?? 'N/A',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: _getStatusColor(warehouseStatus),
+                        ),
+                      ),
+                    ).animate().fadeIn(duration: 600.ms).scale(),
+                  ],
+                ).animate().fadeIn(duration: 500.ms).slideY(),
+              ),
+              if (widget.contract.warehouse_status_message != null) ...[
+                SizedBox(height: 15),
+                Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.message_outlined,
+                        color: Colors.green.shade700,
+                        size: 20,
+                      ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          widget.contract.warehouse_status_message!,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ).animate().fadeIn(duration: 800.ms).slideX(),
+              ],
+
+              SizedBox(height: 20),
+
+              // Details Grid
+              GridView.count(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                mainAxisSpacing: 15,
+                crossAxisSpacing: 15,
+                childAspectRatio: 1.5,
+                children: [
+                  _buildDetailCard(
+                    'Contract Type',
+                    widget.contract.contractType,
+                    Icons.description_outlined,
+                    Colors.blue,
+                  ),
+                  _buildDetailCard(
+                    'Packing',
+                    widget.contract.contract_packing ?? 'N/A',
+                    Icons.inventory_2_outlined,
+                    Colors.orange,
+                  ),
+                  _buildDetailCard(
+                    'Producer',
+                    widget.contract.contract_user ?? 'N/A',
+                    Icons.person_outline,
+                    Colors.purple,
+                  ),
+                  _buildDetailCard(
+                    'Warehouse ID',
+                    '#${widget.contract.warehouse_id}',
+                    Icons.warehouse_outlined,
+                    Colors.green,
+                  ),
+                ],
+              ).animate().fadeIn(duration: 800.ms),
+
+              SizedBox(height: 20),
+
+              // Additional Info
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                    color: Colors.grey.shade200,
+                    width: 1,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Delivery Information',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 15),
+                    _buildInfoRow(
+                      'Delivery Date',
+                      DateFormat('MMM dd, yyyy')
+                          .format(widget.contract.deliveryDate),
+                      Icons.calendar_today_outlined,
+                    ),
+                    SizedBox(height: 12),
+                    _buildInfoRow(
+                      'Price',
+                      '\$${widget.contract.price.toStringAsFixed(2)}',
+                      Icons.attach_money,
+                    ),
+                    SizedBox(height: 12),
+                    _buildInfoRow(
+                      'Grade',
+                      widget.contract.grade_name,
+                      Icons.grade_outlined,
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        PersistentNavBarNavigator.pushNewScreen(context,
+                            screen: ChatScreen(model: widget.contract));
+                      },
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12), // Padding inside the button
+                        backgroundColor: Colors.blue.shade700,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+
+                        elevation: 2,
+                      ),
+                      child: Text(
+                        "Message Producer",
+                        style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
+              ).animate().fadeIn(duration: 1000.ms).slideY(),
+            ],
+          ))
+    ]);
+  }
+
+  Widget _buildDetailCard(
+      String title, String value, IconData icon, Color color) {
+    return Container(
+      padding: EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withOpacity(0.3),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            color: color,
+            size: 24,
+          ),
+          SizedBox(height: 8),
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey.shade600,
+            ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            value,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value, IconData icon) {
+    return Row(
+      children: [
+        Icon(
+          icon,
+          size: 20,
+          color: Colors.grey.shade600,
+        ),
+        SizedBox(width: 10),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            Text(
+              value,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'approved':
+        return Colors.green.shade600;
+      case 'pending':
+        return Colors.orange.shade600;
+      case 'rejected':
+        return Colors.red.shade600;
+      default:
+        return Colors.grey.shade600;
+    }
+  }
+
+  Widget _buildStatusBanner() {
+    final status = widget.contract.warehouse_status;
+
+    late String message;
+    late Color backgroundColor;
+    late Color textColor;
+    late IconData icon;
+    late String subMessage;
+
+    if (status == "1") {
+      message = "Successfully Received";
+      backgroundColor = Colors.green.shade50;
+      textColor = Colors.green.shade700;
+      icon = Icons.check_circle_rounded;
+      subMessage = "This contract has been received and verified";
+    } else if (status == "0") {
+      message = "Reception Failed";
+      backgroundColor = Colors.red.shade50;
+      textColor = Colors.red.shade700;
+      icon = Icons.error_rounded;
+      subMessage = widget.contract.warehouse_status_message ??
+          "There was an issue with receiving your commodity";
+    } else {
+      message = "Awaiting Reception";
+      backgroundColor = Colors.orange.shade50;
+      textColor = Colors.orange.shade700;
+      icon = Icons.hourglass_empty_rounded;
+      subMessage = "This contract has not yet been received by the warehouse";
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: textColor.withOpacity(0.1),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: textColor.withOpacity(0.2),
+                  blurRadius: 8,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Icon(
+              icon,
+              color: textColor,
+              size: 30,
+            ),
+          ).animate().fadeIn(duration: 600.ms).scale(),
+          SizedBox(width: 15),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  message,
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: textColor,
+                  ),
+                ).animate().fadeIn(duration: 800.ms).slideX(),
+                SizedBox(height: 5),
+                Text(
+                  subMessage,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: textColor.withOpacity(0.8),
+                  ),
+                ).animate().fadeIn(duration: 1000.ms).slideX(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: 500.ms).slideY();
+  }
+
+// Helper method to get status-specific animations
+  Widget _getStatusAnimation(Widget child, String status) {
+    if (status == "1") {
+      return child
+          .animate()
+          .fadeIn(duration: 500.ms)
+          .scale(curve: Curves.elasticOut);
+    } else if (status == "0") {
+      return child.animate().fadeIn(duration: 500.ms).shake(duration: 500.ms);
+    } else {
+      return child.animate().fadeIn(duration: 500.ms).slideX();
+    }
+  }
+
+// Update the color helper method
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +522,7 @@ class _SpecificorderState extends State<Specificorder> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          "${widget.contract.name}",
+          widget.contract.name,
           style: GoogleFonts.poppins(
               color: Colors.white, fontWeight: FontWeight.w600),
         ),
@@ -121,15 +538,23 @@ class _SpecificorderState extends State<Specificorder> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildHeader(),
+                    !widget.isWarehouse
+                        ? buildHeader()
+                        : SizedBox(
+                            height: 1,
+                          ),
                     SizedBox(height: 10),
-                    buildGraph(),
-                    SizedBox(height: 20),
-                    buildCompanyInfoSection(),
+                    if (!widget.isWarehouse) ...[
+                      buildGraph(),
+                      SizedBox(height: 20),
+                      buildCompanyInfoSection(),
+                    ],
+                    if (widget.isWarehouse) buildWarehouseInfo(),
                     SizedBox(height: 20),
                     Visibility(
-                      visible: false,
-                      child:buildTradeOptions() )  ,
+                      visible: !widget.isWarehouse,
+                      child: buildTradeOptions(),
+                    ),
                   ],
                 ),
               ),
@@ -467,7 +892,7 @@ class _SpecificorderState extends State<Specificorder> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Trade',
+          'Actions',
           style: GoogleFonts.poppins(
             fontSize: 22,
             fontWeight: FontWeight.w600,
@@ -476,12 +901,13 @@ class _SpecificorderState extends State<Specificorder> {
         ).animate().fadeIn(duration: 500.ms).slideX(),
         SizedBox(height: 10),
         Visibility(
-          visible: widget.contract.canBid == 0 || userType!=4 || userType!=6,
+          visible:
+              widget.contract.canBid == 0 || userType != 4 || userType != 6,
           child: GestureDetector(
               onTap: () {
-                print(userType);
+                // print(userType);
+
                 if (userType == 3) {
-             
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
@@ -512,13 +938,13 @@ class _SpecificorderState extends State<Specificorder> {
                   );
                 }
               },
-              child: buildTradeOption(
+              child: TradeOption(
                   'Buy Now', 'Market execution', Icons.arrow_upward)),
         ),
         SizedBox(height: 10),
         Visibility(
           //  visible: randomNumber==0,
-          visible: widget.contract.canBid == 1,
+          visible: widget.contract.canBid == 1 && !widget.isWarehouse,
 
           child: GestureDetector(
               onTap: () async {
@@ -538,14 +964,14 @@ class _SpecificorderState extends State<Specificorder> {
                   print("error on specific order $e");
                 }
               },
-              child: buildTradeOption(
+              child: TradeOption(
                   'Place bid', 'Market execution', Icons.arrow_upward)),
         ),
       ],
     );
   }
 
-  Widget buildTradeOption(String action, String description, IconData icon) {
+  Widget TradeOption(String action, String description, IconData icon) {
     return Container(
       padding: EdgeInsets.all(15),
       decoration: BoxDecoration(
@@ -632,5 +1058,238 @@ class _SpecificorderState extends State<Specificorder> {
         ],
       ),
     );
+  }
+
+  Future<void> _showReasonBottomSheet() {
+    return showModalBottomSheet(
+      showDragHandle: true,
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.75,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Handle bar
+                Center(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 12),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                // Title
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Why wasn\'t the contract received?',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                // Reasons list
+                FutureBuilder<List<Reasons>>(
+                    future: CommodityService.wareHouseReasons(context: context),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(
+                            child: Text('No reasons available'));
+                      }
+                      final reasons = snapshot.data!;
+
+                      return Expanded(
+                        child: ListView.builder(
+                          itemCount: reasons.length,
+                          itemBuilder: (context, index) {
+                            final reason = reasons[index];
+                            final isSelected = selectedReason == reason.title;
+
+                            return Column(
+                              children: [
+                                InkWell(
+                                  onTap: () async {
+                                    setState(() {
+                                      selectedReason = reason.title;
+                                      if (selectedReason != 'Other') {
+                                        _otherReasonController.clear();
+                                      }
+                                    });
+                                    //id of the contract,
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
+                                    color: isSelected
+                                        ? Colors.green.shade300.withOpacity(0.1)
+                                        : null,
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[100],
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: Icon(
+                                            reason.icon,
+                                            color: Colors.green.shade300,
+                                            size: 24,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                reason.title,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                              Text(
+                                                reason.subtitle,
+                                                style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        if (isSelected)
+                                          Icon(
+                                            Icons.check_circle,
+                                            color: Colors.green.shade300,
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                // Show TextField when "Other" is selected
+                                if (isSelected && reason.title == 'Other')
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 8,
+                                    ),
+                                    child: TextField(
+                                      controller: _otherReasonController,
+                                      decoration: InputDecoration(
+                                        hintText: 'Please describe the reason',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.grey[100],
+                                      ),
+                                      maxLines: 3,
+                                      onChanged: (_) => setState(
+                                          () {}), // Trigger rebuild to update button state
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
+                        ),
+                      );
+                    }),
+                // Submit button
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green.shade300,
+                      minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: selectedReason == null ||
+                            (selectedReason == 'Other' &&
+                                _otherReasonController.text.trim().isEmpty)
+                        ? null
+                        : () async {
+                            final finalReason = selectedReason == 'Other'
+                                ? _otherReasonController.text.trim()
+                                : selectedReason;
+                            print('Selected reason: $finalReason');
+                            final Map<String, dynamic> body = {
+                              // "contract_id:": widget.contract.contractId,
+                              "status": 0,
+                              "reason": selectedReason,
+                            };
+
+                            await CommodityService.PostReasons(
+                                context, body, widget.contract.id );
+
+                            // selectedReason = null;
+                            // _otherReasonController.clear();
+                          },
+                    child: const Text(
+                      'Submit',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  IconData _getIcon() {
+    if (!widget.isWarehouse) {
+      return Icons.favorite;
+    } else if (widget.isWarehouse) {
+      return Icons.check;
+    } else if (!!widget.isWarehouse) {
+      return Icons.favorite_border;
+    } else {
+      return Icons.cancel;
+    }
+  }
+
+  Color _getIconColor() {
+    if (!widget.isWarehouse) {
+      return Colors.red;
+    } else if (!!widget.isWarehouse) {
+      return Colors.grey;
+    } else if (widget.isWarehouse) {
+      return Colors.green;
+    } else {
+      return Colors.red;
+    }
   }
 }

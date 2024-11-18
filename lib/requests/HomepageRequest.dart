@@ -3,22 +3,20 @@ import 'dart:convert';
 import 'package:cherry_toast/cherry_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:itx/Serializers/ChatMessages.dart';
 import 'package:itx/Serializers/ComTrades.dart';
 import 'package:itx/Serializers/CommParams.dart';
-import 'package:itx/Serializers/CommoditesCerts.dart';
 import 'package:itx/Serializers/CommodityModel.dart';
 import 'package:itx/Serializers/CompanySerializer.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
 import 'package:itx/Serializers/ContractSummary.dart';
-import 'package:itx/Serializers/ContractType.dart';
 import 'package:itx/Serializers/OrderModel.dart';
 import 'package:itx/Serializers/Packing.dart';
 import 'package:itx/Serializers/PriceHistory.dart';
+import 'package:itx/Serializers/Reasons.dart';
 import 'package:itx/Serializers/WareHouseUsers.dart';
-import 'package:itx/global/globals.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
-import 'package:itx/web/homepage/WebHomepage.dart';
 import 'package:itx/web/homepage/WebNav.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
@@ -42,7 +40,6 @@ class CommodityService {
       final Map<String, String> headers = {
         "Content-Type": "application/json",
         "x-auth-token": Provider.of<appBloc>(context, listen: false).token
- 
       };
 
       final response = await http.get(uri, headers: headers);
@@ -672,4 +669,107 @@ class CommodityService {
       throw Exception("CommodityPacking error $e");
     }
   }
+
+  static Future<List<Reasons>> wareHouseReasons(
+      {required BuildContext context}) async {
+    final uri = Uri.parse("${mainUri}/contracts/status-reasons");
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "x-auth-token": Provider.of<appBloc>(context, listen: false).token
+    };
+    final response = await http.get(
+      uri,
+      //  headers: headers
+    );
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      if (responseData['rsp'] == true) {
+        List<dynamic> data = responseData['data'];
+        return data.map((json) => Reasons.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to fetch reasons: ${responseData['msg']}');
+      }
+    } else {
+      print("Failed to fetch reasons: ${response.statusCode}");
+      throw Exception('Failed to fetch reasons');
+    }
+  }
+
+  static Future PostReasons(
+      BuildContext context, Map<String, dynamic> body, int Id) async {
+    try {
+      final Uri uri = Uri.parse("${mainUri}/contracts/contract/:$Id/status");
+      final Map<String, String> headers = {
+        "Content-Type": "application/json",
+        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      };
+
+
+      print("------------------this is the body ${jsonEncode(body)}");
+
+      final http.Response response = await http.post(uri, headers: headers, body: jsonEncode(body));
+      final Map<String, dynamic> responseData = json.decode(response.body); 
+
+
+
+    
+       
+
+        if (responseData['rsp'] == true) {
+          print("Success");
+          Navigator.pop(context);
+        }
+         else {
+          print("Failed to submit reasons: ${responseData['msg']}");
+          // Navigator.pop(context);
+          throw Exception('Failed to submit reasons : ${responseData['msg']}');
+        }
+    
+    } catch (error) {
+      print("Error occurred: $error");
+      
+          // Navigator.pop(context);
+      // Optionally show an error message to the user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred: $error")),
+      );
+    }
+  }
+
+
+    static Future<List<ChatsMessages>> getChatMessages({
+    required BuildContext context,
+    required int receiverId,
+  }) async {
+    try {
+      final Uri uri = Uri.parse("http://185.141.63.56:3067/api/v1/chats");
+      final Map<String, String> headers = {
+        "Content-Type": "application/json",
+        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      };
+
+      final http.Response response = await http.get(uri, headers: headers);
+      final body = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && body["rsp"]) {
+        // Extract the messages for the specific receiver
+        final Map<String, dynamic> data = body["data"];
+        final List<dynamic> userMessages = data[receiverId.toString()] ?? [];
+        
+        return userMessages
+            .map((json) => ChatsMessages.fromJson(json))
+            .toList()
+          ..sort((a, b) => DateTime.parse(a.created_at)
+              .compareTo(DateTime.parse(b.created_at))); // Sort by timestamp
+      } else {
+        throw Exception("Failed to load chat messages");
+      }
+    } catch (e) {
+      print("Error fetching chat messages: $e");
+      return [];
+    }
+  }
+
+
+
 }
