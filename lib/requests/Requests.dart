@@ -467,6 +467,7 @@ class AuthRequest {
           if (Bloc.user_type == 6) {
             print("User is warehouse (user_id: 6)");
             _navigateToScreen(context, isRegistered, Bloc.user_type == 6);
+            
           } else {
             print("User is not warehouse (user_id: ${Bloc.user_id})");
 

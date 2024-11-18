@@ -95,8 +95,12 @@ class _SpecificorderState extends State<Specificorder> {
   }
 
   Widget buildWarehouseInfo() {
-    final warehouseStatus =
-        widget.contract.warehouse_status?.toLowerCase() ?? 'n/a';
+    final _status = widget.contract.warehouse_status;
+    final warehouseStatus = _status == 0
+        ? "recieved with issues"
+        : _status == 1
+            ? "Good"
+            : 'not recieved';
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       // Status Card
@@ -106,14 +110,7 @@ class _SpecificorderState extends State<Specificorder> {
           width: double.infinity,
           padding: EdgeInsets.all(20),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.green.shade50,
-                Colors.green.shade100,
-              ],
-            ),
+            color: Colors.white.withOpacity(0.5),
             borderRadius: BorderRadius.circular(15),
             boxShadow: [
               BoxShadow(
@@ -126,47 +123,50 @@ class _SpecificorderState extends State<Specificorder> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              GestureDetector(
-                onTap: () {
-                  _showReasonBottomSheet();
-                  // Add your onPressed logic here
-                  print('Button pressed');
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Change Contract Status',
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.green.shade700,
-                      ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Icon(Icons.person),
+                        Text(
+                          widget.contract.contract_user!,
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.green.shade700,
+                          ),
+                        ),
+                      ],
                     ),
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color:
-                            _getStatusColor(warehouseStatus).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: _getStatusColor(warehouseStatus),
-                          width: 1.5,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      PersistentNavBarNavigator.pushNewScreen(context,
+                          screen: ChatScreen(model: widget.contract));
+                      // showWarehouseStatusAlert(context);
+                    },
+                    child: Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color:
+                              _getStatusColor(warehouseStatus).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: _getStatusColor(warehouseStatus),
+                            width: 1.5,
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        widget.contract.warehouse_status ?? 'N/A',
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: _getStatusColor(warehouseStatus),
-                        ),
-                      ),
-                    ).animate().fadeIn(duration: 600.ms).scale(),
-                  ],
-                ).animate().fadeIn(duration: 500.ms).slideY(),
-              ),
+                        child: Icon(
+                          Icons.message,
+                          size: 30,
+                        )).animate().fadeIn(duration: 600.ms).scale(),
+                  ),
+                ],
+              ).animate().fadeIn(duration: 500.ms).slideY(),
               if (widget.contract.warehouse_status_message != null) ...[
                 SizedBox(height: 15),
                 Container(
@@ -392,12 +392,12 @@ class _SpecificorderState extends State<Specificorder> {
 
   Color _getStatusColor(String status) {
     switch (status) {
-      case 'approved':
-        return Colors.green.shade600;
-      case 'pending':
-        return Colors.orange.shade600;
-      case 'rejected':
+      case "0":
         return Colors.red.shade600;
+      case 'null':
+        return Colors.orange.shade600;
+      case '1':
+        return Colors.green.shade600;
       default:
         return Colors.grey.shade600;
     }
@@ -405,6 +405,11 @@ class _SpecificorderState extends State<Specificorder> {
 
   Widget _buildStatusBanner() {
     final status = widget.contract.warehouse_status;
+    final warehouseStatus = status == 0
+        ? "recieved with issues"
+        : status == 1
+            ? "Good"
+            : 'not recieved';
 
     late String message;
     late Color backgroundColor;
@@ -413,6 +418,7 @@ class _SpecificorderState extends State<Specificorder> {
     late String subMessage;
 
     if (status == "1") {
+      print("contact status is $status");
       message = "Successfully Received";
       backgroundColor = Colors.green.shade50;
       textColor = Colors.green.shade700;
@@ -433,69 +439,86 @@ class _SpecificorderState extends State<Specificorder> {
       subMessage = "This contract has not yet been received by the warehouse";
     }
 
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: textColor.withOpacity(0.1),
-            blurRadius: 10,
-            offset: Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: textColor.withOpacity(0.2),
-                  blurRadius: 8,
-                  offset: Offset(0, 3),
-                ),
-              ],
+    return GestureDetector
+
+  (
+    onTap: (){
+        showWarehouseStatusAlert(context);
+    },
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: textColor.withOpacity(0.1),
+              blurRadius: 10,
+              offset: Offset(0, 5),
             ),
-            child: Icon(
-              icon,
-              color: textColor,
-              size: 30,
-            ),
-          ).animate().fadeIn(duration: 600.ms).scale(),
-          SizedBox(width: 15),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  message,
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: textColor,
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: textColor.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: Offset(0, 3),
                   ),
-                ).animate().fadeIn(duration: 800.ms).slideX(),
-                SizedBox(height: 5),
-                Text(
-                  subMessage,
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: textColor.withOpacity(0.8),
-                  ),
-                ).animate().fadeIn(duration: 1000.ms).slideX(),
-              ],
-            ),
-          ),
-        ],
+                ],
+              ),
+              child: Icon(
+                icon,
+                color: textColor,
+                size: 30,
+              ),
+            ).animate().fadeIn(duration: 600.ms).scale(),
+            SizedBox(width: 15),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    message,
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
+                    ),
+                  ).animate().fadeIn(duration: 800.ms).slideX(),
+                  SizedBox(height: 5),
+                  Text(
+                    subMessage,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: textColor.withOpacity(0.8),
+                    ),
+                  ).animate().fadeIn(duration: 1000.ms).slideX(),
+                  SizedBox(height: 5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text("Click to  Change Goods Status", style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: textColor.withOpacity(0.8))).
+          animate().fadeIn(duration: 600.ms).scale(),
+                    ],
+                  ).animate().fadeIn(duration: 500.ms).slideY(),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
-    ).animate().fadeIn(duration: 500.ms).slideY();
+    );
   }
 
 // Helper method to get status-specific animations
@@ -1060,6 +1083,52 @@ class _SpecificorderState extends State<Specificorder> {
     );
   }
 
+  void showWarehouseStatusAlert(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.warehouse_rounded, color: Colors.blue),
+              SizedBox(width: 10),
+              Text('Change Delivery Status'),
+            ],
+          ),
+          content: Text('Are you confortable  with the goods status'),
+          actions: [
+            Visibility(
+              visible: widget.contract.warehouse_status != 1,
+              child: TextButton.icon(
+                icon: Icon(Icons.close, color: Colors.red),
+                label: Text('No', style: TextStyle(color: Colors.red)),
+                onPressed: () {
+                  // Handle not received
+                  Navigator.of(context).pop();
+                  _showReasonBottomSheet();
+                },
+              ),
+            ),
+            TextButton.icon(
+              icon: Icon(Icons.check, color: Colors.green),
+              label: Text('Yes', style: TextStyle(color: Colors.green)),
+              onPressed: () async {
+                final Map<String, dynamic> body = {
+                  "contract_id:": widget.contract.contractId,
+                  "status": "1",
+                  "reason": "Recieved",
+                };
+
+                await CommodityService.PostReasons(
+                    context, body, widget.contract.contractId);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _showReasonBottomSheet() {
     return showModalBottomSheet(
       showDragHandle: true,
@@ -1240,14 +1309,15 @@ class _SpecificorderState extends State<Specificorder> {
                                 ? _otherReasonController.text.trim()
                                 : selectedReason;
                             print('Selected reason: $finalReason');
+
                             final Map<String, dynamic> body = {
-                              // "contract_id:": widget.contract.contractId,
-                              "status": 0,
+                              "contract_id:": widget.contract.contractId,
+                              "status": "0",
                               "reason": selectedReason,
                             };
 
                             await CommodityService.PostReasons(
-                                context, body, widget.contract.id );
+                                context, body, widget.contract.contractId);
 
                             // selectedReason = null;
                             // _otherReasonController.clear();

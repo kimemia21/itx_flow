@@ -101,6 +101,7 @@ class CommodityService {
                             : Uri.parse("$mainUri/contracts/list?");
 
     print("this is the uri that we are using $uri");
+    
     final Map<String, String> headers = {
       "Content-Type": "application/json",
       "x-auth-token": Provider.of<appBloc>(context, listen: false).token
@@ -698,37 +699,31 @@ class CommodityService {
   static Future PostReasons(
       BuildContext context, Map<String, dynamic> body, int Id) async {
     try {
-      final Uri uri = Uri.parse("${mainUri}/contracts/contract/:$Id/status");
+      final Uri uri = Uri.parse("${mainUri}/contracts/contract/$Id/status");
+      print(uri);
       final Map<String, String> headers = {
         "Content-Type": "application/json",
         "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
       };
 
-
       print("------------------this is the body ${jsonEncode(body)}");
 
-      final http.Response response = await http.post(uri, headers: headers, body: jsonEncode(body));
-      final Map<String, dynamic> responseData = json.decode(response.body); 
+      final http.Response response =
+          await http.post(uri, headers: headers, body: jsonEncode(body));
+      final Map<String, dynamic> responseData = json.decode(response.body);
 
-
-
-    
-       
-
-        if (responseData['rsp'] == true) {
-          print("Success");
-          Navigator.pop(context);
-        }
-         else {
-          print("Failed to submit reasons: ${responseData['msg']}");
-          // Navigator.pop(context);
-          throw Exception('Failed to submit reasons : ${responseData['msg']}');
-        }
-    
+      if (responseData['rsp'] == true) {
+        print("Success");
+        Navigator.pop(context);
+      } else {
+        print("Failed to submit reasons: ${responseData['msg']}");
+        // Navigator.pop(context);
+        throw Exception('Failed to submit reasons : ${responseData['msg']}');
+      }
     } catch (error) {
       print("Error occurred: $error");
-      
-          // Navigator.pop(context);
+
+      // Navigator.pop(context);
       // Optionally show an error message to the user
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("An error occurred: $error")),
@@ -736,8 +731,7 @@ class CommodityService {
     }
   }
 
-
-    static Future<List<ChatsMessages>> getChatMessages({
+  static Future<List<ChatsMessages>> getChatMessages({
     required BuildContext context,
     required int receiverId,
   }) async {
@@ -755,10 +749,8 @@ class CommodityService {
         // Extract the messages for the specific receiver
         final Map<String, dynamic> data = body["data"];
         final List<dynamic> userMessages = data[receiverId.toString()] ?? [];
-        
-        return userMessages
-            .map((json) => ChatsMessages.fromJson(json))
-            .toList()
+
+        return userMessages.map((json) => ChatsMessages.fromJson(json)).toList()
           ..sort((a, b) => DateTime.parse(a.created_at)
               .compareTo(DateTime.parse(b.created_at))); // Sort by timestamp
       } else {
@@ -770,6 +762,41 @@ class CommodityService {
     }
   }
 
+  static Future<List<ChatsMessages>> getAllChats({
+    required BuildContext context,
+  }) async {
+    try {
+      final Uri uri = Uri.parse("http://185.141.63.56:3067/api/v1/chats");
+      final Map<String, String> headers = {
+        "Content-Type": "application/json",
+        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      };
 
+      final http.Response response = await http.get(uri, headers: headers);
+      final body = jsonDecode(response.body);
 
+      if (response.statusCode == 200 && body["rsp"]) {
+        final Map<String, dynamic> data = body["data"];
+        List<ChatsMessages> allMessages = [];
+
+        data.forEach((receiverId, messages) {
+          List<ChatsMessages> receiverMessages = (messages as List)
+              .map((json) => ChatsMessages.fromJson(json))
+              .toList();
+
+          allMessages.addAll(receiverMessages);
+        });
+
+        allMessages.sort((a, b) => DateTime.parse(a.created_at)
+            .compareTo(DateTime.parse(b.created_at)));
+
+        return allMessages;
+      } else {
+        throw Exception("Failed to load chat messages");
+      }
+    } catch (e) {
+      print("Error fetching chat messages: $e");
+      return [];
+    }
+  }
 }

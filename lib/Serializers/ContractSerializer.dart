@@ -32,7 +32,7 @@ class ContractsModel {
   final String? contract_user;
 
   final int warehouse_id;
-  final String? warehouse_status;
+  final dynamic warehouse_status;
   final String? warehouse_status_message;
 
   ContractsModel({
@@ -75,7 +75,7 @@ class ContractsModel {
   // Factory method to create an instance from JSON
   factory ContractsModel.fromJson(Map<String, dynamic> json) {
     return ContractsModel(
-      contractId: json['contract_id'],
+      contractId: json['contract_id'], 
       contractTypeId: json['contract_type_id'],
       commodityId: json['commodity_id'],
       qualityGradeId: json['quality_grade_id'],

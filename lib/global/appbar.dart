@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Commodities.dart/ComDropDown.dart';
 import 'package:itx/authentication/LoginScreen.dart';
+import 'package:itx/chatbox/ChatList.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
@@ -51,7 +52,7 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-    
+
       title: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -111,6 +112,18 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
               onSelected: (String value) {
                 if (value == 'logout') {
                   _showLogoutConfirmationDialog(context);
+                } else {
+                  if (value == "messages") {
+                    try {
+                      PersistentNavBarNavigator.pushNewScreen(
+                        context,
+                        screen: ChatListScreen(),
+                        withNavBar: true,
+                      );
+                    } catch (e) {
+                      print("got this error in messages tab $e");
+                    }
+                  }
                 }
               },
               itemBuilder: (BuildContext context) => [
@@ -120,7 +133,6 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
                     'messages', 'Messages', Icons.message_outlined),
                 _buildPopupMenuItem('logout', 'Log Out', Icons.logout_rounded,
                     isDestructive: true),
-                    
                 _buildPopupMenuItem(' ChangeRole', 'Role', Icons.person,
                     isDestructive: true),
               ],

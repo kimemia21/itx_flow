@@ -1,83 +1,12 @@
 // chat_model.dart
 import 'package:flutter/material.dart';
-class ChatModel {
-  final String name;
-  final String lastMessage;
-  final String avatarUrl;
-  final String time;
-  final int unreadCount;
-  final bool isOnline;
-
-  ChatModel({
-    required this.name,
-    required this.lastMessage,
-    required this.avatarUrl,
-    required this.time,
-    required this.unreadCount,
-    required this.isOnline,
-  });
-}
-
-// chat_service.dart
-class ChatService {
-  Future<List<ChatModel>> getChats() async {
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 1));
-    
-    // Dummy data
-    return [
-      ChatModel(
-        name: "Sarah Wilson",
-        lastMessage: "See you tomorrow at the meeting! 👋",
-        avatarUrl: "https://i.pravatar.cc/150?img=1",
-        time: "10:45 AM",
-        unreadCount: 2,
-        isOnline: true,
-      ),
-      ChatModel(
-        name: "John Developer",
-        lastMessage: "The new feature is ready for testing",
-        avatarUrl: "https://i.pravatar.cc/150?img=2",
-        time: "9:30 AM",
-        unreadCount: 0,
-        isOnline: false,
-      ),
-      ChatModel(
-        name: "kikebe",
-        lastMessage: "2500 per kg",
-        avatarUrl: "https://i.pravatar.cc/150?img=3",
-        time: "Yesterday",
-        unreadCount: 4,
-        isOnline: true,
-      ),
-      ChatModel(
-        name: "kikuyutea1",
-        lastMessage: "too low ",
-        avatarUrl: "https://i.pravatar.cc/150?img=4",
-        time: "Yesterday",
-        unreadCount: 1,
-        isOnline: false,
-      ),
-      // ChatModel(
-      //   name: "Project X Group",
-      //   lastMessage: "T",
-      //   avatarUrl: "https://i.pravatar.cc/150?img=5",
-      //   time: "Tuesday",
-      //   unreadCount: 0,
-      //   isOnline: true,
-      // ),
-    ];
-  }
-}
-
-// chat_list_screen.dart
+import 'package:itx/Serializers/ChatMessages.dart';
+import 'package:itx/chatbox/ChatBox.dart';
+import 'package:itx/requests/HomepageRequest.dart';
+import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 
 
 class ChatListScreen extends StatelessWidget {
-  final ChatService _chatService = ChatService();
-
-  ChatListScreen({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,13 +33,13 @@ class ChatListScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: FutureBuilder<List<ChatModel>>(
-        future: _chatService.getChats(),
+      body: FutureBuilder<List<ChatsMessages>>(
+        future: CommodityService.getAllChats(context: context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('No chats available'));
           }
@@ -134,7 +63,7 @@ class ChatListScreen extends StatelessWidget {
 }
 
 class ChatListTile extends StatelessWidget {
-  final ChatModel chat;
+  final ChatsMessages chat;
 
   const ChatListTile({
     Key? key,
@@ -149,9 +78,9 @@ class ChatListTile extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 30,
-            backgroundImage: NetworkImage(chat.avatarUrl),
+            backgroundImage: AssetImage("assets/images/profile.jpg"),
           ),
-          if (chat.isOnline)
+          if (chat.is_read == 0)
             Positioned(
               right: 0,
               bottom: 0,
@@ -168,18 +97,18 @@ class ChatListTile extends StatelessWidget {
         ],
       ),
       title: Text(
-        chat.name,
+        chat.senderName,
         style: const TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 16,
         ),
       ),
       subtitle: Text(
-        chat.lastMessage,
+        chat.message,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
-          color: chat.unreadCount > 0 ? Colors.black87 : Colors.grey,
+          color: chat.is_read > 0 ? Colors.black87 : Colors.grey,
         ),
       ),
       trailing: Column(
@@ -187,13 +116,13 @@ class ChatListTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text(
-            chat.time,
+            chat.created_at,
             style: TextStyle(
-              color: chat.unreadCount > 0 ? Colors.green : Colors.grey,
+              color: chat.is_read > 0 ? Colors.green : Colors.grey,
               fontSize: 12,
             ),
           ),
-          if (chat.unreadCount > 0) ...[
+          if (chat.is_read > 0) ...[
             const SizedBox(height: 4),
             Container(
               padding: const EdgeInsets.all(6),
@@ -202,7 +131,7 @@ class ChatListTile extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Text(
-                chat.unreadCount.toString(),
+                chat.is_read.toString(),
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
@@ -213,6 +142,12 @@ class ChatListTile extends StatelessWidget {
         ],
       ),
       onTap: () {
+        PersistentNavBarNavigator.pushNewScreen(
+            withNavBar: true,
+            context,
+            screen: ChatScreen(
+              messages: chat,
+            ));
         // Handle chat item tap
       },
     );

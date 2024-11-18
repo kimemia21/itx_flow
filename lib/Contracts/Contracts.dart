@@ -209,120 +209,134 @@ class _ContractsState extends State<Contracts> {
           color: Colors.white, size: 30);
     }
     return RefreshIndicator(
-      // Wrap the entire FutureBuilder
-      onRefresh: fetchContracts,
-      child: FutureBuilder<List<ContractsModel>>(
-        future: contracts,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Globals.buildErrorState(
-                function: fetchContracts, items: widget.contractName);
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(
-                child: Globals.buildNoDataState(
-                    function: fetchContracts, item: widget.contractName));
-          }
+        // Wrap the entire FutureBuilder
+        onRefresh: fetchContracts,
+        child: FutureBuilder<List<ContractsModel>>(
+            future: contracts,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Globals.buildErrorState(
+                    function: fetchContracts, items: widget.contractName);
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Center(
+                    child: Globals.buildNoDataState(
+                        function: fetchContracts, item: widget.contractName));
+              }
 
-          List<ContractsModel> contractsList =
-              widget.isSpot ? currentContracts : snapshot.data!;
+              List<ContractsModel> contractsList =
+                  widget.isSpot ? currentContracts : snapshot.data!;
 
-          return SingleChildScrollView(
-            // Ensures the table can be scrolled for refresh
-            //
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Container(
-              width: MediaQuery.of(context).size.width * 1,
-              height: MediaQuery.of(context).size.height * 1,
-              child: DataTable2(
-                columnSpacing: 10,
-                horizontalMargin: 10,
-                minWidth: 600,
-                columns: [
-                  DataColumn2(
-                      fixedWidth: 55,
-                      label: Text('Company'),
-                      size: ColumnSize.S),
-                  DataColumn2(
-                      fixedWidth: 50, label: Text('Grade'), size: ColumnSize.S),
-                  DataColumn2(
-                      fixedWidth: 40, label: Text('Type'), size: ColumnSize.S),
-                  DataColumn2(
-                      fixedWidth: 75,
-                      label: Text('Del. Date'),
-                      size: ColumnSize.S),
-                  DataColumn2(
-                      fixedWidth: 65, label: Text('Price'), size: ColumnSize.S),
-                  DataColumn2(
-                      fixedWidth: 40,
-                      label: Text(widget.isWareHouse ? 'Status' : "Action"),
-                      size: ColumnSize.S),
-                  DataColumn2(
-                      fixedWidth: 40,
-                      label: Text('Message'),
-                      size: ColumnSize.S),
-                ],
-                rows: contractsList.map((contract) {
-                  String _formatDeliveryDate(DateTime deliveryDate) {
-                    final now = DateTime.now();
-                    final difference = deliveryDate.difference(now);
-
-                    if (difference.isNegative) {
-                      return 'Delivered ${timeago.format(deliveryDate)} ago';
-                    } else {
-                      return '${timeago.format(deliveryDate, allowFromNow: true)}';
-                    }
-                  }
-
-                  final delivery = _formatDeliveryDate(contract.deliveryDate);
-
-                  return DataRow(
-                    cells: [
-                      DataCell(GestureDetector(
-                          onTap: () {
-                            PersistentNavBarNavigator.pushNewScreen(
-                                withNavBar: true,
-                                context,
-                                screen: Specificorder(contract: contract, isWarehouse: widget.isWareHouse,));
-                          },
-                          child: Text(getFirstName(contract.contract_user!)))),
-                      DataCell(Text(contract.grade_name ?? "N/A")),
-                      DataCell(
-                          Text(getContractTypeAbbr(contract.contractType))),
-                      DataCell(Text(delivery)),
-                      DataCell(Text("\$${contract.price.toStringAsFixed(2)}")),
-                      DataCell(LikeButton(
-                        contractId: contract.contractId,
-                        isWarehouse: widget.isWareHouse,
-                        likes: contract.liked,
-                        onLikeChanged: (isLiked) async {
-                          await AuthRequest.likeunlike(
-                            context,
-                            isLiked ? 1 : 0,
-                            contract.contractId,
-                          );
-                        },
-                      )),
-                      DataCell(IconButton(
-                          onPressed: () =>
-                              PersistentNavBarNavigator.pushNewScreen(
-                                  withNavBar: true,
-                                  context,
-                                  screen: ChatScreen(model:contract)),
-                          icon: Icon(
-                            Icons.message,
-                            color: Colors.grey,
-                          ))),
+              return SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 1,
+                  height: MediaQuery.of(context).size.height * 1,
+                  child: DataTable2(
+                    columnSpacing: 10,
+                    horizontalMargin: 10,
+                    minWidth: 600,
+                    columns: [
+                      DataColumn2(
+                          fixedWidth: 55,
+                          label: Text('Company'),
+                          size: ColumnSize.S),
+                      DataColumn2(
+                          fixedWidth: 50,
+                          label: Text('Grade'),
+                          size: ColumnSize.S),
+                      DataColumn2(
+                          fixedWidth: 40,
+                          label: Text('Type'),
+                          size: ColumnSize.S),
+                      DataColumn2(
+                          fixedWidth: 75,
+                          label: Text('Del. Date'),
+                          size: ColumnSize.S),
+                      DataColumn2(
+                          fixedWidth: 65,
+                          label: Text('Price'),
+                          size: ColumnSize.S),
+                      // Only show Action and Message columns if not warehouse
+                      if (!widget.isWareHouse) ...[
+                        DataColumn2(
+                            fixedWidth: 40,
+                            label: Text("Action"),
+                            size: ColumnSize.S),
+                        DataColumn2(
+                            fixedWidth: 40,
+                            label: Text('Message'),
+                            size: ColumnSize.S),
+                      ],
                     ],
-                  );
-                }).toList(),
-              ),
-            ),
-          );
-        },
-      ),
-    );
+                    rows: contractsList.map((contract) {
+                      String _formatDeliveryDate(DateTime deliveryDate) {
+                        final now = DateTime.now();
+                        final difference = deliveryDate.difference(now);
+
+                        if (difference.isNegative) {
+                          return 'Delivered ${timeago.format(deliveryDate)} ago';
+                        } else {
+                          return '${timeago.format(deliveryDate, allowFromNow: true)}';
+                        }
+                      }
+
+                      final delivery =
+                          _formatDeliveryDate(contract.deliveryDate);
+
+                      return DataRow(
+                        cells: [
+                          DataCell(GestureDetector(
+                              onTap: () {
+                                PersistentNavBarNavigator.pushNewScreen(
+                                    withNavBar: true,
+                                    context,
+                                    screen: Specificorder(
+                                      contract: contract,
+                                      isWarehouse: widget.isWareHouse,
+                                    ));
+                              },
+                              child:
+                                  Text(getFirstName(contract.contract_user!)))),
+                          DataCell(Text(contract.grade_name ?? "N/A")),
+                          DataCell(
+                              Text(getContractTypeAbbr(contract.contractType))),
+                          DataCell(Text(delivery)),
+                          DataCell(
+                              Text("\$${contract.price.toStringAsFixed(2)}")),
+                          // Only show Action and Message cells if not warehouse
+                          if (!widget.isWareHouse) ...[
+                            DataCell(LikeButton(
+                              contractId: contract.contractId,
+                              isWarehouse: widget.isWareHouse,
+                              likes: contract.liked,
+                              onLikeChanged: (isLiked) async {
+                                await AuthRequest.likeunlike(
+                                  context,
+                                  isLiked ? 1 : 0,
+                                  contract.contractId,
+                                );
+                              },
+                            )),
+                            DataCell(IconButton(
+                                onPressed: () =>
+                                    PersistentNavBarNavigator.pushNewScreen(
+                                        withNavBar: true,
+                                        context,
+                                        screen: ChatScreen(model: contract)),
+                                icon: Icon(
+                                  Icons.message,
+                                  color: Colors.grey,
+                                ))),
+                          ],
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
+              );
+            }));
   }
 
   String getFirstName(String fullName) {

@@ -8,8 +8,12 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:intl/intl.dart';
 
 class ChatScreen extends StatefulWidget {
-  final ContractsModel model;
-  ChatScreen({required this.model});
+  ContractsModel? model;
+  final  ChatsMessages? messages;
+  ChatScreen({
+    this.model,
+    this.messages,
+  });
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -22,10 +26,14 @@ class _ChatScreenState extends State<ChatScreen> {
   bool isTyping = false;
   bool isLoading = true;
   final ScrollController _scrollController = ScrollController();
-
+ late  final _receiverId;
+ late final  String?  _receiverName ;
   @override
   void initState() {
     super.initState();
+    _receiverId =widget.model!=null? widget.model!.user_id: widget.messages!.receiver_id;
+
+    _receiverName =widget.model!=null? widget.model!.contract_user: widget.messages!.receiverName;
     _connectSocket();
     _loadMessages();
   }
@@ -34,14 +42,14 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       final chatMessages = await CommodityService.getChatMessages(
         context: context,
-        receiverId: widget.model.user_id,
+        receiverId: _receiverId,
       );
-      
+
       setState(() {
         messages = chatMessages;
         isLoading = false;
       });
-      
+
       _scrollToBottom();
     } catch (e) {
       print("Error loading messages: $e");
@@ -77,12 +85,12 @@ class _ChatScreenState extends State<ChatScreen> {
         messages.add(ChatsMessages(
           id: DateTime.now().millisecondsSinceEpoch,
           sender_id: data['senderId'],
-          receiver_id: widget.model.user_id,
+          receiver_id: _receiverId,
           message: data['message'],
           created_at: DateTime.now().toIso8601String(),
           is_read: 0,
           senderName: data['senderName'] ?? '',
-          receiverName: widget.model.contract_user!,
+          receiverName: _receiverName!,
         ));
       });
       _scrollToBottom();
@@ -115,20 +123,20 @@ class _ChatScreenState extends State<ChatScreen> {
         final newMessage = ChatsMessages(
           id: DateTime.now().millisecondsSinceEpoch,
           sender_id: bloc.user_id,
-          receiver_id: widget.model.user_id,
+          receiver_id: _receiverId,
           message: message,
           created_at: DateTime.now().toIso8601String(),
           is_read: 0,
           senderName: bloc.userEmail ?? '',
-          receiverName: widget.model.contract_user!,
+          receiverName: _receiverName!,
         );
 
         final Map<String, dynamic> payload = {
           "senderId": bloc.user_id,
-          "receiverId": widget.model.user_id,
+          "receiverId": _receiverId,
           "message": message
         };
-        
+
         socket.emit('sendMessage', payload);
         setState(() => messages.add(newMessage));
         _controller.clear();
@@ -159,7 +167,8 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         margin: EdgeInsets.symmetric(vertical: 4.0),
         child: Column(
-          crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment:
+              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             Container(
               decoration: BoxDecoration(
@@ -283,7 +292,7 @@ class _ChatScreenState extends State<ChatScreen> {
         elevation: 0,
         centerTitle: true,
         title: Text(
-          widget.model.contract_user!,
+          _receiverName!,
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
