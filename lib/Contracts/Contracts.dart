@@ -241,7 +241,9 @@ class _ContractsState extends State<Contracts> {
                       DataColumn2(
                           fixedWidth: 55,
                           label: Text('Company'),
-                          size: ColumnSize.S),
+                          size: widget.isWareHouse?ColumnSize.L:
+                          
+                          ColumnSize.S),
                       DataColumn2(
                           fixedWidth: 50,
                           label: Text('Grade'),
@@ -295,7 +297,11 @@ class _ContractsState extends State<Contracts> {
                                     screen: Specificorder(
                                       contract: contract,
                                       isWarehouse: widget.isWareHouse,
-                                    ));
+                                    )).then((_){
+                                      setState(() {
+                                        
+                                      });
+                                    });
                               },
                               child:
                                   Text(getFirstName(contract.contract_user!)))),

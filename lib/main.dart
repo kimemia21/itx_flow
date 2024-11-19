@@ -22,8 +22,15 @@ import 'package:itx/web/state/Webbloc.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+    FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    print('Error: ${details.exception}');
+    print('Stack trace: ${details.stack}');
+  };
 
   // runApp(TestLab());
  runApp(MyApp());

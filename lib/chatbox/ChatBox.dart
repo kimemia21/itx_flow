@@ -8,11 +8,14 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:intl/intl.dart';
 
 class ChatScreen extends StatefulWidget {
-  ContractsModel? model;
-  final  ChatsMessages? messages;
+  final ContractsModel? model;
+  final ChatsMessages? messages;
+  final List<ChatsMessages>? allMessages; // Add this parameter
+
   ChatScreen({
     this.model,
     this.messages,
+    this.allMessages, // Add this parameter
   });
 
   @override
@@ -26,17 +29,37 @@ class _ChatScreenState extends State<ChatScreen> {
   bool isTyping = false;
   bool isLoading = true;
   final ScrollController _scrollController = ScrollController();
- late  final _receiverId;
- late final  String?  _receiverName ;
-  @override
+  late final _receiverId;
+  late final String? _receiverName;
+
+
+ @override
   void initState() {
     super.initState();
-    _receiverId =widget.model!=null? widget.model!.user_id: widget.messages!.receiver_id;
-
-    _receiverName =widget.model!=null? widget.model!.contract_user: widget.messages!.receiverName;
+    _receiverId = widget.model != null 
+        ? widget.model!.user_id 
+        : widget.messages!.receiver_id;
+    
+    _receiverName = widget.model != null 
+        ? widget.model!.contract_user 
+        : widget.messages!.receiverName;
+    
     _connectSocket();
-    _loadMessages();
+    
+    // Initialize messages differently if allMessages is provided
+    if (widget.allMessages != null) {
+      setState(() {
+        messages = List.from(widget.allMessages!);
+        messages.sort((a, b) => DateTime.parse(a.created_at)
+            .compareTo(DateTime.parse(b.created_at)));
+        isLoading = false;
+      });
+      _scrollToBottom();
+    } else {
+      _loadMessages();
+    }
   }
+
 
   Future<void> _loadMessages() async {
     try {
@@ -155,7 +178,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-  Widget _buildMessageBubble(ChatsMessages message) {
+    Widget _buildMessageBubble(ChatsMessages message) {
     final appBloc bloc = Provider.of<appBloc>(context, listen: false);
     final isUser = message.sender_id == bloc.user_id;
 
@@ -170,6 +193,18 @@ class _ChatScreenState extends State<ChatScreen> {
           crossAxisAlignment:
               isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
+            if (!isUser) // Show sender name for received messages
+              Padding(
+                padding: EdgeInsets.only(left: 8.0, bottom: 2.0),
+                child: Text(
+                  message.senderName,
+                  style: TextStyle(
+                    fontSize: 12.0,
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
             Container(
               decoration: BoxDecoration(
                 color: isUser ? Colors.green.shade100 : Colors.white,
@@ -201,7 +236,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 left: isUser ? 0 : 8.0,
               ),
               child: Text(
-                DateFormat('HH:mm').format(DateTime.parse(message.created_at)),
+                _formatMessageTime(message.created_at),
                 style: TextStyle(
                   fontSize: 12.0,
                   color: Colors.grey.shade600,
@@ -212,6 +247,21 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       ),
     );
+  }
+
+  String _formatMessageTime(String dateTimeStr) {
+    final dateTime = DateTime.parse(dateTimeStr);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final messageDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
+
+    if (messageDate == today) {
+      return DateFormat('HH:mm').format(dateTime);
+    } else if (messageDate == today.subtract(Duration(days: 1))) {
+      return 'Yesterday ${DateFormat('HH:mm').format(dateTime)}';
+    } else {
+      return DateFormat('MMM d, HH:mm').format(dateTime);
+    }
   }
 
   Widget _buildMessageList() {

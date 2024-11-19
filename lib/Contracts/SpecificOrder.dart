@@ -227,8 +227,8 @@ class _SpecificorderState extends State<Specificorder> {
                     Colors.purple,
                   ),
                   _buildDetailCard(
-                    'Warehouse ID',
-                    '#${widget.contract.warehouse_id}',
+                    'Contract ID',
+                    '#${widget.contract.contractId}',
                     Icons.warehouse_outlined,
                     Colors.green,
                   ),
@@ -279,30 +279,7 @@ class _SpecificorderState extends State<Specificorder> {
                       widget.contract.grade_name,
                       Icons.grade_outlined,
                     ),
-                    TextButton(
-                      onPressed: () {
-                        PersistentNavBarNavigator.pushNewScreen(context,
-                            screen: ChatScreen(model: widget.contract));
-                      },
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12), // Padding inside the button
-                        backgroundColor: Colors.blue.shade700,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-
-                        elevation: 2,
-                      ),
-                      child: Text(
-                        "Message Producer",
-                        style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white),
-                      ),
-                    ),
+               
                   ],
                 ),
               ).animate().fadeIn(duration: 1000.ms).slideY(),
@@ -417,14 +394,14 @@ class _SpecificorderState extends State<Specificorder> {
     late IconData icon;
     late String subMessage;
 
-    if (status == "1") {
+    if (status == 1) {
       print("contact status is $status");
       message = "Successfully Received";
       backgroundColor = Colors.green.shade50;
       textColor = Colors.green.shade700;
       icon = Icons.check_circle_rounded;
       subMessage = "This contract has been received and verified";
-    } else if (status == "0") {
+    } else if (status == 0) {
       message = "Reception Failed";
       backgroundColor = Colors.red.shade50;
       textColor = Colors.red.shade700;
@@ -502,6 +479,15 @@ class _SpecificorderState extends State<Specificorder> {
                       color: textColor.withOpacity(0.8),
                     ),
                   ).animate().fadeIn(duration: 1000.ms).slideX(),
+                  SizedBox(height: 5),
+                    Text(
+                    "Goods Status  :  $warehouseStatus",
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: textColor,
+                    ),
+                  ).animate().fadeIn(duration: 800.ms).slideX(),
                   SizedBox(height: 5),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,

@@ -100,7 +100,7 @@ class Globals {
     required Widget screen,
   }) {
     try {
-      return Navigator.push(
+      return Navigator.pushReplacement(
           context,
           PageRouteBuilder(
             transitionDuration: Duration(

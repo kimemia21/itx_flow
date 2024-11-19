@@ -167,93 +167,91 @@ class AuthRequest {
   }
 
   static Future<List<CommoditiesCert>> UserCommodities({
-  required BuildContext context,
-  required List<int> commodities,
-  required bool isWarehouse,
-  required bool isWeb,
-}) async {
-  final appBloc bloc = context.read<appBloc>();
-  List<CommoditiesCert> mapper = [];
-  
-  bloc.changeIsLoading(true);
-  
-  // First, try to post contracts - if this fails, return early
-  try {
-    await CommodityService.PostContracts(context).timeout(Duration(seconds: 4));
-  } catch (e) {
-    _handleError(
-      context, 
-      "Contract Posting Error", 
-      "Failed to post contracts: $e"
-    );
-    bloc.changeIsLoading(false);
-    return []; // Return empty list if contract posting fails
-  }
-  
-  // Only proceed with the rest of the function if contract posting succeeded
-  try {
-    int user_type = Provider.of<appBloc>(context, listen: false).user_type;
-    print("user_type --------------------------$user_type");
-    
-    final Map<String, dynamic> body = {
-      "commodities": commodities.join(","),
-      "user_type_id": user_type,
-    };
-    
-    bloc.changeUserCommoditesIds(commodities);
-    
-    final Uri url = Uri.parse("$main_url/commodities/certs");
-    print(Provider.of<appBloc>(context, listen: false).token);
-    
-    final http.Response response = await http.post(
-      url,
-      body: jsonEncode(body),
-      headers: {
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
-        'Content-Type': 'application/json',
-      },
-    );
-    
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> responseBody = jsonDecode(response.body);
-      
-      if (responseBody["rsp"] == true) {
-        print("Success: ${responseBody["data"]}");
-        final List<dynamic> body = responseBody["data"];
-        
-        mapper = body.map((element) => CommoditiesCert.fromJson(element)).toList();
-        bloc.changeCommCert(mapper);
-        bloc.getUserType(user_type);
-        bloc.changeUserCommoditesCert(responseBody["data"]);
-        print(" this is user bloc ${bloc.UserCommoditesCerts}");
-        
-        Globals.switchScreens(
-          context: context,
-          screen: isWeb
-              ? Webregulators(commCerts: mapper, isWareHouse: isWarehouse)
-              : Regulators(commCerts: mapper, isWareHouse: isWarehouse),
-        );
-      } else {
-        _handleError(
-          context, 
-          "commodities select Error", 
-          responseBody["message"]
-        );
-      }
-    } else {
-      final Map<String, dynamic> responseBody = jsonDecode(response.body);
-      String errorMessage = responseBody["message"] ?? "An unknown error occurred";
-      _handleError(context, "Commodites of interest", errorMessage);
+    required BuildContext context,
+    required List<int> commodities,
+    required bool isWarehouse,
+    required bool isWeb,
+  }) async {
+    final appBloc bloc = context.read<appBloc>();
+    List<CommoditiesCert> mapper = [];
+
+    bloc.changeIsLoading(true);
+
+    // First, try to post contracts - if this fails, return early
+    try {
+      await CommodityService.PostContracts(context)
+          .timeout(Duration(seconds: 4));
+    } catch (e) {
+      _handleError(
+          context, "Contract Posting Error", "Failed to post contracts: $e");
+      bloc.changeIsLoading(false);
+      return []; // Return empty list if contract posting fails
     }
-  } catch (e) {
-    print("Error during commodites of interest : $e");
-    _handleError(context, "Commodites Error", "$e");
-  } finally {
-    bloc.changeIsLoading(false);
+
+    // Only proceed with the rest of the function if contract posting succeeded
+    try {
+      int user_type = Provider.of<appBloc>(context, listen: false).user_type;
+      print("user_type --------------------------$user_type");
+
+      final Map<String, dynamic> body = {
+        "commodities": commodities.join(","),
+        "user_type_id": user_type,
+      };
+
+      bloc.changeUserCommoditesIds(commodities);
+
+      final Uri url = Uri.parse("$main_url/commodities/certs");
+      print(Provider.of<appBloc>(context, listen: false).token);
+
+      final http.Response response = await http.post(
+        url,
+        body: jsonEncode(body),
+        headers: {
+          "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+        if (responseBody["rsp"] == true) {
+          print("Success: ${responseBody["data"]}");
+          final List<dynamic> body = responseBody["data"];
+
+          mapper =
+              body.map((element) => CommoditiesCert.fromJson(element)).toList();
+          bloc.changeCommCert(mapper);
+          bloc.getUserType(user_type);
+          bloc.changeUserCommoditesCert(responseBody["data"]);
+          print(" this is user bloc ${bloc.UserCommoditesCerts}");
+
+          Globals.switchScreens(
+            context: context,
+            screen: isWeb
+                ? Webregulators(commCerts: mapper, isWareHouse: isWarehouse)
+                : Regulators(commCerts: mapper, isWareHouse: isWarehouse),
+          );
+        } else {
+          _handleError(
+              context, "commodities select Error", responseBody["message"]);
+        }
+      } else {
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        String errorMessage =
+            responseBody["message"] ?? "An unknown error occurred";
+        _handleError(context, "Commodites of interest", errorMessage);
+      }
+    } catch (e) {
+      print("Error during commodites of interest : $e");
+      _handleError(context, "Commodites Error", "$e");
+    } finally {
+      bloc.changeIsLoading(false);
+    }
+
+    return mapper;
   }
-  
-  return mapper;
-}
+
   static void _handleError(BuildContext context, String title, String content) {
     Globals.warningsAlerts(
       title: title,
@@ -398,6 +396,7 @@ class AuthRequest {
           Future.delayed(Duration(seconds: 3));
           Globals.switchScreens(
               context: context,
+              
               screen: isWeb ? WebHomePage() : GlobalsHomePage());
 
           bloc.changeIsLoading(false); // Stop loading after success
@@ -467,7 +466,6 @@ class AuthRequest {
           if (Bloc.user_type == 6) {
             print("User is warehouse (user_id: 6)");
             _navigateToScreen(context, isRegistered, Bloc.user_type == 6);
-            
           } else {
             print("User is not warehouse (user_id: ${Bloc.user_id})");
 
@@ -587,15 +585,30 @@ class AuthRequest {
                       isWareHouse: Provider.of<appBloc>(context, listen: false)
                               .user_type ==
                           6)
-                  : Verification(
-                      context: context,
-                      email: email,
-                      phoneNumber: null,
-                      isRegistered: true,
-                      isWareHouse: Provider.of<appBloc>(context, listen: false)
-                              .user_type ==
-                          6,
-                    ));
+                  :
+                  // bypassing because otp is not working as to 19/11/24
+                  Provider.of<appBloc>(context, listen: false).user_type == 6
+                      ? Contracts(
+                          filtered: false,
+                          showAppbarAndSearch: true,
+                          isWareHouse:
+                              Provider.of<appBloc>(context, listen: false)
+                                      .user_type ==
+                                  6,
+                          isSpot: false,
+                          contractName: "Contracts")
+                      : GlobalsHomePage()
+
+              // Verification(
+              //     context: context,
+              //     email: email,
+              //     phoneNumber: null,
+              //     isRegistered: true,
+              //     isWareHouse: Provider.of<appBloc>(context, listen: false)
+              //             .user_type ==
+              //         6,
+              //   )
+              );
 
           print("Login successful: ${responseBody["message"]}");
         } else {
