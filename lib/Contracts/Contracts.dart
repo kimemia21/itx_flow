@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/Commodities.dart/ComRequest.dart';
 import 'package:itx/Contracts/AdvancedSearch.dart';
 import 'package:itx/Contracts/CreateContract/CreateContract.dart';
 import 'package:itx/Contracts/SpecificOrder.dart';
@@ -241,9 +242,8 @@ class _ContractsState extends State<Contracts> {
                       DataColumn2(
                           fixedWidth: 55,
                           label: Text('Company'),
-                          size: widget.isWareHouse?ColumnSize.L:
-                          
-                          ColumnSize.S),
+                          size:
+                              widget.isWareHouse ? ColumnSize.L : ColumnSize.S),
                       DataColumn2(
                           fixedWidth: 50,
                           label: Text('Grade'),
@@ -297,11 +297,9 @@ class _ContractsState extends State<Contracts> {
                                     screen: Specificorder(
                                       contract: contract,
                                       isWarehouse: widget.isWareHouse,
-                                    )).then((_){
-                                      setState(() {
-                                        
-                                      });
-                                    });
+                                    )).then((_) {
+                                  setState(() {});
+                                });
                               },
                               child:
                                   Text(getFirstName(contract.contract_user!)))),
@@ -326,11 +324,35 @@ class _ContractsState extends State<Contracts> {
                               },
                             )),
                             DataCell(IconButton(
-                                onPressed: () =>
+                                onPressed: () {
+                                  final userId = Provider.of<appBloc>(context,
+                                          listen: false)
+                                      .user_id;
+                                  final modelUserId = contract.user_id;
+
+                                  print("$userId, and $modelUserId");
+
+                                  if (userId == modelUserId) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          content: Container(
+                                            width: 200,
+                                            height: 200,
+                                            color: Colors.white,
+                                            child: Globals.MeState(),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  } else {
                                     PersistentNavBarNavigator.pushNewScreen(
                                         withNavBar: true,
                                         context,
-                                        screen: ChatScreen(model: contract)),
+                                        screen: ChatScreen(model: contract));
+                                  }
+                                },
                                 icon: Icon(
                                   Icons.message,
                                   color: Colors.grey,

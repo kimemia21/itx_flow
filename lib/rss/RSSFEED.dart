@@ -27,7 +27,7 @@ class _RSSFeedViewState extends State<RSSFeedView> {
 
   Future<void> _fetchFeed() async {
     try {
-      final response = await http.get(Uri.parse(" https://worldteanews.com/rss.xml"));
+      final response = await http.get(Uri.parse("https://worldteanews.com/rss.xml"));
       
       if (response.statusCode == 200) {
         final feed = RssFeed.parse(response.body);
@@ -88,45 +88,49 @@ class _RSSFeedViewState extends State<RSSFeedView> {
 
     return RefreshIndicator(
       onRefresh: _fetchFeed,
-      child: ListView.builder(
-        itemCount: _feedItems.length,
-        itemBuilder: (context, index) {
-          final item = _feedItems[index];
-          final pubDate = item.pubDate != null 
-            ? DateFormat('MMM dd, yyyy').format(item.pubDate!)
-            : 'No date';
+      child:  Scaffold(
+        appBar: ITXAppBar(title: "rss Tea"),
 
-          return Card(
-            margin: const EdgeInsets.all(8.0),
-            child: InkWell(
-              onTap: () => _launchUrl(item.link),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.title ?? 'No title',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      item.description?.replaceAll(RegExp(r'<[^>]*>'), '') ?? 'No description',
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      pubDate,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
+        body: ListView.builder(
+          itemCount: _feedItems.length,
+          itemBuilder: (context, index) {
+            final item = _feedItems[index];
+            final pubDate = item.pubDate != null 
+              ? DateFormat('MMM dd, yyyy').format(item.pubDate!)
+              : 'No date';
+        
+            return Card(
+              margin: const EdgeInsets.all(8.0),
+              child: InkWell(
+                onTap: () => _launchUrl(item.link),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.title ?? 'No title',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        item.description?.replaceAll(RegExp(r'<[^>]*>'), '') ?? 'No description',
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        pubDate,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

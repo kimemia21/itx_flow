@@ -10,12 +10,12 @@ import 'package:intl/intl.dart';
 class ChatScreen extends StatefulWidget {
   final ContractsModel? model;
   final ChatsMessages? messages;
-  final List<ChatsMessages>? allMessages; // Add this parameter
+  final List<ChatsMessages>? allMessages;
 
   ChatScreen({
     this.model,
     this.messages,
-    this.allMessages, // Add this parameter
+    this.allMessages,
   });
 
   @override
@@ -32,21 +32,24 @@ class _ChatScreenState extends State<ChatScreen> {
   late final _receiverId;
   late final String? _receiverName;
 
-
- @override
+  @override
   void initState() {
     super.initState();
-    _receiverId = widget.model != null 
-        ? widget.model!.user_id 
-        : widget.messages!.receiver_id;
-    
-    _receiverName = widget.model != null 
-        ? widget.model!.contract_user 
-        : widget.messages!.receiverName;
-    
+    print("this is reciever ${widget.messages?.receiver_id}");
+    print("this is reciever ${widget.messages?.receiverName}");
+    print("this is reciever ${widget.model?.user_id}");
+    print("this is reciever ${widget.model?.contract_user}");
+
+    _receiverId = widget.model != null
+        ? widget.model!.user_id
+        : widget.messages?.receiver_id;
+
+    _receiverName = widget.model != null
+        ? widget.model!.contract_user
+        : widget.messages?.receiverName;
+
     _connectSocket();
-    
-    // Initialize messages differently if allMessages is provided
+
     if (widget.allMessages != null) {
       setState(() {
         messages = List.from(widget.allMessages!);
@@ -60,9 +63,14 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-
   Future<void> _loadMessages() async {
     try {
+      if (_receiverId == null) {
+        print("Error: Receiver ID is null");
+        setState(() => isLoading = false);
+        return;
+      }
+
       final chatMessages = await CommodityService.getChatMessages(
         context: context,
         receiverId: _receiverId,
@@ -85,20 +93,30 @@ class _ChatScreenState extends State<ChatScreen> {
       'ws://185.141.63.56:3067',
       IO.OptionBuilder()
           .setTransports(['websocket'])
-          .disableAutoConnect()
+          .enableAutoConnect() // Enable auto-reconnect
+          .enableReconnection() // Enable reconnection
+          .setReconnectionAttempts(10)
+          .setReconnectionDelay(1000)
           .build(),
     );
     socket.connect();
 
     socket.onError((error) => print('Socket error: $error'));
+
     socket.onConnect((_) => print('Connected to server'));
 
     socket.on('receiveMessage', (data) {
       print('Received message: $data');
-      _handleReceivedMessage(data);
+      if (data != null) {
+        if (data['receiverId'] == _receiverId ||
+            data['senderId'] == _receiverId) {
+          _handleReceivedMessage(data);
+        }
+      }
     });
 
     socket.on('typing', (_) => _handleTypingEvent());
+
     socket.onDisconnect((_) => print('Disconnected from server'));
   }
 
@@ -142,25 +160,39 @@ class _ChatScreenState extends State<ChatScreen> {
   void _sendMessage(String message) {
     try {
       if (message.trim().isNotEmpty) {
-        final appBloc bloc = Provider.of<appBloc>(context, listen: false);
+        final Bloc = Provider.of<appBloc>(context, listen: false);
+
+        // Ensure we have valid sender and receiver IDs
+        final int senderId = Bloc.user_id;
+        if (_receiverId == null || _receiverId == senderId) {
+          print("Error: Invalid receiver ID or same as sender ID");
+          return;
+        }
+
         final newMessage = ChatsMessages(
           id: DateTime.now().millisecondsSinceEpoch,
-          sender_id: bloc.user_id,
+          sender_id: senderId,
           receiver_id: _receiverId,
           message: message,
           created_at: DateTime.now().toIso8601String(),
           is_read: 0,
-          senderName: bloc.userEmail ?? '',
-          receiverName: _receiverName!,
+          senderName: Bloc.userEmail ?? '',
+          receiverName: _receiverName ?? 'Unknown',
         );
 
         final Map<String, dynamic> payload = {
-          "senderId": bloc.user_id,
+          "senderId": senderId,
           "receiverId": _receiverId,
-          "message": message
+          "message": message,
+          "senderName": Bloc.userEmail ?? ''
+          // Added sender name to payload
         };
 
+        // Debug logging
+        print("Sending message payload: $payload");
+
         socket.emit('sendMessage', payload);
+
         setState(() => messages.add(newMessage));
         _controller.clear();
         _scrollToBottom();
@@ -178,7 +210,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-    Widget _buildMessageBubble(ChatsMessages message) {
+  Widget _buildMessageBubble(ChatsMessages message) {
     final appBloc bloc = Provider.of<appBloc>(context, listen: false);
     final isUser = message.sender_id == bloc.user_id;
 

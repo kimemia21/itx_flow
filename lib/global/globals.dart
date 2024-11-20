@@ -471,5 +471,48 @@ static Widget buildNoDataState({
   }
 
 
+ static   Widget MeState() {
+  return Container(
+    padding: EdgeInsets.all(20),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.blue[50],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            Icons.info_outline,
+            color: Colors.blue[400],
+            size: 32,
+          ),
+        ),
+        SizedBox(height: 16),
+        Text(
+          'Message  Error',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey[800],
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          'The Contract Belongs to You',
+          style: TextStyle(
+            color: Colors.grey[600],
+            fontSize: 14,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    ),
+  );
+}
+
+
+
   
 }
