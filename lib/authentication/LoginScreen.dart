@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:auth_buttons/auth_buttons.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainLoginScreen extends StatefulWidget {
   const MainLoginScreen({super.key});
@@ -20,18 +21,19 @@ class MainLoginScreen extends StatefulWidget {
   State<MainLoginScreen> createState() => _MainLoginScreenState();
 }
 
-class _MainLoginScreenState extends State<MainLoginScreen> with SingleTickerProviderStateMixin {
+class _MainLoginScreenState extends State<MainLoginScreen>
+    with SingleTickerProviderStateMixin {
   GlobalKey<FormState> _formState = GlobalKey<FormState>();
-  late StreamSubscription<List<ConnectivityResult>> subscription;
+  // late StreamSubscription<List<ConnectivityResult>> subscription;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  
+
   bool isLoading = false;
   bool isConnected = false;
   bool darkMode = false;
   bool visibility = true;
-  
+
   ThemeMode get themeMode => darkMode ? ThemeMode.dark : ThemeMode.light;
   AuthButtonType? buttonType;
   AuthIconType? iconType;
@@ -39,10 +41,12 @@ class _MainLoginScreenState extends State<MainLoginScreen> with SingleTickerProv
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final Connectivity _connectivity = Connectivity();
+  bool groupValue = false;
 
   @override
   void initState() {
     super.initState();
+
     _animationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 1000),
@@ -55,11 +59,11 @@ class _MainLoginScreenState extends State<MainLoginScreen> with SingleTickerProv
     _slideAnimation = Tween<Offset>(
       begin: Offset(0, 0.1),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic));
+    ).animate(CurvedAnimation(
+        parent: _animationController, curve: Curves.easeOutCubic));
 
     _animationController.forward();
-    
-
+    initStorageUser();
   }
 
   @override
@@ -67,22 +71,36 @@ class _MainLoginScreenState extends State<MainLoginScreen> with SingleTickerProv
     _emailController.dispose();
     _passwordController.dispose();
     _animationController.dispose();
-    subscription.cancel();
+    // subscription.cancel();
     super.dispose();
+  }
+
+  Future initStorageUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storageEmail = prefs.getString("email");
+    final storagePassword = prefs.getString("password");
+    if (storagePassword != null && storageEmail != null) {
+      setState(() {
+        _emailController.text = storageEmail;
+        _passwordController.text = storagePassword;
+      });
+    } else {
+      print("null storage User");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    if(kDebugMode){
-          // Set default values
-    // _emailController.text = "meshak1@gmail.com";
-    // _passwordController.text = "1234567";
+    if (kDebugMode) {
+      // Set default values
+      // _emailController.text = "meshak1@gmail.com";
+      // _passwordController.text = "1234567";
 
-    // warehouse 
-    // _emailController.text = "kikuyu1@gmail.com";
-    // _passwordController.text = "1234567";
+      // warehouse
+      // _emailController.text = "kikuyu1@gmail.com";
+      // _passwordController.text = "1234567";
     }
 
     return Scaffold(
@@ -107,8 +125,10 @@ class _MainLoginScreenState extends State<MainLoginScreen> with SingleTickerProv
             border: Border.all(color: Colors.grey.shade200),
           ),
           child: IconButton(
-            onPressed: () => Globals.switchScreens(context: context, screen: Splashscreen()),
-            icon: Icon(Icons.arrow_back_ios_new, color: Colors.black87, size: 20),
+            onPressed: () =>
+                Globals.switchScreens(context: context, screen: Splashscreen()),
+            icon:
+                Icon(Icons.arrow_back_ios_new, color: Colors.black87, size: 20),
           ),
         ),
       ),
@@ -156,7 +176,7 @@ class _MainLoginScreenState extends State<MainLoginScreen> with SingleTickerProv
                           ),
                         ),
                         SizedBox(height: screenHeight * 0.06),
-                        
+
                         // Email Field
                         _buildTextField(
                           controller: _emailController,
@@ -166,15 +186,16 @@ class _MainLoginScreenState extends State<MainLoginScreen> with SingleTickerProv
                             if (value == null || value.isEmpty) {
                               return "Email is empty";
                             }
-                            if (!RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$").hasMatch(value)) {
+                            if (!RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$")
+                                .hasMatch(value)) {
                               return 'Please enter a valid email';
                             }
                             return null;
                           },
                         ),
-                        
+
                         SizedBox(height: 20),
-                        
+
                         // Password Field
                         _buildTextField(
                           controller: _passwordController,
@@ -188,14 +209,14 @@ class _MainLoginScreenState extends State<MainLoginScreen> with SingleTickerProv
                             return null;
                           },
                         ),
-                        
-                        SizedBox(height: screenHeight * 0.05),
-                        
+
+                        SizedBox(height: screenHeight * 0.03),
+
                         // Login Button
                         _buildLoginButton(context, screenWidth, screenHeight),
-                        
+
                         SizedBox(height: screenHeight * 0.03),
-                        
+
                         // Divider with "Or continue with" text
                         // Row(
                         //   children: [
@@ -213,9 +234,9 @@ class _MainLoginScreenState extends State<MainLoginScreen> with SingleTickerProv
                         //     Expanded(child: Divider(color: Colors.grey.shade300)),
                         //   ],
                         // ),
-                        
+
                         // SizedBox(height: screenHeight * 0.03),
-                        
+
                         // Google Sign In Button
                         // Container(
                         //   decoration: BoxDecoration(
@@ -246,9 +267,9 @@ class _MainLoginScreenState extends State<MainLoginScreen> with SingleTickerProv
                         //     ),
                         //   ),
                         // ),
-                        
+
                         SizedBox(height: screenHeight * 0.03),
-                        
+
                         // Sign Up Link
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -261,7 +282,8 @@ class _MainLoginScreenState extends State<MainLoginScreen> with SingleTickerProv
                               ),
                             ),
                             GestureDetector(
-                              onTap: () => Globals.switchScreens(context: context, screen: MainSignup()),
+                              onTap: () => Globals.switchScreens(
+                                  context: context, screen: MainSignup()),
                               child: Text(
                                 "Sign Up",
                                 style: GoogleFonts.poppins(
@@ -336,10 +358,103 @@ class _MainLoginScreenState extends State<MainLoginScreen> with SingleTickerProv
     );
   }
 
-  Widget _buildLoginButton(BuildContext context, double screenWidth, double screenHeight) {
+  Widget _buildLoginButton(
+      BuildContext context, double screenWidth, double screenHeight) {
+    Future<void> _showSavePrompt() async {
+      final prefs = await SharedPreferences.getInstance();
+      bool? info = await prefs.getBool("saved");
+      bool? saveInfo = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Row(
+              children: [
+                Icon(
+                  CupertinoIcons.lock_shield,
+                  color: Colors.green.shade500,
+                  size: 28,
+                ),
+                SizedBox(width: 10),
+                Text(
+                  'Save Login Info',
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+            content: Text(
+              'Would you like to save your login information for next time?',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                color: Colors.black54,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  if (info == true) prefs.remove("email");
+                  prefs.remove("password");
+                  prefs.setBool("saved", false);
+
+                  Navigator.pop(context, false);
+                },
+                child: Text(
+                  'No, Thanks',
+                  style: GoogleFonts.poppins(
+                    color: Colors.grey.shade600,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.green.shade500, Colors.green.shade600],
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: Text(
+                    'Save Info',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            actionsPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            backgroundColor: Colors.white,
+            elevation: 10,
+          );
+        },
+      );
+
+      if (saveInfo == true) {
+        await prefs.setString(
+          "email",
+          _emailController.text.trim().toString().replaceAll(" ", ""),
+        );
+        await prefs.setString(
+          "password",
+          _passwordController.text.trim().toString().replaceAll(" ", ""),
+        );
+        await prefs.setBool("saved", true);
+      }
+    }
+
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         if (_formState.currentState!.validate()) {
+          await _showSavePrompt();
           AuthRequest.login(
             isWeb: false,
             context: context,

@@ -70,7 +70,7 @@ dependencies:
   syncfusion_flutter_charts: ^26.2.10
   email_validator: ^3.0.0
   flutter_otp_text_field: ^1.2.0
-  shared_preferences: ^2.3.2
+  shared_preferences: ^2.3.3
   easy_sidemenu: ^0.6.0
   phone_number: 2.1.0
   flutter_animate: ^4.5.0
