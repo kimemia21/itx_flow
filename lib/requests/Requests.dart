@@ -14,6 +14,7 @@ import 'package:itx/Contracts/Contracts.dart';
 import 'package:itx/Serializers/CommCert.dart';
 import 'package:itx/Serializers/CommoditesCerts.dart';
 import 'package:itx/Serializers/UserTypes.dart';
+import 'package:itx/global/comms.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/warehouse/WareHouseHomepage.dart';
 import 'package:itx/uploadCerts/Regulator.dart';
@@ -362,7 +363,7 @@ class AuthRequest {
   }) async {
     final appBloc bloc = context.read<appBloc>();
     final Uri url = Uri.parse("$main_url/user/otp");
-    final String token = Provider.of<appBloc>(context, listen: false).token;
+    // final String token = Provider.of<appBloc>(context, listen: false).token;
     final Map<String, dynamic> body =
         Provider.of<appBloc>(context, listen: false).userDetails;
     print(body);
@@ -376,7 +377,7 @@ class AuthRequest {
         url,
 
         // body: jsonEncode(body),
-        headers: {"x-auth-token": token, 'Content-Type': 'application/json'},
+        headers: {"x-auth-token": currentUser.token, 'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
@@ -396,7 +397,6 @@ class AuthRequest {
           Future.delayed(Duration(seconds: 3));
           Globals.switchScreens(
               context: context,
-              
               screen: isWeb ? WebHomePage() : GlobalsHomePage());
 
           bloc.changeIsLoading(false); // Stop loading after success
@@ -551,27 +551,38 @@ class AuthRequest {
 
         // Check for the rsp field in the response body
         if (responseBody["rsp"] == true) {
-          String token = responseBody["token"];
+          // String token = responseBody["token"];
+          currentUser.token = responseBody["token"]; 
+          currentUser.user_id = responseBody["user_id"] as int;
+          currentUser.user_type_name = responseBody["user_type"] as String;
+          currentUser.authorized = responseBody["authorized"] as int;
+          currentUser.user_email = responseBody["user_email"] as String;
+
+          print("user token is ${currentUser.token}");
+        
+
           Map<String, int> userTypeMap = {
             "individual": 3,
             "producer": 4,
             "trader": 5
           };
+
           int type = userTypeMap[responseBody["user_type"]] ?? 6;
-          int id = responseBody["user_id"];
-          int isAuthorized = responseBody["authorized"];
-          print(
-              "user type id  ----$type----------------------------------------------");
-          print("isAuthorized status --------------------$isAuthorized");
+          currentUser.user_type = type;
+          // int id = responseBody["user_id"];
+          // int isAuthorized = responseBody["authorized"];
+          // print(
+          //     "user type id  ----$type----------------------------------------------");
+          // print("isAuthorized status --------------------$isAuthorized");
 
           // Update the bloc with new state
           bloc.changeIsLoading(false);
-          bloc.changeToken(token);
-          bloc.getUserType(type);
+          // bloc.changeToken(token);
+          // bloc.getUserType(type);
 
-          bloc.changeUser(email);
-          bloc.changeCurrentUserID(id: id);
-          bloc.changeIsAuthorized(isAuthorized);
+          // bloc.changeUser(email);
+          // bloc.changeCurrentUserID(id: id);
+          // bloc.changeIsAuthorized(isAuthorized);
 
           // Switch screens upon successful login
 

@@ -16,6 +16,7 @@ import 'package:itx/fromWakulima/widgets/contant.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 
 
+
 class Globals {
   // final BuildContext context;
   // Globals({required this.context});

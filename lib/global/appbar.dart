@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Commodities.dart/ComDropDown.dart';
 import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/chatbox/ChatList.dart';
+import 'package:itx/global/comms.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
@@ -133,7 +134,7 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
                     'messages', 'Messages', Icons.message_outlined),
                 _buildPopupMenuItem('logout', 'Log Out', Icons.logout_rounded,
                     isDestructive: true),
-                 _buildPopupMenuItem(' ChangeRole', 'Role', Icons.person,
+                _buildPopupMenuItem(' ChangeRole', 'Role', Icons.person,
                     isDestructive: true),
               ],
             ),
@@ -237,6 +238,7 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
                     ElevatedButton(
                       onPressed: () {
                         context.read<appBloc>().changeToken("");
+                        currentUser.token = "";
                         Navigator.of(context).pop();
                         Navigator.pushReplacement(
                             context,

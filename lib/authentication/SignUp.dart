@@ -114,7 +114,6 @@ class _MainSignupState extends State<MainSignup>
           "location": _LocationController.text.trim(),
           "capacity": _capacityController.text.trim(),
           "rate":_rateController.text.trim(),
-         
 
 
         };

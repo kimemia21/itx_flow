@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:itx/Temp/forwards.dart';
 import 'package:itx/testlab/TestLab.dart';
 import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/authentication/SignUp.dart';
@@ -50,7 +51,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => appBloc()),
         ChangeNotifierProvider(create: (context) => Webbloc())
       ],
-      child: MaterialApp(home: GetPlatform()),
+      child: MaterialApp(home: GetPlatform()
+      
+      // ForwardContractWidget()
+      // GetPlatform()
+      
+      ),
     );
   }
 }

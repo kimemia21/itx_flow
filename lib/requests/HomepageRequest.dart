@@ -15,6 +15,7 @@ import 'package:itx/Serializers/Packing.dart';
 import 'package:itx/Serializers/PriceHistory.dart';
 import 'package:itx/Serializers/Reasons.dart';
 import 'package:itx/Serializers/WareHouseUsers.dart';
+import 'package:itx/global/comms.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
 import 'package:itx/web/homepage/WebNav.dart';
@@ -36,10 +37,10 @@ class CommodityService {
           : Uri.parse("$mainUri/commodities");
 
       Uri.parse("$mainUri/commodities");
-      // print("token ${Provider.of<appBloc>(context, listen: false).token}");
+      // print("token ${currentUser.token}");
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token
+        "x-auth-token": currentUser.token
       };
 
       final response = await http.get(uri, headers: headers);
@@ -104,7 +105,7 @@ class CommodityService {
     
     final Map<String, String> headers = {
       "Content-Type": "application/json",
-      "x-auth-token": Provider.of<appBloc>(context, listen: false).token
+      "x-auth-token": currentUser.token
     };
     final http.Response response = await http.get(uri, headers: headers);
     if (response.statusCode == 200) {
@@ -134,7 +135,7 @@ class CommodityService {
 
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+        "x-auth-token": currentUser.token
       };
 
       final http.Response response = await http.get(uri, headers: headers);
@@ -174,7 +175,7 @@ class CommodityService {
       final Uri uri = Uri.parse("$mainUri/user/interests");
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+        "x-auth-token": currentUser.token
       };
       final Map<String, String> body = {
         "commodities": Provider.of<appBloc>(context, listen: false)
@@ -216,7 +217,7 @@ class CommodityService {
       final Uri uri = Uri.parse("$mainUri/user/company/$id");
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+        "x-auth-token": currentUser.token
       };
       final http.Response response = await http.get(uri, headers: headers);
 
@@ -248,10 +249,10 @@ class CommodityService {
       final Uri uri = Uri.parse("$mainUri/user/orders");
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token
+        "x-auth-token": currentUser.token
         // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYXBpIjoiV0VCIiwiaWF0IjoxNzI4NDQwNjE1LCJleHAiOjE3Mjg0NTg2MTV9.dEByi6Hhm1MZRKOrJCkg11QpkSME6zKYl9A1zHGCL_M"
 
-        // Provider.of<appBloc>(context, listen: false).token,
+        // currentUser.token
       };
       final http.Response response = await http.get(uri, headers: headers);
       print("start");
@@ -281,7 +282,7 @@ class CommodityService {
     final Uri uri = Uri.parse("$mainUri/contracts/$id/order");
 
     try {
-      final String token = Provider.of<appBloc>(context, listen: false).token;
+      final String token = currentUser.token;
       final Map<String, String> headers = {
         "Content-Type": "application/json",
         "x-auth-token": token,
@@ -332,7 +333,7 @@ class CommodityService {
       final Uri uri = Uri.parse("$mainUri/contracts/list?$filter");
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+        "x-auth-token": currentUser.token
       };
       final http.Response response = await http.get(uri, headers: headers);
       if (response.statusCode == 200) {
@@ -363,10 +364,10 @@ class CommodityService {
       BuildContext context, int id) async {
     try {
       final Uri uri = Uri.parse("$mainUri/contracts/$id/trades");
-      // print("token ${Provider.of<appBloc>(context, listen: false).token}");
+      // print("token ${currentUser.token}");
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+        "x-auth-token": currentUser.token
       };
 
       final response = await http.get(uri, headers: headers);
@@ -397,7 +398,7 @@ class CommodityService {
     final Uri uri = Uri.parse("$mainUri/commodities/$id/params");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
-      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      "x-auth-token": currentUser.token
     };
     try {
       final http.Response response = await http.get(uri, headers: headers);
@@ -428,7 +429,7 @@ class CommodityService {
     final Uri uri = Uri.parse("$mainUri/contracts/create");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
-      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      "x-auth-token": currentUser.token
     };
     final appBloc bloc = context.read<appBloc>();
     try {
@@ -473,7 +474,7 @@ class CommodityService {
     final Uri uri = Uri.parse("$mainUri/contracts/bids/$id");
     final Map<String, String> headers = {
       "Content-Type": "application/json", // Set Content-Type to JSON
-      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      "x-auth-token": currentUser.token
     };
 
     final appBloc bloc = context.read<appBloc>();
@@ -523,7 +524,7 @@ class CommodityService {
     final Uri uri = Uri.parse("$mainUri/contracts/bids/$id");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
-      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      "x-auth-token": currentUser.token
     };
 
     final appBloc bloc = context.read<appBloc>();
@@ -571,7 +572,7 @@ class CommodityService {
       final Uri uri = Uri.parse("$mainUri/user/all?type=6");
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+        "x-auth-token": currentUser.token
       };
 
       final http.Response response = await http.get(uri, headers: headers);
@@ -597,9 +598,11 @@ class CommodityService {
           ? Uri.parse("$mainUri/contracts/summary?commodity=$commodityId")
           : Uri.parse("$mainUri/contracts/summary");
 
+
+
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+        "x-auth-token":currentUser.token
       };
 
       final http.Response response = await http.get(uri, headers: headers);
@@ -639,7 +642,7 @@ class CommodityService {
 
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+        "x-auth-token": currentUser.token
       };
 
       final http.Response response = await http.get(uri, headers: headers);
@@ -676,7 +679,7 @@ class CommodityService {
     final uri = Uri.parse("${mainUri}/contracts/status-reasons");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
-      "x-auth-token": Provider.of<appBloc>(context, listen: false).token
+      "x-auth-token": currentUser.token
     };
     final response = await http.get(
       uri,
@@ -703,7 +706,7 @@ class CommodityService {
       print(uri);
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+        "x-auth-token": currentUser.token
       };
 
       print("------------------this is the body ${jsonEncode(body)}");
@@ -739,7 +742,7 @@ class CommodityService {
       final Uri uri = Uri.parse("http://185.141.63.56:3067/api/v1/chats");
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+        "x-auth-token": currentUser.token
       };
 
       final http.Response response = await http.get(uri, headers: headers);
@@ -769,7 +772,7 @@ class CommodityService {
       final Uri uri = Uri.parse("http://185.141.63.56:3067/api/v1/chats");
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+        "x-auth-token": currentUser.token
       };
 
       final http.Response response = await http.get(uri, headers: headers);
