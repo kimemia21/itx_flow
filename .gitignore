@@ -45,3 +45,10 @@ app.*.map.json
 # FVM Version Cache
 .fvm/
 .my-release-key.keystore
+.firebase.json
+.fvm
+.venv
+
+# Heap dump files
+*.hprof
+android/**/*.hprof
