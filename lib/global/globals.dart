@@ -14,8 +14,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/fromWakulima/widgets/DocsVerification.dart';
 import 'package:itx/fromWakulima/widgets/contant.dart';
 import 'package:itx/global/GlobalsHomepage.dart';
-
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Globals {
   // final BuildContext context;
@@ -38,6 +37,106 @@ class Globals {
       "phoneNumber": phoneNumber,
       "role": role
     });
+  }
+
+  static Future<void> showSavePrompt(
+      {required BuildContext context,
+      required String email,
+      required String password}) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    bool? info = await prefs.getBool("saved");
+    bool? saveInfo = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                CupertinoIcons.lock_shield,
+                color: Colors.green.shade500,
+                size: 28,
+              ),
+              SizedBox(width: 10),
+              Text(
+                'Save Login Info',
+                style: GoogleFonts.poppins(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'Would you like to save your login information for next time?',
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              color: Colors.black54,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                if (info == true) prefs.remove("email");
+                prefs.remove("password");
+                prefs.setBool("saved", false);
+
+                Navigator.pop(context, false);
+              },
+              child: Text(
+                'No, Thanks',
+                style: GoogleFonts.poppins(
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.green.shade500, Colors.green.shade600],
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: TextButton(
+                onPressed: () {
+                  print(prefs.getString("email"));
+                  
+                  print(prefs.getString("password"));
+                  Navigator.pop(context, true);
+                },
+                child: Text(
+                  'Save Info',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ],
+          actionsPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          backgroundColor: Colors.white,
+          elevation: 10,
+        );
+      },
+    );
+
+    if (saveInfo == true) {
+      await prefs.setString(
+        "email",
+        email,
+      );
+      await prefs.setString(
+        "password",
+        password,
+      );
+      await prefs.setBool("saved", true);
+    }
   }
 
   static Future<String> userRole({required BuildContext context}) async {
@@ -72,17 +171,14 @@ class Globals {
     return Navigator.push(
       context,
       PageRouteBuilder(
-        transitionDuration:
-            Duration(seconds: 1), // Increase duration for a smoother transition
+        transitionDuration: Duration(seconds: 1),
         pageBuilder: (context, animation, secondaryAnimation) => screen,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           final opacityTween = Tween(begin: 0.0, end: 1.0);
-          final scaleTween = Tween(
-              begin: 0.95,
-              end: 1.0); // Slight scale transition for ambient effect
+          final scaleTween = Tween(begin: 0.95, end: 1.0);
           final curvedAnimation = CurvedAnimation(
             parent: animation,
-            curve: Curves.easeInOut, // Use easeInOut for a smoother transition
+            curve: Curves.easeInOut,
           );
 
           return FadeTransition(
@@ -379,59 +475,62 @@ class Globals {
     );
   }
 
-static Widget buildNoDataState({
-  required void Function() function,
-  required String item,
-}) {
-  return Center(
-    child: Card(
-      margin: EdgeInsets.symmetric(horizontal: 20),
-      elevation: 3,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.info_outline, size: 60, color: Colors.blueGrey.shade400),
-            const SizedBox(height: 15),
-            Text(
-              'No ${item == "WareHouse" ? "Orders Placed" : "$item available"}',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                color: Colors.blueGrey.shade600,
-                fontWeight: FontWeight.w500,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 25),
-            ElevatedButton.icon(
-              onPressed: function,
-              icon: Icon(Icons.refresh, color: Colors.white),
-              label: Text(
-                'Refresh',
-                style: GoogleFonts.poppins(color: Colors.white, fontSize: 16),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green.shade400,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
+  static Widget buildNoDataState({
+    required void Function() function,
+    required String item,
+  }) {
+    return Center(
+      child: Card(
+        margin: EdgeInsets.symmetric(horizontal: 20),
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.info_outline,
+                  size: 60, color: Colors.blueGrey.shade400),
+              const SizedBox(height: 15),
+              Text(
+                'No ${item == "WareHouse" ? "Orders Placed" : "$item available"}',
+                style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  color: Colors.blueGrey.shade600,
+                  fontWeight: FontWeight.w500,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                elevation: 2,
+                textAlign: TextAlign.center,
               ),
-            ),
-          ],
+              const SizedBox(height: 25),
+              ElevatedButton.icon(
+                onPressed: function,
+                icon: Icon(Icons.refresh, color: Colors.white),
+                label: Text(
+                  'Refresh',
+                  style: GoogleFonts.poppins(color: Colors.white, fontSize: 16),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green.shade400,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                  elevation: 2,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
- static  void showErrorToast(String title, String message, BuildContext context) {
+  static void showErrorToast(
+      String title, String message, BuildContext context) {
     CherryToast.warning(
       title:
           Text(title, style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
@@ -440,7 +539,6 @@ static Widget buildNoDataState({
       animationCurve: Curves.easeInOut,
     ).show(context);
   }
-
 
   static void showOperationInProgressSnackBar(BuildContext context) {
     final snackBar = SnackBar(
@@ -464,57 +562,50 @@ static Widget buildNoDataState({
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-
- 
   static Widget leading({required context, required screen}) {
     return IconButton(
         onPressed: () => switchScreens(context: context, screen: screen),
         icon: Icon(Icons.arrow_back));
   }
 
-
- static   Widget MeState() {
-  return Container(
-    padding: EdgeInsets.all(20),
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.blue[50],
-            borderRadius: BorderRadius.circular(12),
+  static Widget MeState() {
+    return Container(
+      padding: EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.blue[50],
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              Icons.info_outline,
+              color: Colors.blue[400],
+              size: 32,
+            ),
           ),
-          child: Icon(
-            Icons.info_outline,
-            color: Colors.blue[400],
-            size: 32,
+          SizedBox(height: 16),
+          Text(
+            'Message  Error',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[800],
+            ),
           ),
-        ),
-        SizedBox(height: 16),
-        Text(
-          'Message  Error',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey[800],
+          SizedBox(height: 8),
+          Text(
+            'The Contract Belongs to You',
+            style: TextStyle(
+              color: Colors.grey[600],
+              fontSize: 14,
+            ),
+            textAlign: TextAlign.center,
           ),
-        ),
-        SizedBox(height: 8),
-        Text(
-          'The Contract Belongs to You',
-          style: TextStyle(
-            color: Colors.grey[600],
-            fontSize: 14,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    ),
-  );
-}
-
-
-
-  
+        ],
+      ),
+    );
+  }
 }

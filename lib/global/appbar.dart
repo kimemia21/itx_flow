@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Commodities.dart/ComDropDown.dart';
 import 'package:itx/authentication/LoginScreen.dart';
 import 'package:itx/chatbox/ChatList.dart';
+import 'package:itx/chatbox/supportBot.dart';
 import 'package:itx/global/comms.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
@@ -113,7 +114,7 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
               onSelected: (String value) {
                 if (value == 'logout') {
                   _showLogoutConfirmationDialog(context);
-                } else {
+                } else 
                   if (value == "messages") {
                     try {
                       PersistentNavBarNavigator.pushNewScreen(
@@ -125,7 +126,18 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
                       print("got this error in messages tab $e");
                     }
                   }
-                }
+                  else if (value == "support") {
+                    try {
+                      PersistentNavBarNavigator.pushNewScreen(
+                        context,
+                        screen: ChatbotScreen(),
+                        withNavBar: false,
+                      );
+                    } catch (e) {
+                      print("got this error in messages tab $e");
+                    }
+                  }
+                
               },
               itemBuilder: (BuildContext context) => [
                 // _buildPopupMenuItem('notification', 'Notifications',
@@ -136,6 +148,8 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
                     isDestructive: true),
                 _buildPopupMenuItem(' ChangeRole', 'Role', Icons.person,
                     isDestructive: true),
+                        _buildPopupMenuItem('support', 'Support', Icons.call,
+                    isDestructive: false),
               ],
             ),
           ),

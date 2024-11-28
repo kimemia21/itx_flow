@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "30477460615",
+    "project_id": "eacx-5ab0e",
+    "storage_bucket": "eacx-5ab0e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:30477460615:android:dfb5480d9f68625aa24422",
+        "android_client_info": {
+          "package_name": "com.gnovation.eacx"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "30477460615-2ruf8g4hsqjimshb6jr475u9vrsevjm1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiMxv5sKt3lLrUoD3cTtICqAFdJ6NUhYk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "30477460615-2ruf8g4hsqjimshb6jr475u9vrsevjm1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

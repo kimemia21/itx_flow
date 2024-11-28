@@ -2,11 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:itx/global/globals.dart';
 import 'package:itx/requests/Requests.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:itx/web/authentication/WebSignUp.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Weblogin extends StatefulWidget {
   const Weblogin({super.key});
@@ -20,6 +22,26 @@ class _WebloginState extends State<Weblogin> {
   bool visibility = true;
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+ Future initStorageUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storageEmail = prefs.getString("email");
+    final storagePassword = prefs.getString("password");
+    if (storagePassword != null && storageEmail != null) {
+      setState(() {
+        _emailController.text = storageEmail;
+        _passwordController.text = storagePassword;
+      });
+    } else {
+      print("null storage User");
+    }
+  }
 
   @override
   void dispose() {
@@ -98,11 +120,10 @@ class _WebloginState extends State<Weblogin> {
 
   @override
   Widget build(BuildContext context) {
-    if (kDebugMode) {
-     _emailController.text = "kikuyu1@gmail.com";
-    _passwordController.text = "1234567";
-    }
- 
+    // if (kDebugMode) {
+    //   _emailController.text = "kikuyu1@gmail.com";
+    //   _passwordController.text = "1234567";
+    // }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -115,7 +136,6 @@ class _WebloginState extends State<Weblogin> {
           return Container(
             decoration: BoxDecoration(
               color: Colors.white,
-             
             ),
             child: Center(
               child: Container(
@@ -141,8 +161,7 @@ class _WebloginState extends State<Weblogin> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   image: DecorationImage(
-                                    image:AssetImage( "images/mems.jpg"),
-                                    
+                                    image: AssetImage("images/mems.jpg"),
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -237,9 +256,10 @@ class _WebloginState extends State<Weblogin> {
                                     ),
                                     SizedBox(height: 20),
                                     MaterialButton(
-                                      onPressed: () {
+                                      onPressed: () async {
                                         if (_formState.currentState!
                                             .validate()) {
+                                       
                                           AuthRequest.login(
                                             isWeb: true,
                                             context: context,

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:itx/Serializers/UserTypes.dart';
@@ -10,6 +11,7 @@ import 'package:itx/global/globals.dart';
 import 'package:itx/authentication/LoginScreen.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainSignup extends StatefulWidget {
   const MainSignup({Key? key}) : super(key: key);
@@ -87,6 +89,8 @@ class _MainSignupState extends State<MainSignup>
     }
   }
 
+ 
+
   void _handleSignup() {
     if (_formKey.currentState!.validate()) {
       if (_passwordController.text != _confirmPasswordController.text) {
@@ -101,6 +105,8 @@ class _MainSignupState extends State<MainSignup>
           "phonenumber": _phoneNumberController.text.trim(),
           "user_type": int.parse(_selectedUserType!),
         };
+       
+
 
 // name, location, capacity, rate 
 // POST /user/warehouse

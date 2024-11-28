@@ -78,7 +78,13 @@ class AuthRequest {
             "warehouse": 6,
           };
           int type = userTypeMap[responseBody["user_type"]] ?? 6;
+          currentUser.user_type = type;
           int user_id = responseBody["user_id"];
+
+          Globals.showSavePrompt(
+              context: context,
+              email: body["email"],
+              password: body["password"]);
 
           print(
               "this is the userId----------------------$user_id---------------");
@@ -86,7 +92,7 @@ class AuthRequest {
           bloc.changeCurrentUserID(id: user_id);
 
           print(
-              "userType ----- ${Provider.of<appBloc>(context, listen: false).user_type}");
+              "userType ----- ${currentUser.user_type}");
 
           isOnOtp ? null : bloc.getUserType(body["user_type"]);
 
@@ -103,10 +109,7 @@ class AuthRequest {
                             context: context,
                             email: body["email"],
                             isRegistered: false,
-                            isWareHouse:
-                                Provider.of<appBloc>(context, listen: false)
-                                        .user_type ==
-                                    6,
+                            isWareHouse: currentUser.user_type == 6,
                           )
                         : Verification(
                             isRegistered: false,
@@ -114,8 +117,7 @@ class AuthRequest {
                             email: body["email"],
                             phoneNumber: body["phonenumber"],
                             isWareHouse:
-                                Provider.of<appBloc>(context, listen: false)
-                                        .user_type ==
+                                currentUser.user_type ==
                                     6,
                           ),
                   ),
@@ -192,23 +194,24 @@ class AuthRequest {
     // Only proceed with the rest of the function if contract posting succeeded
     try {
       int user_type = Provider.of<appBloc>(context, listen: false).user_type;
+
       print("user_type --------------------------$user_type");
 
       final Map<String, dynamic> body = {
         "commodities": commodities.join(","),
-        "user_type_id": user_type,
+        "user_type_id": currentUser.user_type,
       };
 
       bloc.changeUserCommoditesIds(commodities);
 
       final Uri url = Uri.parse("$main_url/commodities/certs");
-      print(Provider.of<appBloc>(context, listen: false).token);
+      print(currentUser.token);
 
       final http.Response response = await http.post(
         url,
         body: jsonEncode(body),
         headers: {
-          "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+          "x-auth-token": currentUser.token,
           'Content-Type': 'application/json',
         },
       );
@@ -266,7 +269,7 @@ class AuthRequest {
     final Uri uri = Uri.parse("$main_url/contracts/$id/order");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
-      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      "x-auth-token": currentUser.token,
     };
 
     final request =
@@ -318,7 +321,7 @@ class AuthRequest {
     final Uri uri = Uri.parse("$main_url/contracts/$id/like");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
-      "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      "x-auth-token": currentUser.token,
     };
 
     final request = await http.post(
@@ -333,7 +336,7 @@ class AuthRequest {
     final Uri uri = Uri.parse("$main_url/user/types");
     final Map<String, String> headers = {
       "Content-Type": "application/json",
-      // "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+      // "x-auth-token": currentUser.token,
     };
     final http.Response response = await http.get(uri, headers: headers);
     if (response.statusCode == 200) {
@@ -363,7 +366,7 @@ class AuthRequest {
   }) async {
     final appBloc bloc = context.read<appBloc>();
     final Uri url = Uri.parse("$main_url/user/otp");
-    // final String token = Provider.of<appBloc>(context, listen: false).token;
+    // final String token = currentUser.token;
     final Map<String, dynamic> body =
         Provider.of<appBloc>(context, listen: false).userDetails;
     print(body);
@@ -377,7 +380,10 @@ class AuthRequest {
         url,
 
         // body: jsonEncode(body),
-        headers: {"x-auth-token": currentUser.token, 'Content-Type': 'application/json'},
+        headers: {
+          "x-auth-token": currentUser.token,
+          'Content-Type': 'application/json'
+        },
       );
 
       if (response.statusCode == 200) {
@@ -546,34 +552,32 @@ class AuthRequest {
       if (response.statusCode == 200) {
         print("Success");
 
+        await Globals.showSavePrompt(
+            context: context,
+            email: body["email"].trim().toString().replaceAll(" ", ""),
+            password: body["password"]);
+
         // Parse the response body
         final Map<String, dynamic> responseBody = jsonDecode(response.body);
 
         // Check for the rsp field in the response body
         if (responseBody["rsp"] == true) {
-          // String token = responseBody["token"];
-          currentUser.token = responseBody["token"]; 
-          currentUser.user_id = responseBody["user_id"] as int;
-          currentUser.user_type_name = responseBody["user_type"] as String;
-          currentUser.authorized = responseBody["authorized"] as int;
-          currentUser.user_email = responseBody["user_email"] as String;
-
-          print("user token is ${currentUser.token}");
-        
-
           Map<String, int> userTypeMap = {
             "individual": 3,
             "producer": 4,
             "trader": 5
           };
 
+          currentUser.token = responseBody["token"];
+          currentUser.user_id = responseBody["user_id"] as int;
+          currentUser.user_type_name = responseBody["user_type"] as String;
+          currentUser.authorized = responseBody["authorized"] as int;
+          currentUser.user_email = responseBody["user_email"] as String;
+
+          print("user token is ${currentUser.token}");
+
           int type = userTypeMap[responseBody["user_type"]] ?? 6;
           currentUser.user_type = type;
-          // int id = responseBody["user_id"];
-          // int isAuthorized = responseBody["authorized"];
-          // print(
-          //     "user type id  ----$type----------------------------------------------");
-          // print("isAuthorized status --------------------$isAuthorized");
 
           // Update the bloc with new state
           bloc.changeIsLoading(false);
@@ -593,33 +597,26 @@ class AuthRequest {
                       context: context,
                       email: email,
                       isRegistered: true,
-                      isWareHouse: Provider.of<appBloc>(context, listen: false)
-                              .user_type ==
-                          6)
+                      isWareHouse: currentUser.user_type == 6)
                   :
                   // bypassing because otp is not working as to 19/11/24
-                  Provider.of<appBloc>(context, listen: false).user_type == 6
+                  currentUser.user_type == 6
                       ? Contracts(
                           filtered: false,
                           showAppbarAndSearch: true,
-                          isWareHouse:
-                              Provider.of<appBloc>(context, listen: false)
-                                      .user_type ==
-                                  6,
+                          isWareHouse: currentUser.user_type == 6,
                           isSpot: false,
                           contractName: "Contracts")
                       : GlobalsHomePage()
-
-              // Verification(
-              //     context: context,
-              //     email: email,
-              //     phoneNumber: null,
-              //     isRegistered: true,
-              //     isWareHouse: Provider.of<appBloc>(context, listen: false)
-              //             .user_type ==
-              //         6,
-              //   )
-              );
+                      // Verification(
+                      //     context: context,
+                      //     email: email,
+                      //     phoneNumber: null,
+                      //     isRegistered: true,
+                      //     isWareHouse: currentUser.user_type == 6,
+                      //   )
+                        
+                        );
 
           print("Login successful: ${responseBody["message"]}");
         } else {
@@ -680,8 +677,15 @@ class AuthRequest {
 
     try {
       bloc.changeIsLoading(true);
+      //   bool isAvailable = await GoogleSignIn.isAvailable();
+      // if (!isAvailable) {
+      //   _showErrorDialog(context, "Google Services Error",
+      //     "Google Play Services is not available on this device.");
+      //   return;
+      // }
 
       // Initialize GoogleSignIn
+
       final GoogleSignIn googleSignIn = GoogleSignIn();
 
       print("Attempting Google Sign-In");
@@ -715,15 +719,13 @@ class AuthRequest {
           throw Exception('Firebase Sign-In failed: No user data received');
         }
 
-        // Prepare the request body for registration
         final Map<String, dynamic> body = {
           "email": user.email,
           "name": user.displayName,
           "auth_provider": "google",
           "google_id": user.uid,
           "user_type": 1,
-          "phone": user.phoneNumber ??
-              "0769922984", // Use Firebase phone if available, else default
+          "phone": user.phoneNumber ?? "0769922984",
         };
 
         final Uri url = Uri.parse("$main_url/user/register");
@@ -751,6 +753,7 @@ class AuthRequest {
             int type = userTypeMap[responseBody["user_type"]] ?? 6;
             bloc.getUserType(type);
             bloc.changeIsLoading(false);
+
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -759,9 +762,7 @@ class AuthRequest {
                   context: context,
                   email: user.email!,
                   phoneNumber: user.phoneNumber,
-                  isWareHouse:
-                      Provider.of<appBloc>(context, listen: false).user_type ==
-                          6,
+                  isWareHouse: currentUser.user_type == 6,
                 ),
               ),
             );
@@ -782,8 +783,14 @@ class AuthRequest {
             "An error occurred during Google Sign-In: ${e.message}");
       } on PlatformException catch (e) {
         print("PlatformException: ${e.code} - ${e.message}");
-        _showErrorDialog(context, "Platform Error",
-            "An error occurred with the platform: ${e.message}");
+        if (e.code == 'sign_in_failed') {
+          // Specific handling for sign-in failures
+          _showErrorDialog(context, "Sign-In Error",
+              "Google Sign-In failed. Please check your Google Play Services.");
+        } else {
+          _showErrorDialog(context, "Platform Error",
+              "An error occurred with the platform: ${e.message}");
+        }
       }
     } catch (e) {
       print("Unexpected error during registration: $e");

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:itx/global/comms.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -14,7 +15,7 @@ class ContractTypeRequest {
       final Uri uri = Uri.parse("$mainUri/contracts/types");
       final Map<String, String> headers = {
         "Content-Type": "application/json",
-        "x-auth-token": Provider.of<appBloc>(context, listen: false).token,
+        "x-auth-token": currentUser.token,
       };
 
       final response = await http.get(uri, headers: headers);

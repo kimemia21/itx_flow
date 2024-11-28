@@ -172,7 +172,7 @@ class _SplashscreenState extends State<Splashscreen> with SingleTickerProviderSt
                         ),
                         child: Center(
                           child: Text(
-                            "Email",
+                            "Login",
                             style: GoogleFonts.poppins(
                               color: Colors.white,
                               fontSize: 18,

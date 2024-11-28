@@ -218,55 +218,58 @@ class _MainLoginScreenState extends State<MainLoginScreen>
                         SizedBox(height: screenHeight * 0.03),
 
                         // Divider with "Or continue with" text
-                        // Row(
-                        //   children: [
-                        //     Expanded(child: Divider(color: Colors.grey.shade300)),
-                        //     Padding(
-                        //       padding: EdgeInsets.symmetric(horizontal: 16),
-                        //       child: Text(
-                        //         "Or continue with",
-                        //         style: GoogleFonts.poppins(
-                        //           color: Colors.grey.shade600,
-                        //           fontSize: screenWidth * 0.035,
-                        //         ),
-                        //       ),
-                        //     ),
-                        //     Expanded(child: Divider(color: Colors.grey.shade300)),
-                        //   ],
-                        // ),
+                        Row(
+                          children: [
+                            Expanded(
+                                child: Divider(color: Colors.grey.shade300)),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(
+                                "Or continue with",
+                                style: GoogleFonts.poppins(
+                                  color: Colors.grey.shade600,
+                                  fontSize: screenWidth * 0.035,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                                child: Divider(color: Colors.grey.shade300)),
+                          ],
+                        ),
 
-                        // SizedBox(height: screenHeight * 0.03),
+                        SizedBox(height: screenHeight * 0.03),
 
                         // Google Sign In Button
-                        // Container(
-                        //   decoration: BoxDecoration(
-                        //     borderRadius: BorderRadius.circular(16),
-                        //     boxShadow: [
-                        //       BoxShadow(
-                        //         color: Colors.grey.shade200,
-                        //         blurRadius: 10,
-                        //         spreadRadius: 1,
-                        //       ),
-                        //     ],
-                        //   ),
-                        //   child: GoogleAuthButton(
-                        //     onPressed: () => AuthRequest.registerWithGoogle(context: context),
-                        //     themeMode: themeMode,
-                        //     isLoading: isLoading,
-                        //     style: AuthButtonStyle(
-                        //       width: screenWidth * 0.85,
-                        //       height: 56,
-                        //       borderRadius: 16,
-                        //       textStyle: GoogleFonts.poppins(
-                        //         color: Colors.black87,
-                        //         fontWeight: FontWeight.w500,
-                        //         fontSize: screenWidth * 0.04,
-                        //       ),
-                        //       buttonType: buttonType,
-                        //       iconType: iconType,
-                        //     ),
-                        //   ),
-                        // ),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.shade200,
+                                blurRadius: 10,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                          child: GoogleAuthButton(
+                            onPressed: () => AuthRequest.registerWithGoogle(
+                                context: context),
+                            themeMode: themeMode,
+                            isLoading: isLoading,
+                            style: AuthButtonStyle(
+                              width: screenWidth * 0.85,
+                              height: 56,
+                              borderRadius: 16,
+                              textStyle: GoogleFonts.poppins(
+                                color: Colors.black87,
+                                fontWeight: FontWeight.w500,
+                                fontSize: screenWidth * 0.04,
+                              ),
+                              buttonType: buttonType,
+                              iconType: iconType,
+                            ),
+                          ),
+                        ),
 
                         SizedBox(height: screenHeight * 0.03),
 
@@ -360,106 +363,15 @@ class _MainLoginScreenState extends State<MainLoginScreen>
 
   Widget _buildLoginButton(
       BuildContext context, double screenWidth, double screenHeight) {
-    Future<void> _showSavePrompt() async {
-      final prefs = await SharedPreferences.getInstance();
-      bool? info = await prefs.getBool("saved");
-      bool? saveInfo = await showDialog<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: Row(
-              children: [
-                Icon(
-                  CupertinoIcons.lock_shield,
-                  color: Colors.green.shade500,
-                  size: 28,
-                ),
-                SizedBox(width: 10),
-                Text(
-                  'Save Login Info',
-                  style: GoogleFonts.poppins(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
-            ),
-            content: Text(
-              'Would you like to save your login information for next time?',
-              style: GoogleFonts.poppins(
-                fontSize: 16,
-                color: Colors.black54,
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  if (info == true) prefs.remove("email");
-                  prefs.remove("password");
-                  prefs.setBool("saved", false);
-
-                  Navigator.pop(context, false);
-                },
-                child: Text(
-                  'No, Thanks',
-                  style: GoogleFonts.poppins(
-                    color: Colors.grey.shade600,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.green.shade500, Colors.green.shade600],
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: TextButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: Text(
-                    'Save Info',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-            actionsPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            backgroundColor: Colors.white,
-            elevation: 10,
-          );
-        },
-      );
-
-      if (saveInfo == true) {
-        await prefs.setString(
-          "email",
-          _emailController.text.trim().toString().replaceAll(" ", ""),
-        );
-        await prefs.setString(
-          "password",
-          _passwordController.text.trim().toString().replaceAll(" ", ""),
-        );
-        await prefs.setBool("saved", true);
-      }
-    }
-
     return GestureDetector(
       onTap: () async {
         if (_formState.currentState!.validate()) {
-          await _showSavePrompt();
           AuthRequest.login(
             isWeb: false,
             context: context,
-            email: _emailController.text.trim(),
-            password: _passwordController.text.trim(),
+            email: _emailController.text.trim().toString().replaceAll(" ", ""),
+            password:
+                _passwordController.text.trim().toString().replaceAll(" ", ""),
           );
         }
       },

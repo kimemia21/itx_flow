@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+<uses-permission android:name="android.permission.WAKE_LOCK"/>
     <application
         android:label="itx"
         android:name="${applicationName}"
@@ -19,6 +22,7 @@
             <meta-data
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
+              android:value="1034121309681-jm4304fij4jnnc980do8qsvquc6845el.apps.googleusercontent.com"
               />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

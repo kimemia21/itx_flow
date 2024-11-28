@@ -27,10 +27,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.macOS:
         return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -44,42 +41,51 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBdDGh1le6yYRjaX9Y_YOuGWtVQfEp0k5Q',
-    appId: '1:265728956034:android:d5bcd421bf739a97e6869b',
-    messagingSenderId: '265728956034',
-    projectId: 'gnovation-wakulima-d5bbc',
-    storageBucket: 'gnovation-wakulima-d5bbc.appspot.com',
+    apiKey: 'AIzaSyCiMxv5sKt3lLrUoD3cTtICqAFdJ6NUhYk',
+    appId: '1:30477460615:android:dfb5480d9f68625aa24422',
+    messagingSenderId: '30477460615',
+    projectId: 'eacx-5ab0e',
+    storageBucket: 'eacx-5ab0e.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAwdgORp59Sx4uKiU-ofIS_nYpHe4D7kDA',
-    appId: '1:265728956034:ios:ba95ed8ede43e515e6869b',
-    messagingSenderId: '265728956034',
-    projectId: 'gnovation-wakulima-d5bbc',
-    storageBucket: 'gnovation-wakulima-d5bbc.appspot.com',
-    androidClientId: '265728956034-3bgebgfk0q6joqtmjbp8tq8eiotd3u30.apps.googleusercontent.com',
-    iosClientId: '265728956034-v9r3gcq6fhhfg2ukr3dboea2at7lnj3i.apps.googleusercontent.com',
+    apiKey: 'AIzaSyBh7KVUccwmJbhO1lU3XjW8XRdAJrVN6_s',
+    appId: '1:30477460615:ios:9ffd8b7c8bac9625a24422',
+    messagingSenderId: '30477460615',
+    projectId: 'eacx-5ab0e',
+    storageBucket: 'eacx-5ab0e.firebasestorage.app',
+    iosClientId: '30477460615-e5p820an5507o0fajf5f3o3cfbrqiqq9.apps.googleusercontent.com',
     iosBundleId: 'com.example.itx',
   );
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCaVbN0DRlPWwC1V1pMUqely4eUaSUxaK8',
-    appId: '1:265728956034:web:2a0fb06ed44eb1e1e6869b',
-    messagingSenderId: '265728956034',
-    projectId: 'gnovation-wakulima-d5bbc',
-    authDomain: 'gnovation-wakulima-d5bbc.firebaseapp.com',
-    storageBucket: 'gnovation-wakulima-d5bbc.appspot.com',
+    apiKey: 'AIzaSyBGsc_oMK93Jb82MkwB3aMXGXcWKNU-4mc',
+    appId: '1:30477460615:web:d8a5c244e748a4dea24422',
+    messagingSenderId: '30477460615',
+    projectId: 'eacx-5ab0e',
+    authDomain: 'eacx-5ab0e.firebaseapp.com',
+    storageBucket: 'eacx-5ab0e.firebasestorage.app',
+    measurementId: 'G-KKW078HJD0',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyAwdgORp59Sx4uKiU-ofIS_nYpHe4D7kDA',
-    appId: '1:265728956034:ios:ba95ed8ede43e515e6869b',
-    messagingSenderId: '265728956034',
-    projectId: 'gnovation-wakulima-d5bbc',
-    storageBucket: 'gnovation-wakulima-d5bbc.appspot.com',
-    androidClientId: '265728956034-3bgebgfk0q6joqtmjbp8tq8eiotd3u30.apps.googleusercontent.com',
-    iosClientId: '265728956034-v9r3gcq6fhhfg2ukr3dboea2at7lnj3i.apps.googleusercontent.com',
+    apiKey: 'AIzaSyBh7KVUccwmJbhO1lU3XjW8XRdAJrVN6_s',
+    appId: '1:30477460615:ios:9ffd8b7c8bac9625a24422',
+    messagingSenderId: '30477460615',
+    projectId: 'eacx-5ab0e',
+    storageBucket: 'eacx-5ab0e.firebasestorage.app',
+    iosClientId: '30477460615-e5p820an5507o0fajf5f3o3cfbrqiqq9.apps.googleusercontent.com',
     iosBundleId: 'com.example.itx',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBGsc_oMK93Jb82MkwB3aMXGXcWKNU-4mc',
+    appId: '1:30477460615:web:50dfe8c761a7ed43a24422',
+    messagingSenderId: '30477460615',
+    projectId: 'eacx-5ab0e',
+    authDomain: 'eacx-5ab0e.firebaseapp.com',
+    storageBucket: 'eacx-5ab0e.firebasestorage.app',
+    measurementId: 'G-63LPNYXXMF',
   );
 
 }
