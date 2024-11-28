@@ -50,5 +50,6 @@ app.*.map.json
 .venv
 
 # Heap dump files
-*.hprof
+
+**/*.hprof
 android/**/*.hprof
