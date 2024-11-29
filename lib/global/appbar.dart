@@ -9,12 +9,16 @@ import 'package:itx/state/AppBloc.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
+import 'package:badges/badges.dart' as badges;
+
 class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   const ITXAppBar({Key? key, required this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    int count =   Provider.of<appBloc>(context,listen: false).Messages.length;
+
     return AppBar(
       elevation: 0,
       flexibleSpace: Container(
@@ -112,43 +116,43 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
               offset: Offset(0, 45),
               onSelected: (String value) {
+               
                 if (value == 'logout') {
                   _showLogoutConfirmationDialog(context);
-                } else 
-                  if (value == "messages") {
-                    try {
-                      PersistentNavBarNavigator.pushNewScreen(
-                        context,
-                        screen: ChatListScreen(),
-                        withNavBar: true,
-                      );
-                    } catch (e) {
-                      print("got this error in messages tab $e");
-                    }
+                } else if (value == "messages") {
+               
+                  try {
+                    PersistentNavBarNavigator.pushNewScreen(
+                      context,
+                      screen: ChatListScreen(),
+                      withNavBar: true,
+                    );
+                  } catch (e) {
+                    print("got this error in messages tab $e");
                   }
-                  else if (value == "support") {
-                    try {
-                      PersistentNavBarNavigator.pushNewScreen(
-                        context,
-                        screen: ChatbotScreen(),
-                        withNavBar: false,
-                      );
-                    } catch (e) {
-                      print("got this error in messages tab $e");
-                    }
+                } else if (value == "support") {
+                  try {
+                    PersistentNavBarNavigator.pushNewScreen(
+                      context,
+                      screen: ChatbotScreen(),
+                      withNavBar: false,
+                    );
+                  } catch (e) {
+                    print("got this error in messages tab $e");
                   }
-                
+                }
               },
               itemBuilder: (BuildContext context) => [
                 // _buildPopupMenuItem('notification', 'Notifications',
                 //     Icons.notifications_outlined),
                 _buildPopupMenuItem(
-                    'messages', 'Messages', Icons.message_outlined),
+                    'messages', 'Messages', Icons.message_outlined,
+                    badgeCount:count>1?0:count ),
                 _buildPopupMenuItem('logout', 'Log Out', Icons.logout_rounded,
                     isDestructive: true),
                 _buildPopupMenuItem(' ChangeRole', 'Role', Icons.person,
                     isDestructive: true),
-                        _buildPopupMenuItem('support', 'Support', Icons.call,
+                _buildPopupMenuItem('support', 'Support', Icons.call,
                     isDestructive: false),
               ],
             ),
@@ -160,16 +164,31 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   PopupMenuItem<String> _buildPopupMenuItem(
       String value, String text, IconData icon,
-      {bool isDestructive = false}) {
+      {bool isDestructive = false, int? badgeCount}) {
     return PopupMenuItem<String>(
       value: value,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 20,
-            color: isDestructive ? Colors.red[400] : Colors.grey[700],
+          badges.Badge(
+            badgeContent: badgeCount != null && badgeCount > 0
+                ? Text(
+                    '$badgeCount',
+                    style: TextStyle(color: Colors.red, fontSize: 10),
+                  )
+                : null,
+            showBadge: badgeCount != null && badgeCount > 0,
+            position: badges.BadgePosition.topEnd(top: -10, end: -10),
+            badgeStyle: badges.BadgeStyle(
+              badgeColor: Colors.red,
+              shape: badges.BadgeShape.circle,
+              padding: EdgeInsets.all(6),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: isDestructive ? Colors.red[400] : Colors.grey[700],
+            ),
           ),
           SizedBox(width: 12),
           Text(

@@ -1,10 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:get/get_connect/http/src/response/response.dart';
 import 'package:itx/Serializers/ChatMessages.dart';
 import 'package:itx/chatbox/ChatBox.dart';
+import 'package:itx/global/comms.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/state/AppBloc.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class ChatListScreen extends StatefulWidget {
   @override
@@ -12,7 +18,7 @@ class ChatListScreen extends StatefulWidget {
 }
 
 class _ChatListScreenState extends State<ChatListScreen> {
-  late Future<List<ChatsMessages>> futureChats;
+  late Future<Map<String, List<ChatsMessages>>> futureChats;
 
   @override
   void initState() {
@@ -20,13 +26,13 @@ class _ChatListScreenState extends State<ChatListScreen> {
     futureChats = fetchChats();
   }
 
-  Future<List<ChatsMessages>> fetchChats() async {
+  Future<Map<String, List<ChatsMessages>>> fetchChats() async {
     try {
       final chats = await CommodityService.getAllChats(context: context);
       return chats;
     } catch (e) {
       print('Error fetching chats: $e');
-      return [];
+      return {};
     }
   }
 
@@ -46,16 +52,6 @@ class _ChatListScreenState extends State<ChatListScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        // actions: [
-        //   IconButton(
-        //     icon: const Icon(Icons.search, color: Colors.black),
-        //     onPressed: () {},
-        //   ),
-        //   IconButton(
-        //     icon: const Icon(Icons.more_vert, color: Colors.black),
-        //     onPressed: () {},
-        //   ),
-        // ],
       ),
       body: RefreshIndicator(
         onRefresh: () {
@@ -64,18 +60,21 @@ class _ChatListScreenState extends State<ChatListScreen> {
           });
           return futureChats;
         },
-        child: FutureBuilder<List<ChatsMessages>>(
+        child: FutureBuilder<Map<String, List<ChatsMessages>>>(
           future: futureChats,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+              return Center(
+                  child: LoadingAnimationWidget.staggeredDotsWave(
+                color: Colors.green,
+                size: 40,
+              ));
             }
 
             if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return const Center(child: Text('No chats available'));
             }
 
-          
             final groupedChats = _groupChats(snapshot.data!);
 
             return ListView.builder(
@@ -88,65 +87,56 @@ class _ChatListScreenState extends State<ChatListScreen> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: Colors.green,
-        child: const Icon(Icons.message),
-      ),
     );
   }
 
-  List<BundledChat> _groupChats(List<ChatsMessages> chats) {
-    // Group chats by unique conversation (combination of sender and receiver)
-    final groupedMap = <String, List<ChatsMessages>>{};
+  List<BundledChat> _groupChats(Map<String, List<ChatsMessages>> chatsMap) {
+    final currentUserId =
+        Provider.of<appBloc>(context, listen: false).user_id;
+    
+    List<BundledChat> bundledChats = [];
 
-    for (var chat in chats) {
-      // Create a unique key for each conversation
-      // Use the other person's name as the key
-      final currentUserId =
-          Provider.of<appBloc>(context, listen: false).user_id;
-      final isCurrentUserSender = chat.sender_id == currentUserId;
-
-      final conversationPartnerName =
-          isCurrentUserSender ? chat.receiverName : chat.senderName;
-
-      if (!groupedMap.containsKey(conversationPartnerName)) {
-        groupedMap[conversationPartnerName] = [];
-      }
-      groupedMap[conversationPartnerName]!.add(chat);
-    }
-
-    // Convert grouped map to list of BundledChat objects
-    return groupedMap.entries.map((entry) {
-      final messages = entry.value;
+    chatsMap.forEach((receiverId, messages) {
       // Sort messages by date
       messages.sort((a, b) =>
           DateTime.parse(b.created_at).compareTo(DateTime.parse(a.created_at)));
 
-      return BundledChat(
-        senderName: entry.key, // This is now the conversation partner's name
+      // Determine conversation partner name
+      final isCurrentUserSender = messages.first.sender_id == currentUserId;
+      final conversationPartnerName = isCurrentUserSender 
+          ? messages.first.receiverName 
+          : messages.first.senderName;
+
+      final bundledChat = BundledChat(
+        receiverId: int.parse(receiverId),
+        senderName: conversationPartnerName,
         messages: messages,
-        lastMessage: messages.first, // Since we sorted, first is the latest
+        lastMessage: messages.first,
         unreadCount: messages
-            .where((m) =>
-                m.is_read == 0 &&
-                m.sender_id !=
-                    Provider.of<appBloc>(context, listen: false).user_id)
+            .where((m) => m.is_read == 0 && m.sender_id != currentUserId)
             .length,
       );
-    }).toList()
-      ..sort((a, b) => DateTime.parse(b.lastMessage.created_at)
-          .compareTo(DateTime.parse(a.lastMessage.created_at)));
+
+      bundledChats.add(bundledChat);
+    });
+
+    // Sort bundled chats by most recent message
+    bundledChats.sort((a, b) => DateTime.parse(b.lastMessage.created_at)
+        .compareTo(DateTime.parse(a.lastMessage.created_at)));
+
+    return bundledChats;
   }
 }
 
 class BundledChat {
+  final int receiverId;
   final String senderName;
   final List<ChatsMessages> messages;
   final ChatsMessages lastMessage;
   final int unreadCount;
 
   BundledChat({
+    required this.receiverId,
     required this.senderName,
     required this.messages,
     required this.lastMessage,
@@ -265,10 +255,49 @@ class BundledChatListTile extends StatelessWidget {
           screen: ChatScreen(
             messages: metadataMessage,
             allMessages: bundledChat.messages,
+            receiverId: bundledChat.receiverId, // Pass the receiver ID
           ),
           withNavBar: true,
         );
       },
     );
+  }
+}
+
+// Update the CommodityService to return Map instead of List
+class CommodityService {
+  static Future<Map<String, List<ChatsMessages>>> getAllChats({
+    required BuildContext context,
+  }) async {
+    try {
+      final Uri uri = Uri.parse("http://185.141.63.56:3067/api/v1/chats");
+      final Map<String, String> headers = {
+        "Content-Type": "application/json",
+        "x-auth-token": currentUser.token
+      };
+
+      final http.Response response = await http.get(uri, headers: headers);
+      final body = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && body["rsp"]) {
+        final Map<String, dynamic> data = body["data"];
+        
+        // Convert each list of messages to ChatsMessages objects
+        final Map<String, List<ChatsMessages>> processedData = 
+            data.map((receiverId, messages) => MapEntry(
+              receiverId, 
+              (messages as List)
+                .map((json) => ChatsMessages.fromJson(json))
+                .toList()
+            ));
+
+        return processedData;
+      } else {
+        throw Exception("Failed to load chat messages");
+      }
+    } catch (e) {
+      print("Error fetching chat messages: $e");
+      return {};
+    }
   }
 }

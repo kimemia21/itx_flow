@@ -107,6 +107,8 @@ dependencies:
   flutter_background_service_android: ^6.2.7
   flutter_client_sse: ^2.0.3
   webview_flutter: ^4.8.0
+  flutter_bloc: ^8.1.6
+  another_flushbar: ^1.12.30
   
 
 dev_dependencies:

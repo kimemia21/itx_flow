@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:itx/Serializers/ChatMessages.dart';
 import 'package:itx/Serializers/CommCert.dart';
 import 'package:itx/Serializers/ContractSummary.dart';
 import 'package:itx/fromWakulima/widgets/contant.dart';
@@ -37,6 +38,7 @@ class appBloc extends ChangeNotifier {
   String get userEmail => _userEmail;
   List get UserCommoditesCerts => _userCommoditesCerts;
   Map<String, dynamic> get _userDetails => userDetails;
+  List<ChatsMessages> Messages = [];
 
   List<String> _userCommodities = [];
   List<String> get userCommodities => _userCommodities;
@@ -153,6 +155,13 @@ class appBloc extends ChangeNotifier {
     commoditySummary = summary;
     notifyListeners();
   }
+
+//  getting info from the sse
+void changeMessages(List<ChatsMessages> messages) {
+  this.Messages.clear(); 
+  this.Messages = messages; 
+  notifyListeners(); 
+}
 }
 
 class CurrentUserProvider extends ChangeNotifier {

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:io';
 
@@ -56,8 +58,10 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Ping Parrot Chatbot'),
+      
+        title: Text('Eacx Support', style: GoogleFonts.poppins(color: Colors.white),),
         centerTitle: true,
+        backgroundColor: Colors.green,
       ),
       body: Stack(
         children: [
@@ -66,19 +70,20 @@ class _ChatbotScreenState extends State<ChatbotScreen> {
           ),
           if (_isLoading)
             Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation(Colors.blue),
-              ),
+              child: LoadingAnimationWidget.staggeredDotsWave(
+                  color: Colors.green,
+                  size: 40,
+                )
             ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _controller.reload();
-        },
-        child: Icon(Icons.refresh),
-        tooltip: 'Reload Chatbot',
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: () {
+      //     _controller.reload();
+      //   },
+      //   child: Icon(Icons.refresh),
+      //   tooltip: 'Reload Chatbot',
+      // ),
     );
   }
 }

@@ -1,21 +1,27 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:itx/Serializers/ChatMessages.dart';
 import 'package:itx/Serializers/ContractSerializer.dart';
+import 'package:itx/global/comms.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 class ChatScreen extends StatefulWidget {
   final ContractsModel? model;
   final ChatsMessages? messages;
   final List<ChatsMessages>? allMessages;
+  final int? receiverId;
 
   ChatScreen({
     this.model,
     this.messages,
     this.allMessages,
+    this.receiverId,
   });
 
   @override
@@ -35,10 +41,12 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    markRead();
     print("this is reciever ${widget.messages?.receiver_id}");
     print("this is reciever ${widget.messages?.receiverName}");
     print("this is reciever ${widget.model?.user_id}");
     print("this is reciever ${widget.model?.contract_user}");
+    print("this is mems ${widget.receiverId}");
 
     _receiverId = widget.model != null
         ? widget.model!.user_id
@@ -60,6 +68,23 @@ class _ChatScreenState extends State<ChatScreen> {
       _scrollToBottom();
     } else {
       _loadMessages();
+    }
+  }
+
+  Future<void> markRead() async {
+    final url = Uri.parse("http://192.168.100.56:3001/api/v1/chats/chat/${widget.receiverId}");
+    final Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "x-auth-token": currentUser.token
+    };
+    final response = await http.get(url,
+        headers: headers);
+    print(response.body);
+    if (response.statusCode == 200) {
+      print("read");
+    } else {
+      print(response.body);
+      print("not read");
     }
   }
 
