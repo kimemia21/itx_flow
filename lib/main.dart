@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:itx/Temp/forwards.dart';
+import 'package:itx/Temp/htmltest.dart';
 import 'package:itx/backgroundEvents/SSE.dart';
 import 'package:itx/testlab/TestLab.dart';
 import 'package:itx/authentication/LoginScreen.dart';
@@ -12,6 +13,7 @@ import 'package:itx/authentication/SignUp.dart';
 import 'package:itx/chatbox/ChatBox.dart';
 import 'package:itx/chatbox/ChatList.dart';
 import 'package:itx/rss/RSSFEED.dart';
+import 'package:itx/testlab/chatTest.dart';
 import 'package:itx/testlab/googleme.dart';
 import 'package:itx/uploadCerts/Regulator.dart';
 import 'package:itx/authentication/SplashScreen.dart';
@@ -41,23 +43,7 @@ void main() async {
     print('Error: ${details.exception}');
     print('Stack trace: ${details.stack}');
   };
-  // SSEClient.subscribeToSSE(
-  //     method: SSERequestType.GET,
-  //     url:
-  //         'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd',
-  //     header: {
-  //       "Cookie":
-  //           'jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpYXQiOjE2NDMyMTAyMzEsImV4cCI6MTY0MzgxNTAzMX0.U0aCAM2fKE1OVnGFbgAU_UVBvNwOMMquvPY8QaLD138; Path=/; Expires=Wed, 02 Feb 2022 15:17:11 GMT; HttpOnly; SameSite=Strict',
-  //       "Accept": "text/event-stream",
-  //       "Cache-Control": "no-cache",
-  //     }).listen(
-  //   (event) {
-  //     print('Id: ' + (event.id ?? ""));
-  //     print('Event: ' + (event.event ?? ""));
-  //     print('Data: ' + (event.data ?? ""));
-  //   },
-  // );
-    // Set preferred orientations
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -68,19 +54,19 @@ void main() async {
 }
 
 
-void _initializeWebViewPlatform() {
-    // AndroidWebViewPlatform.registerWith();
-  // // Check and initialize platform-specific WebView
-  if (WebViewPlatform.instance is WebKitWebViewPlatform) {
-    // iOS-specific initialization
-    WebKitWebViewPlatform.registerWith();
-  }
+// void _initializeWebViewPlatform() {
+//     // AndroidWebViewPlatform.registerWith();
+//   // // Check and initialize platform-specific WebView
+//   if (WebViewPlatform.instance is WebKitWebViewPlatform) {
+//     // iOS-specific initialization
+//     WebKitWebViewPlatform.registerWith();
+//   }
   
-  if (WebViewPlatform.instance is AndroidWebViewPlatform) {
-    // Android-specific initialization
-    AndroidWebViewPlatform.registerWith();
-  }
-}
+//   if (WebViewPlatform.instance is AndroidWebViewPlatform) {
+//     // Android-specific initialization
+//     AndroidWebViewPlatform.registerWith();
+//   }
+// }
 
 
 class MyApp extends StatelessWidget {
@@ -98,6 +84,15 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Webbloc())
       ],
       child: MaterialApp(home: GetPlatform()
+      // HTMLViewerPage()
+      // GetPlatform()
+      // HTMLViewerPage()
+      // GetPlatform()
+      //  testChat()
+      
+      // GetPlatform()
+      // HTMLViewerPage()
+      // GetPlatform()
           //  SSEBackgroundServiceExample()
           //  SignInDemo()
           //  GetPlatform()

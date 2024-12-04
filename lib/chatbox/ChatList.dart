@@ -1,11 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:get/get_connect/http/src/response/response.dart';
 import 'package:itx/Serializers/ChatMessages.dart';
 import 'package:itx/chatbox/ChatBox.dart';
 import 'package:itx/global/comms.dart';
-import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
@@ -28,8 +25,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
   Future<Map<String, List<ChatsMessages>>> fetchChats() async {
     try {
-      final chats = await CommodityService.getAllChats(context: context);
-      return chats;
+      return await CommodityService.getAllChats(context: context);
     } catch (e) {
       print('Error fetching chats: $e');
       return {};
@@ -75,12 +71,17 @@ class _ChatListScreenState extends State<ChatListScreen> {
               return const Center(child: Text('No chats available'));
             }
 
-            final groupedChats = _groupChats(snapshot.data!);
+            final chatsData = snapshot.data!;
 
             return ListView.builder(
-              itemCount: groupedChats.length,
+              itemCount: chatsData.length,
               itemBuilder: (context, index) {
-                final bundledChat = groupedChats[index];
+                final receiverId = chatsData.keys.elementAt(index);
+                final messages = chatsData[receiverId]!;
+                
+      
+                final bundledChat = _createBundledChat(receiverId, messages);
+                
                 return BundledChatListTile(bundledChat: bundledChat);
               },
             );
@@ -90,53 +91,43 @@ class _ChatListScreenState extends State<ChatListScreen> {
     );
   }
 
-  List<BundledChat> _groupChats(Map<String, List<ChatsMessages>> chatsMap) {
-    final currentUserId =
-        Provider.of<appBloc>(context, listen: false).user_id;
+  BundledChat _createBundledChat(String receiverId, List<ChatsMessages> messages) {
+    final currentUserId = Provider.of<appBloc>(context, listen: false).user_id;
     
-    List<BundledChat> bundledChats = [];
+    // Sort messages by date (most recent first)
+    messages.sort((a, b) => 
+        DateTime.parse(b.created_at).compareTo(DateTime.parse(a.created_at)));
 
-    chatsMap.forEach((receiverId, messages) {
-      // Sort messages by date
-      messages.sort((a, b) =>
-          DateTime.parse(b.created_at).compareTo(DateTime.parse(a.created_at)));
 
-      // Determine conversation partner name
-      final isCurrentUserSender = messages.first.sender_id == currentUserId;
-      final conversationPartnerName = isCurrentUserSender 
-          ? messages.first.receiverName 
-          : messages.first.senderName;
+    final isCurrentUserSender = messages.first.sender_id == currentUserId;
+    final conversationPartnerName = isCurrentUserSender 
+        ? messages.first.receiverName 
+        : messages.first.senderName;
 
-      final bundledChat = BundledChat(
-        receiverId: int.parse(receiverId),
-        senderName: conversationPartnerName,
-        messages: messages,
-        lastMessage: messages.first,
-        unreadCount: messages
-            .where((m) => m.is_read == 0 && m.sender_id != currentUserId)
-            .length,
-      );
+    return BundledChat(
+      receiverId: int.parse(receiverId),
+      senderName: conversationPartnerName,
 
-      bundledChats.add(bundledChat);
-    });
-
-    // Sort bundled chats by most recent message
-    bundledChats.sort((a, b) => DateTime.parse(b.lastMessage.created_at)
-        .compareTo(DateTime.parse(a.lastMessage.created_at)));
-
-    return bundledChats;
+      messages: messages,
+      lastMessage: messages.first,
+      unreadCount: messages
+          .where((m) => m.is_read == 0 && m.sender_id != currentUserId)
+          .length,
+    );
   }
 }
 
 class BundledChat {
   final int receiverId;
   final String senderName;
+
   final List<ChatsMessages> messages;
   final ChatsMessages lastMessage;
   final int unreadCount;
 
   BundledChat({
     required this.receiverId,
+
     required this.senderName,
     required this.messages,
     required this.lastMessage,
@@ -172,7 +163,7 @@ class BundledChatListTile extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.green,
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
+                  border: Border.all(color: Colors.white, width:2),
                 ),
               ),
             ),
@@ -255,7 +246,7 @@ class BundledChatListTile extends StatelessWidget {
           screen: ChatScreen(
             messages: metadataMessage,
             allMessages: bundledChat.messages,
-            receiverId: bundledChat.receiverId, // Pass the receiver ID
+            receiverId: bundledChat.receiverId,
           ),
           withNavBar: true,
         );

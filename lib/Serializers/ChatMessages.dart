@@ -1,4 +1,5 @@
 class ChatsMessages {
+
   final int id;
   final int sender_id;
   final int receiver_id;
@@ -21,6 +22,7 @@ class ChatsMessages {
 
   factory ChatsMessages.fromJson(Map<String, dynamic> json) {
     return ChatsMessages(
+
       id: json['id'],
       sender_id: json['sender_id'],
       receiver_id: json['receiver_id'],

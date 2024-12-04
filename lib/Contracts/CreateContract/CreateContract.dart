@@ -8,6 +8,7 @@ import 'package:itx/DropDowns.dart/CustomDropDown.dart';
 import 'package:itx/Contracts/CreateContract/PackingDropDown.dart';
 import 'package:itx/DropDowns.dart/WareHouseDropDown.dart';
 import 'package:itx/Serializers/CommParams.dart';
+import 'package:itx/Temp/htmltest.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -569,6 +570,56 @@ class _CreateContractState extends State<CreateContract>
   }
 
   void _submitForm() async {
+       Map<int, int> tabToContractTypeId = {
+      0: 1, // Futures
+      1: 2, // Forwards
+      2: 3, // Options
+      3: 4, // Swaps
+      4: 5, // Spot
+    };
+
+int contractTypeId = tabToContractTypeId[_tabController.index] ?? 1;
+
+showDialog(
+  context: context,
+  builder: (BuildContext context) {
+    return AlertDialog(
+      contentPadding: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20), // Rounded corners
+      ),
+      content: SizedBox(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        child: Column(
+          children: [
+            Expanded(
+              child: ContractTemplete(contractTypeId: contractTypeId),
+            ),
+            Padding(
+              padding: EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  'Close',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  },
+);
+
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -583,14 +634,7 @@ class _CreateContractState extends State<CreateContract>
           'Date: ${DateFormat('yyyy-MM-dd').format(milestone.date)}, Quantity: ${milestone.quantity}');
     });
 
-    Map<int, int> tabToContractTypeId = {
-      0: 1, // Futures
-      1: 2, // Forwards
-      2: 3, // Options
-      3: 4, // Swaps
-      4: 5, // Spot
-    };
-    int contractTypeId = tabToContractTypeId[_tabController.index] ?? 1;
+ 
 
     double price = double.tryParse(priceController.text) ?? 0.0;
     double units = 0.0;
@@ -645,12 +689,10 @@ class _CreateContractState extends State<CreateContract>
       //         })
       // .toList(),
     };
-    print("-------------------------------------");
-    print(contractData);
-
-    print("-------------------------------------");
 
     try {
+    
+
       await CommodityService.CreateContract(context, contractData,
           isWeb: false);
       // Show success message or navigate to a new screen
