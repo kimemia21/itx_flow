@@ -476,59 +476,72 @@ class Globals {
   }
 
   static Widget buildNoDataState({
-    required void Function() function,
-    required String item,
-  }) {
-    return Center(
-      child: Card(
-        margin: EdgeInsets.symmetric(horizontal: 20),
-        elevation: 3,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.info_outline,
-                  size: 60, color: Colors.blueGrey.shade400),
-              const SizedBox(height: 15),
-              Text(
-                'No ${item == "WareHouse" ? "Orders Placed" : "$item available"}',
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  color: Colors.blueGrey.shade600,
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 25),
-              ElevatedButton.icon(
-                onPressed: function,
-                icon: Icon(Icons.refresh, color: Colors.white),
-                label: Text(
-                  'Refresh',
-                  style: GoogleFonts.poppins(color: Colors.white, fontSize: 16),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green.shade400,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                  elevation: 2,
-                ),
-              ),
-            ],
-          ),
-        ),
+  required void Function() function,
+  required String item,
+}) {
+  return Center(
+    child: Container(
+      margin: EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade200,
+            blurRadius: 10,
+            spreadRadius: 2,
+            offset: Offset(0, 4),
+          )
+        ],
       ),
-    );
-  }
-
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.inbox_outlined,
+            size: 72, 
+            color: Colors.blueGrey.shade300,
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'No ${item == "WareHouse" ? "Orders Placed" : "$item available"}',
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              color: Colors.blueGrey.shade700,
+              fontWeight: FontWeight.w600,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 25),
+          OutlinedButton.icon(
+            onPressed: function,
+            icon: Icon(
+              Icons.refresh, 
+              color: Colors.green.shade600,
+            ),
+            label: Text(
+              'Refresh',
+              style: GoogleFonts.poppins(
+                color: Colors.green.shade600, 
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: Colors.green.shade200, width: 1.5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
+}
   static void showErrorToast(
       String title, String message, BuildContext context) {
     CherryToast.warning(

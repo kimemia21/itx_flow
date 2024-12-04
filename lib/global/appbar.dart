@@ -77,7 +77,7 @@ class ITXAppBar extends StatelessWidget implements PreferredSizeWidget {
               ],
             ),
             child: CommodityDropdown(
-              onCommoditySelected: (onCommoditySelected) {},
+              onCommoditySelected: (onCommoditySelected,name) {},
               isForAppBar: true,
             ),
           ),

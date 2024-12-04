@@ -32,7 +32,7 @@ class _TradeAuthorizationStatusScreenState
             SizedBox(height: 20),
             CommodityDropdown(
               isForAppBar: false,
-              onCommoditySelected: (selectedComId) {}),
+              onCommoditySelected: (selectedComId,name) {}),
             SizedBox(height: 10),
             Text("Required Regulatory Document"),
             SizedBox(height: 10),

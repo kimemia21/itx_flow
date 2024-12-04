@@ -11,7 +11,9 @@ import 'package:dropdown_button2/dropdown_button2.dart'; // Make sure to import 
 
 class CommodityDropdown extends StatefulWidget {
   final bool isForAppBar;
-  final Function(int?) onCommoditySelected;
+  final Function(int?,String?) onCommoditySelected;
+
+
 
   const CommodityDropdown({
     Key? key,
@@ -85,7 +87,7 @@ class _CommodityDropdownState extends State<CommodityDropdown> {
             context.read<appBloc>().changeCommoditySummary(
                 CommodityService.ContractsSummary(context: context,commodityId: value.commodityId));
 
-            widget.onCommoditySelected(value.commodityId);
+            widget.onCommoditySelected(value.commodityId, value.commodityName);
             print(value.commodityName);
           } catch (e) {
             print("Got this error in commDropDown $e");

@@ -114,7 +114,7 @@ class _WebNavState extends State<WebNav> {
                     color: Colors.white,
                     borderRadius: BorderRadiusDirectional.circular(20)),
                 child: CommodityDropdown(
-                    onCommoditySelected: (onCommoditySelected) {},
+                    onCommoditySelected: (onCommoditySelected,name) {},
                     isForAppBar: true),
               ),
               if (isDesktop)

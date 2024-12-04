@@ -4,16 +4,19 @@ import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as dom;
 import 'package:flutter_html/flutter_html.dart';
+import 'package:itx/ContSerilizers/CntForwards.dart';
+import 'package:itx/ContSerilizers/CntFutures.dart';
+import 'package:itx/ContSerilizers/CntOptions.dart';
 import 'package:itx/ContSerilizers/CntSwap.dart';
 import 'package:itx/global/comms.dart';
 import 'package:itx/testlab/html%F0%9F%98%82.dart';
 
 class ContractTemplete extends StatefulWidget {
   final int contractTypeId;
+  final Map<String,dynamic> filledData;
 
-  const ContractTemplete({super.key, required this.contractTypeId});
-
-
+  const ContractTemplete(
+      {super.key, required this.contractTypeId, required this.filledData});
 
   @override
   _ContractTempleteState createState() => _ContractTempleteState();
@@ -22,18 +25,44 @@ class ContractTemplete extends StatefulWidget {
 class _ContractTempleteState extends State<ContractTemplete> {
   String _htmlContent = '';
   bool _isLoading = true;
+  String _contractName = "";
 
   @override
   void initState() {
     super.initState();
+    contractName();
     _fetchAndProcessHTML();
+  }
+
+  void helperSetState(value) {
+    setState(() {
+      _contractName = value;
+    });
+  }
+
+  void contractName() {
+    final type = widget.contractTypeId;
+    switch (type) {
+      case 1:
+        helperSetState("Futures Contract");
+      case 2:
+        helperSetState("Forward Contract");
+      case 3:
+        helperSetState("Options Contract");
+      case 4:
+        helperSetState("Swaps Contract");
+
+        break;
+      default:
+    }
   }
 
   Future<void> _fetchAndProcessHTML() async {
     try {
       // Fetch HTML from server
       print("endpoint $grace_html");
-      final response = await http.get(Uri.parse('${grace_html}'));
+      final response = await http.get(Uri.parse(
+          '${grace_html}${widget.contractTypeId.toString()}/template'));
       print(response.body);
 
       if (response.statusCode == 200) {
@@ -42,7 +71,7 @@ class _ContractTempleteState extends State<ContractTemplete> {
         dom.Document document = parse(response.body);
 
         // Manipulate the HTML (example modifications)
-        _modifyHTML(document, cntSwap);
+        _modifyHTML(document);
         print(document.outerHtml);
 
         // Convert back to string
@@ -58,25 +87,20 @@ class _ContractTempleteState extends State<ContractTemplete> {
     }
   }
 
-  void _modifyHTML(dom.Document document, CntSwap contract) {
+  void _modifyHTML(dom.Document document,) {
+  
+    widget.filledData.forEach((id, value) {
+      if (value == null) {
+        print("--------------$value is null");
+      } else if (id == null) {
+        print("--------------$id is null");
+      }
 
-    // List of ids corresponding to the SwapContract attributes
-    final idsToAttributes = {
-      "agreement_date": contract.agreementDate,
-      "party_a_name": contract.partyAName,
-      "party_a_address": contract.partyAAddress,
-      "party_a_contact_person": contract.partyAContactPerson,
-      "party_a_email": contract.partyAEmail,
-      "party_a_phone": contract.partyAPhone,
-      "party_b_name": contract.partyBName,
-      "party_b_address": contract.partyBAddress,
-      "party_b_contact_person": contract.partyBContactPerson,
-      "party_b_email": contract.partyBEmail,
-      "party_b_phone": contract.partyBPhone,
-    };
+      print("$id: $value");
+    });
 
     // Loop through the map and modify elements in the document
-    idsToAttributes.forEach((id, value) {
+    widget.filledData.forEach((id, value) {
       var element = document.getElementById(id);
       if (element != null) {
         element.text = value; // Replace placeholder text with actual value
@@ -84,21 +108,6 @@ class _ContractTempleteState extends State<ContractTemplete> {
             'color: black; font-size: 14px;'; // Apply styling
       }
     });
-
-    // // 3. Add new elements
-    // var body = document.body;
-    // if (body != null) {
-    //   var newDiv = dom.Element.tag('div')
-    //     ..attributes['class'] = 'custom-banner'
-    //     ..text = 'Dynamically Added Content';
-    //   body.insertBefore(newDiv, body.firstChild);
-    // }
-
-    // // 4. Modify links
-    // var links = document.querySelectorAll('a');
-    // for (var link in links) {
-    //   link.attributes['target'] = '_blank'; // Open links in new tab
-    // }
   }
 
   void _handleError(String message) {
@@ -112,20 +121,19 @@ class _ContractTempleteState extends State<ContractTemplete> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('HTML Viewer'),
+        title: Text(_contractName ?? ""),
       ),
       body: _isLoading
           ? Center(child: loading)
           : Container(
-            width: MediaQuery.of(context).size.width*0.8,
-            child: SingleChildScrollView(
+              width: MediaQuery.of(context).size.width * 0.8,
+              child: SingleChildScrollView(
                 child: Html(
                   data: _htmlContent,
                   style: {
-                    // Custom styling for HTML rendering
                     'body': Style(
                       backgroundColor: Colors.white,
-                      padding: HtmlPaddings.all(2),
+                      padding: HtmlPaddings.all(4),
                     ),
                   },
                   // Optional: Handle link taps
@@ -135,7 +143,7 @@ class _ContractTempleteState extends State<ContractTemplete> {
                   },
                 ),
               ),
-          ),
+            ),
     );
   }
 }

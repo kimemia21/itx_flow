@@ -188,7 +188,7 @@ class _WebCreateContractState extends State<WebCreateContract>
             SizedBox(height: 10),
             CommodityDropdown(
               isForAppBar: false,
-              onCommoditySelected: (commodity) {
+              onCommoditySelected: (commodity,name) {
                 setState(() {
                   selectedCommodityId = int.parse(commodity.toString());
                   print(selectedCommodityId);
@@ -200,7 +200,7 @@ class _WebCreateContractState extends State<WebCreateContract>
               Visibility(
                 visible: context.watch<appBloc>().commId != 0,
                 child: GradeDropdown(
-                  onGradeSelectedId: (onGradeSelected) {
+                  onGradeSelectedId: (onGradeSelected,name) {
                     setState(() {
                       selectedQuality = onGradeSelected;
                     });
@@ -253,7 +253,7 @@ class _WebCreateContractState extends State<WebCreateContract>
             ],
             SizedBox(height: 20),
             WarehouseSearchDropdown(
-              onWarehouseSelected: (WareHouseId) {
+              onWarehouseSelected: (WareHouseId,name) {
                 setState(() {
                   selectedWareHouseId = WareHouseId;
                 });

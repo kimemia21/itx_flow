@@ -5,7 +5,7 @@ import 'package:itx/state/AppBloc.dart';
 import 'package:provider/provider.dart';
 
 class GradeDropdown extends StatefulWidget {
-  final Function(String?) onGradeSelectedId;
+  final Function(String?, String?) onGradeSelectedId;
 
   const GradeDropdown({Key? key, required this.onGradeSelectedId})
       : super(key: key);
@@ -15,7 +15,8 @@ class GradeDropdown extends StatefulWidget {
 }
 
 class _GradeDropdownState extends State<GradeDropdown> {
-  String? _selectedCommodity;
+  String? _selectedGradeId;
+  String? _selectedGradeName;
 
   Future<List<Grade>> _fetchGrades(int commodityID) async {
     return GradeRequest.fetchGrade(context, commodityID);
@@ -26,8 +27,7 @@ class _GradeDropdownState extends State<GradeDropdown> {
     final commodityID = Provider.of<appBloc>(context).commId;
 
     return FutureBuilder<List<Grade>>(
-      future: _fetchGrades(
-          commodityID), // Fetch packing data with updated commodityID
+      future: _fetchGrades(commodityID),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -36,13 +36,13 @@ class _GradeDropdownState extends State<GradeDropdown> {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Center(child: Text('No Grades options available'));
         } else {
-          return _buildCommodityTypeDropdown(snapshot.data!);
+          return _buildGradeDropdown(snapshot.data!);
         }
       },
     );
   }
 
-  Widget _buildCommodityTypeDropdown(List<Grade> grades) {
+  Widget _buildGradeDropdown(List<Grade> grades) {
     return DropdownButtonFormField<String>(
       decoration: InputDecoration(
         labelText: 'Grade Type',
@@ -50,18 +50,29 @@ class _GradeDropdownState extends State<GradeDropdown> {
         filled: true,
         fillColor: Colors.grey.shade100,
       ),
-      value: _selectedCommodity,
+      value: _selectedGradeId,
+      hint: Text('Select Grade'),
       items: grades
-          .map((e) => DropdownMenuItem<String>(
-                value: e.id.toString(),
-                child: Text(e.gradeName),
+          .map((grade) => DropdownMenuItem<String>(
+                value: grade.id.toString(),
+                child: Text(grade.gradeName),
               ))
           .toList(),
-      onChanged: (value) {
-        widget.onGradeSelectedId(value);
-        setState(() {
-          _selectedCommodity = value;
-        });
+      onChanged: (String? selectedGradeId) {
+        if (selectedGradeId != null) {
+          // Find the corresponding grade name
+          final selectedGrade = grades.firstWhere(
+            (grade) => grade.id.toString() == selectedGradeId
+          );
+
+          setState(() {
+            _selectedGradeId = selectedGradeId;
+            _selectedGradeName = selectedGrade.gradeName;
+          });
+
+          // Call the callback with both ID and name
+          widget.onGradeSelectedId(selectedGradeId, selectedGrade.gradeName);
+        }
       },
     );
   }

@@ -9,6 +9,7 @@ import 'package:itx/Contracts/CreateContract/PackingDropDown.dart';
 import 'package:itx/DropDowns.dart/WareHouseDropDown.dart';
 import 'package:itx/Serializers/CommParams.dart';
 import 'package:itx/Temp/htmltest.dart';
+import 'package:itx/global/comms.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -30,6 +31,10 @@ class _CreateContractState extends State<CreateContract>
   DateTime? selectedDate;
   String? selectedMetric;
   int? selectedWareHouseId;
+  String selectedGradeName = "";
+  String selectedCommodityName = "";
+  String selectedWareHouseName = "";
+
   final priceController = TextEditingController();
   final descriptionController = TextEditingController();
   final quantityController = TextEditingController();
@@ -170,23 +175,31 @@ class _CreateContractState extends State<CreateContract>
                       ),
                     ),
                     SizedBox(height: 10),
-                    CommodityDropdown(
-                      isForAppBar: false,
-                      onCommoditySelected: (commodity) {
-                        setState(() {
-                          selectedCommodityId = int.parse(commodity.toString());
-                          print(selectedCommodityId);
-                        });
-                      },
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CommodityDropdown(
+                          isForAppBar: false,
+                          onCommoditySelected: (commodity, commodityname) {
+                            setState(() {
+                              selectedCommodityId = int.parse(commodity.toString());
+                              selectedCommodityName = commodityname.toString();
+                              print(selectedCommodityId);
+                            });
+                          },
+                        ),
+                        Text(selectedCommodityName)
+                      ],
                     ),
                     if (selectedCommodityId != null) ...[
                       SizedBox(height: 16),
                       Visibility(
                         visible: context.watch<appBloc>().commId != 0,
                         child: GradeDropdown(
-                          onGradeSelectedId: (onGradeSelected) {
+                          onGradeSelectedId: (onGradeSelected, name) {
                             setState(() {
                               selectedQuality = onGradeSelected;
+                              selectedGradeName = name!;
                             });
                           },
                         ),
@@ -259,9 +272,10 @@ class _CreateContractState extends State<CreateContract>
                     ],
                     SizedBox(height: 20),
                     WarehouseSearchDropdown(
-                      onWarehouseSelected: (WareHouseId) {
+                      onWarehouseSelected: (WareHouseId, name) {
                         setState(() {
                           selectedWareHouseId = WareHouseId;
+                          selectedWareHouseName = name;
                         });
                       },
                     ),
@@ -570,7 +584,10 @@ class _CreateContractState extends State<CreateContract>
   }
 
   void _submitForm() async {
-       Map<int, int> tabToContractTypeId = {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    Map<int, int> tabToContractTypeId = {
       0: 1, // Futures
       1: 2, // Forwards
       2: 3, // Options
@@ -578,51 +595,7 @@ class _CreateContractState extends State<CreateContract>
       4: 5, // Spot
     };
 
-int contractTypeId = tabToContractTypeId[_tabController.index] ?? 1;
-
-showDialog(
-  context: context,
-  builder: (BuildContext context) {
-    return AlertDialog(
-      contentPadding: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20), // Rounded corners
-      ),
-      content: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        child: Column(
-          children: [
-            Expanded(
-              child: ContractTemplete(contractTypeId: contractTypeId),
-            ),
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(
-                  'Close',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  },
-);
-
-
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    int contractTypeId = tabToContractTypeId[_tabController.index] ?? 1;
 
     print('Form submitted');
     params.forEach((param) {
@@ -633,8 +606,6 @@ showDialog(
       print(
           'Date: ${DateFormat('yyyy-MM-dd').format(milestone.date)}, Quantity: ${milestone.quantity}');
     });
-
- 
 
     double price = double.tryParse(priceController.text) ?? 0.0;
     double units = 0.0;
@@ -691,7 +662,228 @@ showDialog(
     };
 
     try {
-    
+      optionsIds = {
+        "contract_title": cntOptions.contractTitle,
+        "contract_number": cntOptions.contractNumber,
+        "date_of_issue": cntOptions.dateOfIssue,
+        "expiration_date": cntOptions.expirationDate,
+        "option_writer_name": cntOptions.optionWriterName,
+        "option_writer_address": cntOptions.optionWriterAddress,
+        "option_writer_phone": cntOptions.optionWriterPhone,
+        "option_writer_email": cntOptions.optionWriterEmail,
+        "option_holder_name": cntOptions.optionHolderName,
+        "option_holder_address": cntOptions.optionHolderAddress,
+        "option_holder_phone": cntOptions.optionHolderPhone,
+        "option_holder_email": cntOptions.optionHolderEmail,
+        "commodity_description": cntOptions.commodityDescription,
+        "commodity_quality": cntOptions.commodityQuality,
+        "commodity_quantity": cntOptions.commodityQuantity,
+        "call_option": cntOptions.callOption,
+        "put_option": cntOptions.putOption,
+        "strike_price": cntOptions.strikePrice,
+        "premium": cntOptions.premium,
+        "american_style": cntOptions.americanStyle,
+        "european_style": cntOptions.europeanStyle,
+        "physical_delivery": cntOptions.physicalDelivery,
+        "cash_settlement": cntOptions.cashSettlement,
+        "delivery_location": cntOptions.deliveryLocation,
+        "delivery_start_date": cntOptions.deliveryStartDate,
+        "delivery_end_date": cntOptions.deliveryEndDate,
+        "settlement_date": cntOptions.settlementDate,
+        "reference_price_source": cntOptions.referencePriceSource,
+        "notification_method": cntOptions.notificationMethod,
+        "notice_period": cntOptions.noticePeriod,
+        "jurisdiction": cntOptions.jurisdiction,
+        "arbitration": cntOptions.arbitration,
+        "arbitration_body": cntOptions.arbitrationBody,
+        "arbitration_location": cntOptions.arbitrationLocation,
+        "notice_of_default": cntOptions.noticeOfDefault,
+        "cure_period": cntOptions.curePeriod,
+        "option_writer_sign": cntOptions.optionWriterSign,
+        "option_writer_date": cntOptions.optionWriterDate,
+        "option_holder_sign": cntOptions.optionHolderSign,
+        "option_holder_date": cntOptions.optionHolderDate,
+        "additional_terms": cntOptions.additionalTerms,
+      };
+
+      forwardsIds = {
+        "effective_day": cntForwards.effectiveDay,
+        "effective_month": cntForwards.effectiveMonth,
+        "effective_year": cntForwards.effectiveYear,
+        "seller_name": cntForwards.sellerName,
+        "seller_address": cntForwards.sellerAddress,
+        "seller_contact": cntForwards.sellerContact,
+        "buyer_name": cntForwards.buyerName,
+        "buyer_address": cntForwards.buyerAddress,
+        "buyer_contact": cntForwards.buyerContact,
+        "commodity_type": cntForwards.commodityType,
+        "commodity_quality": cntForwards.commodityQuality,
+        "commodity_quantity": cntForwards.commodityQuantity,
+        "unit_price": cntForwards.unitPrice,
+        "total_price": cntForwards.totalPrice,
+        "currency": cntForwards.currency,
+        "payment_terms": cntForwards.paymentTerms,
+        "payment_method": cntForwards.paymentMethod,
+        "delivery_date": cntForwards.deliveryDate,
+        "delivery_location": cntForwards.deliveryLocation,
+        "delivery_method": cntForwards.deliveryMethod,
+        "risk_title_transfer": cntForwards.riskTitleTransfer,
+        "inspection_rights": cntForwards.inspectionRights,
+        "quality_assurance": cntForwards.qualityAssurance,
+        "default_events": cntForwards.defaultEvents,
+        "remedies": cntForwards.remedies,
+        "notice_of_default": cntForwards.noticeOfDefault,
+        "cure_period": cntForwards.curePeriod,
+        "seller_signature": cntForwards.sellerSignature,
+        "seller_signature_name": cntForwards.sellerSignatureName,
+        "seller_signature_title": cntForwards.sellerSignatureTitle,
+        "buyer_signature": cntForwards.buyerSignature,
+        "buyer_signature_name": cntForwards.buyerSignatureName,
+        "buyer_signature_title": cntForwards.buyerSignatureTitle,
+      };
+
+      futureIds = {
+        "details-of-transaction": cntFutures.detailsOfTransaction,
+        "commodity": cntFutures.commodity,
+        "contract_code": cntFutures.contractCode,
+        "seller_details": cntFutures.sellerDetails,
+        "buyer_details": cntFutures.buyerDetails,
+        "quantity": cntFutures.quantity,
+        "quality": cntFutures.quality,
+        "delivery_location": cntFutures.deliveryLocation,
+        "delivery_date": cntFutures.deliveryDate,
+        "price": cntFutures.price,
+        "settlement_type": cntFutures.settlementType,
+        "settlement_date": cntFutures.settlementDate,
+        "initial_margin": cntFutures.initialMargin,
+        "maintenance_margin": cntFutures.maintenanceMargin,
+        "daily_price_limits": cntFutures.dailyPriceLimits,
+        "trading_hours": cntFutures.tradingHours,
+        "expiration_date": cntFutures.expirationDate,
+        "last_trading_day": cntFutures.lastTradingDay,
+        "notice_of_default": cntFutures.noticeOfDefault,
+        "cure_period": cntFutures.curePeriod,
+        "seller_name": cntFutures.sellerName,
+        "seller_title": cntFutures.sellerTitle,
+        "seller_date": cntFutures.sellerDate,
+        "seller_sign": cntFutures.sellerSign,
+        "buyer_name": cntFutures.buyerName,
+        "buyer_title": cntFutures.buyerTitle,
+        "buyer_date": cntFutures.buyerDate,
+        "buyer_sign": cntFutures.buyerSign,
+        "witness1_name": cntFutures.witness1Name,
+        "witness1_title": cntFutures.witness1Title,
+        "witness1_date": cntFutures.witness1Date,
+        "witness1_sign": cntFutures.witness1Sign,
+        "witness2_name": cntFutures.witness2Name,
+        "witness2_title": cntFutures.witness2Title,
+        "witness2_date": cntFutures.witness2Date,
+        "witness2_sign": cntFutures.witness2Sign,
+      };
+
+      swapIds = {
+        // Party Details
+        "agreement_date": cntSwap.agreementDate,
+        "party_a_name": cntSwap.partyAName,
+        "party_a_address": cntSwap.partyAAddress,
+        "party_a_contact_person": cntSwap.partyAContactPerson,
+        "party_a_email": cntSwap.partyAEmail,
+        "party_a_phone": cntSwap.partyAPhone,
+        "party_b_name": cntSwap.partyBName,
+        "party_b_address": cntSwap.partyBAddress,
+        "party_b_contact_person": cntSwap.partyBContactPerson,
+        "party_b_email": cntSwap.partyBEmail,
+        "party_b_phone": cntSwap.partyBPhone,
+
+        // Swap Terms
+        "fixed_rate": cntSwap.fixedRate,
+        "floating_rate": cntSwap.floatingRate,
+        "reference_rate": cntSwap.referenceRate,
+        "notional_amount_term": cntSwap.notionalAmountTerm,
+        "day_count_convention": cntSwap.dayCountConvention,
+
+        // Payments
+        "payment_dates_term": cntSwap.paymentDatesTerm,
+        "payment_currency": cntSwap.paymentCurrency,
+        "commodities": cntSwap.commodities,
+        "swap_rate": cntSwap.swapRate,
+
+        // Dates
+        "effective_date_term": cntSwap.effectiveDateTerm,
+        "termination_date_term": cntSwap.terminationDateTerm,
+        "early_termination_notice": cntSwap.earlyTerminationNotice,
+
+        // Default and Remedies
+        "notice_of_default": cntSwap.noticeOfDefault,
+        "cure_period": cntSwap.curePeriod,
+
+        // Witness Signatures
+        "party_a_signature": cntSwap.partyASignature,
+        "party_a_name_in_witness": cntSwap.partyANameInWitness,
+        "party_a_title": cntSwap.partyATitle,
+        "party_b_signature": cntSwap.partyBSignature,
+        "party_b_name_in_witness": cntSwap.partyBNameInWitness,
+        "party_b_title": cntSwap.partyBTitle,
+      };
+
+      Map<String, dynamic> filledData = {};
+      switch (contractTypeId) {
+        case 1:
+          filledData = futureIds;
+          break;
+        case 2:
+          filledData = forwardsIds;
+          break;
+        case 3:
+          filledData = optionsIds;
+          break;
+        case 4:
+          filledData = swapIds;
+          break;
+
+        default:
+          filledData = futureIds;
+      }
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            contentPadding: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20), // Rounded corners
+            ),
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ContractTemplete(
+                        contractTypeId: contractTypeId, filledData: filledData),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(10.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(
+                        'Close',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
 
       await CommodityService.CreateContract(context, contractData,
           isWeb: false);
