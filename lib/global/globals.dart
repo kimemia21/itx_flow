@@ -551,6 +551,7 @@ class Globals {
       animationDuration: Duration(milliseconds: 200),
       animationCurve: Curves.easeInOut,
     ).show(context);
+    
   }
 
   static void showOperationInProgressSnackBar(BuildContext context) {

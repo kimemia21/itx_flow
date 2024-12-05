@@ -8,6 +8,7 @@ import 'package:itx/DropDowns.dart/CustomDropDown.dart';
 import 'package:itx/Contracts/CreateContract/PackingDropDown.dart';
 import 'package:itx/DropDowns.dart/WareHouseDropDown.dart';
 import 'package:itx/Serializers/CommParams.dart';
+import 'package:itx/Serializers/WareHouseUsers.dart';
 import 'package:itx/requests/HomepageRequest.dart';
 import 'package:itx/state/AppBloc.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -35,6 +36,7 @@ class _WebCreateContractState extends State<WebCreateContract>
   final metricController = TextEditingController();
   String selectedTabName = 'Futures';
   String? _packingMetrics;
+  WarehouseNames? warehouseNames;
 
   late TabController _tabController;
   List<DeliveryMilestone> deliveryMilestones = [];
@@ -188,7 +190,7 @@ class _WebCreateContractState extends State<WebCreateContract>
             SizedBox(height: 10),
             CommodityDropdown(
               isForAppBar: false,
-              onCommoditySelected: (commodity,name) {
+              onCommoditySelected: (commodity, name) {
                 setState(() {
                   selectedCommodityId = int.parse(commodity.toString());
                   print(selectedCommodityId);
@@ -200,7 +202,7 @@ class _WebCreateContractState extends State<WebCreateContract>
               Visibility(
                 visible: context.watch<appBloc>().commId != 0,
                 child: GradeDropdown(
-                  onGradeSelectedId: (onGradeSelected,name) {
+                  onGradeSelectedId: (onGradeSelected, name) {
                     setState(() {
                       selectedQuality = onGradeSelected;
                     });
@@ -208,8 +210,7 @@ class _WebCreateContractState extends State<WebCreateContract>
                 ),
               ),
               SizedBox(height: 16),
-              PackingDropdown(
-                  onPackingSelected: (packingId, packingName) {
+              PackingDropdown(onPackingSelected: (packingId, packingName) {
                 setState(() {
                   _packingMetrics = packingName;
                 });
@@ -253,9 +254,9 @@ class _WebCreateContractState extends State<WebCreateContract>
             ],
             SizedBox(height: 20),
             WarehouseSearchDropdown(
-              onWarehouseSelected: (WareHouseId,name) {
+              onWarehouseSelected: (warehouse) {
                 setState(() {
-                  selectedWareHouseId = WareHouseId;
+                  selectedWareHouseId = warehouse.id;
                 });
               },
             ),
@@ -403,88 +404,88 @@ class _WebCreateContractState extends State<WebCreateContract>
             ),
     );
   }
-Widget buildTextField({
-  required TextEditingController controller,
-  required String title,
-  int maxLines = 1,
-  IconData? icon,
-  required bool isTextField,
-  String? Function(String?)? validator,
-}) {
-  return LayoutBuilder(
-    builder: (context, constraints) {
-      final screenWidth = MediaQuery.of(context).size.width;
 
-      // Define breakpoints for responsiveness
-      double fontSize;
-      double padding;
-      double iconSize;
+  Widget buildTextField({
+    required TextEditingController controller,
+    required String title,
+    int maxLines = 1,
+    IconData? icon,
+    required bool isTextField,
+    String? Function(String?)? validator,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenWidth = MediaQuery.of(context).size.width;
 
-      if (screenWidth < 600) {
-        // Mobile
-        fontSize = 14;
-        padding = 12;
-        iconSize = 24;
-      } else if (screenWidth < 1200) {
-        // Tablet
-        fontSize = 18;
-        padding = 16;
-        iconSize = 28;
-      } else {
-        // Desktop
-        fontSize = 22;
-        padding = 20;
-        iconSize = 32;
-      }
+        // Define breakpoints for responsiveness
+        double fontSize;
+        double padding;
+        double iconSize;
 
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              fontSize: fontSize,
-            ),
-          ),
-          SizedBox(height: 8),
-          TextFormField(
-            keyboardType:
-                isTextField ? TextInputType.name : TextInputType.phone,
-            controller: controller,
-            maxLines: maxLines,
-            inputFormatters:
-                isTextField ? [] : [FilteringTextInputFormatter.digitsOnly],
-            style: GoogleFonts.poppins(
-              fontSize: fontSize,
-            ),
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              filled: true,
-              fillColor: Colors.grey[200],
-              prefixIcon: icon != null
-                  ? Icon(
-                      icon,
-                      color: Colors.green,
-                      size: iconSize,
-                    )
-                  : null,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: padding,
-                vertical: 12,
+        if (screenWidth < 600) {
+          // Mobile
+          fontSize = 14;
+          padding = 12;
+          iconSize = 24;
+        } else if (screenWidth < 1200) {
+          // Tablet
+          fontSize = 18;
+          padding = 16;
+          iconSize = 28;
+        } else {
+          // Desktop
+          fontSize = 22;
+          padding = 20;
+          iconSize = 32;
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                fontSize: fontSize,
               ),
             ),
-            validator: validator,
-          ),
-          SizedBox(height: 16),
-        ],
-      );
-    },
-  );
-}
-
+            SizedBox(height: 8),
+            TextFormField(
+              keyboardType:
+                  isTextField ? TextInputType.name : TextInputType.phone,
+              controller: controller,
+              maxLines: maxLines,
+              inputFormatters:
+                  isTextField ? [] : [FilteringTextInputFormatter.digitsOnly],
+              style: GoogleFonts.poppins(
+                fontSize: fontSize,
+              ),
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                filled: true,
+                fillColor: Colors.grey[200],
+                prefixIcon: icon != null
+                    ? Icon(
+                        icon,
+                        color: Colors.green,
+                        size: iconSize,
+                      )
+                    : null,
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: padding,
+                  vertical: 12,
+                ),
+              ),
+              validator: validator,
+            ),
+            SizedBox(height: 16),
+          ],
+        );
+      },
+    );
+  }
 
   Widget buildDatePicker({
     required String title,
@@ -546,8 +547,7 @@ Widget buildTextField({
   }
 
   void _addDeliveryMilestone() {
-    if (selectedDate != null &&
-        quantityController.text.isNotEmpty ) {
+    if (selectedDate != null && quantityController.text.isNotEmpty) {
       setState(() {
         deliveryMilestones.add(DeliveryMilestone(
           date: selectedDate!,

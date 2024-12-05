@@ -3,11 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:itx/Commodities.dart/ComDropDown.dart';
+import 'package:itx/ContSerilizers/CntForwards.dart';
+import 'package:itx/ContSerilizers/CntFutures.dart';
+import 'package:itx/ContSerilizers/CntOptions.dart';
+import 'package:itx/ContSerilizers/CntSwap.dart';
 import 'package:itx/Contracts/CreateContract/Grade.dart';
 import 'package:itx/DropDowns.dart/CustomDropDown.dart';
 import 'package:itx/Contracts/CreateContract/PackingDropDown.dart';
 import 'package:itx/DropDowns.dart/WareHouseDropDown.dart';
 import 'package:itx/Serializers/CommParams.dart';
+import 'package:itx/Serializers/WareHouseUsers.dart';
 import 'package:itx/Temp/htmltest.dart';
 import 'package:itx/global/comms.dart';
 import 'package:itx/requests/HomepageRequest.dart';
@@ -44,6 +49,7 @@ class _CreateContractState extends State<CreateContract>
 
   late TabController _tabController;
   List<DeliveryMilestone> deliveryMilestones = [];
+  WarehouseNames? warehouseNames;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -256,7 +262,7 @@ class _CreateContractState extends State<CreateContract>
                       buildTextField(
                         controller: descriptionController,
                         title: 'Description (Additional info)',
-                        icon: Icons.description,
+                        icon: Icons.edit,
                         maxLines: 4,
                         isTextField: true,
                         validator: (value) {
@@ -272,10 +278,11 @@ class _CreateContractState extends State<CreateContract>
                     ],
                     SizedBox(height: 20),
                     WarehouseSearchDropdown(
-                      onWarehouseSelected: (WareHouseId, name) {
+                      onWarehouseSelected: (warehouse) {
                         setState(() {
-                          selectedWareHouseId = WareHouseId;
-                          selectedWareHouseName = name;
+                          warehouseNames = warehouse;
+                          selectedWareHouseId = warehouse.id;
+                          selectedWareHouseName = warehouse.name;
                         });
                       },
                     ),
@@ -584,9 +591,13 @@ class _CreateContractState extends State<CreateContract>
   }
 
   void _submitForm() async {
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    DateFormat formatter = DateFormat('yyyy-MM-dd');
+
+    String now  = formatter.format(DateTime.now());
     Map<int, int> tabToContractTypeId = {
       0: 1, // Futures
       1: 2, // Forwards
@@ -662,6 +673,178 @@ class _CreateContractState extends State<CreateContract>
     };
 
     try {
+      CntSwap cntSwap = CntSwap(
+   agreementDate: '15 March 2024',
+  
+  // Party A Details
+  partyAName: 'Global Investments Ltd',
+  partyAAddress: '123 Financial District, New York, NY 10001, USA',
+  partyAContactPerson: 'John Smith',
+  partyAEmail: 'john.smith@globalinvestments.com',
+  partyAPhone: '+1 (212) 555-7890',
+  
+  // Party B Details
+  partyBName: 'Pacific Trading Corporation',
+  partyBAddress: '456 Market Street, San Francisco, CA 94105, USA',
+  partyBContactPerson: 'Emily Chen',
+  partyBEmail: 'emily.chen@pacifictrading.com',
+  partyBPhone: '+1 (415) 555-2345',
+  
+  // Swap Contract Specifics
+  fixedRate: '3.5%',
+  floatingRate: 'LIBOR + 2.0%',
+  referenceRate: '3-Month LIBOR',
+  notionalAmountTerm: 'USD 5,000,000',
+  dayCountConvention: '30/360',
+  paymentDatesTerm: 'Quarterly on the 15th of March, June, September, and December',
+  paymentCurrency: 'United States Dollars (USD)',
+  commodities: 'Interest Rate Swap',
+  swapRate: '1.25 conversion value',
+  
+  // Dates
+  effectiveDateTerm: '1 April 2024',
+  terminationDateTerm: '31 March 2029',
+  earlyTerminationNotice: '30 calendar days written notice',
+  
+  // Default and Cure Details
+  noticeOfDefault: '10 business days',
+  curePeriod: '15 business days',
+  
+  // Signature and Witness Details
+  partyASignature: 'John Smith',
+  partyANameInWitness: 'John Smith',
+  partyATitle: 'Chief Financial Officer',
+  
+  partyBSignature: 'Emily Chen',
+  partyBNameInWitness: 'Emily Chen',
+  partyBTitle: 'Head of Trading',
+);
+
+
+
+  CntFutures cntFutures = CntFutures(
+    detailsOfTransaction: "Purchase of 100 metric tons of wheat",
+    commodity: selectedCommodityName,
+    contractCode: "WHT202412",
+    sellerDetails: "Seller Co. Ltd, Address XYZ",
+    buyerDetails: "Buyer Co. Ltd, Address ABC",
+    quantity: "100 metric tons",
+    quality: selectedGradeName,
+    deliveryLocation: warehouseNames!.location,
+    deliveryDate: deliveryEndDate.toString(),
+    price: "500 USD/ton",
+    settlementType: "Cash Settlement",
+    settlementDate: "2024-12-20",
+    initialMargin: "10,000 USD",
+    maintenanceMargin: "5,000 USD",
+    dailyPriceLimits: "±10%",
+    tradingHours: "09:00 AM - 03:00 PM",
+    expirationDate: "2024-12-20",
+    lastTradingDay: "2024-12-18",
+    noticeOfDefault: "Immediate notice via email",
+    curePeriod: "5 business days",
+    sellerName: currentUser.user_email,
+    sellerTitle: currentUser.user_type_name,
+    sellerDate: "2024-12-01",
+    sellerSign: "JohnDoeSignature",
+    buyerName: "Jane Smith",
+    buyerTitle: "CEO",
+    buyerDate: "2024-12-01",
+    buyerSign: "JaneSmithSignature",
+    witness1Name: "Alice Johnson",
+    witness1Title: "Legal Advisor",
+    witness1Date: "2024-12-01",
+    witness1Sign: "AliceJohnsonSignature",
+    witness2Name: "Bob Williams",
+    witness2Title: "Notary Public",
+    witness2Date: "2024-12-01",
+    witness2Sign: "BobWilliamsSignature",
+  );
+
+
+
+
+  CntOPtions cntOptions = CntOPtions(
+    contractTitle: "Dummy Options Contract",
+    contractNumber: "12345",
+    dateOfIssue:now ,
+    expirationDate: "2024-12-31",
+    optionWriterName: "John Doe",
+    optionWriterAddress: "123 Writer's Lane, Writerstown",
+    optionWriterPhone: "123-456-7890",
+    optionWriterEmail: "writer@example.com",
+    optionHolderName: "Jane Smith",
+    optionHolderAddress: "456 Holder's Avenue, Holderville",
+    optionHolderPhone: "987-654-3210",
+    optionHolderEmail: currentUser.user_email,
+    commodityDescription: descriptionController.text,
+    commodityQuality: selectedGradeName,
+    commodityQuantity: "100 ounces",
+    callOption: "Available",
+    putOption: "Not Available",
+    strikePrice: "2000 USD",
+    premium: "100 USD",
+    americanStyle: "Yes",
+    europeanStyle: "No",
+    physicalDelivery: "Yes",
+    cashSettlement: "No",
+    deliveryLocation: warehouseNames!.location,
+    deliveryStartDate: "2024-02-01",
+    deliveryEndDate: "2024-02-10",
+    settlementDate: "2024-02-15",
+    referencePriceSource: "Market Index",
+    notificationMethod: "Email",
+    noticePeriod: "3 days",
+    jurisdiction: "Kenya",
+    arbitration: "Yes",
+    arbitrationBody: "International Arbitration Body",
+    arbitrationLocation: "Nairobi",
+    noticeOfDefault: "7 days",
+    curePeriod: "7 days",
+    optionWriterSign: "John Doe's Signature",
+    optionWriterDate: "2024-01-01",
+    optionHolderSign: "Jane Smith's Signature",
+    optionHolderDate: "2024-01-01",
+    additionalTerms: "No additional terms.",
+  );
+
+
+  CntForwards cntForwards = CntForwards(
+    effectiveDay: "15",
+    effectiveMonth: "August",
+    effectiveYear: "23",
+    sellerName: "John Doe",
+    sellerAddress: "123 Main St, Nairobi, Kenya",
+    sellerContact: "john.doe@example.com",
+    buyerName: "Jane Smith",
+    buyerAddress: "456 Elm St, Mombasa, Kenya",
+    buyerContact: "jane.smith@example.com",
+    commodityType: "Coffee Beans",
+    commodityQuality: "Grade A",
+    commodityQuantity: "1000",
+    unitPrice: "200.50",
+    totalPrice: "200500.00",
+    currency: "KES",
+    paymentTerms: "30 days from delivery",
+    paymentMethod: "Bank Transfer",
+    deliveryDate: "DateTime(2024, 9, 1)",
+    deliveryLocation: warehouseNames!.location,
+    deliveryMethod: "Truck",
+    riskTitleTransfer: "Upon Delivery",
+    inspectionRights: "Buyer reserves the right to inspect the goods upon delivery",
+    qualityAssurance: "ISO Certified Quality Standards",
+    defaultEvents: "Non-payment or late delivery",
+    remedies: "Termination, damages, or specific performance",
+    noticeOfDefault: "10",
+    curePeriod: "15",
+    sellerSignature: "John Doe",
+    sellerSignatureName: "John Doe",
+    sellerSignatureTitle: "Director",
+    buyerSignature: "Jane Smith",
+    buyerSignatureName: "Jane Smith",
+    buyerSignatureTitle: "Purchasing Manager",
+  );
+
       optionsIds = {
         "contract_title": cntOptions.contractTitle,
         "contract_number": cntOptions.contractNumber,

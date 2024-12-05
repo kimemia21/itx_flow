@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'dart:developer';
 
 class WarehouseSearchDropdown extends StatefulWidget {
-  final Function(int, String ) onWarehouseSelected;
+  final Function(WarehouseNames warehouse ) onWarehouseSelected;
 
   const WarehouseSearchDropdown({Key? key, required this.onWarehouseSelected})
       : super(key: key);
@@ -113,7 +113,7 @@ class _WarehouseSearchDropdownState extends State<WarehouseSearchDropdown> {
     if (value != null) {
       log('Selected warehouse: ${value.username}');
       setState(() {
-        widget.onWarehouseSelected(value.id, value.name);
+        widget.onWarehouseSelected(value);
       });
       print(value.id);
     }
